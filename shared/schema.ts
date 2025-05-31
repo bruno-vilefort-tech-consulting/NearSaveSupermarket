@@ -134,7 +134,7 @@ export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
 
 // Extended types for API responses
-export type ProductWithCreator = Product & {
+export type ProductWithCreator = Omit<Product, 'createdBy'> & {
   createdBy: User;
 };
 

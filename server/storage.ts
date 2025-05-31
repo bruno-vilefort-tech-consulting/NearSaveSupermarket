@@ -68,7 +68,17 @@ export class DatabaseStorage implements IStorage {
 
   // Product operations
   async getProducts(filters?: { category?: string; isActive?: boolean }): Promise<ProductWithCreator[]> {
-    let query = db
+    let conditions = [];
+    
+    if (filters?.category) {
+      conditions.push(eq(products.category, filters.category));
+    }
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(products.isActive, filters.isActive ? 1 : 0));
+    }
+
+    const query = db
       .select({
         id: products.id,
         name: products.name,
@@ -87,15 +97,8 @@ export class DatabaseStorage implements IStorage {
       })
       .from(products)
       .innerJoin(users, eq(products.createdBy, users.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(products.createdAt));
-
-    if (filters?.category) {
-      query = query.where(eq(products.category, filters.category));
-    }
-    
-    if (filters?.isActive !== undefined) {
-      query = query.where(eq(products.isActive, filters.isActive ? 1 : 0));
-    }
 
     const results = await query;
     
@@ -110,10 +113,9 @@ export class DatabaseStorage implements IStorage {
       expirationDate: result.expirationDate,
       imageUrl: result.imageUrl,
       isActive: result.isActive,
-      createdBy: result.createdBy,
+      createdBy: result.createdByUser,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
-      createdBy: result.createdByUser,
     }));
   }
 
@@ -130,7 +132,6 @@ export class DatabaseStorage implements IStorage {
         expirationDate: products.expirationDate,
         imageUrl: products.imageUrl,
         isActive: products.isActive,
-        createdBy: products.createdBy,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
         createdByUser: users,
@@ -152,7 +153,6 @@ export class DatabaseStorage implements IStorage {
       expirationDate: result.expirationDate,
       imageUrl: result.imageUrl,
       isActive: result.isActive,
-      createdBy: result.createdBy,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
       createdBy: result.createdByUser,
@@ -186,14 +186,11 @@ export class DatabaseStorage implements IStorage {
 
   // Order operations
   async getOrders(filters?: { status?: string }): Promise<OrderWithItems[]> {
-    let query = db
+    const query = db
       .select()
       .from(orders)
+      .where(filters?.status ? eq(orders.status, filters.status) : undefined)
       .orderBy(desc(orders.createdAt));
-
-    if (filters?.status) {
-      query = query.where(eq(orders.status, filters.status));
-    }
 
     const orderResults = await query;
     

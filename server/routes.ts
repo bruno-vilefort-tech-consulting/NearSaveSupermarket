@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema } from "@shared/schema";
@@ -22,7 +23,7 @@ const upload = multer({
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error("Only image files are allowed"), false);
+      cb(new Error("Only image files are allowed"));
     }
   },
 });
@@ -32,7 +33,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Serve uploaded files
-  app.use("/uploads", require("express").static(uploadDir));
+  app.use("/uploads", express.static(uploadDir));
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
