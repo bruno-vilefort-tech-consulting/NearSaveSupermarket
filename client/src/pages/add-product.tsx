@@ -180,9 +180,9 @@ export default function AddProduct() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Product Name</FormLabel>
+                        <FormLabel>Nome do Produto</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Fresh Bread Loaf" {...field} />
+                          <Input placeholder="ex.: Pão Francês Fresco" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -194,19 +194,19 @@ export default function AddProduct() {
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Category</FormLabel>
+                        <FormLabel>Categoria</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
+                              <SelectValue placeholder="Selecione a categoria" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Bakery">Bakery</SelectItem>
-                            <SelectItem value="Dairy">Dairy</SelectItem>
-                            <SelectItem value="Meat & Poultry">Meat & Poultry</SelectItem>
-                            <SelectItem value="Produce">Produce</SelectItem>
-                            <SelectItem value="Deli">Deli</SelectItem>
+                            <SelectItem value="Bakery">Padaria</SelectItem>
+                            <SelectItem value="Dairy">Laticínios</SelectItem>
+                            <SelectItem value="Meat & Poultry">Carnes e Aves</SelectItem>
+                            <SelectItem value="Produce">Hortifruti</SelectItem>
+                            <SelectItem value="Deli">Frios</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -219,9 +219,9 @@ export default function AddProduct() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Descrição</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Brief product description" {...field} />
+                          <Textarea placeholder="Breve descrição do produto" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -234,14 +234,14 @@ export default function AddProduct() {
                       name="originalPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Original Price</FormLabel>
+                          <FormLabel>Preço Original</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <span className="absolute left-3 top-3 text-gray-500">$</span>
+                              <span className="absolute left-3 top-3 text-gray-500">R$</span>
                               <Input 
                                 type="number" 
                                 step="0.01" 
-                                placeholder="0.00" 
+                                placeholder="0,00" 
                                 className="pl-8"
                                 {...field} 
                               />
@@ -257,14 +257,14 @@ export default function AddProduct() {
                       name="discountPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Discount Price</FormLabel>
+                          <FormLabel>Preço com Desconto</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <span className="absolute left-3 top-3 text-gray-500">$</span>
+                              <span className="absolute left-3 top-3 text-gray-500">R$</span>
                               <Input 
                                 type="number" 
                                 step="0.01" 
-                                placeholder="0.00" 
+                                placeholder="0,00" 
                                 className="pl-8"
                                 {...field} 
                               />
@@ -282,7 +282,7 @@ export default function AddProduct() {
                       name="expirationDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Expiration Date</FormLabel>
+                          <FormLabel>Data de Vencimento</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
                           </FormControl>
@@ -296,7 +296,7 @@ export default function AddProduct() {
                       name="quantity"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Quantity</FormLabel>
+                          <FormLabel>Quantidade</FormLabel>
                           <FormControl>
                             <Input type="number" placeholder="0" min="1" {...field} />
                           </FormControl>
@@ -313,14 +313,14 @@ export default function AddProduct() {
                       className="flex-1"
                       onClick={() => navigate("/")}
                     >
-                      Cancel
+                      Cancelar
                     </Button>
                     <Button 
                       type="submit" 
                       className="flex-1 bg-primary-600 hover:bg-primary-700"
                       disabled={createProductMutation.isPending}
                     >
-                      {createProductMutation.isPending ? "Adding..." : "Add Product"}
+                      {createProductMutation.isPending ? "Adicionando..." : "Adicionar Produto"}
                     </Button>
                   </div>
                 </form>

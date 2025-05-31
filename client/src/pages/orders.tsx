@@ -7,11 +7,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const statusFilters = [
-  { value: "", label: "All Orders" },
-  { value: "pending", label: "Pending" },
-  { value: "prepared", label: "Prepared" },
-  { value: "shipped", label: "Shipped" },
-  { value: "picked_up", label: "Picked Up" },
+  { value: "", label: "Todos os Pedidos" },
+  { value: "pending", label: "Pendente" },
+  { value: "prepared", label: "Preparado" },
+  { value: "shipped", label: "Enviado" },
+  { value: "picked_up", label: "Retirado" },
 ];
 
 export default function Orders() {

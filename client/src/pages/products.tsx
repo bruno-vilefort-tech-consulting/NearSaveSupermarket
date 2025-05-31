@@ -8,14 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 
-const categories = ["All", "Bakery", "Dairy", "Meat & Poultry", "Produce", "Deli"];
+const categories = ["Todos", "Padaria", "Laticínios", "Carnes e Aves", "Hortifruti", "Frios"];
 
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["/api/products", selectedCategory === "All" ? undefined : selectedCategory],
+    queryKey: ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
   });
 
   const filteredProducts = products?.filter((product: any) =>
@@ -36,7 +36,7 @@ export default function Products() {
                 <div className="relative">
                   <Search className="absolute left-3 top-3 text-gray-400" size={20} />
                   <Input
-                    placeholder="Search products..."
+                    placeholder="Buscar produtos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -68,7 +68,7 @@ export default function Products() {
           <div className="space-y-3">
             {isLoading ? (
               <div className="text-center py-8">
-                <p className="text-gray-500">Loading products...</p>
+                <p className="text-gray-500">Carregando produtos...</p>
               </div>
             ) : filteredProducts && filteredProducts.length > 0 ? (
               filteredProducts.map((product: any) => (
@@ -77,9 +77,9 @@ export default function Products() {
             ) : (
               <Card className="shadow-sm">
                 <CardContent className="p-8 text-center">
-                  <p className="text-gray-500">No products found</p>
+                  <p className="text-gray-500">Nenhum produto encontrado</p>
                   <p className="text-sm text-gray-400 mt-1">
-                    Try adjusting your search or filter criteria
+                    Tente ajustar sua busca ou critérios de filtro
                   </p>
                 </CardContent>
               </Card>
