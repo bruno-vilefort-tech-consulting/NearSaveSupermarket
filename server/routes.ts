@@ -92,17 +92,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       
+      // Debug: Log what we're receiving
+      console.log("Form body:", req.body);
+      console.log("File:", req.file);
+      
       // Parse and validate product data from form submission
-      const productData = insertProductSchema.parse({
+      const rawData = {
         name: req.body.name,
         description: req.body.description || undefined,
         category: req.body.category,
         originalPrice: req.body.originalPrice,
         discountPrice: req.body.discountPrice,
-        quantity: parseInt(req.body.quantity),
+        quantity: req.body.quantity ? parseInt(req.body.quantity) : undefined,
         expirationDate: req.body.expirationDate,
         isActive: 1,
-      });
+      };
+      
+      console.log("Parsed data:", rawData);
+      
+      const productData = insertProductSchema.parse(rawData);
       
       // Handle image upload
       let imageUrl = null;
