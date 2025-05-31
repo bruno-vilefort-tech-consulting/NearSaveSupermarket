@@ -49,8 +49,8 @@ export function ProductCard({ product }: ProductCardProps) {
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Product deleted successfully",
+        title: "Sucesso",
+        description: "Produto excluído com sucesso",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -59,8 +59,8 @@ export function ProductCard({ product }: ProductCardProps) {
     onError: (error) => {
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          title: "Não autorizado",
+          description: "Você foi desconectado. Fazendo login novamente...",
           variant: "destructive",
         });
         setTimeout(() => {
@@ -69,8 +69,8 @@ export function ProductCard({ product }: ProductCardProps) {
         return;
       }
       toast({
-        title: "Error",
-        description: "Failed to delete product. Please try again.",
+        title: "Erro",
+        description: "Falha ao excluir produto. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -86,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
       month: 'short',
       day: 'numeric'
     });
@@ -127,10 +127,10 @@ export function ProductCard({ product }: ProductCardProps) {
                   <div className="flex items-center space-x-4 mt-3">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg font-bold text-primary-600">
-                        ${parseFloat(product.discountPrice).toFixed(2)}
+                        R$ {parseFloat(product.discountPrice).toFixed(2).replace('.', ',')}
                       </span>
                       <span className="text-sm text-gray-500 line-through">
-                        ${parseFloat(product.originalPrice).toFixed(2)}
+                        R$ {parseFloat(product.originalPrice).toFixed(2).replace('.', ',')}
                       </span>
                     </div>
                     <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -148,14 +148,14 @@ export function ProductCard({ product }: ProductCardProps) {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>
                       <Edit size={16} className="mr-2" />
-                      Edit Product
+                      Editar Produto
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => setShowDeleteDialog(true)}
                       className="text-red-600"
                     >
                       <Trash2 size={16} className="mr-2" />
-                      Delete Product
+                      Excluir Produto
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -165,11 +165,11 @@ export function ProductCard({ product }: ProductCardProps) {
                 <div className="flex items-center space-x-4 text-sm text-gray-600">
                   <span className="flex items-center">
                     <Calendar className="text-gray-400 mr-1" size={14} />
-                    Expires: {formatDate(product.expirationDate)}
+                    Vence: {formatDate(product.expirationDate)}
                   </span>
                   <span className="flex items-center">
                     <Package className="text-gray-400 mr-1" size={14} />
-                    Qty: {product.quantity}
+                    Qtd: {product.quantity}
                   </span>
                 </div>
                 
@@ -183,19 +183,19 @@ export function ProductCard({ product }: ProductCardProps) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Product</AlertDialogTitle>
+            <AlertDialogTitle>Excluir Produto</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{product.name}"? This action cannot be undone.
+              Tem certeza que deseja excluir "{product.name}"? Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
               disabled={deleteProductMutation.isPending}
             >
-              {deleteProductMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteProductMutation.isPending ? "Excluindo..." : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

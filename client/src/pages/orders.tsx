@@ -54,7 +54,7 @@ export default function Orders() {
           <div className="space-y-3">
             {isLoading ? (
               <div className="text-center py-8">
-                <p className="text-gray-500">Loading orders...</p>
+                <p className="text-gray-500">Carregando pedidos...</p>
               </div>
             ) : orders && orders.length > 0 ? (
               orders.map((order: any) => (
@@ -63,11 +63,11 @@ export default function Orders() {
             ) : (
               <Card className="shadow-sm">
                 <CardContent className="p-8 text-center">
-                  <p className="text-gray-500">No orders found</p>
+                  <p className="text-gray-500">Nenhum pedido encontrado</p>
                   <p className="text-sm text-gray-400 mt-1">
                     {selectedStatus 
-                      ? `No orders with status "${selectedStatus}"`
-                      : "No orders have been placed yet"
+                      ? `Nenhum pedido com status "${selectedStatus}"`
+                      : "Nenhum pedido foi feito ainda"
                     }
                   </p>
                 </CardContent>
