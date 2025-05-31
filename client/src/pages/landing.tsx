@@ -17,13 +17,13 @@ export default function Landing() {
                 <Store className="text-white text-2xl" size={32} />
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">FreshSaver</h1>
-              <p className="text-gray-600">Staff Login Portal</p>
+              <p className="text-gray-600">Portal de Login da Equipe</p>
             </div>
             
             <div className="space-y-6">
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-4">
-                  Sign in with your Replit account to access the staff dashboard
+                  Entre com sua conta Replit para acessar o painel da equipe
                 </p>
               </div>
               
@@ -32,12 +32,12 @@ export default function Landing() {
                 className="w-full bg-primary-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-primary-700 focus:ring-4 focus:ring-primary-200 transition-all"
                 size="lg"
               >
-                Sign In with Replit
+                Entrar com Replit
               </Button>
               
               <div className="text-center">
                 <p className="text-xs text-gray-500">
-                  Secure authentication powered by Replit
+                  Autenticação segura fornecida pelo Replit
                 </p>
               </div>
             </div>

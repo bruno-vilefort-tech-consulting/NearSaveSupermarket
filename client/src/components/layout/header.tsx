@@ -25,7 +25,7 @@ export function Header() {
           </div>
           <div>
             <h1 className="font-semibold text-gray-900">FreshSaver</h1>
-            <p className="text-xs text-gray-500">Staff Dashboard</p>
+            <p className="text-xs text-gray-500">Painel da Equipe</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">

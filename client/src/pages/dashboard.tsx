@@ -25,7 +25,7 @@ export default function Dashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Active Products</p>
+                    <p className="text-sm text-gray-600">Produtos Ativos</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {statsLoading ? "..." : stats?.activeProducts || 0}
                     </p>
@@ -41,7 +41,7 @@ export default function Dashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Pending Orders</p>
+                    <p className="text-sm text-gray-600">Pedidos Pendentes</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {statsLoading ? "..." : stats?.pendingOrders || 0}
                     </p>
@@ -57,7 +57,7 @@ export default function Dashboard() {
           {/* Quick Actions */}
           <Card className="shadow-sm">
             <CardContent className="p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Quick Actions</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">Ações Rápidas</h2>
               <div className="space-y-3">
                 <Button
                   onClick={() => navigate("/add-product")}
@@ -69,8 +69,8 @@ export default function Dashboard() {
                       <Plus className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Add Discounted Product</p>
-                      <p className="text-sm text-gray-600">Add near-expiration items</p>
+                      <p className="font-medium text-gray-900">Adicionar Produto com Desconto</p>
+                      <p className="text-sm text-gray-600">Adicionar itens próximos ao vencimento</p>
                     </div>
                   </div>
                 </Button>
@@ -85,8 +85,8 @@ export default function Dashboard() {
                       <List className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Manage Products</p>
-                      <p className="text-sm text-gray-600">View and edit product list</p>
+                      <p className="font-medium text-gray-900">Gerenciar Produtos</p>
+                      <p className="text-sm text-gray-600">Visualizar e editar lista de produtos</p>
                     </div>
                   </div>
                 </Button>
@@ -97,15 +97,15 @@ export default function Dashboard() {
           {/* Recent Activity */}
           <Card className="shadow-sm">
             <CardContent className="p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Recent Activity</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">Atividade Recente</h2>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                     <Check className="text-green-600" size={16} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">System initialized</p>
-                    <p className="text-xs text-gray-500">Ready to manage products and orders</p>
+                    <p className="text-sm font-medium text-gray-900">Sistema inicializado</p>
+                    <p className="text-xs text-gray-500">Pronto para gerenciar produtos e pedidos</p>
                   </div>
                 </div>
               </div>

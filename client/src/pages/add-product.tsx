@@ -118,8 +118,8 @@ export default function AddProduct() {
         <div className="p-4">
           <Card className="shadow-sm">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">Add Discounted Product</h2>
-              <p className="text-sm text-gray-600 mt-1">Add near-expiration items with discount pricing</p>
+              <h2 className="text-xl font-semibold text-gray-900">Adicionar Produto com Desconto</h2>
+              <p className="text-sm text-gray-600 mt-1">Adicionar itens próximos ao vencimento com preço promocional</p>
             </div>
             
             <CardContent className="p-6">
@@ -127,12 +127,12 @@ export default function AddProduct() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   {/* Photo Upload */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">Product Photo</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Foto do Produto</label>
                     {imagePreview ? (
                       <div className="relative">
                         <img
                           src={imagePreview}
-                          alt="Product preview"
+                          alt="Pré-visualização do produto"
                           className="w-full h-48 object-cover rounded-xl"
                         />
                         <Button
@@ -145,14 +145,14 @@ export default function AddProduct() {
                           }}
                           className="absolute top-2 right-2"
                         >
-                          Remove
+                          Remover
                         </Button>
                       </div>
                     ) : (
                       <div className="flex space-x-3">
                         <label className="flex-1 p-6 border-2 border-dashed border-gray-300 rounded-xl text-center hover:border-primary-500 transition-colors cursor-pointer">
                           <Camera className="text-gray-400 text-2xl mb-2 mx-auto" size={32} />
-                          <p className="text-sm text-gray-600">Take Photo</p>
+                          <p className="text-sm text-gray-600">Tirar Foto</p>
                           <input
                             type="file"
                             accept="image/*"
@@ -163,7 +163,7 @@ export default function AddProduct() {
                         </label>
                         <label className="flex-1 p-6 border-2 border-dashed border-gray-300 rounded-xl text-center hover:border-primary-500 transition-colors cursor-pointer">
                           <Upload className="text-gray-400 text-2xl mb-2 mx-auto" size={32} />
-                          <p className="text-sm text-gray-600">Upload Image</p>
+                          <p className="text-sm text-gray-600">Enviar Imagem</p>
                           <input
                             type="file"
                             accept="image/*"

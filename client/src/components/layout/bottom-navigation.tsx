@@ -13,21 +13,21 @@ export function BottomNavigation() {
   const navItems = [
     {
       id: "dashboard",
-      label: "Dashboard",
+      label: "Início",
       icon: Home,
       path: "/",
       isActive: location === "/",
     },
     {
       id: "products",
-      label: "Products",
+      label: "Produtos",
       icon: Package,
       path: "/products",
       isActive: location === "/products",
     },
     {
       id: "add",
-      label: "Add",
+      label: "Adicionar",
       icon: Plus,
       path: "/add-product",
       isActive: location === "/add-product",
@@ -35,7 +35,7 @@ export function BottomNavigation() {
     },
     {
       id: "orders",
-      label: "Orders",
+      label: "Pedidos",
       icon: ShoppingCart,
       path: "/orders",
       isActive: location === "/orders",
@@ -43,7 +43,7 @@ export function BottomNavigation() {
     },
     {
       id: "profile",
-      label: "Profile",
+      label: "Perfil",
       icon: User,
       path: "/profile",
       isActive: location === "/profile",
