@@ -92,8 +92,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       
-      // Parse and validate product data
-      const productData = insertProductSchema.parse(req.body);
+      // Parse and validate product data from form submission
+      const productData = insertProductSchema.parse({
+        name: req.body.name,
+        description: req.body.description || undefined,
+        category: req.body.category,
+        originalPrice: req.body.originalPrice,
+        discountPrice: req.body.discountPrice,
+        quantity: parseInt(req.body.quantity),
+        expirationDate: req.body.expirationDate,
+        isActive: 1,
+      });
       
       // Handle image upload
       let imageUrl = null;
@@ -130,7 +139,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid product ID" });
       }
 
-      const productData = insertProductSchema.partial().parse(req.body);
+      // Parse form data for updates
+      const updateData: any = {};
+      if (req.body.name) updateData.name = req.body.name;
+      if (req.body.description) updateData.description = req.body.description;
+      if (req.body.category) updateData.category = req.body.category;
+      if (req.body.originalPrice) updateData.originalPrice = req.body.originalPrice;
+      if (req.body.discountPrice) updateData.discountPrice = req.body.discountPrice;
+      if (req.body.quantity) updateData.quantity = parseInt(req.body.quantity);
+      if (req.body.expirationDate) updateData.expirationDate = req.body.expirationDate;
+
+      const productData = insertProductSchema.partial().parse(updateData);
       
       // Handle image upload
       if (req.file) {
