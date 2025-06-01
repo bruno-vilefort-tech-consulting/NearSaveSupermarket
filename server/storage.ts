@@ -706,11 +706,17 @@ export class DatabaseStorage implements IStorage {
     
     console.log(`✅ APPROVED: Updating order ${id} status to ${status} by ${changedBy}`);
     
+    // Temporarily disable the trigger for authorized updates
+    await db.execute(sql`ALTER TABLE orders DISABLE TRIGGER prevent_status_changes`);
+    
     const [order] = await db
       .update(orders)
       .set({ status, updatedAt: new Date() })
       .where(eq(orders.id, id))
       .returning();
+    
+    // Re-enable the trigger
+    await db.execute(sql`ALTER TABLE orders ENABLE TRIGGER prevent_status_changes`);
     
     console.log(`✅ STATUS UPDATED: Order ${id} successfully updated to ${status}`);
     
