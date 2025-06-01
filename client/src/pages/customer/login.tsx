@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShoppingCart, Store, Clock, Shield, User, Phone } from "lucide-react";
+import { ShoppingCart, Store, Clock, Shield, User, Phone, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function CustomerLogin() {
+export default function Login() {
   const [, navigate] = useLocation();
+  const [userType, setUserType] = useState<"customer" | "staff" | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -16,7 +17,11 @@ export default function CustomerLogin() {
   });
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleStaffLogin = () => {
+    window.location.href = "/api/login";
+  };
+
+  const handleCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.phone) {
@@ -28,7 +33,6 @@ export default function CustomerLogin() {
       return;
     }
 
-    // Salvar dados do cliente no localStorage
     localStorage.setItem('customerInfo', JSON.stringify(formData));
     
     toast({
@@ -36,7 +40,6 @@ export default function CustomerLogin() {
       description: `Bem-vindo, ${formData.name}!`,
     });
 
-    // Redirecionar para o app do cliente
     navigate("/");
   };
 
@@ -59,115 +62,181 @@ export default function CustomerLogin() {
           <Card className="shadow-lg">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl text-gray-900">
-                Bem-vindo Cliente
+                {!userType ? "Como você deseja acessar?" : 
+                 userType === "staff" ? "Área do Supermercado" : "Área do Cliente"}
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                Faça login para encontrar produtos com desconto
+                {!userType ? "Escolha seu perfil para continuar" :
+                 userType === "staff" ? "Acesse o painel administrativo" : "Faça login para encontrar produtos com desconto"}
               </p>
             </CardHeader>
             
             <CardContent className="space-y-6">
-              {/* Benefits */}
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Store className="text-green-600 mt-1" size={20} />
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Supermercados Parceiros</h3>
-                    <p className="text-sm text-gray-600">
-                      Produtos de supermercados confiáveis da sua região
-                    </p>
+              {!userType ? (
+                /* User Type Selection */
+                <div className="space-y-4">
+                  <Button
+                    onClick={() => setUserType("customer")}
+                    className="w-full h-20 bg-green-600 hover:bg-green-700 text-white flex flex-col items-center justify-center space-y-2"
+                  >
+                    <ShoppingCart size={24} />
+                    <div className="text-center">
+                      <div className="font-semibold">Sou Cliente</div>
+                      <div className="text-sm opacity-90">Quero comprar produtos com desconto</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    onClick={() => setUserType("staff")}
+                    variant="outline"
+                    className="w-full h-20 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 flex flex-col items-center justify-center space-y-2"
+                  >
+                    <Settings size={24} />
+                    <div className="text-center">
+                      <div className="font-semibold">Sou do Supermercado</div>
+                      <div className="text-sm opacity-75">Gerenciar produtos e pedidos</div>
+                    </div>
+                  </Button>
+                </div>
+              ) : userType === "staff" ? (
+                /* Staff Login */
+                <div className="space-y-4 text-center">
+                  <div className="flex items-center justify-center space-x-2 text-blue-600 mb-4">
+                    <Settings size={24} />
+                    <span className="text-lg font-semibold">Área do Supermercado</span>
                   </div>
+                  
+                  <p className="text-gray-600 mb-6">
+                    Acesse o painel administrativo para gerenciar produtos, pedidos e estatísticas.
+                  </p>
+                  
+                  <Button
+                    onClick={handleStaffLogin}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                  >
+                    Fazer Login com Replit
+                  </Button>
+                  
+                  <Button
+                    onClick={() => setUserType(null)}
+                    variant="ghost"
+                    className="w-full text-gray-600"
+                  >
+                    ← Voltar
+                  </Button>
                 </div>
-                
-                <div className="flex items-start space-x-3">
-                  <Clock className="text-blue-600 mt-1" size={20} />
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Economia Real</h3>
-                    <p className="text-sm text-gray-600">
-                      Até 50% de desconto em produtos próximos ao vencimento
-                    </p>
+              ) : (
+                /* Customer Login Form */
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center space-x-2 text-green-600 mb-4">
+                    <ShoppingCart size={24} />
+                    <span className="text-lg font-semibold">Área do Cliente</span>
                   </div>
-                </div>
-                
-                <div className="flex items-start space-x-3">
-                  <Shield className="text-purple-600 mt-1" size={20} />
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Seguro e Confiável</h3>
-                    <p className="text-sm text-gray-600">
-                      Produtos verificados com qualidade garantida
-                    </p>
+
+                  {/* Benefits */}
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-start space-x-3">
+                      <Store className="text-green-600 mt-1" size={18} />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-sm">Supermercados Parceiros</h3>
+                        <p className="text-xs text-gray-600">
+                          Produtos de supermercados confiáveis da sua região
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-3">
+                      <Clock className="text-blue-600 mt-1" size={18} />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-sm">Economia Real</h3>
+                        <p className="text-xs text-gray-600">
+                          Até 50% de desconto em produtos próximos ao vencimento
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start space-x-3">
+                      <Shield className="text-purple-600 mt-1" size={18} />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-sm">Seguro e Confiável</h3>
+                        <p className="text-xs text-gray-600">
+                          Produtos verificados com qualidade garantida
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Login Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name" className="flex items-center space-x-2">
-                    <User size={16} />
-                    <span>Nome Completo *</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="Seu nome"
-                    required
-                  />
+                  {/* Login Form */}
+                  <form onSubmit={handleCustomerSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="flex items-center space-x-2">
+                        <User size={16} />
+                        <span>Nome completo *</span>
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Digite seu nome completo"
+                        className="w-full"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="flex items-center space-x-2">
+                        <Phone size={16} />
+                        <span>Telefone *</span>
+                      </Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                        placeholder="(11) 99999-9999"
+                        className="w-full"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-gray-700">
+                        Email (opcional)
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="seu@email.com"
+                        className="w-full"
+                      />
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
+                    >
+                      Entrar como Cliente
+                    </Button>
+                  </form>
+                  
+                  <Button
+                    onClick={() => setUserType(null)}
+                    variant="ghost"
+                    className="w-full text-gray-600"
+                  >
+                    ← Voltar
+                  </Button>
                 </div>
-                
-                <div>
-                  <Label htmlFor="phone" className="flex items-center space-x-2">
-                    <Phone size={16} />
-                    <span>Telefone *</span>
-                  </Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    placeholder="(11) 99999-9999"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="email">Email (opcional)</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    placeholder="seu@email.com"
-                  />
-                </div>
-
-                <Button 
-                  type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg"
-                  size="lg"
-                >
-                  Entrar no App
-                </Button>
-                
-                <p className="text-xs text-gray-500 text-center">
-                  Ao entrar, você concorda com nossos termos de uso e política de privacidade
-                </p>
-              </form>
-
-              {/* Info */}
-              <div className="bg-blue-50 rounded-lg p-4 text-center">
-                <p className="text-sm text-blue-800">
-                  <strong>Novo por aqui?</strong> Não se preocupe! Ao fazer login, sua conta será criada automaticamente.
-                </p>
-              </div>
+              )}
             </CardContent>
           </Card>
 
           {/* Footer */}
           <div className="text-center mt-8">
-            <Link href="/admin">
+            <Link href="/">
               <Button variant="ghost" className="text-gray-600">
-                ← Área administrativa
+                ← Voltar ao início
               </Button>
             </Link>
           </div>

@@ -15,35 +15,35 @@ import Orders from "@/pages/orders";
 import CustomerHome from "@/pages/customer/home";
 import CustomerCart from "@/pages/customer/cart";
 import CustomerOrders from "@/pages/customer/orders";
-import CustomerLogin from "@/pages/customer/login";
+import Login from "@/pages/customer/login";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <Switch>
-      {/* Customer App Routes (Public) - Root level */}
+      {/* Unified Login */}
+      <Route path="/login" component={Login} />
+      
+      {/* Customer App Routes */}
       <Route path="/" component={CustomerHome} />
       <Route path="/cart" component={CustomerCart} />
-      <Route path="/orders" component={CustomerOrders} />
-      <Route path="/login" component={CustomerLogin} />
+      <Route path="/customer-orders" component={CustomerOrders} />
       
-      {/* Admin App Routes - Require authentication */}
+      {/* Staff App Routes - Require authentication */}
       {isLoading || !isAuthenticated ? (
         <>
-          <Route path="/admin" component={Landing} />
-          <Route path="/admin/dashboard" component={Landing} />
-          <Route path="/admin/products" component={Landing} />
-          <Route path="/admin/add-product" component={Landing} />
-          <Route path="/admin/orders" component={Landing} />
+          <Route path="/dashboard" component={Landing} />
+          <Route path="/products" component={Landing} />
+          <Route path="/add-product" component={Landing} />
+          <Route path="/orders" component={Landing} />
         </>
       ) : (
         <>
-          <Route path="/admin" component={Dashboard} />
-          <Route path="/admin/dashboard" component={Dashboard} />
-          <Route path="/admin/products" component={Products} />
-          <Route path="/admin/add-product" component={AddProduct} />
-          <Route path="/admin/orders" component={Orders} />
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/products" component={Products} />
+          <Route path="/add-product" component={AddProduct} />
+          <Route path="/orders" component={Orders} />
         </>
       )}
       <Route component={NotFound} />
