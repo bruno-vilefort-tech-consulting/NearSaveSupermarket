@@ -591,29 +591,43 @@ export class DatabaseStorage implements IStorage {
     return order;
   }
 
+  private protectionMap = new Map<number, NodeJS.Timeout>();
+
   private async startOrderProtection(orderId: number): Promise<void> {
-    // Monitorar o pedido por 2 minutos para reverter mudanças automáticas
-    setTimeout(async () => {
-      try {
-        const [currentOrder] = await db.select().from(orders).where(eq(orders.id, orderId));
-        
-        if (currentOrder && currentOrder.status !== 'pending') {
-          console.log(`🛡️ PROTECTION: Reverting automatic status change for order ${orderId} from ${currentOrder.status} back to pending`);
+    // Verificar múltiplas vezes em intervalos diferentes
+    const checkTimes = [10000, 30000, 60000, 120000, 300000]; // 10s, 30s, 1min, 2min, 5min
+    
+    checkTimes.forEach((delay, index) => {
+      const timeoutId = setTimeout(async () => {
+        try {
+          const [currentOrder] = await db.select().from(orders).where(eq(orders.id, orderId));
           
-          await db
-            .update(orders)
-            .set({ 
-              status: 'pending',
-              updatedAt: currentOrder.createdAt // Restaurar timestamp original
-            })
-            .where(eq(orders.id, orderId));
+          if (currentOrder && currentOrder.status !== 'pending') {
+            console.log(`🛡️ PROTECTION (check ${index + 1}): Reverting automatic status change for order ${orderId} from ${currentOrder.status} back to pending`);
             
-          console.log(`✅ PROTECTION: Order ${orderId} status reverted to pending`);
+            await db
+              .update(orders)
+              .set({ 
+                status: 'pending',
+                updatedAt: currentOrder.createdAt // Restaurar timestamp original
+              })
+              .where(eq(orders.id, orderId));
+              
+            console.log(`✅ PROTECTION: Order ${orderId} status reverted to pending`);
+          }
+        } catch (error) {
+          console.error(`❌ PROTECTION ERROR: Failed to protect order ${orderId}:`, error);
         }
-      } catch (error) {
-        console.error(`❌ PROTECTION ERROR: Failed to protect order ${orderId}:`, error);
-      }
-    }, 30000); // Verificar após 30 segundos
+        
+        // Limpar o timeout do mapa após execução
+        if (index === checkTimes.length - 1) {
+          this.protectionMap.delete(orderId);
+        }
+      }, delay);
+      
+      // Armazenar o timeout no mapa para possível limpeza
+      this.protectionMap.set(orderId, timeoutId);
+    });
   }
 
   // Helper method to calculate eco-friendly rewards
