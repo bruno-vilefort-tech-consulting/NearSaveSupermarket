@@ -672,6 +672,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
+    // SECURITY: Only allow manual updates by staff
+    if (!changedBy.startsWith('STAFF_')) {
+      console.log(`BLOCKED: Attempted automatic status change for order ${id} by ${changedBy}`);
+      throw new Error('Order status can only be updated manually by staff');
+    }
+    
     // Get current order status for logging
     const [currentOrder] = await db
       .select({ id: orders.id, status: orders.status })
@@ -686,10 +692,6 @@ export class DatabaseStorage implements IStorage {
         INSERT INTO order_status_log (order_id, old_status, new_status, changed_by)
         VALUES (${id}, ${currentOrder.status}, ${status}, ${changedBy})
       `);
-      
-      // Get stack trace to identify where this call came from
-      const stack = new Error().stack;
-      console.log('Stack trace for status change:', stack);
     }
     
     const [order] = await db
