@@ -11,11 +11,22 @@ import Products from "@/pages/products";
 import AddProduct from "@/pages/add-product";
 import Orders from "@/pages/orders";
 
+// Customer App Pages
+import CustomerHome from "@/pages/customer/home";
+import CustomerCart from "@/pages/customer/cart";
+import CustomerOrders from "@/pages/customer/orders";
+
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <Switch>
+      {/* Customer App Routes - Available without authentication */}
+      <Route path="/customer" component={CustomerHome} />
+      <Route path="/customer/cart" component={CustomerCart} />
+      <Route path="/customer/orders" component={CustomerOrders} />
+      
+      {/* Staff App Routes - Require authentication */}
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
