@@ -26,6 +26,7 @@ import CustomerRegister from "@/pages/customer/register";
 import ForgotPassword from "@/pages/customer/forgot-password";
 import StaffLogin from "@/pages/staff-login";
 import StaffRegister from "@/pages/staff-register";
+import Terms from "@/pages/terms";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -51,6 +52,9 @@ function Router() {
       <Route path="/customer/orders" component={CustomerOrders} />
       <Route path="/customer/eco-rewards" component={EcoRewards} />
       <Route path="/customer/eco-points" component={EcoPoints} />
+      
+      {/* Terms and Conditions - Public access */}
+      <Route path="/terms" component={Terms} />
       
       {/* Staff App Routes - Allow access if either authenticated */}
       {isStaffLoading ? (
