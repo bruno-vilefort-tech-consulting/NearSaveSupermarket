@@ -15,27 +15,29 @@ interface EcoAction {
 }
 
 export default function EcoRewards() {
-  const [customerEmail, setCustomerEmail] = useState<string>("");
+  const [customerIdentifier, setCustomerIdentifier] = useState<string>("");
 
   useEffect(() => {
     const savedCustomer = localStorage.getItem('customerInfo');
     if (savedCustomer) {
       const customer = JSON.parse(savedCustomer);
-      setCustomerEmail(customer.email || "");
+      // Use email if available, otherwise use phone
+      const identifier = customer.email || customer.phone || "";
+      setCustomerIdentifier(identifier);
     }
   }, []);
 
   const { data: ecoActions = [], isLoading } = useQuery({
-    queryKey: ["/api/public/eco-actions", customerEmail],
+    queryKey: ["/api/public/eco-actions", customerIdentifier],
     queryFn: async () => {
-      if (!customerEmail) return [];
-      const response = await fetch(`/api/public/eco-actions/${customerEmail}`);
+      if (!customerIdentifier) return [];
+      const response = await fetch(`/api/public/eco-actions/${customerIdentifier}`);
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
       return response.json();
     },
-    enabled: !!customerEmail,
+    enabled: !!customerIdentifier,
   });
 
   const totalPoints = ecoActions.reduce((sum: number, action: EcoAction) => sum + action.pointsEarned, 0);

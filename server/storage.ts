@@ -429,7 +429,7 @@ export class DatabaseStorage implements IStorage {
       const firstTimeBonus = 25;
       totalEcoPoints += firstTimeBonus;
       ecoActions.push({
-        customerEmail: customerIdentifier,
+        customerEmail: customerIdentifier!,
         actionType: 'first_time_customer',
         pointsEarned: firstTimeBonus,
         description: 'Bônus primeira compra sustentável!',
@@ -442,7 +442,7 @@ export class DatabaseStorage implements IStorage {
       for (const action of ecoActions) {
         await this.createEcoAction(action);
       }
-      await this.updateUserEcoPoints(customerIdentifier, totalEcoPoints);
+      await this.updateUserEcoPoints(customerIdentifier!, totalEcoPoints);
     }
   }
 
