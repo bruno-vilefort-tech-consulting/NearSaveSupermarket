@@ -679,15 +679,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
-    // SECURITY: Only allow manual updates by staff
-    console.log(`🔍 SECURITY CHECK: Order ${id} status update attempt`);
-    console.log(`🔍 Target status: ${status}`);
-    console.log(`🔍 Changed by: ${changedBy}`);
+    // ABSOLUTE SECURITY: Log everything and block non-staff changes
+    console.log(`🚨 STATUS UPDATE ATTEMPT: Order ${id} -> ${status} by ${changedBy}`);
+    console.log(`🔍 Timestamp: ${new Date().toISOString()}`);
     console.log(`🔍 Full call stack:`, new Error().stack);
     
+    // STRICT VALIDATION: Only STAFF_ prefixed changes allowed
     if (!changedBy.startsWith('STAFF_')) {
-      console.log(`🚫 SECURITY BLOCK: Non-staff status change attempt for order ${id}`);
-      throw new Error('Order status can only be updated manually by staff');
+      console.log(`🛑 BLOCKED: Unauthorized status change attempt for order ${id}`);
+      console.log(`🛑 Attempted by: ${changedBy}`);
+      console.log(`🛑 Target status: ${status}`);
+      throw new Error(`SECURITY: Order status changes must be made by authorized staff only. Attempted by: ${changedBy}`);
     }
     
     try {
