@@ -26,6 +26,8 @@ export default function Orders() {
       
       // Get staff info from localStorage to add to headers
       const staffUser = JSON.parse(localStorage.getItem('staffUser') || '{}');
+      console.log('Staff user from localStorage:', staffUser);
+      console.log('Adding staff ID to headers:', staffUser.id);
       
       const response = await fetch(url, {
         headers: {
