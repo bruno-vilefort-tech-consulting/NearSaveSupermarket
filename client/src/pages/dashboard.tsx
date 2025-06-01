@@ -3,7 +3,7 @@ import { Header } from "@/components/layout/header";
 import { BottomNavigation } from "@/components/layout/bottom-navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingCart, Plus, List, Check } from "lucide-react";
+import { Package, ShoppingCart, Plus, List, Check, Calendar } from "lucide-react";
 import { useLocation } from "wouter";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 
@@ -89,6 +89,22 @@ export default function Dashboard() {
                     <div className="text-left">
                       <p className="font-medium text-gray-900">Gerenciar Produtos</p>
                       <p className="text-sm text-gray-600">Visualizar e editar lista de produtos</p>
+                    </div>
+                  </div>
+                </Button>
+                
+                <Button
+                  onClick={() => navigate("/monthly-orders")}
+                  variant="outline"
+                  className="w-full flex items-center justify-between p-4 bg-green-50 border-green-200 rounded-xl hover:bg-green-100 transition-colors h-auto"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                      <Calendar className="text-white" size={20} />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium text-gray-900">Resumo Mensal</p>
+                      <p className="text-sm text-gray-600">Pedidos concluídos organizados por mês</p>
                     </div>
                   </div>
                 </Button>
