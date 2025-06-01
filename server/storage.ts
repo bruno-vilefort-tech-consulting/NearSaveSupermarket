@@ -602,18 +602,18 @@ export class DatabaseStorage implements IStorage {
         try {
           const [currentOrder] = await db.select().from(orders).where(eq(orders.id, orderId));
           
-          if (currentOrder && currentOrder.status !== 'pending') {
-            console.log(`🛡️ PROTECTION (check ${index + 1}): Reverting automatic status change for order ${orderId} from ${currentOrder.status} back to pending`);
+          if (currentOrder && currentOrder.lastManualStatus && currentOrder.status !== currentOrder.lastManualStatus) {
+            console.log(`🛡️ PROTECTION (check ${index + 1}): Reverting automatic status change for order ${orderId} from ${currentOrder.status} back to ${currentOrder.lastManualStatus}`);
             
             await db
               .update(orders)
               .set({ 
-                status: 'pending',
-                updatedAt: currentOrder.createdAt // Restaurar timestamp original
+                status: currentOrder.lastManualStatus,
+                updatedAt: currentOrder.lastManualUpdate || currentOrder.createdAt
               })
               .where(eq(orders.id, orderId));
               
-            console.log(`✅ PROTECTION: Order ${orderId} status reverted to pending`);
+            console.log(`✅ PROTECTION: Order ${orderId} status reverted to ${currentOrder.lastManualStatus}`);
           }
         } catch (error) {
           console.error(`❌ PROTECTION ERROR: Failed to protect order ${orderId}:`, error);

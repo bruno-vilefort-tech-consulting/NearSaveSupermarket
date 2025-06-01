@@ -96,6 +96,8 @@ export const orders = pgTable("orders", {
   status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, prepared, shipped, picked_up
   fulfillmentMethod: varchar("fulfillment_method", { length: 50 }).notNull(), // pickup, delivery
   totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
+  lastManualStatus: varchar("last_manual_status", { length: 50 }).default("pending"),
+  lastManualUpdate: timestamp("last_manual_update").defaultNow(),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
