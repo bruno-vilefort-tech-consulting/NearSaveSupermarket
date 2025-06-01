@@ -102,7 +102,7 @@ export default function CustomerHome() {
               <p className="text-sm text-gray-600">Produtos com desconto próximos ao vencimento</p>
             </div>
             <div className="flex items-center space-x-2">
-              <Link href="/customer/cart">
+              <Link href="/cart">
                 <Button variant="outline" size="sm" className="relative">
                   <ShoppingCart size={18} />
                   {cartCount > 0 && (
@@ -122,7 +122,7 @@ export default function CustomerHome() {
                   Sair
                 </Button>
               ) : (
-                <Link href="/customer/login">
+                <Link href="/login">
                   <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
                     Login
                   </Button>

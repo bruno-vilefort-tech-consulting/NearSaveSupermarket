@@ -22,28 +22,28 @@ function Router() {
 
   return (
     <Switch>
-      {/* Customer App Routes - Available without authentication */}
-      <Route path="/customer" component={CustomerHome} />
-      <Route path="/customer/cart" component={CustomerCart} />
-      <Route path="/customer/orders" component={CustomerOrders} />
-      <Route path="/customer/login" component={CustomerLogin} />
+      {/* Customer App Routes (Public) - Root level */}
+      <Route path="/" component={CustomerHome} />
+      <Route path="/cart" component={CustomerCart} />
+      <Route path="/orders" component={CustomerOrders} />
+      <Route path="/login" component={CustomerLogin} />
       
-      {/* Staff App Routes - Require authentication */}
+      {/* Admin App Routes - Require authentication */}
       {isLoading || !isAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
-          <Route path="/dashboard" component={Landing} />
-          <Route path="/products" component={Landing} />
-          <Route path="/add-product" component={Landing} />
-          <Route path="/orders" component={Landing} />
+          <Route path="/admin" component={Landing} />
+          <Route path="/admin/dashboard" component={Landing} />
+          <Route path="/admin/products" component={Landing} />
+          <Route path="/admin/add-product" component={Landing} />
+          <Route path="/admin/orders" component={Landing} />
         </>
       ) : (
         <>
-          <Route path="/" component={Dashboard} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/products" component={Products} />
-          <Route path="/add-product" component={AddProduct} />
-          <Route path="/orders" component={Orders} />
+          <Route path="/admin" component={Dashboard} />
+          <Route path="/admin/dashboard" component={Dashboard} />
+          <Route path="/admin/products" component={Products} />
+          <Route path="/admin/add-product" component={AddProduct} />
+          <Route path="/admin/orders" component={Orders} />
         </>
       )}
       <Route component={NotFound} />

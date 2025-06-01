@@ -37,7 +37,7 @@ export default function CustomerLogin() {
     });
 
     // Redirecionar para o app do cliente
-    navigate("/customer");
+    navigate("/");
   };
 
   return (
@@ -165,9 +165,9 @@ export default function CustomerLogin() {
 
           {/* Footer */}
           <div className="text-center mt-8">
-            <Link href="/">
+            <Link href="/admin">
               <Button variant="ghost" className="text-gray-600">
-                ← Voltar para área administrativa
+                ← Área administrativa
               </Button>
             </Link>
           </div>
