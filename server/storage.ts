@@ -694,17 +694,28 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} to ${status}`);
     
     try {
-      // Usar Drizzle ORM para a atualização autorizada
+      // Definir variável de sessão para autorizar a atualização
+      await db.execute(sql`SET LOCAL app.staff_update = 'true'`);
+      
+      // Fazer a atualização autorizada
       const [order] = await db
         .update(orders)
         .set({ status, updatedAt: new Date() })
         .where(eq(orders.id, id))
         .returning();
       
+      // Limpar a variável de sessão
+      await db.execute(sql`SET LOCAL app.staff_update = NULL`);
+      
       console.log(`✅ SUCCESS: Order ${id} status updated to ${status}`);
       
       return order;
     } catch (error) {
+      // Garantir que a variável seja limpa mesmo em caso de erro
+      try {
+        await db.execute(sql`SET LOCAL app.staff_update = NULL`);
+      } catch {}
+      
       console.error(`❌ ERROR: Failed to update order ${id}:`, error);
       throw error;
     }
