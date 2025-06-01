@@ -5,12 +5,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, ShoppingCart, Plus, List, Check } from "lucide-react";
 import { useLocation } from "wouter";
+import { useStaffAuth } from "@/hooks/useStaffAuth";
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
+  const { isStaffAuthenticated } = useStaffAuth();
   
   const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ["/api/stats"],
+    queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],
   });
 
   return (
