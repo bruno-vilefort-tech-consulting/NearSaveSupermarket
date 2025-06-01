@@ -15,6 +15,7 @@ import Orders from "@/pages/orders";
 import CustomerHome from "@/pages/customer/home";
 import CustomerCart from "@/pages/customer/cart";
 import CustomerOrders from "@/pages/customer/orders";
+import CustomerPayment from "@/pages/customer/payment";
 import Login from "@/pages/customer/login";
 
 function Router() {
@@ -28,6 +29,7 @@ function Router() {
       {/* Customer App Routes */}
       <Route path="/customer" component={CustomerHome} />
       <Route path="/customer/cart" component={CustomerCart} />
+      <Route path="/customer/payment" component={CustomerPayment} />
       <Route path="/customer/orders" component={CustomerOrders} />
       
       {/* Staff App Routes - Require authentication */}

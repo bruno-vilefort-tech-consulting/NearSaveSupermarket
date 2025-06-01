@@ -155,7 +155,9 @@ export default function CustomerCart() {
       return;
     }
 
-    const orderData = {
+    // Salvar informações do cliente e pedido no localStorage
+    localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
+    localStorage.setItem('orderData', JSON.stringify({
       customerName: customerInfo.name,
       customerEmail: customerInfo.email,
       customerPhone: customerInfo.phone,
@@ -167,12 +169,10 @@ export default function CustomerCart() {
         quantity: item.quantity,
         priceAtTime: item.discountPrice
       }))
-    };
+    }));
 
-    // Salvar informações do cliente
-    localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
-
-    createOrderMutation.mutate(orderData);
+    // Redirecionar para a tela de pagamento
+    navigate("/customer/payment");
   };
 
   if (cartItems.length === 0) {
