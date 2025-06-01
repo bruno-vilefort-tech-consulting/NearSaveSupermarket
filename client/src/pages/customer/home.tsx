@@ -148,6 +148,7 @@ export default function CustomerHome() {
 
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900">{product.name}</h3>
+                      <p className="text-sm text-blue-600 font-medium">{product.createdBy?.supermarketName || 'Supermercado'}</p>
                       {product.description && (
                         <p className="text-sm text-gray-600 mt-1">{product.description}</p>
                       )}

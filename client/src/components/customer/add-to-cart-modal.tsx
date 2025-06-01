@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Minus, ShoppingCart } from "lucide-react";
+import { Plus, Minus, ShoppingCart, MapPin } from "lucide-react";
 
 interface Product {
   id: number;
@@ -14,6 +14,10 @@ interface Product {
   expirationDate: string;
   imageUrl?: string;
   category: string;
+  createdBy?: {
+    supermarketName?: string;
+    supermarketAddress?: string;
+  };
 }
 
 interface AddToCartModalProps {
@@ -81,6 +85,20 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Supermarket Info */}
+          {product.createdBy?.supermarketName && (
+            <div className="border border-blue-200 rounded-lg p-3 bg-blue-50">
+              <div className="flex items-start space-x-2">
+                <MapPin className="text-blue-600 mt-0.5" size={16} />
+                <div>
+                  <h4 className="font-semibold text-blue-900">{product.createdBy.supermarketName}</h4>
+                  {product.createdBy.supermarketAddress && (
+                    <p className="text-sm text-blue-700">{product.createdBy.supermarketAddress}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           {/* Product Info */}
           <div className="flex space-x-4">
             <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
