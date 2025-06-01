@@ -5,6 +5,7 @@ import {
   orderItems,
   ecoActions,
   staffUsers,
+  customers,
   type User,
   type UpsertUser,
   type Product,
@@ -17,6 +18,8 @@ import {
   type InsertEcoAction,
   type StaffUser,
   type InsertStaffUser,
+  type Customer,
+  type InsertCustomer,
   type ProductWithCreator,
   type OrderWithItems,
 } from "@shared/schema";
@@ -34,6 +37,12 @@ export interface IStorage {
   getStaffUserByEmail(email: string): Promise<StaffUser | undefined>;
   createStaffUser(staffUser: InsertStaffUser): Promise<StaffUser>;
   validateStaffUser(email: string, password: string): Promise<StaffUser | undefined>;
+  
+  // Customer operations
+  getCustomerByEmail(email: string): Promise<Customer | undefined>;
+  getCustomerByCpf(cpf: string): Promise<Customer | undefined>;
+  createCustomer(customer: InsertCustomer): Promise<Customer>;
+  validateCustomer(email: string, password: string): Promise<Customer | undefined>;
   
   // Product operations
   getProducts(filters?: { category?: string; isActive?: boolean }): Promise<ProductWithCreator[]>;
@@ -125,6 +134,37 @@ export class DatabaseStorage implements IStorage {
         eq(staffUsers.isActive, 1)
       ));
     return staffUser;
+  }
+
+  // Customer operations
+  async getCustomerByEmail(email: string): Promise<Customer | undefined> {
+    const [customer] = await db.select().from(customers).where(eq(customers.email, email));
+    return customer || undefined;
+  }
+
+  async getCustomerByCpf(cpf: string): Promise<Customer | undefined> {
+    const [customer] = await db.select().from(customers).where(eq(customers.cpf, cpf));
+    return customer || undefined;
+  }
+
+  async createCustomer(customerData: InsertCustomer): Promise<Customer> {
+    const hashedPassword = await bcrypt.hash(customerData.password, 10);
+    const [customer] = await db
+      .insert(customers)
+      .values({
+        ...customerData,
+        password: hashedPassword,
+      })
+      .returning();
+    return customer;
+  }
+
+  async validateCustomer(email: string, password: string): Promise<Customer | undefined> {
+    const [customer] = await db.select().from(customers).where(eq(customers.email, email));
+    if (!customer || customer.isActive !== 1) return undefined;
+
+    const isValid = await bcrypt.compare(password, customer.password);
+    return isValid ? customer : undefined;
   }
 
   // Product operations

@@ -55,6 +55,21 @@ export const staffUsers = pgTable("staff_users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Customer registration table
+export const customers = pgTable("customers", {
+  id: serial("id").primaryKey(),
+  cpf: varchar("cpf", { length: 14 }).unique().notNull(),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  email: varchar("email", { length: 255 }).unique().notNull(),
+  password: varchar("password").notNull(),
+  ecoPoints: integer("eco_points").default(0),
+  totalEcoActions: integer("total_eco_actions").default(0),
+  isActive: integer("is_active").default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -172,8 +187,19 @@ export const insertStaffUserSchema = createInsertSchema(staffUsers).omit({
   updatedAt: true,
 });
 
+export const insertCustomerSchema = createInsertSchema(customers).omit({
+  id: true,
+  ecoPoints: true,
+  totalEcoActions: true,
+  isActive: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertStaffUser = z.infer<typeof insertStaffUserSchema>;
 export type StaffUser = typeof staffUsers.$inferSelect;
+export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
+export type Customer = typeof customers.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
