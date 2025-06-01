@@ -764,7 +764,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email
       const emailSent = await sendEmail({
         to: customer.email,
-        from: 'noreply@example.com', // Será substituído por um email verificado
+        from: 'suporte@ecomart.vc',
         subject: emailContent.subject,
         text: emailContent.text,
         html: emailContent.html
