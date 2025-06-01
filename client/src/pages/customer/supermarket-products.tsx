@@ -151,19 +151,19 @@ export default function SupermarketProducts() {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 flex-1 min-w-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/customer")}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 flex-shrink-0"
               >
-                <ArrowLeft size={16} className="mr-2" />
+                <ArrowLeft size={16} className="mr-1" />
                 Voltar
               </Button>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">{supermarketName}</h1>
-                <p className="text-sm text-gray-600">Produtos em oferta</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg font-semibold text-gray-900 truncate">{supermarketName}</h1>
+                <p className="text-xs text-gray-500">Produtos em oferta</p>
               </div>
             </div>
 
@@ -171,10 +171,10 @@ export default function SupermarketProducts() {
               variant="outline"
               size="sm"
               onClick={() => navigate("/customer/cart")}
-              className="relative"
+              className="relative flex-shrink-0 ml-3"
             >
-              <ShoppingCart size={16} className="mr-2" />
-              Carrinho
+              <ShoppingCart size={16} className="mr-1" />
+              <span className="hidden sm:inline">Carrinho</span>
               {cartCount > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                   {cartCount}
