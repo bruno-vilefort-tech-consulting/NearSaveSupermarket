@@ -98,6 +98,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff routes - no authentication required since we check localStorage on frontend
+  app.get('/api/staff/stats', async (req, res) => {
+    try {
+      const stats = await storage.getStats();
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

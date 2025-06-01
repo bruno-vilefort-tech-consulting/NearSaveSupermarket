@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { useStaffAuth } from "@/hooks/useStaffAuth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
@@ -23,6 +24,7 @@ import StaffRegister from "@/pages/staff-register";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { isStaffAuthenticated, isLoading: isStaffLoading } = useStaffAuth();
 
   return (
     <Switch>
@@ -41,8 +43,15 @@ function Router() {
       <Route path="/customer/orders" component={CustomerOrders} />
       <Route path="/customer/eco-rewards" component={EcoRewards} />
       
-      {/* Staff App Routes - Require authentication */}
-      {isLoading || !isAuthenticated ? (
+      {/* Staff App Routes - Check both Replit auth and Staff auth */}
+      {(isLoading || isStaffLoading) ? (
+        <>
+          <Route path="/dashboard" component={() => <div>Carregando...</div>} />
+          <Route path="/products" component={() => <div>Carregando...</div>} />
+          <Route path="/add-product" component={() => <div>Carregando...</div>} />
+          <Route path="/orders" component={() => <div>Carregando...</div>} />
+        </>
+      ) : (!isAuthenticated && !isStaffAuthenticated) ? (
         <>
           <Route path="/dashboard" component={Landing} />
           <Route path="/products" component={Landing} />

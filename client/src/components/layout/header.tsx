@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Store, Bell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
