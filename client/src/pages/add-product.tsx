@@ -63,15 +63,15 @@ export default function AddProduct() {
         formData.append("image", selectedImage);
       }
 
-      await apiRequest("POST", "/api/products", formData);
+      await apiRequest("POST", "/api/staff/products", formData);
     },
     onSuccess: () => {
       toast({
         title: "Success",
         description: "Product added successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
       navigate("/products");
     },
     onError: (error) => {

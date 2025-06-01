@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { useStaffAuth } from "@/hooks/useStaffAuth";
 
 const categories = ["Todos", "Padaria", "Laticínios", "Carnes e Aves", "Hortifruti", "Frios"];
 
@@ -14,8 +15,10 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
+  const { isStaffAuthenticated } = useStaffAuth();
+  
   const { data: products, isLoading } = useQuery({
-    queryKey: ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
+    queryKey: isStaffAuthenticated ? ["/api/staff/products", selectedCategory === "Todos" ? undefined : selectedCategory] : ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
     refetchInterval: 5000, // Atualizar estoque a cada 5 segundos
   });
 

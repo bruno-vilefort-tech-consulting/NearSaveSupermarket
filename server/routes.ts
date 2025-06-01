@@ -109,6 +109,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff products routes
+  app.get('/api/staff/products', async (req, res) => {
+    try {
+      const products = await storage.getProducts({ isActive: true });
+      res.json(products);
+    } catch (error: any) {
+      console.error("Error fetching products:", error);
+      res.status(500).json({ message: "Failed to fetch products" });
+    }
+  });
+
+  app.post('/api/staff/products', upload.single('image'), async (req, res) => {
+    try {
+      const productData = insertProductSchema.parse({
+        ...req.body,
+        originalPrice: parseFloat(req.body.originalPrice),
+        discountPrice: parseFloat(req.body.discountPrice),
+        quantity: parseInt(req.body.quantity),
+      });
+
+      // Use a default staff ID since we're not implementing full staff auth tokens
+      const createdBy = "staff-1"; // Placeholder for staff user
+      
+      let imageUrl = null;
+      if (req.file) {
+        imageUrl = `/uploads/${req.file.filename}`;
+      }
+
+      const product = await storage.createProduct({
+        ...productData,
+        imageUrl,
+        createdBy,
+      });
+
+      res.status(201).json(product);
+    } catch (error: any) {
+      console.error("Error creating product:", error);
+      res.status(500).json({ message: "Failed to create product" });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
