@@ -73,7 +73,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   const updateStatusMutation = useMutation({
     mutationFn: async (newStatus: string) => {
       // Get staff info from localStorage to add to headers
-      const staffUser = JSON.parse(localStorage.getItem('staffUser') || '{}');
+      const staffUser = JSON.parse(localStorage.getItem('staffInfo') || '{}');
       
       const response = await fetch(`/api/staff/orders/${order.id}/status`, {
         method: 'PUT',
