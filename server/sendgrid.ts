@@ -17,6 +17,14 @@ interface EmailParams {
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
+    const apiKey = process.env.SENDGRID_API_KEY;
+    if (!apiKey) {
+      console.error('SENDGRID_API_KEY not found');
+      return false;
+    }
+
+    mailService.setApiKey(apiKey);
+    
     await mailService.send({
       to: params.to,
       from: params.from,
