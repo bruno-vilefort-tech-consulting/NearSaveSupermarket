@@ -694,17 +694,13 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} to ${status}`);
     
     try {
-      await db.execute(sql`
-        UPDATE orders 
-        SET status = ${status}, updated_at = CURRENT_TIMESTAMP 
-        WHERE id = ${id}
-      `);
+      // Usar Drizzle ORM para a atualização autorizada
+      const [order] = await db
+        .update(orders)
+        .set({ status, updatedAt: new Date() })
+        .where(eq(orders.id, id))
+        .returning();
       
-      const result = await db.execute(sql`
-        SELECT * FROM orders WHERE id = ${id}
-      `);
-      
-      const order = result.rows[0] as any;
       console.log(`✅ SUCCESS: Order ${id} status updated to ${status}`);
       
       return order;
