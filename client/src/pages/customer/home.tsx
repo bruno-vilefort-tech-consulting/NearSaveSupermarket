@@ -42,7 +42,7 @@ export default function CustomerHome() {
       title: "Logout realizado",
       description: "Você foi desconectado com sucesso",
     });
-    navigate("/login");
+    navigate("/");
   };
 
   const { data: products, isLoading } = useQuery({
@@ -125,7 +125,7 @@ export default function CustomerHome() {
                   Sair
                 </Button>
               ) : (
-                <Link href="/login">
+                <Link href="/">
                   <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
                     Login
                   </Button>

@@ -22,11 +22,11 @@ function Router() {
 
   return (
     <Switch>
-      {/* Unified Login */}
-      <Route path="/login" component={Login} />
+      {/* Default route - Login page */}
+      <Route path="/" component={Login} />
       
       {/* Customer App Routes */}
-      <Route path="/" component={CustomerHome} />
+      <Route path="/customer" component={CustomerHome} />
       <Route path="/cart" component={CustomerCart} />
       <Route path="/customer-orders" component={CustomerOrders} />
       

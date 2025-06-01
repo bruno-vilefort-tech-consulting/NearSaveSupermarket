@@ -40,7 +40,7 @@ export default function Login() {
       description: `Bem-vindo, ${formData.name}!`,
     });
 
-    navigate("/");
+    navigate("/customer");
   };
 
   return (
@@ -234,11 +234,9 @@ export default function Login() {
 
           {/* Footer */}
           <div className="text-center mt-8">
-            <Link href="/">
-              <Button variant="ghost" className="text-gray-600">
-                ← Voltar ao início
-              </Button>
-            </Link>
+            <p className="text-xs text-gray-500">
+              Plataforma de economia colaborativa para produtos próximos ao vencimento
+            </p>
           </div>
         </div>
       </div>

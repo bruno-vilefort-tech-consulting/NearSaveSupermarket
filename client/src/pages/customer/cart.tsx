@@ -108,7 +108,7 @@ export default function CustomerCart() {
           <Card>
             <CardContent className="p-8 text-center">
               <p className="text-gray-500 mb-4">Seu carrinho está vazio</p>
-              <Link href="/">
+              <Link href="/customer">
                 <Button>Continuar Comprando</Button>
               </Link>
             </CardContent>
@@ -123,7 +123,7 @@ export default function CustomerCart() {
       {/* Header */}
       <div className="bg-white shadow-sm p-4">
         <div className="flex items-center space-x-3">
-          <Link href="/">
+          <Link href="/customer">
             <Button variant="ghost" size="sm">
               <ArrowLeft size={20} />
             </Button>
