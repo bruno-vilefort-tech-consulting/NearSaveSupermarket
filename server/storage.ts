@@ -701,14 +701,6 @@ export class DatabaseStorage implements IStorage {
         .where(eq(orders.id, id))
         .returning();
       
-      // Log the successful change
-      if (order) {
-        await db.execute(sql`
-          INSERT INTO order_status_log (order_id, old_status, new_status, changed_by)
-          VALUES (${id}, 'previous', ${status}, ${changedBy})
-        `);
-      }
-      
       console.log(`✅ SUCCESS: Order ${id} updated to ${status} by ${changedBy}`);
       
       return order;
