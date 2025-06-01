@@ -43,6 +43,7 @@ export default function CustomerOrders() {
   const { data: orders = [], isLoading, refetch } = useQuery({
     queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
     enabled: !!(customerInfo?.email || customerInfo?.phone),
+    refetchInterval: 3000, // Auto-refresh every 3 seconds for real-time updates
     queryFn: async () => {
       const params = new URLSearchParams();
       if (customerInfo?.email) params.append('email', customerInfo.email);
