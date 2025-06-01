@@ -43,7 +43,7 @@ export default function CustomerLogin() {
         title: "Login realizado com sucesso",
         description: "Bem-vindo ao EcoMart!",
       });
-      navigate("/customer/products");
+      navigate("/customer");
     },
     onError: (error: any) => {
       toast({
