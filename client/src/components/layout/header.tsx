@@ -25,7 +25,7 @@ export function Header() {
             <Store className="text-white" size={20} />
           </div>
           <div>
-            <h1 className="font-semibold text-gray-900">FreshSaver</h1>
+            <h1 className="font-semibold text-gray-900">Supermercado Silva</h1>
             <p className="text-xs text-gray-500">Painel da Equipe</p>
           </div>
         </div>
