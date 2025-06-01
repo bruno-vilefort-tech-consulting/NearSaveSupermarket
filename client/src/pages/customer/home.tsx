@@ -19,12 +19,28 @@ export default function CustomerHome() {
   const [cartCount, setCartCount] = useState(0);
   const { toast } = useToast();
 
-  // Carregar contador do carrinho ao inicializar
+  const [customerInfo, setCustomerInfo] = useState(null);
+
+  // Carregar contador do carrinho e informações do cliente ao inicializar
   useEffect(() => {
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const totalItems = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
     setCartCount(totalItems);
+
+    const savedCustomer = localStorage.getItem('customerInfo');
+    if (savedCustomer) {
+      setCustomerInfo(JSON.parse(savedCustomer));
+    }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('customerInfo');
+    setCustomerInfo(null);
+    toast({
+      title: "Logout realizado",
+      description: "Você foi desconectado com sucesso",
+    });
+  };
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
@@ -96,11 +112,22 @@ export default function CustomerHome() {
                   )}
                 </Button>
               </Link>
-              <Link href="/customer/login">
-                <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
-                  Login
+              {customerInfo ? (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  Sair
                 </Button>
-              </Link>
+              ) : (
+                <Link href="/customer/login">
+                  <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
+                    Login
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 

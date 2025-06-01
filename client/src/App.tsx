@@ -30,10 +30,17 @@ function Router() {
       
       {/* Staff App Routes - Require authentication */}
       {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/dashboard" component={Landing} />
+          <Route path="/products" component={Landing} />
+          <Route path="/add-product" component={Landing} />
+          <Route path="/orders" component={Landing} />
+        </>
       ) : (
         <>
           <Route path="/" component={Dashboard} />
+          <Route path="/dashboard" component={Dashboard} />
           <Route path="/products" component={Products} />
           <Route path="/add-product" component={AddProduct} />
           <Route path="/orders" component={Orders} />
