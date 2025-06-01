@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Package } from "lucide-react";
+import { ArrowLeft, Package, RefreshCw } from "lucide-react";
 import { CustomerOrderCard } from "@/components/order/customer-order-card";
 
 interface OrderItem {
@@ -31,6 +31,7 @@ interface Order {
 
 export default function CustomerOrders() {
   const [customerInfo, setCustomerInfo] = useState<any>(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const savedCustomer = localStorage.getItem('customerInfo');
@@ -39,7 +40,7 @@ export default function CustomerOrders() {
     }
   }, []);
 
-  const { data: orders = [], isLoading } = useQuery({
+  const { data: orders = [], isLoading, refetch } = useQuery({
     queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
     enabled: !!(customerInfo?.email || customerInfo?.phone),
     queryFn: async () => {
@@ -49,9 +50,16 @@ export default function CustomerOrders() {
       
       const response = await fetch(`/api/customer/orders?${params}`);
       if (!response.ok) throw new Error('Falha ao carregar pedidos');
-      return response.json();
+      const data = await response.json();
+      console.log('Orders fetched:', data.length, 'orders');
+      return data;
     }
   });
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/customer/orders"] });
+    refetch();
+  };
 
 
 
@@ -70,16 +78,26 @@ export default function CustomerOrders() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-          <Link href="/customer">
-            <ArrowLeft className="h-6 w-6 text-gray-600" />
-          </Link>
-          <div className="ml-4">
-            <h1 className="text-lg font-semibold">Meus Pedidos</h1>
-            <p className="text-sm text-gray-500">
-              {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
-            </p>
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <Link href="/customer">
+              <ArrowLeft className="h-6 w-6 text-gray-600" />
+            </Link>
+            <div className="ml-4">
+              <h1 className="text-lg font-semibold">Meus Pedidos</h1>
+              <p className="text-sm text-gray-500">
+                {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
+              </p>
+            </div>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
