@@ -101,7 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staff routes - no authentication required since we check localStorage on frontend
   app.get('/api/staff/stats', async (req, res) => {
     try {
-      const staffId = req.headers['staff-id'];
+      const staffId = req.headers['x-staff-id'] || req.headers['staff-id'];
       
       if (!staffId || isNaN(Number(staffId))) {
         return res.status(400).json({ message: "Staff ID is required" });
