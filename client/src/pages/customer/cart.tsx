@@ -214,7 +214,11 @@ export default function CustomerCart() {
           <Link href="/customer">
             <ArrowLeft className="h-6 w-6 text-gray-600" />
           </Link>
-          <h1 className="ml-4 text-lg font-semibold">Carrinho ({cartItems.length})</h1>
+          <div className="ml-4">
+            <h1 className="text-lg font-semibold">Carrinho ({cartItems.length})</h1>
+            <p className="text-sm text-green-600 font-medium">Supermercado Silva</p>
+            <p className="text-xs text-gray-500">Rua das Flores, 123 - Centro</p>
+          </div>
         </div>
       </div>
 
