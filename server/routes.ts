@@ -655,6 +655,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Customer Routes - List supermarkets with products
+  app.get("/api/customer/supermarkets", async (req, res) => {
+    try {
+      const supermarkets = await storage.getSupermarketsWithProducts();
+      res.json(supermarkets);
+    } catch (error) {
+      console.error("Error fetching supermarkets:", error);
+      res.status(500).json({ message: "Erro ao buscar supermercados" });
+    }
+  });
+
+  // Customer Routes - Get products by supermarket
+  app.get("/api/customer/supermarket/:id/products", async (req, res) => {
+    try {
+      const staffId = parseInt(req.params.id);
+      if (isNaN(staffId)) {
+        return res.status(400).json({ message: "ID inválido" });
+      }
+
+      const products = await storage.getProductsBySupermarket(staffId);
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching supermarket products:", error);
+      res.status(500).json({ message: "Erro ao buscar produtos do supermercado" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

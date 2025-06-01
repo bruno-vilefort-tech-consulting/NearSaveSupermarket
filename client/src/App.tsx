@@ -14,6 +14,7 @@ import Orders from "@/pages/orders";
 
 // Customer App Pages
 import CustomerHome from "@/pages/customer/home";
+import SupermarketProducts from "@/pages/customer/supermarket-products";
 import CustomerCart from "@/pages/customer/cart";
 import CustomerOrders from "@/pages/customer/orders";
 import CustomerPayment from "@/pages/customer/payment";
@@ -42,7 +43,7 @@ function Router() {
       <Route path="/customer/register" component={CustomerRegister} />
       <Route path="/customer/forgot-password" component={ForgotPassword} />
       <Route path="/customer" component={CustomerHome} />
-      <Route path="/customer/products" component={CustomerHome} />
+      <Route path="/customer/supermarket/:id" component={SupermarketProducts} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPayment} />
       <Route path="/customer/orders" component={CustomerOrders} />
