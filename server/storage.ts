@@ -75,6 +75,15 @@ export interface IStorage {
   createEcoAction(action: InsertEcoAction): Promise<EcoAction>;
   getEcoActionsByEmail(email: string): Promise<EcoAction[]>;
   updateUserEcoPoints(email: string, pointsToAdd: number): Promise<void>;
+  
+  // Customer specific operations
+  getSupermarketsWithProducts(): Promise<Array<{
+    id: number;
+    name: string;
+    address: string;
+    productCount: number;
+  }>>;
+  getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -676,6 +685,81 @@ export class DatabaseStorage implements IStorage {
           .where(sql`${users.email} = ${identifier} OR ${users.id} = ${identifier}`);
       }
     }
+  }
+
+  // Customer specific operations
+  async getSupermarketsWithProducts(): Promise<Array<{
+    id: number;
+    name: string;
+    address: string;
+    productCount: number;
+  }>> {
+    const result = await db
+      .select({
+        id: staffUsers.id,
+        name: staffUsers.companyName,
+        address: staffUsers.address,
+        productCount: sql<number>`count(${products.id})::int`,
+      })
+      .from(staffUsers)
+      .leftJoin(products, and(
+        eq(products.createdByStaff, staffUsers.id),
+        eq(products.isActive, 1)
+      ))
+      .where(eq(staffUsers.isActive, 1))
+      .groupBy(staffUsers.id, staffUsers.companyName, staffUsers.address)
+      .having(sql`count(${products.id}) > 0`);
+
+    return result;
+  }
+
+  async getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]> {
+    const result = await db
+      .select({
+        id: products.id,
+        name: products.name,
+        description: products.description,
+        category: products.category,
+        originalPrice: products.originalPrice,
+        discountPrice: products.discountPrice,
+        quantity: products.quantity,
+        expirationDate: products.expirationDate,
+        imageUrl: products.imageUrl,
+        isActive: products.isActive,
+        createdAt: products.createdAt,
+        updatedAt: products.updatedAt,
+        createdByStaff: products.createdByStaff,
+        createdBy: {
+          id: staffUsers.id,
+          companyName: staffUsers.companyName,
+          email: staffUsers.email,
+          address: staffUsers.address,
+        },
+      })
+      .from(products)
+      .innerJoin(staffUsers, eq(products.createdByStaff, staffUsers.id))
+      .where(and(
+        eq(products.createdByStaff, staffId),
+        eq(products.isActive, 1)
+      ))
+      .orderBy(desc(products.createdAt));
+
+    return result.map(item => ({
+      ...item,
+      createdBy: {
+        id: item.createdBy.id.toString(),
+        email: item.createdBy.email,
+        firstName: null,
+        lastName: null,
+        profileImageUrl: null,
+        supermarketName: item.createdBy.companyName,
+        supermarketAddress: item.createdBy.address,
+        ecoPoints: null,
+        totalEcoActions: null,
+        createdAt: null,
+        updatedAt: null,
+      }
+    }));
   }
 }
 
