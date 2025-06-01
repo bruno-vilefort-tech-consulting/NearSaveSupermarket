@@ -128,7 +128,7 @@ export default function Landing() {
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500 space-y-2 pt-6">
-          <p className="font-medium">Supermercado Sustentável do Futuro</p>
+          <p className="font-medium">Menos desperdício, mais valor. Uma iniciativa sustentável da UP Brasil</p>
           <div className="flex items-center justify-center space-x-1 text-xs">
             <Leaf className="h-3 w-3 text-green-500" />
             <span>Zero Desperdício • Recompensas Eco • 100% Sustentável</span>
