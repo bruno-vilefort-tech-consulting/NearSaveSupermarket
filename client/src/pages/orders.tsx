@@ -68,7 +68,7 @@ export default function Orders() {
               </div>
             ) : orders && orders.length > 0 ? (
               orders.map((order: any) => (
-                <OrderCard key={order.id} order={order} />
+                <OrderCard key={order.id} order={order} canEditStatus={true} />
               ))
             ) : (
               <Card className="shadow-sm">

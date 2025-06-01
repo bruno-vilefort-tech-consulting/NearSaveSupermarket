@@ -66,7 +66,7 @@ const getNextStatus = (currentStatus: string, fulfillmentMethod: string) => {
   }
 };
 
-export function OrderCard({ order }: OrderCardProps) {
+export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -200,7 +200,7 @@ export function OrderCard({ order }: OrderCardProps) {
             </span>
           </div>
           
-          {getNextStatusLabel() && (
+          {canEditStatus && getNextStatusLabel() && (
             <Button 
               size="sm"
               onClick={handleStatusUpdate}
