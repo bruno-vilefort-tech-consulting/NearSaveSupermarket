@@ -99,25 +99,44 @@ export default function Landing() {
           <CardHeader className="text-center bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
             <div className="flex items-center justify-center space-x-2 mb-2">
               <Shield className="h-5 w-5 text-green-600" />
-              <CardTitle className="text-green-800">Acesse sua conta</CardTitle>
+              <CardTitle className="text-green-800">Escolha seu acesso</CardTitle>
             </div>
             <CardDescription className="text-gray-600">
-              Entre para gerenciar seu supermercado ou fazer compras sustentáveis
+              Selecione o tipo de conta para continuar
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 p-6">
+            {/* Botão Staff */}
             <Button 
               onClick={handleLogin}
-              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
               size="lg"
             >
-              <div className="flex items-center justify-center space-x-2">
-                <Zap className="h-5 w-5" />
-                <span>Entrar Agora</span>
+              <div className="flex items-center justify-center space-x-3">
+                <Users className="h-6 w-6" />
+                <div className="text-left">
+                  <div className="font-bold">Staff do Supermercado</div>
+                  <div className="text-xs opacity-90">Gerenciar produtos e pedidos</div>
+                </div>
+              </div>
+            </Button>
+
+            {/* Botão Cliente */}
+            <Button 
+              onClick={() => window.location.href = '/customer'}
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+              size="lg"
+            >
+              <div className="flex items-center justify-center space-x-3">
+                <ShoppingCart className="h-6 w-6" />
+                <div className="text-left">
+                  <div className="font-bold">Cliente</div>
+                  <div className="text-xs opacity-90">Comprar produtos com desconto</div>
+                </div>
               </div>
             </Button>
             
-            <div className="flex items-center justify-center space-x-4 text-sm">
+            <div className="flex items-center justify-center space-x-4 text-sm mt-4">
               <div className="flex items-center space-x-1 text-green-600">
                 <Clock className="h-4 w-4" />
                 <span>Rápido</span>
@@ -137,7 +156,7 @@ export default function Landing() {
                 <Star className="h-4 w-4 text-yellow-500" />
                 <span className="font-medium">Novo usuário?</span>
               </div>
-              <p>Sua conta será criada automaticamente no primeiro acesso</p>
+              <p>Staff: conta criada automaticamente | Cliente: acesso direto</p>
             </div>
           </CardContent>
         </Card>
