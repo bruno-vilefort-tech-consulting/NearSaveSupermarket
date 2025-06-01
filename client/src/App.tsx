@@ -43,27 +43,27 @@ function Router() {
       <Route path="/customer/orders" component={CustomerOrders} />
       <Route path="/customer/eco-rewards" component={EcoRewards} />
       
-      {/* Staff App Routes - Check both Replit auth and Staff auth */}
-      {(isLoading || isStaffLoading) ? (
+      {/* Staff App Routes - Allow access if either authenticated */}
+      {isStaffLoading ? (
         <>
           <Route path="/dashboard" component={() => <div>Carregando...</div>} />
           <Route path="/products" component={() => <div>Carregando...</div>} />
           <Route path="/add-product" component={() => <div>Carregando...</div>} />
           <Route path="/orders" component={() => <div>Carregando...</div>} />
         </>
-      ) : (!isAuthenticated && !isStaffAuthenticated) ? (
-        <>
-          <Route path="/dashboard" component={Landing} />
-          <Route path="/products" component={Landing} />
-          <Route path="/add-product" component={Landing} />
-          <Route path="/orders" component={Landing} />
-        </>
-      ) : (
+      ) : (isStaffAuthenticated || isAuthenticated) ? (
         <>
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/products" component={Products} />
           <Route path="/add-product" component={AddProduct} />
           <Route path="/orders" component={Orders} />
+        </>
+      ) : (
+        <>
+          <Route path="/dashboard" component={Landing} />
+          <Route path="/products" component={Landing} />
+          <Route path="/add-product" component={Landing} />
+          <Route path="/orders" component={Landing} />
         </>
       )}
       <Route component={NotFound} />

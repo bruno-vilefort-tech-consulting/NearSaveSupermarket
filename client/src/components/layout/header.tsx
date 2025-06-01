@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 
 export function Header() {
   const { user } = useAuth();
+  const { staffUser, logout: staffLogout, isStaffAuthenticated } = useStaffAuth();
   
   const { data: stats } = useQuery({
-    queryKey: ["/api/stats"],
+    queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],
   });
 
   const getInitials = (firstName?: string, lastName?: string) => {
@@ -26,7 +27,9 @@ export function Header() {
             <Store className="text-white" size={20} />
           </div>
           <div>
-            <h1 className="font-semibold text-gray-900">Supermercado Silva</h1>
+            <h1 className="font-semibold text-gray-900">
+              {staffUser?.companyName || "Supermercado Silva"}
+            </h1>
             <p className="text-xs text-gray-500">Painel da Equipe</p>
           </div>
         </div>
