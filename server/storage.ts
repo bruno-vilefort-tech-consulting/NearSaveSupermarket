@@ -679,33 +679,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
-    // ABSOLUTE SECURITY: Log everything and block non-staff changes
-    console.log(`🚨 STATUS UPDATE ATTEMPT: Order ${id} -> ${status} by ${changedBy}`);
-    console.log(`🔍 Timestamp: ${new Date().toISOString()}`);
-    console.log(`🔍 Full call stack:`, new Error().stack);
+    // SECURITY: Only allow manual updates by staff
+    console.log(`📋 ORDER STATUS UPDATE: Order ${id} -> ${status} by ${changedBy}`);
     
-    // STRICT VALIDATION: Only STAFF_ prefixed changes allowed
     if (!changedBy.startsWith('STAFF_')) {
-      console.log(`🛑 BLOCKED: Unauthorized status change attempt for order ${id}`);
-      console.log(`🛑 Attempted by: ${changedBy}`);
-      console.log(`🛑 Target status: ${status}`);
-      throw new Error(`SECURITY: Order status changes must be made by authorized staff only. Attempted by: ${changedBy}`);
+      console.log(`🚫 BLOCKED: Non-staff status change attempt`);
+      throw new Error('Order status can only be updated manually by staff');
     }
     
     try {
-      console.log(`🎯 EXECUTING: Database update for order ${id} to ${status}`);
+      // Direct update using raw SQL to avoid any Drizzle quirks
+      const result = await db.execute(sql`
+        UPDATE orders 
+        SET status = ${status}, updated_at = NOW() 
+        WHERE id = ${id} 
+        RETURNING *
+      `);
       
-      const [order] = await db
-        .update(orders)
-        .set({ status, updatedAt: new Date() })
-        .where(eq(orders.id, id))
-        .returning();
-      
-      console.log(`✅ SUCCESS: Order ${id} updated to ${status} by ${changedBy}`);
+      const order = result.rows[0] as any;
+      console.log(`✅ Order ${id} status updated to ${status}`);
       
       return order;
     } catch (error) {
-      console.error(`❌ ERROR: Failed to update order ${id}:`, error);
+      console.error(`❌ Failed to update order ${id}:`, error);
       throw error;
     }
   }
