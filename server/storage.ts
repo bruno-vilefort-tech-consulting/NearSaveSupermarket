@@ -679,33 +679,37 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
-    // SECURITY: Only allow manual updates by staff
-    console.log(`📋 ORDER STATUS UPDATE: Order ${id} -> ${status} by ${changedBy}`);
+    // ABSOLUTE SECURITY: Block ALL automatic updates
+    console.log(`🔒 SECURITY CHECK: Order ${id} status change attempt to ${status} by ${changedBy}`);
     
+    // Only allow explicit staff updates
     if (!changedBy.startsWith('STAFF_')) {
-      console.log(`🚫 BLOCKED: Non-staff status change attempt`);
-      throw new Error('Order status can only be updated manually by staff');
+      console.log(`🛑 SECURITY BLOCK: Unauthorized status change blocked for order ${id}`);
+      console.log(`🛑 Attempted by: ${changedBy}`);
+      console.log(`🛑 Target status: ${status}`);
+      throw new Error(`SECURITY: Order status changes are restricted to authorized staff only. Source: ${changedBy}`);
     }
     
+    // Log authorized update
+    console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} to ${status}`);
+    
     try {
-      // Simple update without RETURNING to avoid SQL issues
       await db.execute(sql`
         UPDATE orders 
         SET status = ${status}, updated_at = CURRENT_TIMESTAMP 
         WHERE id = ${id}
       `);
       
-      // Get the updated order separately
       const result = await db.execute(sql`
         SELECT * FROM orders WHERE id = ${id}
       `);
       
       const order = result.rows[0] as any;
-      console.log(`✅ Order ${id} status updated to ${status}`);
+      console.log(`✅ SUCCESS: Order ${id} status updated to ${status}`);
       
       return order;
     } catch (error) {
-      console.error(`❌ Failed to update order ${id}:`, error);
+      console.error(`❌ ERROR: Failed to update order ${id}:`, error);
       throw error;
     }
   }
