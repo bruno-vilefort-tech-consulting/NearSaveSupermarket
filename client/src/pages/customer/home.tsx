@@ -101,7 +101,7 @@ export default function CustomerHome() {
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">FreshSaver</h1>
+              <h1 className="text-xl font-bold text-gray-900">Supermercado Silva</h1>
               <p className="text-sm text-gray-600">Produtos com desconto próximos ao vencimento</p>
             </div>
             <div className="flex items-center space-x-2">
