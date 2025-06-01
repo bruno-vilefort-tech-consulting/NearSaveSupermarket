@@ -24,7 +24,7 @@ import {
   type OrderWithItems,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, sql, or } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 // Interface for storage operations
@@ -67,6 +67,13 @@ export interface IStorage {
   
   // Statistics
   getStats(): Promise<{
+    activeProducts: number;
+    pendingOrders: number;
+    totalRevenue: number;
+  }>;
+  
+  // Statistics for specific staff
+  getStatsForStaff(staffId: number): Promise<{
     activeProducts: number;
     pendingOrders: number;
     totalRevenue: number;
@@ -850,7 +857,60 @@ export class DatabaseStorage implements IStorage {
     return result.sort((a, b) => b.month.localeCompare(a.month)); // Most recent month first
   }
 
-  // Statistics
+  // Statistics for specific staff
+  async getStatsForStaff(staffId: number): Promise<{
+    activeProducts: number;
+    pendingOrders: number;
+    totalRevenue: number;
+  }> {
+    const [activeProductsResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(products)
+      .where(and(eq(products.isActive, 1), eq(products.createdByStaff, staffId)));
+
+    // Count pending orders that contain products from this staff
+    const pendingOrdersQuery = await db
+      .select({ orderId: orders.id })
+      .from(orders)
+      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(
+        and(
+          eq(products.createdByStaff, staffId),
+          or(
+            eq(orders.status, "pending"),
+            eq(orders.status, "confirmed"),
+            eq(orders.status, "preparing")
+          )
+        )
+      )
+      .groupBy(orders.id);
+
+    const pendingOrdersCount = pendingOrdersQuery.length;
+
+    // Calculate revenue from completed orders containing this staff's products
+    const [revenueResult] = await db
+      .select({ 
+        total: sql<number>`COALESCE(SUM(CAST(${orders.totalAmount} AS DECIMAL)), 0)` 
+      })
+      .from(orders)
+      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(
+        and(
+          eq(products.createdByStaff, staffId),
+          eq(orders.status, "completed")
+        )
+      );
+
+    return {
+      activeProducts: activeProductsResult.count,
+      pendingOrders: pendingOrdersCount,
+      totalRevenue: revenueResult.total || 0,
+    };
+  }
+
+  // Global statistics (for general use)
   async getStats(): Promise<{
     activeProducts: number;
     pendingOrders: number;
@@ -864,19 +924,23 @@ export class DatabaseStorage implements IStorage {
     const [pendingOrdersResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(orders)
-      .where(eq(orders.status, "pending"));
+      .where(or(
+        eq(orders.status, "pending"),
+        eq(orders.status, "confirmed"),
+        eq(orders.status, "preparing")
+      ));
 
     const [revenueResult] = await db
       .select({ 
-        total: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)` 
+        total: sql<number>`COALESCE(SUM(CAST(${orders.totalAmount} AS DECIMAL)), 0)` 
       })
       .from(orders)
-      .where(eq(orders.status, "shipped"));
+      .where(eq(orders.status, "completed"));
 
     return {
       activeProducts: activeProductsResult.count,
       pendingOrders: pendingOrdersResult.count,
-      totalRevenue: revenueResult.total,
+      totalRevenue: revenueResult.total || 0,
     };
   }
 

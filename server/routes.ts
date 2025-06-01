@@ -101,10 +101,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staff routes - no authentication required since we check localStorage on frontend
   app.get('/api/staff/stats', async (req, res) => {
     try {
-      const stats = await storage.getStats();
+      const staffId = req.headers['staff-id'];
+      
+      if (!staffId || isNaN(Number(staffId))) {
+        return res.status(400).json({ message: "Staff ID is required" });
+      }
+      
+      const stats = await storage.getStatsForStaff(Number(staffId));
       res.json(stats);
     } catch (error: any) {
-      console.error("Error fetching stats:", error);
+      console.error("Error fetching staff stats:", error);
       res.status(500).json({ message: "Failed to fetch stats" });
     }
   });
