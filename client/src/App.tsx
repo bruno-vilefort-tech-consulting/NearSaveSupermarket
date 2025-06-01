@@ -24,6 +24,7 @@ import EcoPoints from "@/pages/customer/eco-points";
 import Login from "@/pages/customer/login";
 import CustomerRegister from "@/pages/customer/register";
 import ForgotPassword from "@/pages/customer/forgot-password";
+import ResetPassword from "@/pages/customer/reset-password";
 import StaffLogin from "@/pages/staff-login";
 import StaffRegister from "@/pages/staff-register";
 import Terms from "@/pages/terms";
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/customer/login" component={Login} />
       <Route path="/customer/register" component={CustomerRegister} />
       <Route path="/customer/forgot-password" component={ForgotPassword} />
+      <Route path="/customer/reset-password" component={ResetPassword} />
       <Route path="/customer" component={CustomerHome} />
       <Route path="/customer/supermarket/:id" component={SupermarketProducts} />
       <Route path="/customer/cart" component={CustomerCart} />

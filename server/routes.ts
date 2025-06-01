@@ -740,12 +740,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ message: "Se o email existir, você receberá instruções para redefinir sua senha." });
       }
 
-      // In a real app, you would send an email here
-      // For now, just return success
-      res.json({ message: "Instruções enviadas para seu email" });
+      // Clean up expired tokens first
+      await storage.cleanupExpiredTokens();
+
+      // Generate secure token
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 1); // Token expires in 1 hour
+
+      // Save token to database
+      await storage.createPasswordResetToken({
+        email: customer.email,
+        token: resetToken,
+        expiresAt
+      });
+
+      // Generate reset link
+      const resetLink = `${req.protocol}://${req.get('host')}/customer/reset-password?token=${resetToken}`;
+      
+      // Generate email content
+      const emailContent = generatePasswordResetEmail(resetLink, customer.fullName);
+      
+      // Send email
+      const emailSent = await sendEmail({
+        to: customer.email,
+        from: 'noreply@ecomart.com.br',
+        subject: emailContent.subject,
+        text: emailContent.text,
+        html: emailContent.html
+      });
+
+      if (!emailSent) {
+        console.error('Failed to send password reset email to:', customer.email);
+        return res.status(500).json({ message: "Erro ao enviar email. Tente novamente." });
+      }
+
+      console.log('Password reset email sent successfully to:', customer.email);
+      res.json({ message: "Instruções para redefinir sua senha foram enviadas para seu email." });
     } catch (error) {
       console.error("Error in forgot password:", error);
       res.status(500).json({ message: "Erro ao processar solicitação" });
+    }
+  });
+
+  app.post("/api/customer/reset-password", async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: "Token e nova senha são obrigatórios" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "A senha deve ter pelo menos 6 caracteres" });
+      }
+
+      // Verify token
+      const resetToken = await storage.getPasswordResetToken(token);
+      if (!resetToken) {
+        return res.status(400).json({ message: "Token inválido ou expirado" });
+      }
+
+      // Update password
+      await storage.updateCustomerPassword(resetToken.email, newPassword);
+      
+      // Mark token as used
+      await storage.markTokenAsUsed(token);
+
+      console.log('Password reset completed for:', resetToken.email);
+      res.json({ message: "Senha redefinida com sucesso!" });
+    } catch (error) {
+      console.error("Error in reset password:", error);
+      res.status(500).json({ message: "Erro ao redefinir senha" });
     }
   });
 
