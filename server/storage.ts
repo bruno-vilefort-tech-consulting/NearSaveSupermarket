@@ -688,12 +688,16 @@ export class DatabaseStorage implements IStorage {
     }
     
     try {
-      // Direct update using raw SQL to avoid any Drizzle quirks
-      const result = await db.execute(sql`
+      // Simple update without RETURNING to avoid SQL issues
+      await db.execute(sql`
         UPDATE orders 
-        SET status = ${status}, updated_at = NOW() 
-        WHERE id = ${id} 
-        RETURNING *
+        SET status = ${status}, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ${id}
+      `);
+      
+      // Get the updated order separately
+      const result = await db.execute(sql`
+        SELECT * FROM orders WHERE id = ${id}
       `);
       
       const order = result.rows[0] as any;
