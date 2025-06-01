@@ -705,7 +705,7 @@ export class DatabaseStorage implements IStorage {
         .returning();
       
       // Limpar a variável de sessão
-      await db.execute(sql`SET LOCAL app.staff_update = NULL`);
+      await db.execute(sql`SET LOCAL app.staff_update = ''`);
       
       console.log(`✅ SUCCESS: Order ${id} status updated to ${status}`);
       
@@ -713,7 +713,7 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       // Garantir que a variável seja limpa mesmo em caso de erro
       try {
-        await db.execute(sql`SET LOCAL app.staff_update = NULL`);
+        await db.execute(sql`SET LOCAL app.staff_update = ''`);
       } catch {}
       
       console.error(`❌ ERROR: Failed to update order ${id}:`, error);
