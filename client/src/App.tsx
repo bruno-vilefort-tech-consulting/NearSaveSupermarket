@@ -32,6 +32,7 @@ function Router() {
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPayment} />
       <Route path="/customer/orders" component={CustomerOrders} />
+      <Route path="/customer/eco-rewards" component={EcoRewards} />
       
       {/* Staff App Routes - Require authentication */}
       {isLoading || !isAuthenticated ? (

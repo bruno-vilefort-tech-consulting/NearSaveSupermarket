@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, Clock, ClipboardList } from "lucide-react";
+import { Search, ShoppingCart, Clock, ClipboardList, Leaf } from "lucide-react";
 import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
 import { useToast } from "@/hooks/use-toast";
 
@@ -110,6 +110,12 @@ export default function CustomerHome() {
                   <ClipboardList size={18} />
                 </Button>
               </Link>
+
+              <Link href="/customer/eco-rewards">
+                <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700">
+                  <Leaf size={18} />
+                </Button>
+              </Link>
               
               <Link href="/customer/cart">
                 <Button variant="outline" size="sm" className="relative">
@@ -199,6 +205,15 @@ export default function CustomerHome() {
               const daysUntilExpiration = getDaysUntilExpiration(product.expirationDate);
               const discount = Math.round(((parseFloat(product.originalPrice) - parseFloat(product.discountPrice)) / parseFloat(product.originalPrice)) * 100);
               
+              // Calculate eco points for this product
+              const getEcoPoints = (days: number) => {
+                if (days <= 1) return 15;
+                if (days <= 3) return 10;
+                if (days <= 7) return 5;
+                return 0;
+              };
+              const ecoPoints = getEcoPoints(daysUntilExpiration);
+              
               return (
                 <Card key={product.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
@@ -219,6 +234,12 @@ export default function CustomerHome() {
                           <Badge variant="secondary" className="bg-red-100 text-red-700">
                             -{discount}%
                           </Badge>
+                          {ecoPoints > 0 && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                              <Leaf size={12} className="mr-1" />
+                              +{ecoPoints} pts
+                            </Badge>
+                          )}
                         </div>
 
                         <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
