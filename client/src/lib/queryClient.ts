@@ -20,7 +20,7 @@ export async function apiRequest(
     headers["Content-Type"] = "application/json";
   }
   
-  const staffUser = localStorage.getItem('staffUser');
+  const staffUser = localStorage.getItem('staffInfo');
   if (staffUser) {
     try {
       const parsed = JSON.parse(staffUser);
@@ -52,7 +52,7 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     // Add staff ID to headers for queries too
     const headers: Record<string, string> = {};
-    const staffUser = localStorage.getItem('staffUser');
+    const staffUser = localStorage.getItem('staffInfo');
     if (staffUser) {
       try {
         const parsed = JSON.parse(staffUser);
