@@ -27,6 +27,8 @@ import ForgotPassword from "@/pages/customer/forgot-password";
 import ResetPassword from "@/pages/customer/reset-password";
 import StaffLogin from "@/pages/staff-login";
 import StaffRegister from "@/pages/staff-register";
+import StaffForgotPassword from "@/pages/staff-forgot-password";
+import StaffResetPassword from "@/pages/staff-reset-password";
 import Terms from "@/pages/terms";
 
 function Router() {

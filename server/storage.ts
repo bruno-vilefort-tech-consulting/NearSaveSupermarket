@@ -1115,6 +1115,58 @@ export class DatabaseStorage implements IStorage {
       .set({ password: hashedPassword, updatedAt: new Date() })
       .where(eq(customers.email, email));
   }
+
+  // Staff password reset operations
+  async createStaffPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    // Mark token type as 'staff' to differentiate from customer tokens
+    const staffTokenData = {
+      ...tokenData,
+      userType: 'staff' as const
+    };
+    
+    const [token] = await db
+      .insert(passwordResetTokens)
+      .values(staffTokenData)
+      .returning();
+    return token;
+  }
+
+  async getStaffPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    const [resetToken] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(
+        and(
+          eq(passwordResetTokens.token, token),
+          eq(passwordResetTokens.userType, 'staff'),
+          eq(passwordResetTokens.used, 0),
+          sql`${passwordResetTokens.expiresAt} > NOW()`
+        )
+      );
+    return resetToken;
+  }
+
+  async markStaffTokenAsUsed(token: string): Promise<void> {
+    await db
+      .update(passwordResetTokens)
+      .set({ used: 1 })
+      .where(
+        and(
+          eq(passwordResetTokens.token, token),
+          eq(passwordResetTokens.userType, 'staff')
+        )
+      );
+  }
+
+  async updateStaffPassword(email: string, newPassword: string): Promise<void> {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.update(staffUsers)
+      .set({ 
+        password: hashedPassword,
+        updatedAt: new Date()
+      })
+      .where(eq(staffUsers.email, email));
+  }
 }
 
 export const storage = new DatabaseStorage();

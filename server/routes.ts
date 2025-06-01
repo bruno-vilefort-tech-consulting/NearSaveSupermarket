@@ -4,7 +4,7 @@ import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema } from "@shared/schema";
-import { sendEmail, generatePasswordResetEmail } from "./sendgrid";
+import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
@@ -811,6 +811,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Senha redefinida com sucesso!" });
     } catch (error) {
       console.error("Error in reset password:", error);
+      res.status(500).json({ message: "Erro ao redefinir senha" });
+    }
+  });
+
+  // Staff password reset routes
+  app.post("/api/staff/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email é obrigatório" });
+      }
+
+      const staffUser = await storage.getStaffUserByEmail(email);
+      if (!staffUser) {
+        // For security, don't reveal if email exists or not
+        return res.json({ message: "Se o email existir, você receberá instruções para redefinir sua senha." });
+      }
+
+      // Clean up expired tokens first
+      await storage.cleanupExpiredTokens();
+
+      // Generate secure token
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 1); // Token expires in 1 hour
+
+      // Save token to database
+      await storage.createStaffPasswordResetToken({
+        token: resetToken,
+        email: email,
+        userType: 'staff',
+        expiresAt: expiresAt,
+        used: 0
+      });
+
+      // Create reset link
+      const resetLink = `${req.protocol}://${req.get('host')}/staff/reset-password?token=${resetToken}`;
+      
+      // Generate email content
+      const emailContent = generateStaffPasswordResetEmail(resetLink, staffUser.companyName);
+      
+      // Send email
+      const emailSent = await sendEmail({
+        to: email,
+        from: 'suporte@ecomart.vc',
+        subject: emailContent.subject,
+        text: emailContent.text,
+        html: emailContent.html
+      });
+
+      if (emailSent) {
+        console.log('Staff password reset email sent successfully to:', email);
+        res.json({ message: "Instruções para redefinição de senha enviadas para seu email." });
+      } else {
+        console.error('Failed to send staff password reset email to:', email);
+        res.status(500).json({ message: "Erro ao enviar email. Tente novamente." });
+      }
+    } catch (error) {
+      console.error("Error in staff forgot password:", error);
+      res.status(500).json({ message: "Erro ao processar solicitação" });
+    }
+  });
+
+  app.post("/api/staff/reset-password", async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      
+      if (!token || !password) {
+        return res.status(400).json({ message: "Token e nova senha são obrigatórios" });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ message: "A senha deve ter pelo menos 6 caracteres" });
+      }
+
+      // Verify token
+      const resetToken = await storage.getStaffPasswordResetToken(token);
+      if (!resetToken) {
+        return res.status(400).json({ message: "Token inválido ou expirado" });
+      }
+
+      // Update password
+      await storage.updateStaffPassword(resetToken.email, password);
+      
+      // Mark token as used
+      await storage.markStaffTokenAsUsed(token);
+
+      console.log('Staff password reset completed for:', resetToken.email);
+      res.json({ message: "Senha redefinida com sucesso!" });
+    } catch (error) {
+      console.error("Error in staff reset password:", error);
       res.status(500).json({ message: "Erro ao redefinir senha" });
     }
   });
