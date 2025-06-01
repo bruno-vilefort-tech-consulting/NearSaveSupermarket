@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Leaf, LogOut } from "lucide-react";
+import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Leaf, LogOut, Menu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Supermarket {
@@ -19,6 +19,7 @@ export default function CustomerHome() {
   const [, navigate] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [cartCount, setCartCount] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
   const [customerInfo, setCustomerInfo] = useState<any>(null);
 
@@ -81,8 +82,9 @@ export default function CustomerHome() {
               <h1 className="text-xl font-bold text-gray-900">EcoMart</h1>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <div className="hidden md:block">
+            {/* Desktop Menu */}
+            <div className="hidden lg:flex items-center space-x-4">
+              <div className="hidden xl:block">
                 <p className="text-sm text-gray-600">
                   Olá, <span className="font-medium">{customerInfo?.fullName}</span>
                 </p>
@@ -92,7 +94,7 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/eco-points")}
-                className="mr-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
               >
                 <Leaf size={16} className="mr-1" />
                 {customerInfo?.ecoPoints || 0} pts
@@ -102,7 +104,6 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/orders")}
-                className="mr-2"
               >
                 <Package size={16} className="mr-1" />
                 Pedidos
@@ -129,13 +130,139 @@ export default function CustomerHome() {
                 onClick={handleLogout}
                 className="text-gray-600 hover:text-gray-900"
               >
-                <LogOut size={16} className="mr-2" />
+                <LogOut size={16} className="mr-1" />
                 Sair
+              </Button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="lg:hidden flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/customer/cart")}
+                className="relative"
+              >
+                <ShoppingCart size={16} />
+                {cartCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2"
+              >
+                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)}>
+          <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2"
+                >
+                  <X size={20} />
+                </Button>
+              </div>
+
+              {/* User Info */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Olá,</p>
+                <p className="font-medium text-gray-900">{customerInfo?.fullName}</p>
+                <div className="flex items-center mt-2">
+                  <Leaf size={16} className="text-green-600 mr-1" />
+                  <span className="text-sm font-medium text-green-700">
+                    {customerInfo?.ecoPoints || 0} Pontos Eco
+                  </span>
+                </div>
+              </div>
+
+              {/* Menu Items */}
+              <div className="space-y-3">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left h-12"
+                  onClick={() => {
+                    navigate("/customer/eco-points");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <Leaf size={20} className="mr-3 text-green-600" />
+                  <div>
+                    <div className="font-medium">Pontos Eco</div>
+                    <div className="text-xs text-gray-500">{customerInfo?.ecoPoints || 0} pontos disponíveis</div>
+                  </div>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left h-12"
+                  onClick={() => {
+                    navigate("/customer/orders");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <Package size={20} className="mr-3 text-blue-600" />
+                  <div>
+                    <div className="font-medium">Meus Pedidos</div>
+                    <div className="text-xs text-gray-500">Histórico de compras</div>
+                  </div>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left h-12"
+                  onClick={() => {
+                    navigate("/customer/cart");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <ShoppingCart size={20} className="mr-3 text-orange-600" />
+                  <div>
+                    <div className="font-medium">Carrinho</div>
+                    <div className="text-xs text-gray-500">
+                      {cartCount > 0 ? `${cartCount} itens` : 'Vazio'}
+                    </div>
+                  </div>
+                </Button>
+
+                <hr className="my-4" />
+
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-left h-12 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  <LogOut size={20} className="mr-3" />
+                  <div>
+                    <div className="font-medium">Sair</div>
+                    <div className="text-xs text-gray-500">Fazer logout</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
