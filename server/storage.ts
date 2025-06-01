@@ -1138,24 +1138,31 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(passwordResetTokens.token, token),
-          eq(passwordResetTokens.userType, 'staff'),
           eq(passwordResetTokens.used, 0),
           sql`${passwordResetTokens.expiresAt} > NOW()`
         )
       );
-    return resetToken;
+    
+    // Verify that the email belongs to a staff user
+    if (resetToken) {
+      const staffUser = await db
+        .select()
+        .from(staffUsers)
+        .where(eq(staffUsers.email, resetToken.email));
+      
+      if (staffUser.length > 0) {
+        return resetToken;
+      }
+    }
+    
+    return undefined;
   }
 
   async markStaffTokenAsUsed(token: string): Promise<void> {
     await db
       .update(passwordResetTokens)
       .set({ used: 1 })
-      .where(
-        and(
-          eq(passwordResetTokens.token, token),
-          eq(passwordResetTokens.userType, 'staff')
-        )
-      );
+      .where(eq(passwordResetTokens.token, token));
   }
 
   async updateStaffPassword(email: string, newPassword: string): Promise<void> {

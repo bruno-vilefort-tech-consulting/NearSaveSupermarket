@@ -843,7 +843,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createStaffPasswordResetToken({
         token: resetToken,
         email: email,
-        userType: 'staff',
         expiresAt: expiresAt,
         used: 0
       });
