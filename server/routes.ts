@@ -120,6 +120,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get eco actions by email
+  app.get("/api/public/eco-actions/:email", async (req, res) => {
+    try {
+      const { email } = req.params;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const ecoActions = await storage.getEcoActionsByEmail(email);
+      res.json(ecoActions);
+    } catch (error) {
+      console.error("Error fetching eco actions:", error);
+      res.status(500).json({ message: "Failed to fetch eco actions" });
+    }
+  });
+
   // Authenticated endpoint to get current user's orders
   app.get("/api/my-orders", isAuthenticated, async (req, res) => {
     try {

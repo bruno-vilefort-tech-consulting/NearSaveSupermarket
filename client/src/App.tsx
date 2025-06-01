@@ -16,6 +16,7 @@ import CustomerHome from "@/pages/customer/home";
 import CustomerCart from "@/pages/customer/cart";
 import CustomerOrders from "@/pages/customer/orders";
 import CustomerPayment from "@/pages/customer/payment";
+import EcoRewards from "@/pages/customer/eco-rewards";
 import Login from "@/pages/customer/login";
 
 function Router() {

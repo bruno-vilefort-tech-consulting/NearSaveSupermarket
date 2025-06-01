@@ -47,6 +47,11 @@ export interface IStorage {
     pendingOrders: number;
     totalRevenue: number;
   }>;
+  
+  // Eco-friendly actions
+  createEcoAction(action: InsertEcoAction): Promise<EcoAction>;
+  getEcoActionsByEmail(email: string): Promise<EcoAction[]>;
+  updateUserEcoPoints(email: string, pointsToAdd: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -345,7 +350,96 @@ export class DatabaseStorage implements IStorage {
         .where(eq(products.id, item.productId));
     }
 
+    // Calculate and apply eco-friendly rewards
+    await this.calculateEcoRewards(order, items);
+
     return order;
+  }
+
+  // Helper method to calculate eco-friendly rewards
+  private async calculateEcoRewards(order: Order, items: InsertOrderItem[]): Promise<void> {
+    if (!order.customerEmail) return;
+
+    let totalEcoPoints = 0;
+    const ecoActions: InsertEcoAction[] = [];
+
+    // Get product details to calculate rewards
+    for (const item of items) {
+      const [product] = await db
+        .select()
+        .from(products)
+        .where(eq(products.id, item.productId));
+
+      if (product) {
+        // Calculate days until expiration
+        const expirationDate = new Date(product.expirationDate);
+        const today = new Date();
+        const daysUntilExpiry = Math.ceil((expirationDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        // Award points based on how close to expiry (more points for closer to expiry)
+        let pointsPerItem = 0;
+        let actionDescription = "";
+
+        if (daysUntilExpiry <= 1) {
+          pointsPerItem = 15; // High reward for products expiring within 1 day
+          actionDescription = `Salvou ${item.quantity}x ${product.name} do desperdício (expira em 1 dia)`;
+        } else if (daysUntilExpiry <= 3) {
+          pointsPerItem = 10; // Medium reward for products expiring within 3 days
+          actionDescription = `Comprou ${item.quantity}x ${product.name} próximo ao vencimento (${daysUntilExpiry} dias)`;
+        } else if (daysUntilExpiry <= 7) {
+          pointsPerItem = 5; // Small reward for products expiring within a week
+          actionDescription = `Compra sustentável: ${item.quantity}x ${product.name} (${daysUntilExpiry} dias para vencer)`;
+        }
+
+        if (pointsPerItem > 0) {
+          const totalPoints = pointsPerItem * item.quantity;
+          totalEcoPoints += totalPoints;
+
+          ecoActions.push({
+            customerEmail: order.customerEmail,
+            actionType: 'purchase_near_expiry',
+            pointsEarned: totalPoints,
+            description: actionDescription,
+            orderId: order.id,
+          });
+        }
+      }
+    }
+
+    // Bonus for large orders (reducing packaging waste)
+    if (items.length >= 5) {
+      const bonusPoints = 20;
+      totalEcoPoints += bonusPoints;
+      ecoActions.push({
+        customerEmail: order.customerEmail,
+        actionType: 'large_order_discount',
+        pointsEarned: bonusPoints,
+        description: `Bônus pedido grande: ${items.length} itens (menos embalagens)`,
+        orderId: order.id,
+      });
+    }
+
+    // Check if it's customer's first order
+    const existingOrders = await this.getOrdersByEmail(order.customerEmail);
+    if (existingOrders.length === 1) { // This is their first order
+      const firstTimeBonus = 25;
+      totalEcoPoints += firstTimeBonus;
+      ecoActions.push({
+        customerEmail: order.customerEmail,
+        actionType: 'first_time_customer',
+        pointsEarned: firstTimeBonus,
+        description: 'Bônus primeira compra sustentável!',
+        orderId: order.id,
+      });
+    }
+
+    // Save eco actions and update user points
+    if (totalEcoPoints > 0) {
+      for (const action of ecoActions) {
+        await this.createEcoAction(action);
+      }
+      await this.updateUserEcoPoints(order.customerEmail, totalEcoPoints);
+    }
   }
 
   async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
@@ -385,6 +479,34 @@ export class DatabaseStorage implements IStorage {
       pendingOrders: pendingOrdersResult.count,
       totalRevenue: revenueResult.total,
     };
+  }
+
+  // Eco-friendly actions implementation
+  async createEcoAction(actionData: InsertEcoAction): Promise<EcoAction> {
+    const [action] = await db
+      .insert(ecoActions)
+      .values(actionData)
+      .returning();
+    return action;
+  }
+
+  async getEcoActionsByEmail(email: string): Promise<EcoAction[]> {
+    return await db
+      .select()
+      .from(ecoActions)
+      .where(eq(ecoActions.customerEmail, email))
+      .orderBy(desc(ecoActions.createdAt));
+  }
+
+  async updateUserEcoPoints(email: string, pointsToAdd: number): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        ecoPoints: sql`COALESCE(${users.ecoPoints}, 0) + ${pointsToAdd}`,
+        totalEcoActions: sql`COALESCE(${users.totalEcoActions}, 0) + 1`,
+        updatedAt: new Date()
+      })
+      .where(eq(users.email, email));
   }
 }
 
