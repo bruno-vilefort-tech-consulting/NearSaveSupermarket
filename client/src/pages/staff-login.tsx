@@ -59,10 +59,7 @@ export default function StaffLogin() {
   };
 
   const handleForgotPassword = () => {
-    toast({
-      title: "Recuperação de senha",
-      description: "Função será implementada em breve",
-    });
+    navigate("/staff/forgot-password");
   };
 
   const handleReplitLogin = () => {

@@ -43,6 +43,8 @@ function Router() {
       {/* Staff Login Routes */}
       <Route path="/staff-login" component={StaffLogin} />
       <Route path="/staff-register" component={StaffRegister} />
+      <Route path="/staff/forgot-password" component={StaffForgotPassword} />
+      <Route path="/staff/reset-password" component={StaffResetPassword} />
       
       {/* Customer App Routes */}
       <Route path="/customer/login" component={Login} />
