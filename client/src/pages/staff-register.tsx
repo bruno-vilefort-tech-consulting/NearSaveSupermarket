@@ -223,9 +223,10 @@ export default function StaffRegister() {
                 
                 <Button 
                   type="submit" 
+                  disabled={registerMutation.isPending}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
                 >
-                  Cadastrar Supermercado
+                  {registerMutation.isPending ? "Cadastrando..." : "Cadastrar Supermercado"}
                 </Button>
               </form>
 
