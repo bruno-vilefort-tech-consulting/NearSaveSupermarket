@@ -66,7 +66,8 @@ export const products = pgTable("products", {
   expirationDate: date("expiration_date").notNull(),
   imageUrl: varchar("image_url", { length: 500 }),
   isActive: integer("is_active").default(1).notNull(), // 1 for active, 0 for inactive
-  createdBy: varchar("created_by").notNull().references(() => users.id),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdByStaff: integer("created_by_staff").references(() => staffUsers.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

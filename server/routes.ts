@@ -112,7 +112,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staff products routes
   app.get('/api/staff/products', async (req, res) => {
     try {
-      const products = await storage.getProducts({ isActive: true });
+      // Get staff ID from session/token (simplified approach using header for now)
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
+      
+      const products = await storage.getProductsByStaff(parseInt(staffId));
       res.json(products);
     } catch (error: any) {
       console.error("Error fetching products:", error);
@@ -122,6 +128,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/staff/products', upload.single('image'), async (req, res) => {
     try {
+      // Get staff ID from session/token
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
+
       const productData = insertProductSchema.parse({
         ...req.body,
         originalPrice: req.body.originalPrice.toString(),
@@ -129,35 +141,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         quantity: parseInt(req.body.quantity),
       });
 
-      // Create a temporary user in the users table to satisfy the foreign key
-      // This is a simplified approach for the staff system
-      let tempUser;
-      try {
-        tempUser = await storage.getUserByIdentifier("staff-temp");
-        if (!tempUser) {
-          tempUser = await storage.upsertUser({
-            id: "staff-temp",
-            email: "staff@temp.com",
-            firstName: "Staff",
-            lastName: "User"
-          });
-        }
-      } catch (error) {
-        // If user operations fail, we'll use a basic fallback
-        console.error("Error creating temp user:", error);
-      }
-      
-      const createdBy = tempUser?.id || "staff-temp";
-      
       let imageUrl = null;
       if (req.file) {
         imageUrl = `/uploads/${req.file.filename}`;
       }
 
-      const product = await storage.createProduct({
+      const product = await storage.createProductForStaff({
         ...productData,
         imageUrl,
-        createdBy,
+        createdByStaff: parseInt(staffId),
       });
 
       res.status(201).json(product);

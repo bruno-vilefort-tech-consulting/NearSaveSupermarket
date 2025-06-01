@@ -42,6 +42,10 @@ export interface IStorage {
   updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<boolean>;
   
+  // Staff-specific product operations
+  getProductsByStaff(staffId: number): Promise<ProductWithCreator[]>;
+  createProductForStaff(product: InsertProduct & { createdByStaff: number }): Promise<Product>;
+  
   // Order operations
   getOrders(filters?: { status?: string }): Promise<OrderWithItems[]>;
   getOrder(id: number): Promise<OrderWithItems | undefined>;
@@ -239,6 +243,52 @@ export class DatabaseStorage implements IStorage {
       .set({ isActive: 0, updatedAt: new Date() })
       .where(eq(products.id, id));
     return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  // Staff-specific product operations
+  async getProductsByStaff(staffId: number): Promise<ProductWithCreator[]> {
+    try {
+      const results = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          description: products.description,
+          category: products.category,
+          originalPrice: products.originalPrice,
+          discountPrice: products.discountPrice,
+          quantity: products.quantity,
+          expirationDate: products.expirationDate,
+          imageUrl: products.imageUrl,
+          isActive: products.isActive,
+          createdByStaff: products.createdByStaff,
+          createdAt: products.createdAt,
+          updatedAt: products.updatedAt,
+          createdBy: {
+            id: staffUsers.id,
+            companyName: staffUsers.companyName,
+            email: staffUsers.email,
+          },
+        })
+        .from(products)
+        .leftJoin(staffUsers, eq(products.createdByStaff, staffUsers.id))
+        .where(and(eq(products.isActive, 1), eq(products.createdByStaff, staffId)));
+
+      return results.map(result => ({
+        ...result,
+        createdBy: result.createdBy || { id: 0, companyName: "Unknown", email: "unknown@email.com" }
+      }));
+    } catch (error) {
+      console.error("Error fetching products by staff:", error);
+      return [];
+    }
+  }
+
+  async createProductForStaff(productData: InsertProduct & { createdByStaff: number }): Promise<Product> {
+    const [product] = await db
+      .insert(products)
+      .values(productData)
+      .returning();
+    return product;
   }
 
   // Order operations
