@@ -61,6 +61,7 @@ export const orders = pgTable("orders", {
   customerName: varchar("customer_name", { length: 255 }).notNull(),
   customerEmail: varchar("customer_email", { length: 255 }),
   customerPhone: varchar("customer_phone", { length: 50 }),
+  deliveryAddress: text("delivery_address"),
   status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, prepared, shipped, picked_up
   fulfillmentMethod: varchar("fulfillment_method", { length: 50 }).notNull(), // pickup, delivery
   totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),

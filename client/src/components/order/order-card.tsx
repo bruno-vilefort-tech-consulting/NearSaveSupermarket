@@ -19,6 +19,8 @@ interface OrderCardProps {
     id: number;
     customerName: string;
     customerEmail?: string;
+    customerPhone?: string;
+    deliveryAddress?: string;
     status: string;
     fulfillmentMethod: string;
     totalAmount: string;
@@ -145,11 +147,17 @@ export function OrderCard({ order }: OrderCardProps) {
             <h3 className="font-semibold text-gray-900">Pedido #{order.id}</h3>
             <p className="text-sm text-gray-600 font-medium">{order.customerName}</p>
             {order.customerEmail && (
-              <p className="text-xs text-gray-500">{order.customerEmail}</p>
+              <p className="text-xs text-gray-500">📧 {order.customerEmail}</p>
+            )}
+            {order.customerPhone && (
+              <p className="text-xs text-gray-500">📱 {order.customerPhone}</p>
             )}
             <p className="text-xs text-gray-500">
               {order.fulfillmentMethod === "delivery" ? "🚚 Entrega" : "🏪 Retirada no Local"}
             </p>
+            {order.deliveryAddress && order.fulfillmentMethod === "delivery" && (
+              <p className="text-xs text-gray-500 mt-1">📍 {order.deliveryAddress}</p>
+            )}
           </div>
           <Badge className={currentStatus?.color || "bg-gray-100 text-gray-800"}>
             {currentStatus?.label || order.status}
