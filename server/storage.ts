@@ -691,11 +691,6 @@ export class DatabaseStorage implements IStorage {
     }
     
     try {
-      // Authorize the change at database level
-      console.log(`🔐 AUTHORIZING: Setting database authorization for ${changedBy}`);
-      await db.execute(sql`SET app.staff_authorized = 'true'`);
-      await db.execute(sql`SET app.staff_id = ${changedBy}`);
-      
       console.log(`🎯 EXECUTING: Database update for order ${id} to ${status}`);
       
       const [order] = await db
@@ -704,18 +699,18 @@ export class DatabaseStorage implements IStorage {
         .where(eq(orders.id, id))
         .returning();
       
-      // Clear the authorization immediately
-      await db.execute(sql`RESET app.staff_authorized`);
-      await db.execute(sql`RESET app.staff_id`);
+      // Log the successful change
+      if (order) {
+        await db.execute(sql`
+          INSERT INTO order_status_log (order_id, old_status, new_status, changed_by)
+          VALUES (${id}, 'previous', ${status}, ${changedBy})
+        `);
+      }
       
       console.log(`✅ SUCCESS: Order ${id} updated to ${status} by ${changedBy}`);
       
       return order;
     } catch (error) {
-      // Ensure authorization is cleared even on error
-      await db.execute(sql`RESET app.staff_authorized`);
-      await db.execute(sql`RESET app.staff_id`);
-      
       console.error(`❌ ERROR: Failed to update order ${id}:`, error);
       throw error;
     }
