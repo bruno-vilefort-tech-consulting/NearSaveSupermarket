@@ -19,19 +19,12 @@ export default function StaffResetPassword() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(location.split('?')[1]);
+    const urlParams = new URLSearchParams(window.location.search);
     const tokenParam = urlParams.get('token');
     if (tokenParam) {
       setToken(tokenParam);
-    } else {
-      toast({
-        title: "Link inválido",
-        description: "Este link de redefinição de senha é inválido ou expirou.",
-        variant: "destructive",
-      });
-      window.location.href = '/staff/login';
     }
-  }, [location, toast]);
+  }, []);
 
   const resetPasswordMutation = useMutation({
     mutationFn: async (data: { token: string; password: string }) => {
@@ -42,7 +35,7 @@ export default function StaffResetPassword() {
         title: "Senha redefinida!",
         description: "Sua senha foi redefinida com sucesso. Faça login com sua nova senha.",
       });
-      window.location.href = '/staff/login';
+      window.location.href = '/staff-login';
     },
     onError: (error: Error) => {
       toast({
