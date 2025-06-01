@@ -1,7 +1,8 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { Store, Bell } from "lucide-react";
+import { Store, Bell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export function Header() {
   const { user } = useAuth();
@@ -46,6 +47,16 @@ export function Header() {
               {getInitials(user?.firstName, user?.lastName)}
             </AvatarFallback>
           </Avatar>
+          
+          {/* Logout Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.location.href = "/api/logout"}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            <LogOut size={16} />
+          </Button>
         </div>
       </div>
     </header>
