@@ -123,7 +123,7 @@ export default function Landing() {
 
             {/* Botão Cliente */}
             <Button 
-              onClick={() => window.location.href = '/customer'}
+              onClick={() => window.location.href = '/customer/login'}
               className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
               size="lg"
             >
@@ -131,7 +131,7 @@ export default function Landing() {
                 <ShoppingCart className="h-6 w-6" />
                 <div className="text-left">
                   <div className="font-bold">Cliente</div>
-                  <div className="text-xs opacity-90">Comprar produtos com desconto</div>
+                  <div className="text-xs opacity-90">Login para comprar produtos com desconto</div>
                 </div>
               </div>
             </Button>

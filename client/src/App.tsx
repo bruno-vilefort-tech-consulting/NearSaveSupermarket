@@ -28,6 +28,7 @@ function Router() {
       <Route path="/" component={Landing} />
       
       {/* Customer App Routes */}
+      <Route path="/customer/login" component={Login} />
       <Route path="/customer" component={CustomerHome} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPayment} />
