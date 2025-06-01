@@ -12,4 +12,51 @@ if (!process.env.DATABASE_URL) {
 }
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+
+// Create a proxy to intercept all database operations
+const dbProxy = new Proxy(drizzle({ client: pool, schema }), {
+  get(target, prop) {
+    const originalMethod = target[prop];
+    
+    // Intercept update operations
+    if (prop === 'update') {
+      return function(table: any) {
+        const updateProxy = originalMethod.call(target, table);
+        
+        // Check if this is an orders table update
+        if (table === schema.orders) {
+          return new Proxy(updateProxy, {
+            get(updateTarget, updateProp) {
+              if (updateProp === 'set') {
+                return function(values: any) {
+                  // Log any attempt to update order status
+                  if (values.status) {
+                    console.log(`🚨 CRITICAL: Direct database update attempt on orders table`);
+                    console.log(`🚨 Status being set to: ${values.status}`);
+                    console.log(`🚨 Call stack:`, new Error().stack);
+                    
+                    // Block unauthorized status updates
+                    const stack = new Error().stack || '';
+                    if (!stack.includes('updateOrderStatus') && values.status !== 'pending') {
+                      console.log(`🚫 BLOCKED: Unauthorized direct status update to ${values.status}`);
+                      throw new Error(`SECURITY: Direct order status updates are not allowed. Use updateOrderStatus method.`);
+                    }
+                  }
+                  
+                  return updateTarget[updateProp].call(updateTarget, values);
+                };
+              }
+              return updateTarget[updateProp];
+            }
+          });
+        }
+        
+        return updateProxy;
+      };
+    }
+    
+    return originalMethod;
+  }
+});
+
+export const db = dbProxy;
