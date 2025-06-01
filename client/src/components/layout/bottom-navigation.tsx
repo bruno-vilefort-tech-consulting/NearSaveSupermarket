@@ -65,7 +65,7 @@ export function BottomNavigation() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-      <div className="flex justify-around">
+      <div className="flex justify-around items-end">
         {navItems.map((item) => {
           const Icon = item.icon;
           
@@ -76,10 +76,10 @@ export function BottomNavigation() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate(item.path)}
-                className="flex flex-col items-center space-y-1 p-2 text-gray-400 hover:text-gray-600"
+                className="flex flex-col items-center p-2 text-gray-400 hover:text-gray-600"
               >
-                <div className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center -mt-1">
-                  <Icon className="text-white" size={24} />
+                <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mb-1">
+                  <Icon className="text-white" size={20} />
                 </div>
                 <span className="text-xs font-medium text-primary-600">{item.label}</span>
               </Button>
@@ -98,14 +98,16 @@ export function BottomNavigation() {
                   navigate(item.path);
                 }
               }}
-              className={`flex flex-col items-center space-y-1 p-2 relative ${
+              className={`flex flex-col items-center p-2 relative ${
                 item.isActive ? "text-primary-600" : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              <Icon size={24} />
+              <div className="w-10 h-10 flex items-center justify-center mb-1">
+                <Icon size={20} />
+              </div>
               <span className="text-xs font-medium">{item.label}</span>
               {item.badge && item.badge > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-3 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                   {item.badge}
                 </span>
               )}
