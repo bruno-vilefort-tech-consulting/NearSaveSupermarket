@@ -4,10 +4,12 @@ import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema } from "@shared/schema";
+import { sendEmail, generatePasswordResetEmail } from "./sendgrid";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 
 // Configure multer for file uploads
 const uploadDir = path.join(process.cwd(), "uploads");

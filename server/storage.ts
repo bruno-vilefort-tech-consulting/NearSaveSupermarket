@@ -6,6 +6,7 @@ import {
   ecoActions,
   staffUsers,
   customers,
+  passwordResetTokens,
   type User,
   type UpsertUser,
   type Product,
@@ -22,6 +23,8 @@ import {
   type InsertCustomer,
   type ProductWithCreator,
   type OrderWithItems,
+  type PasswordResetToken,
+  type InsertPasswordResetToken,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql, or } from "drizzle-orm";
@@ -103,6 +106,13 @@ export interface IStorage {
     productCount: number;
   }>>;
   getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]>;
+  
+  // Password reset operations
+  createPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken>;
+  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  markTokenAsUsed(token: string): Promise<void>;
+  cleanupExpiredTokens(): Promise<void>;
+  updateCustomerPassword(email: string, newPassword: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1054,6 +1064,50 @@ export class DatabaseStorage implements IStorage {
         updatedAt: null,
       }
     }));
+  }
+
+  // Password reset operations
+  async createPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const [token] = await db
+      .insert(passwordResetTokens)
+      .values(tokenData)
+      .returning();
+    return token;
+  }
+
+  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    const [resetToken] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(
+        and(
+          eq(passwordResetTokens.token, token),
+          eq(passwordResetTokens.used, 0),
+          sql`${passwordResetTokens.expiresAt} > NOW()`
+        )
+      );
+    return resetToken;
+  }
+
+  async markTokenAsUsed(token: string): Promise<void> {
+    await db
+      .update(passwordResetTokens)
+      .set({ used: 1 })
+      .where(eq(passwordResetTokens.token, token));
+  }
+
+  async cleanupExpiredTokens(): Promise<void> {
+    await db
+      .delete(passwordResetTokens)
+      .where(sql`${passwordResetTokens.expiresAt} < NOW()`);
+  }
+
+  async updateCustomerPassword(email: string, newPassword: string): Promise<void> {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db
+      .update(customers)
+      .set({ password: hashedPassword, updatedAt: new Date() })
+      .where(eq(customers.email, email));
   }
 }
 
