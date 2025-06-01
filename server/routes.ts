@@ -47,7 +47,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Product routes
+  // Public product routes for customers
+  app.get("/api/public/products", async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      const filters = category ? { category, isActive: true } : { isActive: true };
+      
+      const products = await storage.getProducts(filters);
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching public products:", error);
+      res.status(500).json({ message: "Failed to fetch products" });
+    }
+  });
+
+  // Staff product routes (authenticated)
   app.get("/api/products", isAuthenticated, async (req, res) => {
     try {
       const { category, isActive } = req.query;

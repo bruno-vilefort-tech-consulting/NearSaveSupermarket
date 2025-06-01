@@ -19,7 +19,7 @@ export default function CustomerHome() {
   const [cartCount, setCartCount] = useState(0);
   const { toast } = useToast();
 
-  const [customerInfo, setCustomerInfo] = useState(null);
+  const [customerInfo, setCustomerInfo] = useState<any>(null);
 
   // Carregar contador do carrinho e informações do cliente ao inicializar
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function CustomerHome() {
   };
 
   const { data: products, isLoading } = useQuery({
-    queryKey: ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
+    queryKey: ["/api/public/products", selectedCategory === "Todos" ? undefined : selectedCategory],
   });
 
   const filteredProducts = products?.filter((product: any) =>
