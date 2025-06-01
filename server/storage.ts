@@ -672,6 +672,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    // Get current order status for logging
+    const [currentOrder] = await db
+      .select({ id: orders.id, status: orders.status })
+      .from(orders)
+      .where(eq(orders.id, id));
+    
+    if (currentOrder) {
+      console.log(`Order ${id} status change: ${currentOrder.status} -> ${status}`);
+    }
+    
     const [order] = await db
       .update(orders)
       .set({ status, updatedAt: new Date() })
