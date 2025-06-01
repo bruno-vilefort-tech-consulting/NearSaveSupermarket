@@ -36,6 +36,7 @@ interface OrderCardProps {
       };
     }>;
   };
+  canEditStatus?: boolean;
 }
 
 const statusConfig = {
