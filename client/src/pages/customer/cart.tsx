@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Plus, Minus, Trash2, MapPin, Clock } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Trash2, MapPin, Clock, User, Phone, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -29,34 +29,19 @@ export default function CustomerCart() {
   const { toast } = useToast();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [deliveryType, setDeliveryType] = useState("pickup");
-  const [customerInfo, setCustomerInfo] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: ""
-  });
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [customerInfo, setCustomerInfo] = useState<any>(null);
 
-  // Carregar itens do carrinho do localStorage ao inicializar
+  // Carregar itens do carrinho e informações do cliente do localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       setCartItems(JSON.parse(savedCart));
-    } else {
-      setCartItems([]);
     }
-  }, []);
 
-  // Carregar informações do cliente do localStorage
-  useEffect(() => {
     const savedCustomer = localStorage.getItem('customerInfo');
     if (savedCustomer) {
-      const customer = JSON.parse(savedCustomer);
-      setCustomerInfo({
-        name: customer.name || "",
-        phone: customer.phone || "",
-        email: customer.email || "",
-        address: ""
-      });
+      setCustomerInfo(JSON.parse(savedCustomer));
     }
   }, []);
 
@@ -102,6 +87,28 @@ export default function CustomerCart() {
     }, 0);
   };
 
+  // Agrupar itens por supermercado
+  const getSupermarckets = () => {
+    const supermarkets = new Map();
+    
+    cartItems.forEach(item => {
+      const supermarketName = item.createdBy?.supermarketName || "Supermercado";
+      const supermarketAddress = item.createdBy?.supermarketAddress || "Endereço não informado";
+      
+      if (!supermarkets.has(supermarketName)) {
+        supermarkets.set(supermarketName, {
+          name: supermarketName,
+          address: supermarketAddress,
+          items: []
+        });
+      }
+      
+      supermarkets.get(supermarketName).items.push(item);
+    });
+    
+    return Array.from(supermarkets.values());
+  };
+
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: any) => {
       const response = await fetch("/api/public/orders", {
@@ -137,16 +144,7 @@ export default function CustomerCart() {
   });
 
   const handleCheckout = () => {
-    if (!customerInfo.name || !customerInfo.phone) {
-      toast({
-        title: "Informações obrigatórias",
-        description: "Por favor, preencha nome e telefone.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (deliveryType === "delivery" && !customerInfo.address) {
+    if (deliveryType === "delivery" && !deliveryAddress.trim()) {
       toast({
         title: "Endereço obrigatório",
         description: "Por favor, informe o endereço para entrega.",
@@ -155,14 +153,13 @@ export default function CustomerCart() {
       return;
     }
 
-    // Salvar informações do cliente e pedido no localStorage
-    localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
+    // Salvar dados do pedido
     localStorage.setItem('orderData', JSON.stringify({
-      customerName: customerInfo.name,
-      customerEmail: customerInfo.email,
-      customerPhone: customerInfo.phone,
+      customerName: customerInfo?.fullName || "",
+      customerEmail: customerInfo?.email || "",
+      customerPhone: customerInfo?.phone || "",
       fulfillmentMethod: deliveryType === "delivery" ? "delivery" : "pickup",
-      deliveryAddress: deliveryType === "delivery" ? customerInfo.address : null,
+      deliveryAddress: deliveryType === "delivery" ? deliveryAddress : null,
       totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
       items: cartItems.map(item => ({
         productId: item.id,
@@ -207,6 +204,8 @@ export default function CustomerCart() {
     );
   }
 
+  const supermarkets = getSupermarckets();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
@@ -216,114 +215,118 @@ export default function CustomerCart() {
           </Link>
           <div className="ml-4">
             <h1 className="text-lg font-semibold">Carrinho ({cartItems.length})</h1>
-            <p className="text-sm text-green-600 font-medium">Supermercado Silva</p>
-            <p className="text-xs text-gray-500">Rua das Flores, 123 - Centro</p>
+            <p className="text-sm text-gray-500">
+              {supermarkets.length === 1 
+                ? `${supermarkets[0].name}` 
+                : `${supermarkets.length} supermercados`
+              }
+            </p>
           </div>
         </div>
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-4">
-        {/* Itens do Carrinho */}
-        {cartItems.map((item) => (
-          <Card key={item.id} className="bg-white">
+        {/* Itens do Carrinho agrupados por Supermercado */}
+        {supermarkets.map((supermarket, index) => (
+          <div key={index} className="space-y-3">
+            {/* Header do Supermercado */}
+            <div className="bg-green-50 p-3 rounded-lg border-l-4 border-green-600">
+              <h3 className="font-semibold text-green-800">{supermarket.name}</h3>
+              <div className="flex items-center text-sm text-green-600 mt-1">
+                <MapPin size={12} className="mr-1" />
+                {supermarket.address}
+              </div>
+            </div>
+
+            {/* Itens do Supermercado */}
+            {supermarket.items.map((item: CartItem) => (
+              <Card key={item.id} className="bg-white">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    {item.imageUrl && (
+                      <img 
+                        src={item.imageUrl} 
+                        alt={item.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">{item.name}</h4>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="h-3 w-3 text-orange-500" />
+                        <span className="text-xs text-orange-600">
+                          Válido até {new Date(item.expirationDate).toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <div>
+                          <span className="text-sm font-semibold text-green-600">
+                            {formatPrice(item.discountPrice)}
+                          </span>
+                          <span className="text-xs text-gray-500 line-through ml-2">
+                            {formatPrice(item.originalPrice)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="text-sm font-medium w-8 text-center">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                            onClick={() => removeItem(item.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ))}
+
+        {/* Informações do Cliente */}
+        {customerInfo && (
+          <Card className="bg-white">
             <CardContent className="p-4">
-              <div className="flex gap-3">
-                {item.imageUrl && (
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                )}
-                <div className="flex-1">
-                  <h3 className="font-medium text-sm">{item.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Clock className="h-3 w-3 text-orange-500" />
-                    <span className="text-xs text-orange-600">
-                      Válido até {new Date(item.expirationDate).toLocaleDateString('pt-BR')}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <div>
-                      <span className="text-sm font-semibold text-green-600">
-                        {formatPrice(item.discountPrice)}
-                      </span>
-                      <span className="text-xs text-gray-500 line-through ml-2">
-                        {formatPrice(item.originalPrice)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="text-sm font-medium w-8 text-center">
-                        {item.quantity}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
+              <h3 className="font-semibold mb-3">Dados do Cliente</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-gray-400" />
+                  <span>{customerInfo.fullName}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-gray-400" />
+                  <span>{customerInfo.phone}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-gray-400" />
+                  <span>{customerInfo.email}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
-        ))}
-
-        {/* Informações do Cliente */}
-        <Card className="bg-white">
-          <CardContent className="p-4">
-            <h3 className="font-semibold mb-3">Informações de Contato</h3>
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="name">Nome *</Label>
-                <Input
-                  id="name"
-                  value={customerInfo.name}
-                  onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
-                  placeholder="Seu nome completo"
-                />
-              </div>
-              <div>
-                <Label htmlFor="phone">Telefone *</Label>
-                <Input
-                  id="phone"
-                  value={customerInfo.phone}
-                  onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-              <div>
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={customerInfo.email}
-                  onChange={(e) => setCustomerInfo({...customerInfo, email: e.target.value})}
-                  placeholder="seu@email.com"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        )}
 
         {/* Tipo de Entrega */}
         <Card className="bg-white">
@@ -355,8 +358,8 @@ export default function CustomerCart() {
                 <Label htmlFor="address">Endereço para Entrega *</Label>
                 <Input
                   id="address"
-                  value={customerInfo.address}
-                  onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
+                  value={deliveryAddress}
+                  onChange={(e) => setDeliveryAddress(e.target.value)}
                   placeholder="Rua, número, bairro, cidade"
                 />
               </div>
