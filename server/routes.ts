@@ -682,6 +682,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Customer Routes - Get customer orders
+  app.get("/api/customer/orders", async (req, res) => {
+    try {
+      const { phone, email } = req.query;
+      
+      if (!phone && !email) {
+        return res.status(400).json({ message: "Telefone ou email é obrigatório" });
+      }
+
+      let orders;
+      if (email) {
+        orders = await storage.getOrdersByEmail(email as string);
+      } else {
+        orders = await storage.getOrdersByPhone(phone as string);
+      }
+
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching customer orders:", error);
+      res.status(500).json({ message: "Erro ao buscar pedidos do cliente" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

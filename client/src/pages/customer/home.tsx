@@ -91,6 +91,16 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => navigate("/customer/orders")}
+                className="mr-2"
+              >
+                <Package size={16} className="mr-1" />
+                Pedidos
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => navigate("/customer/cart")}
                 className="relative"
               >
