@@ -18,12 +18,20 @@ export default function Orders() {
   const [selectedStatus, setSelectedStatus] = useState("");
 
   const { data: orders, isLoading } = useQuery({
-    queryKey: ["/api/orders", selectedStatus],
+    queryKey: ["/api/staff/orders", selectedStatus],
     queryFn: async () => {
       const url = selectedStatus 
-        ? `/api/orders?status=${selectedStatus}`
-        : "/api/orders";
-      const response = await fetch(url);
+        ? `/api/staff/orders?status=${selectedStatus}`
+        : "/api/staff/orders";
+      
+      // Get staff info from localStorage to add to headers
+      const staffUser = JSON.parse(localStorage.getItem('staffUser') || '{}');
+      
+      const response = await fetch(url, {
+        headers: {
+          'x-staff-id': staffUser.id?.toString() || '1'
+        }
+      });
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }

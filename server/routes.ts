@@ -468,7 +468,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Order routes
+  // Staff order routes
+  app.get("/api/staff/orders", async (req, res) => {
+    try {
+      // Get staff ID from headers (set by frontend)
+      const staffId = req.headers['x-staff-id'];
+      
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff authentication required" });
+      }
+
+      const { status } = req.query;
+      const filters: any = {};
+      
+      if (status && typeof status === "string") {
+        filters.status = status;
+      }
+
+      const orders = await storage.getOrders(filters);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  // Legacy route for backward compatibility (keeping for Replit auth users)
   app.get("/api/orders", isAuthenticated, async (req, res) => {
     try {
       const { status } = req.query;
@@ -540,6 +565,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff route for updating order status
+  app.put("/api/staff/orders/:id/status", async (req, res) => {
+    try {
+      const staffId = req.headers['x-staff-id'];
+      
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff authentication required" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+
+      const { status } = req.body;
+      if (!status || typeof status !== "string") {
+        return res.status(400).json({ message: "Status is required" });
+      }
+
+      const validStatuses = ["pending", "confirmed", "preparing", "ready", "shipped", "completed", "cancelled"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ 
+          message: "Invalid status",
+          validStatuses 
+        });
+      }
+
+      const order = await storage.updateOrderStatus(id, status);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      res.json(order);
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      res.status(500).json({ message: "Failed to update order status" });
+    }
+  });
+
+  // Legacy route for Replit auth users
   app.put("/api/orders/:id/status", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);

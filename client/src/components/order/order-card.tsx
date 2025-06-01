@@ -72,14 +72,30 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
 
   const updateStatusMutation = useMutation({
     mutationFn: async (newStatus: string) => {
-      await apiRequest("PUT", `/api/orders/${order.id}/status`, { status: newStatus });
+      // Get staff info from localStorage to add to headers
+      const staffUser = JSON.parse(localStorage.getItem('staffUser') || '{}');
+      
+      const response = await fetch(`/api/staff/orders/${order.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-staff-id': staffUser.id?.toString() || '1'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
         description: "Order status updated successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/orders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
     },
     onError: (error) => {
