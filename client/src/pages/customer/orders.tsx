@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export default function CustomerOrders() {
   const { toast } = useToast();
 
   // Carregar telefone salvo do localStorage
-  useState(() => {
+  useEffect(() => {
     const savedCustomer = localStorage.getItem('customerInfo');
     if (savedCustomer) {
       const customer = JSON.parse(savedCustomer);
@@ -46,7 +46,7 @@ export default function CustomerOrders() {
         setPhoneNumber(customer.phone);
       }
     }
-  });
+  }, []);
 
   const { data: orders, isLoading, error, refetch } = useQuery({
     queryKey: ['/api/public/orders', phoneNumber],
