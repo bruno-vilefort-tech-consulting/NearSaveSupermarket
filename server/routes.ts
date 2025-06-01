@@ -70,9 +70,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
+      // Check if user is authenticated and get their email
+      let userEmail = customerEmail || null;
+      if (req.isAuthenticated && req.isAuthenticated() && req.user?.claims?.sub) {
+        const user = await storage.getUser(req.user.claims.sub);
+        if (user && user.email) {
+          userEmail = user.email;
+        }
+      }
+
       const orderData = {
         customerName,
-        customerEmail: customerEmail || null,
+        customerEmail: userEmail,
         customerPhone,
         status: "pending",
         fulfillmentMethod: fulfillmentMethod || "pickup",
