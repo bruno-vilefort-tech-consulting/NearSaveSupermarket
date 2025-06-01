@@ -124,8 +124,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const productData = insertProductSchema.parse({
         ...req.body,
-        originalPrice: parseFloat(req.body.originalPrice),
-        discountPrice: parseFloat(req.body.discountPrice),
+        originalPrice: req.body.originalPrice.toString(),
+        discountPrice: req.body.discountPrice.toString(),
         quantity: parseInt(req.body.quantity),
       });
 
