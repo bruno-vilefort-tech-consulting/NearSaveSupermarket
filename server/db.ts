@@ -29,17 +29,21 @@ const dbProxy = new Proxy(drizzle({ client: pool, schema }), {
             get(updateTarget, updateProp) {
               if (updateProp === 'set') {
                 return function(values: any) {
-                  // Log any attempt to update order status
+                  // ABSOLUTE BLOCK: No direct status updates allowed
                   if (values.status) {
                     console.log(`🚨 CRITICAL: Direct database update attempt on orders table`);
                     console.log(`🚨 Status being set to: ${values.status}`);
                     console.log(`🚨 Call stack:`, new Error().stack);
                     
-                    // Block unauthorized status updates
+                    // COMPLETE BLOCK - Only allow through updateOrderStatus with STAFF prefix
                     const stack = new Error().stack || '';
-                    if (!stack.includes('updateOrderStatus') && values.status !== 'pending') {
-                      console.log(`🚫 BLOCKED: Unauthorized direct status update to ${values.status}`);
-                      throw new Error(`SECURITY: Direct order status updates are not allowed. Use updateOrderStatus method.`);
+                    const isAuthorized = stack.includes('updateOrderStatus') && stack.includes('STAFF_');
+                    
+                    if (!isAuthorized) {
+                      console.log(`🚫 BLOCKED: All direct status updates blocked. Status: ${values.status}`);
+                      console.log(`🚫 Stack includes updateOrderStatus: ${stack.includes('updateOrderStatus')}`);
+                      console.log(`🚫 Stack includes STAFF_: ${stack.includes('STAFF_')}`);
+                      throw new Error(`SECURITY LOCKDOWN: All order status updates blocked. Only manual staff changes allowed.`);
                     }
                   }
                   
