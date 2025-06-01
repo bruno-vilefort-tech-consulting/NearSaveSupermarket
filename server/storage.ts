@@ -61,6 +61,15 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByIdentifier(identifier: string): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(sql`${users.email} = ${identifier} OR ${users.id} = ${identifier}`)
+      .limit(1);
+    return user;
+  }
+
   async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
@@ -502,15 +511,42 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(ecoActions.createdAt));
   }
 
-  async updateUserEcoPoints(email: string, pointsToAdd: number): Promise<void> {
-    await db
+  async updateUserEcoPoints(identifier: string, pointsToAdd: number): Promise<void> {
+    // Try to update existing user by email or id
+    const updateResult = await db
       .update(users)
       .set({ 
         ecoPoints: sql`COALESCE(${users.ecoPoints}, 0) + ${pointsToAdd}`,
         totalEcoActions: sql`COALESCE(${users.totalEcoActions}, 0) + 1`,
         updatedAt: new Date()
       })
-      .where(eq(users.email, email));
+      .where(sql`${users.email} = ${identifier} OR ${users.id} = ${identifier}`)
+      .returning();
+
+    // If no user was updated, create a basic user entry for points tracking
+    if (updateResult.length === 0) {
+      try {
+        await db
+          .insert(users)
+          .values({
+            id: identifier.includes('@') ? crypto.randomUUID() : identifier,
+            email: identifier.includes('@') ? identifier : null,
+            ecoPoints: pointsToAdd,
+            totalEcoActions: 1,
+          })
+          .onConflictDoNothing();
+      } catch (error) {
+        // If insertion fails due to conflict, try update again
+        await db
+          .update(users)
+          .set({ 
+            ecoPoints: sql`COALESCE(${users.ecoPoints}, 0) + ${pointsToAdd}`,
+            totalEcoActions: sql`COALESCE(${users.totalEcoActions}, 0) + 1`,
+            updatedAt: new Date()
+          })
+          .where(sql`${users.email} = ${identifier} OR ${users.id} = ${identifier}`);
+      }
+    }
   }
 }
 

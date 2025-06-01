@@ -40,6 +40,20 @@ export default function EcoRewards() {
     enabled: !!customerIdentifier,
   });
 
+  // Get user total points
+  const { data: userPoints = { ecoPoints: 0, totalEcoActions: 0 }, isLoading: userLoading } = useQuery({
+    queryKey: ["/api/public/user-eco-points", customerIdentifier],
+    queryFn: async () => {
+      if (!customerIdentifier) return { ecoPoints: 0, totalEcoActions: 0 };
+      const response = await fetch(`/api/public/user-eco-points/${customerIdentifier}`);
+      if (!response.ok) {
+        return { ecoPoints: 0, totalEcoActions: 0 };
+      }
+      return response.json();
+    },
+    enabled: !!customerIdentifier,
+  });
+
   const totalPoints = ecoActions.reduce((sum: number, action: EcoAction) => sum + action.pointsEarned, 0);
 
   const formatDate = (dateString: string) => {

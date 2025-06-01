@@ -137,6 +137,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get user eco points
+  app.get("/api/public/user-eco-points/:identifier", async (req, res) => {
+    try {
+      const { identifier } = req.params;
+      
+      if (!identifier) {
+        return res.status(400).json({ message: "Email or phone is required" });
+      }
+
+      const user = await storage.getUserByIdentifier(identifier);
+      if (!user) {
+        return res.json({ ecoPoints: 0, totalEcoActions: 0 });
+      }
+
+      res.json({ 
+        ecoPoints: user.ecoPoints || 0, 
+        totalEcoActions: user.totalEcoActions || 0 
+      });
+    } catch (error) {
+      console.error("Error fetching user eco points:", error);
+      res.status(500).json({ message: "Failed to fetch user eco points" });
+    }
+  });
+
   // Authenticated endpoint to get current user's orders
   app.get("/api/my-orders", isAuthenticated, async (req, res) => {
     try {
