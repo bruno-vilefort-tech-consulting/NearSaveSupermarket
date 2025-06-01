@@ -58,6 +58,7 @@ export interface IStorage {
   
   // Order operations
   getOrders(filters?: { status?: string }): Promise<OrderWithItems[]>;
+  getOrdersByStaff(staffId: number, filters?: { status?: string }): Promise<OrderWithItems[]>;
   getOrder(id: number): Promise<OrderWithItems | undefined>;
   getOrdersByPhone(phone: string): Promise<OrderWithItems[]>;
   getOrdersByEmail(email: string): Promise<OrderWithItems[]>;
@@ -354,6 +355,60 @@ export class DatabaseStorage implements IStorage {
     // Get order items for each order
     const ordersWithItems = await Promise.all(
       orderResults.map(async (order) => {
+        const items = await db
+          .select({
+            id: orderItems.id,
+            orderId: orderItems.orderId,
+            productId: orderItems.productId,
+            quantity: orderItems.quantity,
+            priceAtTime: orderItems.priceAtTime,
+            createdAt: orderItems.createdAt,
+            product: products,
+          })
+          .from(orderItems)
+          .innerJoin(products, eq(orderItems.productId, products.id))
+          .where(eq(orderItems.orderId, order.id));
+
+        return {
+          ...order,
+          orderItems: items,
+        };
+      })
+    );
+
+    return ordersWithItems;
+  }
+
+  async getOrdersByStaff(staffId: number, filters?: { status?: string }): Promise<OrderWithItems[]> {
+    // First, get all orders that contain products created by this staff
+    let whereConditions = [eq(products.createdByStaff, staffId)];
+    
+    if (filters?.status) {
+      whereConditions.push(eq(orders.status, filters.status));
+    }
+
+    const staffOrders = await db
+      .selectDistinct({
+        id: orders.id,
+        customerName: orders.customerName,
+        customerEmail: orders.customerEmail,
+        customerPhone: orders.customerPhone,
+        deliveryAddress: orders.deliveryAddress,
+        status: orders.status,
+        fulfillmentMethod: orders.fulfillmentMethod,
+        totalAmount: orders.totalAmount,
+        notes: orders.notes,
+        createdAt: orders.createdAt,
+        updatedAt: orders.updatedAt,
+      })
+      .from(orders)
+      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(and(...whereConditions))
+      .orderBy(desc(orders.createdAt));
+
+    const ordersWithItems = await Promise.all(
+      staffOrders.map(async (order) => {
         const items = await db
           .select({
             id: orderItems.id,

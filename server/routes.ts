@@ -485,7 +485,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filters.status = status;
       }
 
-      const orders = await storage.getOrders(filters);
+      const orders = await storage.getOrdersByStaff(parseInt(staffId as string), filters);
+      console.log(`Fetched ${orders.length} orders for staff ${staffId}`);
       res.json(orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
