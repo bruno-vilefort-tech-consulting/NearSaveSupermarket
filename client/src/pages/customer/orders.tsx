@@ -50,6 +50,14 @@ export default function CustomerOrders() {
 
   const { data: orders, isLoading, error, refetch } = useQuery({
     queryKey: ['/api/public/orders', phoneNumber],
+    queryFn: async () => {
+      if (!phoneNumber) throw new Error("Phone number required");
+      const response = await fetch(`/api/public/orders/${encodeURIComponent(phoneNumber)}`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      return response.json();
+    },
     enabled: searchTriggered && phoneNumber.length > 0,
     retry: false,
   });
