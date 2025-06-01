@@ -585,7 +585,35 @@ export class DatabaseStorage implements IStorage {
     // Calculate and apply eco-friendly rewards
     await this.calculateEcoRewards(order, items);
 
+    // Iniciar monitoramento de proteção para este pedido
+    this.startOrderProtection(order.id);
+
     return order;
+  }
+
+  private async startOrderProtection(orderId: number): Promise<void> {
+    // Monitorar o pedido por 2 minutos para reverter mudanças automáticas
+    setTimeout(async () => {
+      try {
+        const [currentOrder] = await db.select().from(orders).where(eq(orders.id, orderId));
+        
+        if (currentOrder && currentOrder.status !== 'pending') {
+          console.log(`🛡️ PROTECTION: Reverting automatic status change for order ${orderId} from ${currentOrder.status} back to pending`);
+          
+          await db
+            .update(orders)
+            .set({ 
+              status: 'pending',
+              updatedAt: currentOrder.createdAt // Restaurar timestamp original
+            })
+            .where(eq(orders.id, orderId));
+            
+          console.log(`✅ PROTECTION: Order ${orderId} status reverted to pending`);
+        }
+      } catch (error) {
+        console.error(`❌ PROTECTION ERROR: Failed to protect order ${orderId}:`, error);
+      }
+    }, 30000); // Verificar após 30 segundos
   }
 
   // Helper method to calculate eco-friendly rewards
