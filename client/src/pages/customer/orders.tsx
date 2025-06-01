@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Search, MapPin, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { OrderTimeline } from "@/components/order/order-timeline";
 
 interface OrderItem {
   id: number;
@@ -191,65 +192,74 @@ export default function CustomerOrders() {
             </h2>
             
             {orders.map((order: Order) => (
-              <Card key={order.id} className="bg-white">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h3 className="font-semibold">Pedido #{order.id}</h3>
-                      <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
-                      <p className="text-sm text-green-600 font-medium">Supermercado Silva</p>
-                      <p className="text-xs text-gray-500">Rua das Flores, 123 - Centro</p>
+              <div key={order.id} className="space-y-4">
+                <Card className="bg-white">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-semibold">Pedido #{order.id}</h3>
+                        <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+                        <p className="text-sm text-green-600 font-medium">Supermercado Silva</p>
+                        <p className="text-xs text-gray-500">Rua das Flores, 123 - Centro</p>
+                      </div>
+                      {getStatusBadge(order.status)}
                     </div>
-                    {getStatusBadge(order.status)}
-                  </div>
 
-                  <div className="space-y-2 mb-3">
-                    <div className="flex items-center gap-2 text-sm">
-                      {order.fulfillmentMethod === "delivery" ? (
-                        <MapPin className="h-4 w-4 text-blue-500" />
-                      ) : (
-                        <Package className="h-4 w-4 text-green-500" />
-                      )}
-                      <span>
-                        {order.fulfillmentMethod === "delivery" ? "Entrega" : "Retirada no Local"}
-                      </span>
-                    </div>
-                    
-                    {order.deliveryAddress && (
-                      <p className="text-sm text-gray-600 ml-6">{order.deliveryAddress}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2 mb-3">
-                    {order.orderItems.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center text-sm">
-                        <div className="flex gap-2">
-                          {item.product.imageUrl && (
-                            <img 
-                              src={item.product.imageUrl} 
-                              alt={item.product.name}
-                              className="w-8 h-8 object-cover rounded"
-                            />
-                          )}
-                          <div>
-                            <span className="font-medium">{item.quantity}x</span> {item.product.name}
-                          </div>
-                        </div>
-                        <span className="text-green-600 font-medium">
-                          {formatPrice(item.priceAtTime)}
+                    <div className="space-y-2 mb-3">
+                      <div className="flex items-center gap-2 text-sm">
+                        {order.fulfillmentMethod === "delivery" ? (
+                          <MapPin className="h-4 w-4 text-blue-500" />
+                        ) : (
+                          <Package className="h-4 w-4 text-green-500" />
+                        )}
+                        <span>
+                          {order.fulfillmentMethod === "delivery" ? "Entrega" : "Retirada no Local"}
                         </span>
                       </div>
-                    ))}
-                  </div>
+                      
+                      {order.deliveryAddress && (
+                        <p className="text-sm text-gray-600 ml-6">{order.deliveryAddress}</p>
+                      )}
+                    </div>
 
-                  <div className="border-t pt-2 flex justify-between items-center">
-                    <span className="font-semibold">Total</span>
-                    <span className="font-semibold text-lg text-green-600">
-                      {formatPrice(order.totalAmount)}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="space-y-2 mb-3">
+                      {order.orderItems.map((item) => (
+                        <div key={item.id} className="flex justify-between items-center text-sm">
+                          <div className="flex gap-2">
+                            {item.product.imageUrl && (
+                              <img 
+                                src={item.product.imageUrl} 
+                                alt={item.product.name}
+                                className="w-8 h-8 object-cover rounded"
+                              />
+                            )}
+                            <div>
+                              <span className="font-medium">{item.quantity}x</span> {item.product.name}
+                            </div>
+                          </div>
+                          <span className="text-green-600 font-medium">
+                            {formatPrice(item.priceAtTime)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="border-t pt-2 flex justify-between items-center">
+                      <span className="font-semibold">Total</span>
+                      <span className="font-semibold text-lg text-green-600">
+                        {formatPrice(order.totalAmount)}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Timeline de Status */}
+                <OrderTimeline 
+                  currentStatus={order.status}
+                  fulfillmentMethod={order.fulfillmentMethod}
+                  createdAt={order.createdAt}
+                />
+              </div>
             ))}
           </div>
         )}
