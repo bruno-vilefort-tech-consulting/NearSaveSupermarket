@@ -61,6 +61,7 @@ export default function CustomerOrders() {
     },
     enabled: searchTriggered && !!customerInfo?.phone,
     retry: false,
+    refetchInterval: 10000, // Atualizar a cada 10 segundos
   });
 
   const formatPrice = (price: string) => {
@@ -79,16 +80,21 @@ export default function CustomerOrders() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pending: { label: "Pendente", variant: "secondary" as const },
-      confirmed: { label: "Confirmado", variant: "default" as const },
-      preparing: { label: "Preparando", variant: "default" as const },
-      ready: { label: "Pronto", variant: "default" as const },
-      completed: { label: "Concluído", variant: "default" as const },
-      cancelled: { label: "Cancelado", variant: "destructive" as const },
+      pending: { label: "Pendente", variant: "secondary" as const, color: "bg-yellow-100 text-yellow-800" },
+      confirmed: { label: "Confirmado", variant: "default" as const, color: "bg-blue-100 text-blue-800" },
+      preparing: { label: "Preparando", variant: "default" as const, color: "bg-orange-100 text-orange-800" },
+      ready: { label: "Pronto", variant: "default" as const, color: "bg-purple-100 text-purple-800" },
+      shipped: { label: "Em Entrega", variant: "default" as const, color: "bg-indigo-100 text-indigo-800" },
+      completed: { label: "Concluído", variant: "default" as const, color: "bg-green-100 text-green-800" },
+      cancelled: { label: "Cancelado", variant: "destructive" as const, color: "bg-red-100 text-red-800" },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+        {config.label}
+      </span>
+    );
   };
 
   if (!customerInfo) {

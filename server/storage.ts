@@ -323,13 +323,24 @@ export class DatabaseStorage implements IStorage {
       .values(orderData)
       .returning();
 
-    // Insert order items
+    // Insert order items and update product quantities
     const orderItemsData = items.map(item => ({
       ...item,
       orderId: order.id,
     }));
 
     await db.insert(orderItems).values(orderItemsData);
+
+    // Update product quantities (reduce stock)
+    for (const item of items) {
+      await db
+        .update(products)
+        .set({ 
+          quantity: sql`${products.quantity} - ${item.quantity}`,
+          updatedAt: new Date()
+        })
+        .where(eq(products.id, item.productId));
+    }
 
     return order;
   }

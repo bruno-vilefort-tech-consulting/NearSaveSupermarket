@@ -16,6 +16,7 @@ export default function Products() {
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
+    refetchInterval: 5000, // Atualizar estoque a cada 5 segundos
   });
 
   const filteredProducts = products?.filter((product: any) =>
