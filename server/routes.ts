@@ -596,7 +596,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`MANUAL STATUS UPDATE: Order ${id} status changed to ${status} by staff ${staffId}`);
-      const order = await storage.updateOrderStatus(id, status);
+      const order = await storage.updateOrderStatus(id, status, `STAFF_${staffId}`);
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }

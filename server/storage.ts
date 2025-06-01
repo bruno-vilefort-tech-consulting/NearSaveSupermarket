@@ -671,7 +671,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+  async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
     // Get current order status for logging
     const [currentOrder] = await db
       .select({ id: orders.id, status: orders.status })
@@ -679,7 +679,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id));
     
     if (currentOrder) {
-      console.log(`Order ${id} status change: ${currentOrder.status} -> ${status}`);
+      console.log(`Order ${id} status change: ${currentOrder.status} -> ${status} (by: ${changedBy})`);
+      
+      // Log to database
+      await db.execute(sql`
+        INSERT INTO order_status_log (order_id, old_status, new_status, changed_by)
+        VALUES (${id}, ${currentOrder.status}, ${status}, ${changedBy})
+      `);
+      
+      // Get stack trace to identify where this call came from
+      const stack = new Error().stack;
+      console.log('Stack trace for status change:', stack);
     }
     
     const [order] = await db
