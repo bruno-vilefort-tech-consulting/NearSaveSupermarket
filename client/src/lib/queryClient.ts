@@ -25,9 +25,12 @@ export async function apiRequest(
     try {
       const parsed = JSON.parse(staffUser);
       headers["X-Staff-Id"] = parsed.id.toString();
+      console.log("Adding staff ID to headers:", parsed.id);
     } catch (e) {
-      // Ignore parsing errors
+      console.error("Error parsing staff user:", e);
     }
+  } else {
+    console.log("No staff user found in localStorage");
   }
 
   const res = await fetch(url, {
