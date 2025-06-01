@@ -15,6 +15,7 @@ import Orders from "@/pages/orders";
 import CustomerHome from "@/pages/customer/home";
 import CustomerCart from "@/pages/customer/cart";
 import CustomerOrders from "@/pages/customer/orders";
+import CustomerLogin from "@/pages/customer/login";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/customer" component={CustomerHome} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/orders" component={CustomerOrders} />
+      <Route path="/customer/login" component={CustomerLogin} />
       
       {/* Staff App Routes - Require authentication */}
       {isLoading || !isAuthenticated ? (

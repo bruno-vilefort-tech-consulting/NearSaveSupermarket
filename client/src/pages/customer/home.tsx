@@ -85,16 +85,23 @@ export default function CustomerHome() {
               <h1 className="text-xl font-bold text-gray-900">FreshSaver</h1>
               <p className="text-sm text-gray-600">Produtos com desconto próximos ao vencimento</p>
             </div>
-            <Link href="/customer/cart">
-              <Button variant="outline" size="sm" className="relative">
-                <ShoppingCart size={18} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            <div className="flex items-center space-x-2">
+              <Link href="/customer/cart">
+                <Button variant="outline" size="sm" className="relative">
+                  <ShoppingCart size={18} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+              <Link href="/customer/login">
+                <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
+                  Login
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Search */}
