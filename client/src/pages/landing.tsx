@@ -104,30 +104,24 @@ export default function Landing() {
         {/* Botões de Login */}
         <div className="space-y-4">
           <Button 
-            onClick={handleLogin}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
-            size="lg"
-          >
-            <div className="flex items-center justify-center space-x-3">
-              <Users className="h-6 w-6" />
-              <div>
-                <div className="font-bold text-lg">Staff do Supermercado</div>
-                <div className="text-sm opacity-90">Gerenciar produtos e pedidos</div>
-              </div>
-            </div>
-          </Button>
-
-          <Button 
             onClick={() => window.location.href = '/customer/login'}
             className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
             size="lg"
           >
             <div className="flex items-center justify-center space-x-3">
               <ShoppingCart className="h-6 w-6" />
-              <div>
-                <div className="font-bold text-lg">Cliente</div>
-                <div className="text-sm opacity-90">Comprar com desconto sustentável</div>
-              </div>
+              <span className="font-bold text-lg">Cliente - Consumidor</span>
+            </div>
+          </Button>
+
+          <Button 
+            onClick={handleLogin}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
+            size="lg"
+          >
+            <div className="flex items-center justify-center space-x-3">
+              <Users className="h-6 w-6" />
+              <span className="font-bold text-lg">Staff do Supermercado</span>
             </div>
           </Button>
         </div>
