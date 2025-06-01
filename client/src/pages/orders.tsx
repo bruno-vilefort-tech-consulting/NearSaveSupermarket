@@ -18,7 +18,17 @@ export default function Orders() {
   const [selectedStatus, setSelectedStatus] = useState("");
 
   const { data: orders, isLoading } = useQuery({
-    queryKey: ["/api/orders", selectedStatus || undefined],
+    queryKey: ["/api/orders", selectedStatus],
+    queryFn: async () => {
+      const url = selectedStatus 
+        ? `/api/orders?status=${selectedStatus}`
+        : "/api/orders";
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      return response.json();
+    },
   });
 
   return (
