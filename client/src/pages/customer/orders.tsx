@@ -1,10 +1,13 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Package } from "lucide-react";
+import { ArrowLeft, Search, MapPin, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface OrderItem {
   id: number;
@@ -30,11 +33,33 @@ interface Order {
 }
 
 export default function CustomerOrders() {
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const [customerInfo, setCustomerInfo] = useState<any>(null);
+  const [searchTriggered, setSearchTriggered] = useState(false);
+  const { toast } = useToast();
 
-  const { data: orders, isLoading, error } = useQuery({
-    queryKey: ['/api/my-orders'],
-    enabled: isAuthenticated && !!user,
+  // Carregar informações do cliente do localStorage
+  useEffect(() => {
+    const savedCustomer = localStorage.getItem('customerInfo');
+    if (savedCustomer) {
+      const customer = JSON.parse(savedCustomer);
+      setCustomerInfo(customer);
+      if (customer.phone) {
+        setSearchTriggered(true);
+      }
+    }
+  }, []);
+
+  const { data: orders, isLoading, error, refetch } = useQuery({
+    queryKey: ['/api/public/orders', customerInfo?.phone],
+    queryFn: async () => {
+      if (!customerInfo?.phone) throw new Error("Phone number required");
+      const response = await fetch(`/api/public/orders/${encodeURIComponent(customerInfo.phone)}`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: searchTriggered && !!customerInfo?.phone,
     retry: false,
   });
 
@@ -66,26 +91,7 @@ export default function CustomerOrders() {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-            <Link href="/customer">
-              <ArrowLeft className="h-6 w-6 text-gray-600" />
-            </Link>
-            <h1 className="ml-4 text-lg font-semibold">Meus Pedidos</h1>
-          </div>
-        </div>
-        <div className="text-center py-8">
-          <div className="animate-spin w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full mx-auto"></div>
-          <p className="mt-2 text-gray-600">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
+  if (!customerInfo) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white shadow-sm border-b">
@@ -99,12 +105,12 @@ export default function CustomerOrders() {
         <div className="max-w-md mx-auto p-4 pt-8">
           <div className="text-center">
             <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold mb-2">Login necessário</h2>
-            <p className="text-gray-600 mb-4">Faça login para ver seus pedidos.</p>
-            <Link href="/">
-              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                Fazer Login
-              </button>
+            <h2 className="text-lg font-semibold mb-2">Nenhuma informação encontrada</h2>
+            <p className="text-gray-600 mb-4">Faça pelo menos um pedido primeiro para poder acompanhar suas compras.</p>
+            <Link href="/customer">
+              <Button className="bg-green-600 hover:bg-green-700">
+                Fazer Primeiro Pedido
+              </Button>
             </Link>
           </div>
         </div>
@@ -124,6 +130,28 @@ export default function CustomerOrders() {
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-4">
+        {/* Informações do cliente */}
+        <Card className="bg-white">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold">Olá, {customerInfo.name}!</h3>
+                <p className="text-sm text-gray-600">Tel: {customerInfo.phone}</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isLoading}
+              >
+                <Search className="h-4 w-4 mr-2" />
+                {isLoading ? "Atualizando..." : "Atualizar"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Resultados */}
         {isLoading && (
           <div className="text-center py-8">
             <div className="animate-spin w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full mx-auto"></div>
@@ -143,9 +171,9 @@ export default function CustomerOrders() {
             <h2 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h2>
             <p className="text-gray-600 mb-4">Você ainda não fez nenhum pedido.</p>
             <Link href="/customer">
-              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+              <Button className="bg-green-600 hover:bg-green-700">
                 Fazer Primeiro Pedido
-              </button>
+              </Button>
             </Link>
           </div>
         )}
