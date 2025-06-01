@@ -27,8 +27,8 @@ function Router() {
       
       {/* Customer App Routes */}
       <Route path="/customer" component={CustomerHome} />
-      <Route path="/cart" component={CustomerCart} />
-      <Route path="/customer-orders" component={CustomerOrders} />
+      <Route path="/customer/cart" component={CustomerCart} />
+      <Route path="/customer/orders" component={CustomerOrders} />
       
       {/* Staff App Routes - Require authentication */}
       {isLoading || !isAuthenticated ? (

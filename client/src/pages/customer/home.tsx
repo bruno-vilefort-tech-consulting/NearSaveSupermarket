@@ -105,7 +105,13 @@ export default function CustomerHome() {
               <p className="text-sm text-gray-600">Produtos com desconto próximos ao vencimento</p>
             </div>
             <div className="flex items-center space-x-2">
-              <Link href="/cart">
+              <Link href="/customer/orders">
+                <Button variant="outline" size="sm">
+                  <Receipt size={18} />
+                </Button>
+              </Link>
+              
+              <Link href="/customer/cart">
                 <Button variant="outline" size="sm" className="relative">
                   <ShoppingCart size={18} />
                   {cartCount > 0 && (
