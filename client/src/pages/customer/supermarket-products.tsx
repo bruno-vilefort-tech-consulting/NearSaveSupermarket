@@ -55,7 +55,8 @@ export default function SupermarketProducts() {
   const filteredProducts = products?.filter((product: Product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const hasStock = product.quantity > 0; // Ocultar produtos sem estoque
+    return matchesSearch && matchesCategory && hasStock;
   }) || [];
 
   const formatPrice = (price: string) => {

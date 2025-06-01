@@ -231,9 +231,10 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
             </Button>
             <Button 
               onClick={handleAddToCart}
-              className="flex-1 bg-green-600 hover:bg-green-700"
+              disabled={product.quantity === 0}
+              className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Adicionar ao Carrinho
+              {product.quantity === 0 ? 'Sem Estoque' : 'Adicionar ao Carrinho'}
             </Button>
           </div>
         </div>
