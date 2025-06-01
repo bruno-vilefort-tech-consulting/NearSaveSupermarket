@@ -688,33 +688,34 @@ export class DatabaseStorage implements IStorage {
       throw new Error('Order status can only be updated manually by staff');
     }
     
-    // Get current order status for logging
-    const [currentOrder] = await db
-      .select({ id: orders.id, status: orders.status })
-      .from(orders)
-      .where(eq(orders.id, id));
-    
-    if (currentOrder) {
-      console.log(`Order ${id} status change: ${currentOrder.status} -> ${status} (by: ${changedBy})`);
+    try {
+      // Authorize the change at database level
+      await db.execute(sql`SET app.staff_authorized = 'true'`);
+      await db.execute(sql`SET app.staff_id = ${changedBy}`);
       
-      // Log to database
-      await db.execute(sql`
-        INSERT INTO order_status_log (order_id, old_status, new_status, changed_by)
-        VALUES (${id}, ${currentOrder.status}, ${status}, ${changedBy})
-      `);
+      console.log(`✅ APPROVED: Updating order ${id} status to ${status} by ${changedBy}`);
+      
+      const [order] = await db
+        .update(orders)
+        .set({ status, updatedAt: new Date() })
+        .where(eq(orders.id, id))
+        .returning();
+      
+      // Clear the authorization
+      await db.execute(sql`SET app.staff_authorized = NULL`);
+      await db.execute(sql`SET app.staff_id = NULL`);
+      
+      console.log(`✅ STATUS UPDATED: Order ${id} successfully updated to ${status}`);
+      
+      return order;
+    } catch (error) {
+      // Ensure authorization is cleared even on error
+      await db.execute(sql`SET app.staff_authorized = NULL`);
+      await db.execute(sql`SET app.staff_id = NULL`);
+      
+      console.error(`❌ STAFF_ERROR: Failed to update order ${id}:`, error);
+      throw error;
     }
-    
-    console.log(`✅ APPROVED: Updating order ${id} status to ${status} by ${changedBy}`);
-    
-    const [order] = await db
-      .update(orders)
-      .set({ status, updatedAt: new Date() })
-      .where(eq(orders.id, id))
-      .returning();
-    
-    console.log(`✅ STATUS UPDATED: Order ${id} successfully updated to ${status}`);
-    
-    return order;
   }
 
   // Statistics
