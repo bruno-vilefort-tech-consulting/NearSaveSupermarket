@@ -380,7 +380,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByStaff(staffId: number, filters?: { status?: string }): Promise<OrderWithItems[]> {
-    console.log(`Starting getOrdersByStaff for staffId: ${staffId}`);
+    console.log(`🔍 CRITICAL DEBUG: Starting getOrdersByStaff for staffId: ${staffId}`);
+    
+    // CRITICAL: Check if this query is somehow triggering status updates
+    console.log(`🔍 CRITICAL DEBUG: About to query orders - checking for any side effects`);
     
     // First, get all orders that contain products created by this staff
     let whereConditions = [eq(products.createdByStaff, staffId)];
@@ -390,7 +393,7 @@ export class DatabaseStorage implements IStorage {
       console.log(`Filtering by status: ${filters.status}`);
     }
 
-    console.log(`Querying orders for products created by staff ${staffId}`);
+    console.log(`🔍 CRITICAL DEBUG: About to execute query - NO updates should happen here`);
     const staffOrders = await db
       .selectDistinct({
         id: orders.id,
