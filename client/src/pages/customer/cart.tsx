@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,22 +7,35 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, Plus, Minus, Trash2, MapPin, Clock } from "lucide-react";
 
-// Simulação do carrinho (seria substituído por um contexto/estado global)
-const mockCartItems = [
-  {
-    id: 1,
-    name: "Pão Francês",
-    originalPrice: "8.50",
-    discountPrice: "5.00",
-    quantity: 2,
-    imageUrl: null,
-    expirationDate: "2025-06-02"
-  }
-];
+interface CartItem {
+  id: number;
+  name: string;
+  originalPrice: string;
+  discountPrice: string;
+  quantity: number;
+  imageUrl?: string;
+  expirationDate: string;
+}
 
 export default function CustomerCart() {
   const [, navigate] = useLocation();
-  const [cartItems, setCartItems] = useState(mockCartItems);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  // Carregar itens do carrinho do localStorage ao inicializar
+  useEffect(() => {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCartItems(JSON.parse(savedCart));
+    } else {
+      // Limpar qualquer carrinho anterior e começar vazio
+      setCartItems([]);
+    }
+  }, []);
+
+  // Salvar no localStorage sempre que o carrinho for atualizado
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
@@ -47,6 +60,11 @@ export default function CustomerCart() {
 
   const removeItem = (id: number) => {
     setCartItems(cartItems.filter(item => item.id !== id));
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+    localStorage.removeItem('cart');
   };
 
   const calculateTotal = () => {
