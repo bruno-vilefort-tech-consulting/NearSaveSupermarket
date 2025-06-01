@@ -1,13 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, Clock, MapPin, Package } from "lucide-react";
+import { ArrowLeft, MapPin, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface OrderItem {
   id: number;
@@ -33,47 +30,13 @@ interface Order {
 }
 
 export default function CustomerOrders() {
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [searchTriggered, setSearchTriggered] = useState(false);
-  const { toast } = useToast();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Carregar telefone salvo do localStorage
-  useEffect(() => {
-    const savedCustomer = localStorage.getItem('customerInfo');
-    if (savedCustomer) {
-      const customer = JSON.parse(savedCustomer);
-      if (customer.phone) {
-        setPhoneNumber(customer.phone);
-      }
-    }
-  }, []);
-
-  const { data: orders, isLoading, error, refetch } = useQuery({
-    queryKey: ['/api/public/orders', phoneNumber],
-    queryFn: async () => {
-      if (!phoneNumber) throw new Error("Phone number required");
-      const response = await fetch(`/api/public/orders/${encodeURIComponent(phoneNumber)}`);
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-      return response.json();
-    },
-    enabled: searchTriggered && phoneNumber.length > 0,
+  const { data: orders, isLoading, error } = useQuery({
+    queryKey: ['/api/my-orders'],
+    enabled: isAuthenticated && !!user,
     retry: false,
   });
-
-  const handleSearch = () => {
-    if (!phoneNumber.trim()) {
-      toast({
-        title: "Número obrigatório",
-        description: "Por favor, informe seu número de telefone.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setSearchTriggered(true);
-    refetch();
-  };
 
   const formatPrice = (price: string) => {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
@@ -103,6 +66,52 @@ export default function CustomerOrders() {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-md mx-auto px-4 py-4 flex items-center">
+            <Link href="/customer">
+              <ArrowLeft className="h-6 w-6 text-gray-600" />
+            </Link>
+            <h1 className="ml-4 text-lg font-semibold">Meus Pedidos</h1>
+          </div>
+        </div>
+        <div className="text-center py-8">
+          <div className="animate-spin w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full mx-auto"></div>
+          <p className="mt-2 text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-md mx-auto px-4 py-4 flex items-center">
+            <Link href="/customer">
+              <ArrowLeft className="h-6 w-6 text-gray-600" />
+            </Link>
+            <h1 className="ml-4 text-lg font-semibold">Meus Pedidos</h1>
+          </div>
+        </div>
+        <div className="max-w-md mx-auto p-4 pt-8">
+          <div className="text-center">
+            <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold mb-2">Login necessário</h2>
+            <p className="text-gray-600 mb-4">Faça login para ver seus pedidos.</p>
+            <Link href="/">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                Fazer Login
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
@@ -115,128 +124,98 @@ export default function CustomerOrders() {
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-4">
-        {/* Busca por telefone */}
-        <Card className="bg-white">
-          <CardContent className="p-4">
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="phone">Número de Telefone</Label>
-                <Input
-                  id="phone"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-              <Button 
-                onClick={handleSearch} 
-                className="w-full bg-green-600 hover:bg-green-700"
-                disabled={isLoading}
-              >
-                <Search className="h-4 w-4 mr-2" />
-                {isLoading ? "Buscando..." : "Buscar Pedidos"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {isLoading && (
+          <div className="text-center py-8">
+            <div className="animate-spin w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full mx-auto"></div>
+            <p className="mt-2 text-gray-600">Carregando seus pedidos...</p>
+          </div>
+        )}
 
-        {/* Resultados */}
-        {searchTriggered && (
-          <>
-            {isLoading && (
-              <div className="text-center py-8">
-                <div className="animate-spin w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full mx-auto"></div>
-                <p className="mt-2 text-gray-600">Carregando seus pedidos...</p>
-              </div>
-            )}
+        {error && (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Erro ao carregar pedidos. Tente novamente.</p>
+          </div>
+        )}
 
-            {error && (
-              <div className="text-center py-8">
-                <p className="text-gray-600">Erro ao carregar pedidos. Tente novamente.</p>
-              </div>
-            )}
+        {!isLoading && !error && orders && orders.length === 0 && (
+          <div className="text-center py-8">
+            <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h2>
+            <p className="text-gray-600 mb-4">Você ainda não fez nenhum pedido.</p>
+            <Link href="/customer">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                Fazer Primeiro Pedido
+              </button>
+            </Link>
+          </div>
+        )}
 
-            {!isLoading && !error && orders && orders.length === 0 && (
-              <div className="text-center py-8">
-                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h2 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h2>
-                <p className="text-gray-600 mb-4">Você ainda não fez nenhum pedido com este telefone.</p>
-                <Link href="/customer">
-                  <Button className="bg-green-600 hover:bg-green-700">
-                    Fazer Primeiro Pedido
-                  </Button>
-                </Link>
-              </div>
-            )}
+        {!isLoading && !error && orders && orders.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="font-semibold text-gray-900">
+              {orders.length} pedido{orders.length > 1 ? 's' : ''} encontrado{orders.length > 1 ? 's' : ''}
+            </h2>
+            
+            {orders.map((order: Order) => (
+              <Card key={order.id} className="bg-white">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold">Pedido #{order.id}</h3>
+                      <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+                    </div>
+                    {getStatusBadge(order.status)}
+                  </div>
 
-            {!isLoading && !error && orders && orders.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="font-semibold text-gray-900">
-                  {orders.length} pedido{orders.length > 1 ? 's' : ''} encontrado{orders.length > 1 ? 's' : ''}
-                </h2>
-                
-                {orders.map((order: Order) => (
-                  <Card key={order.id} className="bg-white">
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold">Pedido #{order.id}</h3>
-                          <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
-                        </div>
-                        {getStatusBadge(order.status)}
-                      </div>
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      {order.fulfillmentMethod === "delivery" ? (
+                        <MapPin className="h-4 w-4 text-blue-500" />
+                      ) : (
+                        <Package className="h-4 w-4 text-green-500" />
+                      )}
+                      <span>
+                        {order.fulfillmentMethod === "delivery" ? "Entrega" : "Retirada no Local"}
+                      </span>
+                    </div>
+                    
+                    {order.deliveryAddress && (
+                      <p className="text-sm text-gray-600 ml-6">{order.deliveryAddress}</p>
+                    )}
+                  </div>
 
-                      <div className="space-y-2 mb-3">
-                        <div className="flex items-center gap-2 text-sm">
-                          {order.fulfillmentMethod === "delivery" ? (
-                            <MapPin className="h-4 w-4 text-blue-500" />
-                          ) : (
-                            <Package className="h-4 w-4 text-green-500" />
+                  <div className="space-y-2 mb-3">
+                    {order.orderItems.map((item) => (
+                      <div key={item.id} className="flex justify-between items-center text-sm">
+                        <div className="flex gap-2">
+                          {item.product.imageUrl && (
+                            <img 
+                              src={item.product.imageUrl} 
+                              alt={item.product.name}
+                              className="w-8 h-8 object-cover rounded"
+                            />
                           )}
-                          <span>
-                            {order.fulfillmentMethod === "delivery" ? "Entrega" : "Retirada no Local"}
-                          </span>
-                        </div>
-                        
-                        {order.deliveryAddress && (
-                          <p className="text-sm text-gray-600 ml-6">{order.deliveryAddress}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2 mb-3">
-                        {order.orderItems.map((item) => (
-                          <div key={item.id} className="flex justify-between items-center text-sm">
-                            <div className="flex gap-2">
-                              {item.product.imageUrl && (
-                                <img 
-                                  src={item.product.imageUrl} 
-                                  alt={item.product.name}
-                                  className="w-8 h-8 object-cover rounded"
-                                />
-                              )}
-                              <div>
-                                <span className="font-medium">{item.quantity}x</span> {item.product.name}
-                              </div>
-                            </div>
-                            <span className="text-green-600 font-medium">
-                              {formatPrice(item.priceAtTime)}
-                            </span>
+                          <div>
+                            <span className="font-medium">{item.quantity}x</span> {item.product.name}
                           </div>
-                        ))}
-                      </div>
-
-                      <div className="border-t pt-2 flex justify-between items-center">
-                        <span className="font-semibold">Total</span>
-                        <span className="font-semibold text-lg text-green-600">
-                          {formatPrice(order.totalAmount)}
+                        </div>
+                        <span className="text-green-600 font-medium">
+                          {formatPrice(item.priceAtTime)}
                         </span>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </>
+                    ))}
+                  </div>
+
+                  <div className="border-t pt-2 flex justify-between items-center">
+                    <span className="font-semibold">Total</span>
+                    <span className="font-semibold text-lg text-green-600">
+                      {formatPrice(order.totalAmount)}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </div>
     </div>

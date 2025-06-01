@@ -111,6 +111,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Authenticated endpoint to get current user's orders
+  app.get("/api/my-orders", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Buscar pedidos pelos dados do usuário (email ou telefone se disponível)
+      let orders = [];
+      if (user.email) {
+        orders = await storage.getOrdersByEmail(user.email);
+      }
+      
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
   // Staff product routes (authenticated)
   app.get("/api/products", isAuthenticated, async (req, res) => {
     try {
