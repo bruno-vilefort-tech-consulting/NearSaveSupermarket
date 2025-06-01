@@ -608,7 +608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Legacy route for Replit auth users
+  // Legacy route for Replit auth users - SECURED WITH PROPER PROTECTIONS
   app.put("/api/orders/:id/status", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -629,12 +629,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const order = await storage.updateOrderStatus(id, status);
-      if (!order) {
-        return res.status(404).json({ message: "Order not found" });
-      }
+      // SECURITY: Apply same protections as staff route
+      console.log(`BLOCKED LEGACY ROUTE: Attempted status change for order ${id} via legacy route`);
+      return res.status(403).json({ 
+        message: "This route is deprecated. Use /api/staff/orders/:id/status instead",
+        redirectTo: `/api/staff/orders/${id}/status`
+      });
 
-      res.json(order);
     } catch (error) {
       console.error("Error updating order status:", error);
       res.status(500).json({ message: "Failed to update order status" });
