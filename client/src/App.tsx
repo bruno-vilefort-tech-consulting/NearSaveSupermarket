@@ -66,6 +66,7 @@ function Router() {
           <Route path="/products" component={Products} />
           <Route path="/add-product" component={AddProduct} />
           <Route path="/orders" component={Orders} />
+          <Route path="/monthly-orders" component={MonthlyOrders} />
         </>
       ) : (
         <>

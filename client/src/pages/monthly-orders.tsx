@@ -17,7 +17,7 @@ interface MonthlyOrderData {
 }
 
 export default function MonthlyOrders() {
-  const { user, isAuthenticated, isLoading: authLoading } = useStaffAuth();
+  const { staffUser, isStaffAuthenticated, isLoading: authLoading } = useStaffAuth();
   const { toast } = useToast();
 
   const {
@@ -27,13 +27,13 @@ export default function MonthlyOrders() {
     refetch
   } = useQuery<MonthlyOrderData[]>({
     queryKey: ['/api/staff/monthly-orders'],
-    enabled: !!user?.id,
+    enabled: !!staffUser?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 30000, // Refresh every 30 seconds
     queryFn: async () => {
       const response = await fetch('/api/staff/monthly-orders', {
         headers: {
-          'x-staff-id': user?.id?.toString() || ''
+          'x-staff-id': staffUser?.id?.toString() || ''
         }
       });
       
@@ -47,7 +47,7 @@ export default function MonthlyOrders() {
 
   // Handle authentication errors
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
+    if (!authLoading && !isStaffAuthenticated) {
       toast({
         title: "Não autorizado",
         description: "Você precisa estar logado como staff. Redirecionando...",
@@ -58,7 +58,7 @@ export default function MonthlyOrders() {
       }, 1000);
       return;
     }
-  }, [isAuthenticated, authLoading, toast]);
+  }, [isStaffAuthenticated, authLoading, toast]);
 
   useEffect(() => {
     if (error && isUnauthorizedError(error as Error)) {
@@ -82,7 +82,7 @@ export default function MonthlyOrders() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isStaffAuthenticated) {
     return null; // Will redirect
   }
 
