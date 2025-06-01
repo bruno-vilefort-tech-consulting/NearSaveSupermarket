@@ -91,6 +91,16 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => navigate("/customer/eco-points")}
+                className="mr-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+              >
+                <Leaf size={16} className="mr-1" />
+                {customerInfo?.ecoPoints || 0} pts
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => navigate("/customer/orders")}
                 className="mr-2"
               >
@@ -129,6 +139,33 @@ export default function CustomerHome() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Eco Points Highlight */}
+        <Card className="mb-8 bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="bg-green-100 p-3 rounded-full">
+                  <Leaf size={24} className="text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Programa Pontos Eco
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Você tem <span className="font-bold text-green-600">{customerInfo?.ecoPoints || 0} pontos</span> por suas compras sustentáveis
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => navigate("/customer/eco-points")}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Saiba mais
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">

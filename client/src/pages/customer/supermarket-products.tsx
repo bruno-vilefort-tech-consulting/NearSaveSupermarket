@@ -62,14 +62,38 @@ export default function SupermarketProducts() {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
   };
 
-  const calculateEcoPoints = (expirationDate: string) => {
-    const daysUntilExpiry = Math.ceil((new Date(expirationDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const calculateEcoPoints = (expirationDate: string, category: string) => {
+    const now = new Date();
+    const expiry = new Date(expirationDate);
+    const daysUntilExpiry = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (daysUntilExpiry <= 1) return 80; // Vence hoje/amanhã
-    if (daysUntilExpiry <= 3) return 60; // Vence em até 3 dias
-    if (daysUntilExpiry <= 7) return 40; // Vence em até 1 semana
-    if (daysUntilExpiry <= 14) return 20; // Vence em até 2 semanas
-    return 10; // Mais de 2 semanas
+    let basePoints = 10;
+    
+    if (daysUntilExpiry <= 0) {
+      basePoints = 100; // Vence hoje
+    } else if (daysUntilExpiry === 1) {
+      basePoints = 80; // Vence amanhã
+    } else if (daysUntilExpiry <= 3) {
+      basePoints = 60; // 2-3 dias
+    } else if (daysUntilExpiry <= 7) {
+      basePoints = 40; // 4-7 dias
+    } else if (daysUntilExpiry <= 14) {
+      basePoints = 25; // 8-14 dias
+    } else if (daysUntilExpiry <= 30) {
+      basePoints = 15; // 15-30 dias
+    }
+    
+    // Multiplicadores por categoria
+    const categoryMultipliers: Record<string, number> = {
+      "Laticínios": 1.2,
+      "Carnes e Aves": 1.3,
+      "Hortifruti": 1.1,
+      "Padaria": 1.15,
+      "Frios": 1.2
+    };
+    
+    const multiplier = categoryMultipliers[category] || 1.0;
+    return Math.round(basePoints * multiplier);
   };
 
   const addToCart = (product: Product, quantity: number) => {
