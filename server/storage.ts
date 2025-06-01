@@ -680,20 +680,23 @@ export class DatabaseStorage implements IStorage {
 
   async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
     // SECURITY: Only allow manual updates by staff
-    console.log(`🔍 ORDER STATUS UPDATE ATTEMPT: Order ${id}, Status: ${status}, Changed by: ${changedBy}`);
-    console.log(`🔍 Call stack:`, new Error().stack);
+    console.log(`🔍 SECURITY CHECK: Order ${id} status update attempt`);
+    console.log(`🔍 Target status: ${status}`);
+    console.log(`🔍 Changed by: ${changedBy}`);
+    console.log(`🔍 Full call stack:`, new Error().stack);
     
     if (!changedBy.startsWith('STAFF_')) {
-      console.log(`🚫 BLOCKED: Attempted automatic status change for order ${id} by ${changedBy}`);
+      console.log(`🚫 SECURITY BLOCK: Non-staff status change attempt for order ${id}`);
       throw new Error('Order status can only be updated manually by staff');
     }
     
     try {
       // Authorize the change at database level
+      console.log(`🔐 AUTHORIZING: Setting database authorization for ${changedBy}`);
       await db.execute(sql`SET app.staff_authorized = 'true'`);
       await db.execute(sql`SET app.staff_id = ${changedBy}`);
       
-      console.log(`✅ APPROVED: Updating order ${id} status to ${status} by ${changedBy}`);
+      console.log(`🎯 EXECUTING: Database update for order ${id} to ${status}`);
       
       const [order] = await db
         .update(orders)
@@ -701,11 +704,11 @@ export class DatabaseStorage implements IStorage {
         .where(eq(orders.id, id))
         .returning();
       
-      // Clear the authorization
+      // Clear the authorization immediately
       await db.execute(sql`SET app.staff_authorized = NULL`);
       await db.execute(sql`SET app.staff_id = NULL`);
       
-      console.log(`✅ STATUS UPDATED: Order ${id} successfully updated to ${status}`);
+      console.log(`✅ SUCCESS: Order ${id} updated to ${status} by ${changedBy}`);
       
       return order;
     } catch (error) {
@@ -713,7 +716,7 @@ export class DatabaseStorage implements IStorage {
       await db.execute(sql`SET app.staff_authorized = NULL`);
       await db.execute(sql`SET app.staff_id = NULL`);
       
-      console.error(`❌ STAFF_ERROR: Failed to update order ${id}:`, error);
+      console.error(`❌ ERROR: Failed to update order ${id}:`, error);
       throw error;
     }
   }
