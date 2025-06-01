@@ -42,6 +42,7 @@ function Router() {
       <Route path="/customer/register" component={CustomerRegister} />
       <Route path="/customer/forgot-password" component={ForgotPassword} />
       <Route path="/customer" component={CustomerHome} />
+      <Route path="/customer/products" component={CustomerHome} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPayment} />
       <Route path="/customer/orders" component={CustomerOrders} />
