@@ -736,10 +736,15 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} to ${status}`);
     
     try {
-      // Fazer a atualização direta
+      // Fazer a atualização e salvar como último status manual
       const [order] = await db
         .update(orders)
-        .set({ status, updatedAt: new Date() })
+        .set({ 
+          status, 
+          lastManualStatus: status,
+          lastManualUpdate: new Date(),
+          updatedAt: new Date() 
+        })
         .where(eq(orders.id, id))
         .returning();
       
