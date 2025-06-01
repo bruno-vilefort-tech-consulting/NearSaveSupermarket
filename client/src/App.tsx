@@ -11,6 +11,7 @@ import Dashboard from "@/pages/dashboard";
 import Products from "@/pages/products";
 import AddProduct from "@/pages/add-product";
 import Orders from "@/pages/orders";
+import MonthlyOrders from "@/pages/monthly-orders";
 
 // Customer App Pages
 import CustomerHome from "@/pages/customer/home";

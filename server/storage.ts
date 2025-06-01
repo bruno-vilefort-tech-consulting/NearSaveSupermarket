@@ -72,6 +72,17 @@ export interface IStorage {
     totalRevenue: number;
   }>;
   
+  // Monthly completed orders summary
+  getMonthlyCompletedOrders(staffId: number): Promise<Array<{
+    month: string;
+    orders: Array<{
+      id: number;
+      date: string;
+      amount: string;
+    }>;
+    totalAmount: string;
+  }>>;
+  
   // Eco-friendly actions
   createEcoAction(action: InsertEcoAction): Promise<EcoAction>;
   getEcoActionsByEmail(email: string): Promise<EcoAction[]>;
@@ -767,6 +778,76 @@ export class DatabaseStorage implements IStorage {
       console.error(`❌ ERROR: Failed to update order ${id}:`, error);
       throw error;
     }
+  }
+
+  // Monthly completed orders summary
+  async getMonthlyCompletedOrders(staffId: number): Promise<Array<{
+    month: string;
+    orders: Array<{
+      id: number;
+      date: string;
+      amount: string;
+    }>;
+    totalAmount: string;
+  }>> {
+    const completedOrders = await db
+      .select({
+        id: orders.id,
+        totalAmount: orders.totalAmount,
+        createdAt: orders.createdAt
+      })
+      .from(orders)
+      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(
+        and(
+          eq(orders.status, 'completed'),
+          eq(products.createdByStaff, staffId)
+        )
+      )
+      .groupBy(orders.id, orders.totalAmount, orders.createdAt)
+      .orderBy(desc(orders.createdAt));
+
+    // Group by month
+    const monthlyData = new Map<string, Array<{
+      id: number;
+      date: string;
+      amount: string;
+    }>>();
+
+    completedOrders.forEach(order => {
+      if (order.createdAt) {
+        const monthKey = new Date(order.createdAt).toISOString().slice(0, 7); // YYYY-MM
+        const orderData = {
+          id: order.id,
+          date: new Date(order.createdAt).toLocaleDateString('pt-BR'),
+          amount: order.totalAmount
+        };
+
+        if (!monthlyData.has(monthKey)) {
+          monthlyData.set(monthKey, []);
+        }
+        monthlyData.get(monthKey)!.push(orderData);
+      }
+    });
+
+    // Convert to array and calculate totals
+    const result = Array.from(monthlyData.entries()).map(([month, orders]) => {
+      const totalAmount = orders.reduce((sum, order) => {
+        return sum + parseFloat(order.amount);
+      }, 0);
+
+      return {
+        month: new Date(month + '-01').toLocaleDateString('pt-BR', { 
+          year: 'numeric', 
+          month: 'long' 
+        }),
+        orders: orders.sort((a, b) => b.id - a.id), // Most recent first
+        totalAmount: totalAmount.toFixed(2)
+      };
+    });
+
+    return result.sort((a, b) => b.month.localeCompare(a.month)); // Most recent month first
   }
 
   // Statistics

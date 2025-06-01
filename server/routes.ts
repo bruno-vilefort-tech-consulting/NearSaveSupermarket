@@ -109,6 +109,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get monthly completed orders summary for staff
+  app.get('/api/staff/monthly-orders', async (req, res) => {
+    try {
+      const staffId = parseInt(req.headers['x-staff-id'] as string);
+      if (!staffId) {
+        return res.status(400).json({ message: 'Staff ID is required' });
+      }
+
+      const monthlyOrders = await storage.getMonthlyCompletedOrders(staffId);
+      res.json(monthlyOrders);
+    } catch (error: any) {
+      console.error('Error fetching monthly orders:', error);
+      res.status(500).json({ message: 'Failed to fetch monthly orders' });
+    }
+  });
+
   // Staff products routes
   app.get('/api/staff/products', async (req, res) => {
     try {
