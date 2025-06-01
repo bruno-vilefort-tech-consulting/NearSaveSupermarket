@@ -705,16 +705,16 @@ export class DatabaseStorage implements IStorage {
         .returning();
       
       // Clear the authorization immediately
-      await db.execute(sql`SET app.staff_authorized = NULL`);
-      await db.execute(sql`SET app.staff_id = NULL`);
+      await db.execute(sql`RESET app.staff_authorized`);
+      await db.execute(sql`RESET app.staff_id`);
       
       console.log(`✅ SUCCESS: Order ${id} updated to ${status} by ${changedBy}`);
       
       return order;
     } catch (error) {
       // Ensure authorization is cleared even on error
-      await db.execute(sql`SET app.staff_authorized = NULL`);
-      await db.execute(sql`SET app.staff_id = NULL`);
+      await db.execute(sql`RESET app.staff_authorized`);
+      await db.execute(sql`RESET app.staff_id`);
       
       console.error(`❌ ERROR: Failed to update order ${id}:`, error);
       throw error;
