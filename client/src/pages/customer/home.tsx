@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, Clock } from "lucide-react";
+import { Search, ShoppingCart, Clock, Receipt } from "lucide-react";
 import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
 import { useToast } from "@/hooks/use-toast";
 

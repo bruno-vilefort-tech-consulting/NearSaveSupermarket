@@ -94,6 +94,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get customer orders by phone
+  app.get("/api/public/orders/:phone", async (req, res) => {
+    try {
+      const { phone } = req.params;
+      
+      if (!phone) {
+        return res.status(400).json({ message: "Phone number is required" });
+      }
+
+      const orders = await storage.getOrdersByPhone(phone);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching customer orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
   // Staff product routes (authenticated)
   app.get("/api/products", isAuthenticated, async (req, res) => {
     try {

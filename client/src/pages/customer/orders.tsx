@@ -1,137 +1,234 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, MapPin, Package } from "lucide-react";
+import { ArrowLeft, Search, Clock, MapPin, Package } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
-// Simulação de pedidos anteriores
-const mockOrders = [
-  {
-    id: 1,
-    items: [
-      { name: "Pão Francês", quantity: 2, price: "5.00" }
-    ],
-    total: "10.00",
-    status: "Pronto para Retirada",
-    deliveryType: "pickup",
-    createdAt: "2025-06-01T10:30:00Z",
-    estimatedTime: "15:00"
-  }
-];
+interface OrderItem {
+  id: number;
+  quantity: number;
+  priceAtTime: string;
+  product: {
+    id: number;
+    name: string;
+    imageUrl?: string;
+  };
+}
+
+interface Order {
+  id: number;
+  customerName: string;
+  customerPhone: string;
+  status: string;
+  fulfillmentMethod: string;
+  deliveryAddress?: string;
+  totalAmount: string;
+  createdAt: string;
+  orderItems: OrderItem[];
+}
 
 export default function CustomerOrders() {
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [searchTriggered, setSearchTriggered] = useState(false);
+  const { toast } = useToast();
+
+  // Carregar telefone salvo do localStorage
+  useState(() => {
+    const savedCustomer = localStorage.getItem('customerInfo');
+    if (savedCustomer) {
+      const customer = JSON.parse(savedCustomer);
+      if (customer.phone) {
+        setPhoneNumber(customer.phone);
+      }
+    }
+  });
+
+  const { data: orders, isLoading, error, refetch } = useQuery({
+    queryKey: ['/api/public/orders', phoneNumber],
+    enabled: searchTriggered && phoneNumber.length > 0,
+    retry: false,
+  });
+
+  const handleSearch = () => {
+    if (!phoneNumber.trim()) {
+      toast({
+        title: "Número obrigatório",
+        description: "Por favor, informe seu número de telefone.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSearchTriggered(true);
+    refetch();
+  };
+
   const formatPrice = (price: string) => {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: 'numeric',
-      month: 'short',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pendente':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'preparando':
-        return 'bg-blue-100 text-blue-800';
-      case 'pronto para retirada':
-        return 'bg-green-100 text-green-800';
-      case 'entregue':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      pending: { label: "Pendente", variant: "secondary" as const },
+      confirmed: { label: "Confirmado", variant: "default" as const },
+      preparing: { label: "Preparando", variant: "default" as const },
+      ready: { label: "Pronto", variant: "default" as const },
+      completed: { label: "Concluído", variant: "default" as const },
+      cancelled: { label: "Cancelado", variant: "destructive" as const },
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm p-4">
-        <div className="flex items-center space-x-3">
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center">
           <Link href="/customer">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft size={20} />
-            </Button>
+            <ArrowLeft className="h-6 w-6 text-gray-600" />
           </Link>
-          <h1 className="text-xl font-bold text-gray-900">Meus Pedidos</h1>
+          <h1 className="ml-4 text-lg font-semibold">Meus Pedidos</h1>
         </div>
       </div>
 
-      <div className="p-4">
-        {mockOrders.length > 0 ? (
-          <div className="space-y-4">
-            {mockOrders.map((order) => (
-              <Card key={order.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Pedido #{order.id}</h3>
-                      <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
-                    </div>
-                    <Badge className={getStatusColor(order.status)}>
-                      {order.status}
-                    </Badge>
-                  </div>
+      <div className="max-w-md mx-auto p-4 space-y-4">
+        {/* Busca por telefone */}
+        <Card className="bg-white">
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="phone">Número de Telefone</Label>
+                <Input
+                  id="phone"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+              <Button 
+                onClick={handleSearch} 
+                className="w-full bg-green-600 hover:bg-green-700"
+                disabled={isLoading}
+              >
+                <Search className="h-4 w-4 mr-2" />
+                {isLoading ? "Buscando..." : "Buscar Pedidos"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-                  <div className="space-y-2 mb-4">
-                    {order.items.map((item, index) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span>{item.quantity}x {item.name}</span>
-                        <span>{formatPrice(item.price)}</span>
+        {/* Resultados */}
+        {searchTriggered && (
+          <>
+            {isLoading && (
+              <div className="text-center py-8">
+                <div className="animate-spin w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full mx-auto"></div>
+                <p className="mt-2 text-gray-600">Carregando seus pedidos...</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="text-center py-8">
+                <p className="text-gray-600">Erro ao carregar pedidos. Tente novamente.</p>
+              </div>
+            )}
+
+            {!isLoading && !error && orders && orders.length === 0 && (
+              <div className="text-center py-8">
+                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h2 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h2>
+                <p className="text-gray-600 mb-4">Você ainda não fez nenhum pedido com este telefone.</p>
+                <Link href="/customer">
+                  <Button className="bg-green-600 hover:bg-green-700">
+                    Fazer Primeiro Pedido
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {!isLoading && !error && orders && orders.length > 0 && (
+              <div className="space-y-4">
+                <h2 className="font-semibold text-gray-900">
+                  {orders.length} pedido{orders.length > 1 ? 's' : ''} encontrado{orders.length > 1 ? 's' : ''}
+                </h2>
+                
+                {orders.map((order: Order) => (
+                  <Card key={order.id} className="bg-white">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="font-semibold">Pedido #{order.id}</h3>
+                          <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
+                        </div>
+                        {getStatusBadge(order.status)}
                       </div>
-                    ))}
-                  </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      {order.deliveryType === "pickup" ? (
-                        <span className="flex items-center">
-                          <MapPin size={14} className="mr-1" />
-                          Retirada no Local
-                        </span>
-                      ) : (
-                        <span className="flex items-center">
-                          <Package size={14} className="mr-1" />
-                          Delivery
-                        </span>
-                      )}
-                      {order.estimatedTime && (
-                        <span className="flex items-center">
-                          <Clock size={14} className="mr-1" />
-                          {order.estimatedTime}
-                        </span>
-                      )}
-                    </div>
-                    <span className="font-semibold text-gray-900">
-                      Total: {formatPrice(order.total)}
-                    </span>
-                  </div>
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          {order.fulfillmentMethod === "delivery" ? (
+                            <MapPin className="h-4 w-4 text-blue-500" />
+                          ) : (
+                            <Package className="h-4 w-4 text-green-500" />
+                          )}
+                          <span>
+                            {order.fulfillmentMethod === "delivery" ? "Entrega" : "Retirada no Local"}
+                          </span>
+                        </div>
+                        
+                        {order.deliveryAddress && (
+                          <p className="text-sm text-gray-600 ml-6">{order.deliveryAddress}</p>
+                        )}
+                      </div>
 
-                  {order.status === "Pronto para Retirada" && (
-                    <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                      <p className="text-sm text-green-800">
-                        Seu pedido está pronto! Você pode retirar no supermercado até {order.estimatedTime}.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <p className="text-gray-500 mb-4">Você ainda não fez nenhum pedido</p>
-              <Link href="/customer">
-                <Button>Começar a Comprar</Button>
-              </Link>
-            </CardContent>
-          </Card>
+                      <div className="space-y-2 mb-3">
+                        {order.orderItems.map((item) => (
+                          <div key={item.id} className="flex justify-between items-center text-sm">
+                            <div className="flex gap-2">
+                              {item.product.imageUrl && (
+                                <img 
+                                  src={item.product.imageUrl} 
+                                  alt={item.product.name}
+                                  className="w-8 h-8 object-cover rounded"
+                                />
+                              )}
+                              <div>
+                                <span className="font-medium">{item.quantity}x</span> {item.product.name}
+                              </div>
+                            </div>
+                            <span className="text-green-600 font-medium">
+                              {formatPrice(item.priceAtTime)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="border-t pt-2 flex justify-between items-center">
+                        <span className="font-semibold">Total</span>
+                        <span className="font-semibold text-lg text-green-600">
+                          {formatPrice(order.totalAmount)}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
