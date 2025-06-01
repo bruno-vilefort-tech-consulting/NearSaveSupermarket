@@ -24,8 +24,8 @@ function Router() {
 
   return (
     <Switch>
-      {/* Default route - Login page */}
-      <Route path="/" component={Login} />
+      {/* Default route - Landing page */}
+      <Route path="/" component={Landing} />
       
       {/* Customer App Routes */}
       <Route path="/customer" component={CustomerHome} />
