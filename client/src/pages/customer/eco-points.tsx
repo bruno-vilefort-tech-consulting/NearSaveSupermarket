@@ -27,39 +27,86 @@ export default function EcoPoints() {
 
   const pointsRules = [
     {
-      condition: "Vence hoje ou amanhã",
-      points: 80,
-      description: "Produtos com vencimento muito próximo",
+      condition: "Vence hoje",
+      points: 100,
+      description: "Produto vence no mesmo dia - máximo impacto na redução de desperdício",
       color: "bg-red-100 text-red-800",
       icon: <Clock size={16} className="text-red-600" />
     },
     {
-      condition: "Vence em até 3 dias",
+      condition: "Vence amanhã",
+      points: 80,
+      description: "Produto vence em 1 dia - alta prioridade",
+      color: "bg-red-100 text-red-800",
+      icon: <Clock size={16} className="text-red-600" />
+    },
+    {
+      condition: "Vence em 2-3 dias",
       points: 60,
-      description: "Produtos próximos ao vencimento",
+      description: "Produto próximo ao vencimento - contribuição significativa",
       color: "bg-orange-100 text-orange-800",
       icon: <Clock size={16} className="text-orange-600" />
     },
     {
-      condition: "Vence em até 7 dias",
+      condition: "Vence em 4-7 dias",
       points: 40,
-      description: "Produtos com vencimento em 1 semana",
+      description: "Produto com vencimento em 1 semana - boa contribuição",
       color: "bg-yellow-100 text-yellow-800",
       icon: <Clock size={16} className="text-yellow-600" />
     },
     {
-      condition: "Vence em até 14 dias",
-      points: 20,
-      description: "Produtos com vencimento em 2 semanas",
+      condition: "Vence em 8-14 dias",
+      points: 25,
+      description: "Produto com vencimento em 2 semanas - contribuição básica",
       color: "bg-blue-100 text-blue-800",
       icon: <Clock size={16} className="text-blue-600" />
     },
     {
-      condition: "Mais de 14 dias",
-      points: 10,
-      description: "Produtos com vencimento distante",
+      condition: "Vence em 15-30 dias",
+      points: 15,
+      description: "Produto com vencimento até 1 mês - contribuição mínima",
       color: "bg-green-100 text-green-800",
       icon: <Clock size={16} className="text-green-600" />
+    },
+    {
+      condition: "Mais de 30 dias",
+      points: 10,
+      description: "Produto com vencimento distante - pontuação padrão",
+      color: "bg-gray-100 text-gray-800",
+      icon: <Clock size={16} className="text-gray-600" />
+    }
+  ];
+
+  const categoryMultipliers = [
+    {
+      category: "Carnes e Aves",
+      multiplier: "1.3x",
+      description: "Alto impacto ambiental e nutricional",
+      color: "bg-purple-100 text-purple-800"
+    },
+    {
+      category: "Laticínios",
+      multiplier: "1.2x",
+      description: "Produtos perecíveis com alto desperdício potencial",
+      color: "bg-blue-100 text-blue-800"
+    },
+    {
+      category: "Frios",
+      multiplier: "1.2x",
+      description: "Produtos refrigerados sensíveis",
+      color: "bg-cyan-100 text-cyan-800"
+    },
+    {
+      category: "Padaria",
+      multiplier: "1.15x",
+      description: "Produtos com vida útil curta",
+      color: "bg-yellow-100 text-yellow-800"
+    },
+    {
+      category: "Hortifruti",
+      multiplier: "1.1x",
+      description: "Produtos frescos com deterioração rápida",
+      color: "bg-green-100 text-green-800"
     }
   ];
 
@@ -157,6 +204,47 @@ export default function EcoPoints() {
                   </Badge>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Category Multipliers */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <TrendingUp size={24} className="mr-2 text-purple-600" />
+              Multiplicadores por Categoria
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-6">
+              Algumas categorias de produtos têm multiplicadores especiais para incentivar a compra de itens com maior impacto ambiental.
+            </p>
+            
+            <div className="space-y-3">
+              {categoryMultipliers.map((category, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-purple-100 p-2 rounded-full">
+                      <Award size={16} className="text-purple-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">{category.category}</h4>
+                      <p className="text-sm text-gray-600">{category.description}</p>
+                    </div>
+                  </div>
+                  <Badge className={category.color}>
+                    {category.multiplier}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Exemplo:</strong> Um produto de "Carnes e Aves" que vence amanhã (80 pontos base) 
+                recebe multiplicador de 1.3x = <strong>104 pontos eco!</strong>
+              </p>
             </div>
           </CardContent>
         </Card>

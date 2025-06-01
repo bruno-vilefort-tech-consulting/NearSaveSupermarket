@@ -110,7 +110,7 @@ export default function SupermarketProducts() {
     const totalItems = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
     setCartCount(totalItems);
 
-    const ecoPoints = calculateEcoPoints(product.expirationDate) * quantity;
+    const ecoPoints = calculateEcoPoints(product.expirationDate, product.category) * quantity;
     
     toast({
       title: "Produto adicionado!",
@@ -232,7 +232,7 @@ export default function SupermarketProducts() {
             filteredProducts.map((product: Product) => {
               const daysUntilExpiry = Math.ceil((new Date(product.expirationDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
               const discountPercentage = Math.round(((parseFloat(product.originalPrice) - parseFloat(product.discountPrice)) / parseFloat(product.originalPrice)) * 100);
-              const ecoPoints = calculateEcoPoints(product.expirationDate);
+              const ecoPoints = calculateEcoPoints(product.expirationDate, product.category);
 
               return (
                 <Card
