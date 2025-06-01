@@ -4,6 +4,7 @@ import {
   orders,
   orderItems,
   ecoActions,
+  staffUsers,
   type User,
   type UpsertUser,
   type Product,
@@ -14,6 +15,8 @@ import {
   type InsertOrderItem,
   type EcoAction,
   type InsertEcoAction,
+  type StaffUser,
+  type InsertStaffUser,
   type ProductWithCreator,
   type OrderWithItems,
 } from "@shared/schema";
@@ -26,6 +29,11 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByIdentifier(identifier: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  
+  // Staff user operations
+  getStaffUserByEmail(email: string): Promise<StaffUser | undefined>;
+  createStaffUser(staffUser: InsertStaffUser): Promise<StaffUser>;
+  validateStaffUser(email: string, password: string): Promise<StaffUser | undefined>;
   
   // Product operations
   getProducts(filters?: { category?: string; isActive?: boolean }): Promise<ProductWithCreator[]>;

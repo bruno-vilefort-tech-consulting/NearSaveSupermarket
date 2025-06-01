@@ -42,6 +42,19 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Staff/Supermarket registration table
+export const staffUsers = pgTable("staff_users", {
+  id: serial("id").primaryKey(),
+  email: varchar("email").unique().notNull(),
+  password: varchar("password").notNull(),
+  phone: varchar("phone").notNull(),
+  address: text("address").notNull(),
+  companyName: varchar("company_name").notNull(),
+  isActive: integer("is_active").default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -151,6 +164,15 @@ export const insertEcoActionSchema = createInsertSchema(ecoActions).omit({
   createdAt: true,
 });
 
+export const insertStaffUserSchema = createInsertSchema(staffUsers).omit({
+  id: true,
+  isActive: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertStaffUser = z.infer<typeof insertStaffUserSchema>;
+export type StaffUser = typeof staffUsers.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
