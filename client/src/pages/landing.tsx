@@ -116,7 +116,7 @@ export default function Landing() {
                 <Users className="h-6 w-6" />
                 <div className="text-left">
                   <div className="font-bold">Staff do Supermercado</div>
-                  <div className="text-xs opacity-90">Gerenciar produtos e pedidos</div>
+                  <div className="text-xs opacity-90">Login para gerenciar produtos e pedidos</div>
                 </div>
               </div>
             </Button>
