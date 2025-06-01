@@ -129,8 +129,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         quantity: parseInt(req.body.quantity),
       });
 
-      // Use a default staff ID since we're not implementing full staff auth tokens
-      const createdBy = "staff-1"; // Placeholder for staff user
+      // Create a temporary user in the users table to satisfy the foreign key
+      // This is a simplified approach for the staff system
+      let tempUser;
+      try {
+        tempUser = await storage.getUserByIdentifier("staff-temp");
+        if (!tempUser) {
+          tempUser = await storage.upsertUser({
+            id: "staff-temp",
+            email: "staff@temp.com",
+            firstName: "Staff",
+            lastName: "User"
+          });
+        }
+      } catch (error) {
+        // If user operations fail, we'll use a basic fallback
+        console.error("Error creating temp user:", error);
+      }
+      
+      const createdBy = tempUser?.id || "staff-temp";
       
       let imageUrl = null;
       if (req.file) {
