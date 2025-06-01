@@ -25,6 +25,7 @@ interface CustomerOrderCardProps {
     fulfillmentMethod: string;
     totalAmount: string;
     createdAt: string;
+    supermarketName?: string;
     orderItems: OrderItem[];
   };
 }
@@ -80,6 +81,11 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold">Pedido #{order.id}</h3>
+            {order.supermarketName && (
+              <p className="text-sm text-blue-600 font-medium">
+                📍 {order.supermarketName}
+              </p>
+            )}
             <div className="flex items-center text-sm text-gray-600 mt-1">
               <Calendar className="h-3 w-3 mr-1" />
               {new Date(order.createdAt).toLocaleDateString('pt-BR', {
