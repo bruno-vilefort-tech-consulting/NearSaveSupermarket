@@ -2,21 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Home, Package, Plus, ShoppingCart, User, Bell } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useStaffAuth } from "@/hooks/useStaffAuth";
 
 export function BottomNavigation() {
   const [location, navigate] = useLocation();
+  const { isStaffAuthenticated, logout } = useStaffAuth();
   
   const { data: stats } = useQuery({
-    queryKey: ["/api/stats"],
+    queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],
   });
+
+  const dashboardPath = isStaffAuthenticated ? "/dashboard" : "/";
+  const isOnDashboard = location === "/" || location === "/dashboard";
 
   const navItems = [
     {
       id: "dashboard",
       label: "Início",
       icon: Home,
-      path: "/",
-      isActive: location === "/",
+      path: dashboardPath,
+      isActive: isOnDashboard,
     },
     {
       id: "products",
@@ -51,7 +56,11 @@ export function BottomNavigation() {
   ];
 
   const handleLogout = () => {
-    window.location.href = "/api/logout";
+    if (isStaffAuthenticated) {
+      logout();
+    } else {
+      window.location.href = "/api/logout";
+    }
   };
 
   return (
