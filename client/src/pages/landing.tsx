@@ -19,7 +19,7 @@ import {
 
 export default function Landing() {
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    window.location.href = "/staff-login";
   };
 
   return (

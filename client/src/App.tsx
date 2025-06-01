@@ -18,6 +18,8 @@ import CustomerOrders from "@/pages/customer/orders";
 import CustomerPayment from "@/pages/customer/payment";
 import EcoRewards from "@/pages/customer/eco-rewards";
 import Login from "@/pages/customer/login";
+import StaffLogin from "@/pages/staff-login";
+import StaffRegister from "@/pages/staff-register";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -26,6 +28,10 @@ function Router() {
     <Switch>
       {/* Default route - Landing page */}
       <Route path="/" component={Landing} />
+      
+      {/* Staff Login Routes */}
+      <Route path="/staff-login" component={StaffLogin} />
+      <Route path="/staff-register" component={StaffRegister} />
       
       {/* Customer App Routes */}
       <Route path="/customer/login" component={Login} />
