@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, Plus, Minus, Trash2, MapPin, Clock } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 interface CartItem {
   id: number;
@@ -23,7 +26,15 @@ interface CartItem {
 
 export default function CustomerCart() {
   const [, navigate] = useLocation();
+  const { toast } = useToast();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [deliveryType, setDeliveryType] = useState("pickup");
+  const [customerInfo, setCustomerInfo] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    address: ""
+  });
 
   // Carregar itens do carrinho do localStorage ao inicializar
   useEffect(() => {
@@ -40,13 +51,6 @@ export default function CustomerCart() {
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
-  const [deliveryType, setDeliveryType] = useState("pickup");
-  const [customerInfo, setCustomerInfo] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: ""
-  });
 
   const formatPrice = (price: string) => {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
@@ -85,9 +89,82 @@ export default function CustomerCart() {
     }, 0);
   };
 
+  // Carregar informações do cliente do localStorage
+  useEffect(() => {
+    const savedCustomer = localStorage.getItem('customerInfo');
+    if (savedCustomer) {
+      const customer = JSON.parse(savedCustomer);
+      setCustomerInfo({
+        name: customer.name || "",
+        phone: customer.phone || "",
+        email: customer.email || "",
+        address: ""
+      });
+    }
+  }, []);
+
+  const createOrderMutation = useMutation({
+    mutationFn: async (orderData: any) => {
+      return await apiRequest("/api/public/orders", {
+        method: "POST",
+        body: JSON.stringify(orderData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Pedido realizado com sucesso!",
+        description: "Você receberá uma confirmação em breve.",
+      });
+      clearCart();
+      navigate("/customer");
+    },
+    onError: (error) => {
+      console.error("Erro ao criar pedido:", error);
+      toast({
+        title: "Erro ao finalizar pedido",
+        description: "Tente novamente ou entre em contato conosco.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleCheckout = () => {
-    // Implementar lógica de checkout
-    alert("Pedido realizado com sucesso!");
+    if (!customerInfo.name || !customerInfo.phone) {
+      toast({
+        title: "Informações obrigatórias",
+        description: "Por favor, preencha nome e telefone.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (deliveryType === "delivery" && !customerInfo.address) {
+      toast({
+        title: "Endereço obrigatório",
+        description: "Por favor, informe o endereço para entrega.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const orderData = {
+      customerName: customerInfo.name,
+      customerEmail: customerInfo.email,
+      customerPhone: customerInfo.phone,
+      fulfillmentMethod: deliveryType === "delivery" ? "delivery" : "pickup",
+      deliveryAddress: deliveryType === "delivery" ? customerInfo.address : null,
+      totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
+      items: cartItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        priceAtTime: item.discountPrice
+      }))
+    };
+
+    createOrderMutation.mutate(orderData);
   };
 
   if (cartItems.length === 0) {
