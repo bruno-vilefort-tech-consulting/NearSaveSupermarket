@@ -142,8 +142,14 @@ export function OrderCard({ order }: OrderCardProps) {
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="font-semibold text-gray-900">Order #{order.id}</h3>
-            <p className="text-sm text-gray-600">{order.customerName}</p>
+            <h3 className="font-semibold text-gray-900">Pedido #{order.id}</h3>
+            <p className="text-sm text-gray-600 font-medium">{order.customerName}</p>
+            {order.customerEmail && (
+              <p className="text-xs text-gray-500">{order.customerEmail}</p>
+            )}
+            <p className="text-xs text-gray-500">
+              {order.fulfillmentMethod === "delivery" ? "🚚 Entrega" : "🏪 Retirada no Local"}
+            </p>
           </div>
           <Badge className={currentStatus?.color || "bg-gray-100 text-gray-800"}>
             {currentStatus?.label || order.status}
@@ -177,19 +183,11 @@ export function OrderCard({ order }: OrderCardProps) {
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center space-x-4 text-sm text-gray-600">
             <span className="flex items-center">
-              {order.fulfillmentMethod === "delivery" ? (
-                <Truck className="text-gray-400 mr-1" size={14} />
-              ) : (
-                <Package className="text-gray-400 mr-1" size={14} />
-              )}
-              {order.fulfillmentMethod === "delivery" ? "Delivery" : "Pickup"}
-            </span>
-            <span className="flex items-center">
               <Clock className="text-gray-400 mr-1" size={14} />
               {getTimeAgo(order.createdAt)}
             </span>
-            <span className="font-medium">
-              Total: ${parseFloat(order.totalAmount).toFixed(2)}
+            <span className="font-medium text-green-600">
+              Total: R$ {parseFloat(order.totalAmount).toFixed(2)}
             </span>
           </div>
           
