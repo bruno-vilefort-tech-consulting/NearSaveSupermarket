@@ -13,7 +13,8 @@ import {
   Gift,
   Shield,
   Clock,
-  Zap
+  Zap,
+  Store
 } from "lucide-react";
 
 export default function Landing() {
@@ -29,8 +30,8 @@ export default function Landing() {
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
             <div className="relative flex items-center justify-center space-x-3 mb-6">
-              <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-2xl shadow-lg">
-                <Leaf className="h-10 w-10 text-white" />
+              <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-2xl shadow-lg">
+                <Store className="h-12 w-12 text-white" />
               </div>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-green-700 to-emerald-800 bg-clip-text text-transparent">
@@ -53,9 +54,9 @@ export default function Landing() {
         {/* Features Grid Melhorada */}
         <div className="grid grid-cols-2 gap-3">
           <Card className="text-center hover:scale-105 transition-transform duration-200 border-green-200">
-            <CardContent className="p-4">
-              <div className="bg-blue-100 p-3 rounded-full w-fit mx-auto mb-3">
-                <ShoppingCart className="h-6 w-6 text-blue-600" />
+            <CardContent className="p-5">
+              <div className="bg-blue-100 p-4 rounded-full w-fit mx-auto mb-3">
+                <ShoppingCart className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="font-bold text-sm text-gray-800">Gestão Inteligente</h3>
               <p className="text-xs text-gray-600 mt-1">Controle total do estoque</p>
@@ -63,9 +64,9 @@ export default function Landing() {
           </Card>
           
           <Card className="text-center hover:scale-105 transition-transform duration-200 border-purple-200">
-            <CardContent className="p-4">
-              <div className="bg-purple-100 p-3 rounded-full w-fit mx-auto mb-3">
-                <Users className="h-6 w-6 text-purple-600" />
+            <CardContent className="p-5">
+              <div className="bg-purple-100 p-4 rounded-full w-fit mx-auto mb-3">
+                <Users className="h-8 w-8 text-purple-600" />
               </div>
               <h3 className="font-bold text-sm text-gray-800">Experiência Premium</h3>
               <p className="text-xs text-gray-600 mt-1">Atendimento excepcional</p>
@@ -73,9 +74,9 @@ export default function Landing() {
           </Card>
           
           <Card className="text-center hover:scale-105 transition-transform duration-200 border-orange-200">
-            <CardContent className="p-4">
-              <div className="bg-orange-100 p-3 rounded-full w-fit mx-auto mb-3">
-                <TrendingDown className="h-6 w-6 text-orange-600" />
+            <CardContent className="p-5">
+              <div className="bg-orange-100 p-4 rounded-full w-fit mx-auto mb-3">
+                <TrendingDown className="h-8 w-8 text-orange-600" />
               </div>
               <h3 className="font-bold text-sm text-gray-800">Preços Especiais</h3>
               <p className="text-xs text-gray-600 mt-1">Descontos inteligentes</p>
@@ -83,9 +84,9 @@ export default function Landing() {
           </Card>
           
           <Card className="text-center hover:scale-105 transition-transform duration-200 border-green-200">
-            <CardContent className="p-4">
-              <div className="bg-green-100 p-3 rounded-full w-fit mx-auto mb-3">
-                <Award className="h-6 w-6 text-green-600" />
+            <CardContent className="p-5">
+              <div className="bg-green-100 p-4 rounded-full w-fit mx-auto mb-3">
+                <Award className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="font-bold text-sm text-gray-800">Recompensas Eco</h3>
               <p className="text-xs text-gray-600 mt-1">Pontos por sustentabilidade</p>
