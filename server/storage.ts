@@ -113,6 +113,12 @@ export interface IStorage {
   markTokenAsUsed(token: string): Promise<void>;
   cleanupExpiredTokens(): Promise<void>;
   updateCustomerPassword(email: string, newPassword: string): Promise<void>;
+  
+  // Staff password reset operations
+  createStaffPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken>;
+  getStaffPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  markStaffTokenAsUsed(token: string): Promise<void>;
+  updateStaffPassword(email: string, newPassword: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
