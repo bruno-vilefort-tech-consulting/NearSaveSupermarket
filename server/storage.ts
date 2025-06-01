@@ -706,17 +706,11 @@ export class DatabaseStorage implements IStorage {
     
     console.log(`✅ APPROVED: Updating order ${id} status to ${status} by ${changedBy}`);
     
-    // Set session variable to authorize this change
-    await db.execute(sql`SET LOCAL app.authorized_status_change = 'true'`);
-    
     const [order] = await db
       .update(orders)
       .set({ status, updatedAt: new Date() })
       .where(eq(orders.id, id))
       .returning();
-    
-    // Clear the authorization flag
-    await db.execute(sql`SET LOCAL app.authorized_status_change = 'false'`);
     
     console.log(`✅ STATUS UPDATED: Order ${id} successfully updated to ${status}`);
     
