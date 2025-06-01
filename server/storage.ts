@@ -380,13 +380,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByStaff(staffId: number, filters?: { status?: string }): Promise<OrderWithItems[]> {
+    console.log(`Starting getOrdersByStaff for staffId: ${staffId}`);
+    
     // First, get all orders that contain products created by this staff
     let whereConditions = [eq(products.createdByStaff, staffId)];
     
     if (filters?.status) {
       whereConditions.push(eq(orders.status, filters.status));
+      console.log(`Filtering by status: ${filters.status}`);
     }
 
+    console.log(`Querying orders for products created by staff ${staffId}`);
     const staffOrders = await db
       .selectDistinct({
         id: orders.id,
@@ -406,6 +410,8 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(products, eq(orderItems.productId, products.id))
       .where(and(...whereConditions))
       .orderBy(desc(orders.createdAt));
+
+    console.log(`Found ${staffOrders.length} orders for staff ${staffId}:`, staffOrders.map(o => ({ id: o.id, customer: o.customerName })));
 
     const ordersWithItems = await Promise.all(
       staffOrders.map(async (order) => {
