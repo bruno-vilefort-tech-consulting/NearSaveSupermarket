@@ -3,13 +3,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Leaf, Mail, ArrowLeft } from "lucide-react";
+import { Leaf, Mail, ArrowLeft, ExternalLink, Copy } from "lucide-react";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -20,6 +21,7 @@ type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export default function ForgotPassword() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const [resetLink, setResetLink] = useState<string | null>(null);
 
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -33,12 +35,20 @@ export default function ForgotPassword() {
       const response = await apiRequest("POST", "/api/customer/forgot-password", data);
       return response.json();
     },
-    onSuccess: () => {
-      toast({
-        title: "Email enviado!",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
-      });
-      navigate("/customer/login");
+    onSuccess: (data) => {
+      if (data.resetLink) {
+        setResetLink(data.resetLink);
+        toast({
+          title: "Token gerado!",
+          description: "Use o link abaixo para redefinir sua senha.",
+        });
+      } else {
+        toast({
+          title: "Email enviado!",
+          description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        });
+        navigate("/customer/login");
+      }
     },
     onError: (error: any) => {
       toast({
@@ -48,6 +58,18 @@ export default function ForgotPassword() {
       });
     },
   });
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copiado!",
+        description: "Link copiado para a área de transferência.",
+      });
+    } catch (err) {
+      console.error('Erro ao copiar:', err);
+    }
+  };
 
   const onSubmit = (data: ForgotPasswordFormData) => {
     forgotPasswordMutation.mutate(data);
@@ -122,6 +144,54 @@ export default function ForgotPassword() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Mostrar link de redefinição para desenvolvimento */}
+        {resetLink && (
+          <Card className="shadow-lg mt-4 border-orange-200 bg-orange-50">
+            <CardHeader className="text-center pb-4">
+              <CardTitle className="text-lg font-semibold text-orange-900">
+                Link de Redefinição (Desenvolvimento)
+              </CardTitle>
+              <p className="text-sm text-orange-700">
+                Use o link abaixo para redefinir sua senha
+              </p>
+            </CardHeader>
+            
+            <CardContent>
+              <div className="space-y-4">
+                <div className="p-3 bg-white rounded-lg border border-orange-200">
+                  <p className="text-xs text-orange-600 mb-2 font-medium">Link de redefinição:</p>
+                  <p className="text-sm break-all text-gray-800 font-mono">
+                    {resetLink}
+                  </p>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => copyToClipboard(resetLink)}
+                    variant="outline"
+                    className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-100"
+                  >
+                    <Copy size={16} className="mr-2" />
+                    Copiar Link
+                  </Button>
+                  
+                  <Button
+                    onClick={() => window.open(resetLink, '_blank')}
+                    className="flex-1 bg-orange-600 hover:bg-orange-700"
+                  >
+                    <ExternalLink size={16} className="mr-2" />
+                    Abrir Link
+                  </Button>
+                </div>
+                
+                <div className="text-xs text-orange-600 text-center">
+                  Em produção, este link seria enviado por email
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Voltar */}
         <div className="text-center mt-6">

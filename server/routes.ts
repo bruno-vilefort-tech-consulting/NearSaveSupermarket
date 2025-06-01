@@ -758,25 +758,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate reset link
       const resetLink = `${req.protocol}://${req.get('host')}/customer/reset-password?token=${resetToken}`;
       
-      // Generate email content
-      const emailContent = generatePasswordResetEmail(resetLink, customer.fullName);
+      console.log('Password reset token generated for:', customer.email);
+      console.log('Reset link:', resetLink);
       
-      // Send email
-      const emailSent = await sendEmail({
-        to: customer.email,
-        from: 'noreply@ecomart.com.br',
-        subject: emailContent.subject,
-        text: emailContent.text,
-        html: emailContent.html
+      // For development: return the reset link directly
+      res.json({ 
+        message: "Token de redefinição gerado com sucesso!", 
+        resetLink: resetLink,
+        developmentNote: "Em produção, este link seria enviado por email. Para testar, use o link acima."
       });
-
-      if (!emailSent) {
-        console.error('Failed to send password reset email to:', customer.email);
-        return res.status(500).json({ message: "Erro ao enviar email. Tente novamente." });
-      }
-
-      console.log('Password reset email sent successfully to:', customer.email);
-      res.json({ message: "Instruções para redefinir sua senha foram enviadas para seu email." });
     } catch (error) {
       console.error("Error in forgot password:", error);
       res.status(500).json({ message: "Erro ao processar solicitação" });
