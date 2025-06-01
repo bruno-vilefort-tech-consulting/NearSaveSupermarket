@@ -19,6 +19,8 @@ import CustomerOrders from "@/pages/customer/orders";
 import CustomerPayment from "@/pages/customer/payment";
 import EcoRewards from "@/pages/customer/eco-rewards";
 import Login from "@/pages/customer/login";
+import CustomerRegister from "@/pages/customer/register";
+import ForgotPassword from "@/pages/customer/forgot-password";
 import StaffLogin from "@/pages/staff-login";
 import StaffRegister from "@/pages/staff-register";
 
@@ -37,6 +39,8 @@ function Router() {
       
       {/* Customer App Routes */}
       <Route path="/customer/login" component={Login} />
+      <Route path="/customer/register" component={CustomerRegister} />
+      <Route path="/customer/forgot-password" component={ForgotPassword} />
       <Route path="/customer" component={CustomerHome} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPayment} />

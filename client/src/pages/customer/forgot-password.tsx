@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,54 +7,50 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Leaf, Mail, Lock, ArrowLeft } from "lucide-react";
+import { Leaf, Mail, ArrowLeft } from "lucide-react";
 
-const loginSchema = z.object({
+const forgotPasswordSchema = z.object({
   email: z.string().email("Email inválido"),
-  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
-export default function CustomerLogin() {
+export default function ForgotPassword() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormData) => {
-      const response = await apiRequest("POST", "/api/customer/login", data);
+  const forgotPasswordMutation = useMutation({
+    mutationFn: async (data: ForgotPasswordFormData) => {
+      const response = await apiRequest("POST", "/api/customer/forgot-password", data);
       return response.json();
     },
-    onSuccess: (data) => {
-      localStorage.setItem('customerInfo', JSON.stringify(data));
+    onSuccess: () => {
       toast({
-        title: "Login realizado com sucesso",
-        description: "Bem-vindo ao EcoMart!",
+        title: "Email enviado!",
+        description: "Verifique sua caixa de entrada para redefinir sua senha.",
       });
-      navigate("/customer/products");
+      navigate("/customer/login");
     },
     onError: (error: any) => {
       toast({
-        title: "Erro no login",
-        description: "Email ou senha incorretos",
+        title: "Erro",
+        description: "Não foi possível enviar o email. Tente novamente.",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    loginMutation.mutate(data);
+  const onSubmit = (data: ForgotPasswordFormData) => {
+    forgotPasswordMutation.mutate(data);
   };
 
   return (
@@ -69,22 +64,22 @@ export default function CustomerLogin() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">EcoMart</h1>
-          <p className="text-gray-600 mt-2">Consumo consciente para um futuro sustentável</p>
+          <p className="text-gray-600 mt-2">Recuperar senha</p>
         </div>
 
         <Card className="shadow-lg">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-xl font-semibold text-gray-900">
-              Entrar na sua conta
+              Esqueci minha senha
             </CardTitle>
             <p className="text-sm text-gray-600">
-              Acesse produtos com desconto e ganhe pontos eco
+              Digite seu email para receber instruções de recuperação
             </p>
           </CardHeader>
           
-          <CardContent className="space-y-6">
+          <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="email"
@@ -107,61 +102,23 @@ export default function CustomerLogin() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Senha</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                          <Input
-                            {...field}
-                            type="password"
-                            placeholder="Sua senha"
-                            className="pl-10"
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="text-right">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/customer/forgot-password")}
-                    className="text-sm text-green-600 hover:text-green-700 font-medium"
-                  >
-                    Esqueci minha senha
-                  </button>
-                </div>
-
                 <Button
                   type="submit"
                   className="w-full bg-green-600 hover:bg-green-700"
-                  disabled={loginMutation.isPending}
+                  disabled={forgotPasswordMutation.isPending}
                 >
-                  {loginMutation.isPending ? "Entrando..." : "Entrar"}
+                  {forgotPasswordMutation.isPending ? "Enviando..." : "Enviar instruções"}
                 </Button>
               </form>
             </Form>
 
-            <Separator />
-
-            <div className="text-center space-y-4">
-              <p className="text-sm text-gray-600">
-                Não tem uma conta?
-              </p>
-              <Button
-                variant="outline"
-                className="w-full border-green-600 text-green-600 hover:bg-green-50"
-                onClick={() => navigate("/customer/register")}
+            <div className="text-center mt-6">
+              <button
+                onClick={() => navigate("/customer/login")}
+                className="text-green-600 hover:text-green-700 font-medium"
               >
-                Criar nova conta
-              </Button>
+                Voltar ao login
+              </button>
             </div>
           </CardContent>
         </Card>
