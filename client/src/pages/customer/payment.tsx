@@ -222,15 +222,48 @@ export default function CustomerPayment() {
         {/* PIX */}
         {paymentMethod === "pix" && (
           <Card>
-            <CardContent className="p-6 text-center">
-              <Smartphone className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Pagamento via PIX</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Após confirmar, você receberá o QR Code para finalizar o pagamento.
-              </p>
-              <div className="flex items-center justify-center text-sm text-gray-500">
-                <Lock className="h-4 w-4 mr-1" />
-                Pagamento seguro e instantâneo
+            <CardContent className="p-6">
+              <div className="text-center mb-4">
+                <Smartphone className="h-12 w-12 text-blue-600 mx-auto mb-2" />
+                <h3 className="font-semibold mb-1">Pagamento via PIX</h3>
+                <p className="text-sm text-gray-600">
+                  Copie o código PIX e cole no seu aplicativo bancário
+                </p>
+              </div>
+              
+              <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 mb-4">
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Código PIX Copia e Cola:
+                </Label>
+                <div className="bg-white border rounded p-3 mb-3">
+                  <code className="text-xs font-mono break-all text-gray-800">
+                    00020126580014BR.GOV.BCB.PIX013654ae4c2e-92c7-4c3a-8f5d-7b1234567890520400005303986540550.805802BR5913SUPERMERCADO6009SAO_PAULO62070503***6304A1B2
+                  </code>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX013654ae4c2e-92c7-4c3a-8f5d-7b1234567890520400005303986540550.805802BR5913SUPERMERCADO6009SAO_PAULO62070503***6304A1B2");
+                    toast({
+                      title: "Código copiado!",
+                      description: "Cole no seu aplicativo bancário para pagar.",
+                    });
+                  }}
+                >
+                  📋 Copiar Código PIX
+                </Button>
+              </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center text-sm text-gray-500 mb-2">
+                  <Lock className="h-4 w-4 mr-1" />
+                  Pagamento seguro e instantâneo
+                </div>
+                <p className="text-xs text-gray-600">
+                  Após o pagamento, clique em "Finalizar Pagamento" para confirmar seu pedido
+                </p>
               </div>
             </CardContent>
           </Card>
