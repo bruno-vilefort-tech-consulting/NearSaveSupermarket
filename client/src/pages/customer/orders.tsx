@@ -192,6 +192,7 @@ export default function CustomerOrders() {
                       <h3 className="font-semibold">Pedido #{order.id}</h3>
                       <p className="text-sm text-gray-600">{formatDate(order.createdAt)}</p>
                       <p className="text-sm text-green-600 font-medium">Supermercado Silva</p>
+                      <p className="text-xs text-gray-500">Rua das Flores, 123 - Centro</p>
                     </div>
                     {getStatusBadge(order.status)}
                   </div>
