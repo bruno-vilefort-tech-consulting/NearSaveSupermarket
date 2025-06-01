@@ -594,26 +594,36 @@ export class DatabaseStorage implements IStorage {
   private protectionMap = new Map<number, NodeJS.Timeout>();
 
   private async startOrderProtection(orderId: number): Promise<void> {
-    // Verificar múltiplas vezes em intervalos diferentes
-    const checkTimes = [10000, 30000, 60000, 120000, 300000]; // 10s, 30s, 1min, 2min, 5min
+    console.log(`🛡️ PROTECTION INITIATED: Starting protection for order ${orderId}`);
+    
+    // Verificar de forma mais agressiva com intervals menores
+    const checkTimes = [5000, 10000, 15000, 20000, 30000, 45000, 60000]; // 5s, 10s, 15s, 20s, 30s, 45s, 1min
     
     checkTimes.forEach((delay, index) => {
       const timeoutId = setTimeout(async () => {
         try {
+          console.log(`🔍 PROTECTION CHECK ${index + 1}: Checking order ${orderId} after ${delay}ms`);
+          
           const [currentOrder] = await db.select().from(orders).where(eq(orders.id, orderId));
           
-          if (currentOrder && currentOrder.lastManualStatus && currentOrder.status !== currentOrder.lastManualStatus) {
-            console.log(`🛡️ PROTECTION (check ${index + 1}): Reverting automatic status change for order ${orderId} from ${currentOrder.status} back to ${currentOrder.lastManualStatus}`);
+          if (currentOrder) {
+            console.log(`📊 PROTECTION DATA: Order ${orderId} - Status: ${currentOrder.status}, LastManual: ${currentOrder.lastManualStatus}`);
             
-            await db
-              .update(orders)
-              .set({ 
-                status: currentOrder.lastManualStatus,
-                updatedAt: currentOrder.lastManualUpdate || currentOrder.createdAt
-              })
-              .where(eq(orders.id, orderId));
+            if (currentOrder.lastManualStatus && currentOrder.status !== currentOrder.lastManualStatus) {
+              console.log(`🚨 PROTECTION ACTIVATED: Automatic status change detected for order ${orderId} from ${currentOrder.status} back to ${currentOrder.lastManualStatus}`);
               
-            console.log(`✅ PROTECTION: Order ${orderId} status reverted to ${currentOrder.lastManualStatus}`);
+              await db
+                .update(orders)
+                .set({ 
+                  status: currentOrder.lastManualStatus,
+                  updatedAt: currentOrder.lastManualUpdate || currentOrder.createdAt
+                })
+                .where(eq(orders.id, orderId));
+                
+              console.log(`✅ PROTECTION SUCCESS: Order ${orderId} status reverted to ${currentOrder.lastManualStatus}`);
+            } else {
+              console.log(`✓ PROTECTION OK: Order ${orderId} status unchanged`);
+            }
           }
         } catch (error) {
           console.error(`❌ PROTECTION ERROR: Failed to protect order ${orderId}:`, error);
@@ -622,6 +632,7 @@ export class DatabaseStorage implements IStorage {
         // Limpar o timeout do mapa após execução
         if (index === checkTimes.length - 1) {
           this.protectionMap.delete(orderId);
+          console.log(`🛡️ PROTECTION ENDED: Protection cycle completed for order ${orderId}`);
         }
       }, delay);
       
