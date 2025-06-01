@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function StaffLogin() {
   const [, navigate] = useLocation();
@@ -15,6 +17,31 @@ export default function StaffLogin() {
     password: ""
   });
   const { toast } = useToast();
+
+  const loginMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const response = await apiRequest("POST", "/api/staff/login", {
+        email: data.email,
+        password: data.password
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      localStorage.setItem('staffInfo', JSON.stringify(data));
+      toast({
+        title: "Login realizado com sucesso!",
+        description: `Bem-vindo, ${data.companyName}!`,
+      });
+      window.location.href = "/dashboard";
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro no login",
+        description: error.message || "Email ou senha incorretos",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,12 +55,7 @@ export default function StaffLogin() {
       return;
     }
 
-    // Aqui você faria a validação real com o backend
-    toast({
-      title: "Função em desenvolvimento",
-      description: "Sistema de login tradicional será implementado em breve",
-      variant: "destructive"
-    });
+    loginMutation.mutate(formData);
   };
 
   const handleForgotPassword = () => {
@@ -117,9 +139,10 @@ export default function StaffLogin() {
                 
                 <Button 
                   type="submit" 
+                  disabled={loginMutation.isPending}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
                 >
-                  Entrar
+                  {loginMutation.isPending ? "Entrando..." : "Entrar"}
                 </Button>
               </form>
 
