@@ -37,16 +37,30 @@ interface OrderCardProps {
 }
 
 const statusConfig = {
-  pending: { label: "Pending", color: "bg-amber-100 text-amber-800" },
-  prepared: { label: "Prepared", color: "bg-blue-100 text-blue-800" },
-  shipped: { label: "Shipped", color: "bg-green-100 text-green-800" },
-  picked_up: { label: "Picked Up", color: "bg-gray-100 text-gray-800" },
+  pending: { label: "Pendente", color: "bg-yellow-100 text-yellow-800" },
+  confirmed: { label: "Confirmado", color: "bg-blue-100 text-blue-800" },
+  preparing: { label: "Preparando", color: "bg-orange-100 text-orange-800" },
+  ready: { label: "Pronto", color: "bg-purple-100 text-purple-800" },
+  shipped: { label: "Em Entrega", color: "bg-indigo-100 text-indigo-800" },
+  completed: { label: "Concluído", color: "bg-green-100 text-green-800" },
+  cancelled: { label: "Cancelado", color: "bg-red-100 text-red-800" },
 };
 
-const nextStatusMap = {
-  pending: "prepared",
-  prepared: "shipped",
-  shipped: "picked_up",
+const getNextStatus = (currentStatus: string, fulfillmentMethod: string) => {
+  switch (currentStatus) {
+    case "pending":
+      return "confirmed";
+    case "confirmed":
+      return "preparing";
+    case "preparing":
+      return "ready";
+    case "ready":
+      return fulfillmentMethod === "delivery" ? "shipped" : "completed";
+    case "shipped":
+      return "completed";
+    default:
+      return null;
+  }
 };
 
 export function OrderCard({ order }: OrderCardProps) {
@@ -101,19 +115,21 @@ export function OrderCard({ order }: OrderCardProps) {
   };
 
   const getNextStatusLabel = () => {
-    const nextStatus = nextStatusMap[order.status as keyof typeof nextStatusMap];
+    const nextStatus = getNextStatus(order.status, order.fulfillmentMethod);
     if (!nextStatus) return null;
     
     switch (nextStatus) {
-      case "prepared": return "Mark Prepared";
-      case "shipped": return "Mark Shipped";
-      case "picked_up": return "Mark Picked Up";
-      default: return "Update Status";
+      case "confirmed": return "Confirmar Pedido";
+      case "preparing": return "Iniciar Preparo";
+      case "ready": return "Marcar como Pronto";
+      case "shipped": return "Enviar para Entrega";
+      case "completed": return order.fulfillmentMethod === "delivery" ? "Marcar como Entregue" : "Marcar como Retirado";
+      default: return "Atualizar Status";
     }
   };
 
   const handleStatusUpdate = () => {
-    const nextStatus = nextStatusMap[order.status as keyof typeof nextStatusMap];
+    const nextStatus = getNextStatus(order.status, order.fulfillmentMethod);
     if (nextStatus) {
       updateStatusMutation.mutate(nextStatus);
     }
