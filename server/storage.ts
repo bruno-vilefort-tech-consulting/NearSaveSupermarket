@@ -706,8 +706,8 @@ export class DatabaseStorage implements IStorage {
     
     console.log(`✅ APPROVED: Updating order ${id} status to ${status} by ${changedBy}`);
     
-    // Temporarily disable the trigger for authorized updates
-    await db.execute(sql`ALTER TABLE orders DISABLE TRIGGER prevent_status_changes`);
+    // Set session variable to authorize this change
+    await db.execute(sql`SET LOCAL app.authorized_status_change = 'true'`);
     
     const [order] = await db
       .update(orders)
@@ -715,8 +715,8 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id))
       .returning();
     
-    // Re-enable the trigger
-    await db.execute(sql`ALTER TABLE orders ENABLE TRIGGER prevent_status_changes`);
+    // Clear the authorization flag
+    await db.execute(sql`SET LOCAL app.authorized_status_change = 'false'`);
     
     console.log(`✅ STATUS UPDATED: Order ${id} successfully updated to ${status}`);
     
