@@ -772,13 +772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!emailSent) {
         console.error('Failed to send password reset email to:', customer.email);
-        // Fallback: return the reset link for development
-        console.log('Fallback - Reset link:', resetLink);
-        return res.json({ 
-          message: "Erro ao enviar email. Link de redefinição gerado:", 
-          resetLink: resetLink,
-          developmentNote: "O email não pôde ser enviado. Use o link acima para redefinir sua senha."
-        });
+        return res.status(500).json({ message: "Erro ao enviar email. Verifique sua configuração do SendGrid." });
       }
 
       console.log('Password reset email sent successfully to:', customer.email);
