@@ -6,12 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, Clock } from "lucide-react";
+import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
+import { useToast } from "@/hooks/use-toast";
 
 const categories = ["Todos", "Padaria", "Laticínios", "Carnes e Aves", "Hortifruti", "Frios"];
 
 export default function CustomerHome() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const { toast } = useToast();
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
@@ -38,6 +44,32 @@ export default function CustomerHome() {
     });
   };
 
+  const handleAddToCart = (product: any, quantity: number) => {
+    // Aqui você pode implementar a lógica de adicionar ao carrinho
+    // Por exemplo, salvar no localStorage ou estado global
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const existingItem = cartItems.find((item: any) => item.id === product.id);
+    
+    if (existingItem) {
+      existingItem.quantity += quantity;
+    } else {
+      cartItems.push({ ...product, quantity });
+    }
+    
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    setCartCount(cartItems.reduce((total: number, item: any) => total + item.quantity, 0));
+    
+    toast({
+      title: "Produto adicionado!",
+      description: `${quantity}x ${product.name} adicionado ao carrinho`,
+    });
+  };
+
+  const openAddToCartModal = (product: any) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -51,6 +83,11 @@ export default function CustomerHome() {
             <Link href="/customer/cart">
               <Button variant="outline" size="sm" className="relative">
                 <ShoppingCart size={18} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
           </div>
@@ -136,7 +173,11 @@ export default function CustomerHome() {
                           <span>Qtd: {product.quantity}</span>
                         </div>
                         
-                        <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                        <Button 
+                          size="sm" 
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => openAddToCartModal(product)}
+                        >
                           Adicionar
                         </Button>
                       </div>
@@ -157,6 +198,14 @@ export default function CustomerHome() {
           )}
         </div>
       </main>
+
+      {/* Add to Cart Modal */}
+      <AddToCartModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddToCart={handleAddToCart}
+      />
     </div>
   );
 }
