@@ -473,11 +473,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByEmail(email: string): Promise<OrderWithItems[]> {
+    console.log(`🔍 MONITORING: Querying orders for email ${email}`);
     const customerOrders = await db
       .select()
       .from(orders)
       .where(eq(orders.customerEmail, email))
       .orderBy(desc(orders.createdAt));
+      
+    console.log(`📊 MONITORING: Found ${customerOrders.length} orders for ${email}:`, 
+      customerOrders.map(o => ({ id: o.id, status: o.status, updated: o.updatedAt })));
 
     const ordersWithItems = await Promise.all(
       customerOrders.map(async (order) => {
@@ -673,8 +677,11 @@ export class DatabaseStorage implements IStorage {
 
   async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
     // SECURITY: Only allow manual updates by staff
+    console.log(`🔍 ORDER STATUS UPDATE ATTEMPT: Order ${id}, Status: ${status}, Changed by: ${changedBy}`);
+    console.log(`🔍 Call stack:`, new Error().stack);
+    
     if (!changedBy.startsWith('STAFF_')) {
-      console.log(`BLOCKED: Attempted automatic status change for order ${id} by ${changedBy}`);
+      console.log(`🚫 BLOCKED: Attempted automatic status change for order ${id} by ${changedBy}`);
       throw new Error('Order status can only be updated manually by staff');
     }
     
@@ -694,11 +701,15 @@ export class DatabaseStorage implements IStorage {
       `);
     }
     
+    console.log(`✅ APPROVED: Updating order ${id} status to ${status} by ${changedBy}`);
+    
     const [order] = await db
       .update(orders)
       .set({ status, updatedAt: new Date() })
       .where(eq(orders.id, id))
       .returning();
+    
+    console.log(`✅ STATUS UPDATED: Order ${id} successfully updated to ${status}`);
     
     return order;
   }

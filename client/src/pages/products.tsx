@@ -19,7 +19,7 @@ export default function Products() {
   
   const { data: products, isLoading } = useQuery({
     queryKey: isStaffAuthenticated ? ["/api/staff/products", selectedCategory === "Todos" ? undefined : selectedCategory] : ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
-    refetchInterval: 5000, // Atualizar estoque a cada 5 segundos
+    // Removed automatic refresh to prevent interference
   });
 
   const filteredProducts = products?.filter((product: any) =>
