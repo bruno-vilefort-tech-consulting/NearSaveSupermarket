@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, CreditCard, Smartphone, CheckCircle, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function CustomerPayment() {
   const [, navigate] = useLocation();
@@ -61,6 +61,10 @@ export default function CustomerPayment() {
     },
     onSuccess: () => {
       setPaymentSuccess(true);
+      
+      // Invalidar cache dos produtos para mostrar estoque atualizado
+      queryClient.invalidateQueries({ queryKey: ["/api/public/products"] });
+      
       // Limpar carrinho e dados do pedido
       localStorage.removeItem('cart');
       localStorage.removeItem('orderData');
