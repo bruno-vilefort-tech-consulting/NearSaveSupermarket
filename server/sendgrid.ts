@@ -33,10 +33,18 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     
     const response = await mailService.send({
       to: params.to,
-      from: params.from,
+      from: {
+        email: params.from,
+        name: 'EcoMart - Suporte'
+      },
       subject: params.subject,
       text: params.text,
       html: params.html,
+      replyTo: params.from,
+      trackingSettings: {
+        clickTracking: { enable: false },
+        openTracking: { enable: false }
+      }
     });
     
     console.log('SendGrid response:', response);
