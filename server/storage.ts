@@ -586,6 +586,7 @@ export class DatabaseStorage implements IStorage {
     await this.calculateEcoRewards(order, items);
 
     // Iniciar monitoramento de proteção para este pedido
+    console.log(`🛡️ STARTING PROTECTION: Order ${order.id} created, initiating protection system`);
     this.startOrderProtection(order.id);
 
     return order;
