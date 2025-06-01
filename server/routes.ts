@@ -387,7 +387,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Status is required" });
       }
 
-      const validStatuses = ["pending", "prepared", "shipped", "picked_up"];
+      const validStatuses = ["pending", "confirmed", "preparing", "ready", "shipped", "completed", "cancelled"];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ 
           message: "Invalid status",
