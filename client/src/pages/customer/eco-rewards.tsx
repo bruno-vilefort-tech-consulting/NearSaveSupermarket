@@ -54,7 +54,7 @@ export default function EcoRewards() {
     enabled: !!customerIdentifier,
   });
 
-  const totalPoints = ecoActions.reduce((sum: number, action: EcoAction) => sum + action.pointsEarned, 0);
+  const totalPoints = userPoints.ecoPoints || 0;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
