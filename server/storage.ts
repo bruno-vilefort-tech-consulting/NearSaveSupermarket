@@ -3,6 +3,7 @@ import {
   products,
   orders,
   orderItems,
+  ecoActions,
   type User,
   type UpsertUser,
   type Product,
@@ -11,6 +12,8 @@ import {
   type InsertOrder,
   type OrderItem,
   type InsertOrderItem,
+  type EcoAction,
+  type InsertEcoAction,
   type ProductWithCreator,
   type OrderWithItems,
 } from "@shared/schema";

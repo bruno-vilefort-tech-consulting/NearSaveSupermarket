@@ -36,6 +36,8 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   supermarketName: varchar("supermarket_name"),
   supermarketAddress: varchar("supermarket_address"),
+  ecoPoints: integer("eco_points").default(0),
+  totalEcoActions: integer("total_eco_actions").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -107,6 +109,21 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   }),
 }));
 
+// Eco Actions table for tracking sustainable actions
+export const ecoActions = pgTable("eco_actions", {
+  id: serial("id").primaryKey(),
+  customerEmail: varchar("customer_email").notNull(),
+  actionType: varchar("action_type").notNull(), // 'purchase_near_expiry', 'large_order_discount', 'first_time_customer'
+  pointsEarned: integer("points_earned").notNull(),
+  description: varchar("description").notNull(),
+  orderId: integer("order_id").references(() => orders.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const ecoActionsRelations = relations(ecoActions, ({ one }) => ({
+  order: one(orders, { fields: [ecoActions.orderId], references: [orders.id] }),
+}));
+
 // Schema types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -129,12 +146,19 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
   createdAt: true,
 });
 
+export const insertEcoActionSchema = createInsertSchema(ecoActions).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof orders.$inferSelect;
 export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
+export type InsertEcoAction = z.infer<typeof insertEcoActionSchema>;
+export type EcoAction = typeof ecoActions.$inferSelect;
 
 // Extended types for API responses
 export type ProductWithCreator = Omit<Product, 'createdBy'> & {
