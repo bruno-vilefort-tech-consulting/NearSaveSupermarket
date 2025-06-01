@@ -102,15 +102,15 @@ export function BottomNavigation() {
                 item.isActive ? "text-primary-600" : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              <div className="w-10 h-10 flex items-center justify-center mb-1">
+              <div className="w-10 h-10 flex items-center justify-center mb-1 relative">
                 <Icon size={20} />
+                {item.badge && item.badge > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                )}
               </div>
               <span className="text-xs font-medium">{item.label}</span>
-              {item.badge && item.badge > 0 && (
-                <span className="absolute top-1 right-3 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {item.badge}
-                </span>
-              )}
             </Button>
           );
         })}
