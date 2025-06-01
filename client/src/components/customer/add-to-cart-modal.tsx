@@ -82,6 +82,9 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Adicionar ao Carrinho</DialogTitle>
+          <DialogDescription>
+            Escolha a quantidade desejada e adicione o produto ao seu carrinho.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
