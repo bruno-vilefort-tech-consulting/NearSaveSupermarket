@@ -852,6 +852,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const host = process.env.REPLIT_DOMAINS ? process.env.REPLIT_DOMAINS.split(',')[0] : req.get('host');
       const resetLink = `https://${host}/staff/reset-password?token=${resetToken}`;
       
+      console.log('Generated reset link:', resetLink);
+      
       // Generate email content
       const emailContent = generateStaffPasswordResetEmail(resetLink, staffUser.companyName);
       
