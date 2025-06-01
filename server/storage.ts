@@ -694,28 +694,17 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} to ${status}`);
     
     try {
-      // Definir variável de sessão para autorizar a atualização
-      await db.execute(sql`SET LOCAL app.staff_update = 'true'`);
-      
-      // Fazer a atualização autorizada
+      // Fazer a atualização direta
       const [order] = await db
         .update(orders)
         .set({ status, updatedAt: new Date() })
         .where(eq(orders.id, id))
         .returning();
       
-      // Limpar a variável de sessão
-      await db.execute(sql`SET LOCAL app.staff_update = ''`);
-      
-      console.log(`✅ SUCCESS: Order ${id} status updated to ${status}`);
+      console.log(`✅ SUCCESS: Order ${id} status updated to ${status} by ${changedBy}`);
       
       return order;
     } catch (error) {
-      // Garantir que a variável seja limpa mesmo em caso de erro
-      try {
-        await db.execute(sql`SET LOCAL app.staff_update = ''`);
-      } catch {}
-      
       console.error(`❌ ERROR: Failed to update order ${id}:`, error);
       throw error;
     }
