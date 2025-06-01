@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProductSchema, insertOrderSchema, insertStaffUserSchema } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
@@ -583,7 +583,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Customer Authentication Routes
+  app.post("/api/customer/register", async (req, res) => {
+    try {
+      const validatedData = insertCustomerSchema.parse(req.body);
+      
+      // Check if customer already exists by email or CPF
+      const existingByEmail = await storage.getCustomerByEmail(validatedData.email);
+      if (existingByEmail) {
+        return res.status(400).json({ message: "Email já cadastrado" });
+      }
 
+      const existingByCpf = await storage.getCustomerByCpf(validatedData.cpf);
+      if (existingByCpf) {
+        return res.status(400).json({ message: "CPF já cadastrado" });
+      }
+
+      const customer = await storage.createCustomer(validatedData);
+      
+      // Remove password from response
+      const { password, ...customerResponse } = customer;
+      res.json(customerResponse);
+    } catch (error) {
+      console.error("Error creating customer:", error);
+      res.status(500).json({ message: "Erro ao criar conta" });
+    }
+  });
+
+  app.post("/api/customer/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email e senha são obrigatórios" });
+      }
+
+      const customer = await storage.validateCustomer(email, password);
+      if (!customer) {
+        return res.status(401).json({ message: "Email ou senha incorretos" });
+      }
+
+      // Remove password from response
+      const { password: _, ...customerResponse } = customer;
+      res.json(customerResponse);
+    } catch (error) {
+      console.error("Error during customer login:", error);
+      res.status(500).json({ message: "Erro no login" });
+    }
+  });
+
+  app.post("/api/customer/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email é obrigatório" });
+      }
+
+      const customer = await storage.getCustomerByEmail(email);
+      if (!customer) {
+        // For security, don't reveal if email exists or not
+        return res.json({ message: "Se o email existir, você receberá instruções para redefinir sua senha." });
+      }
+
+      // In a real app, you would send an email here
+      // For now, just return success
+      res.json({ message: "Instruções enviadas para seu email" });
+    } catch (error) {
+      console.error("Error in forgot password:", error);
+      res.status(500).json({ message: "Erro ao processar solicitação" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

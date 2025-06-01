@@ -25,6 +25,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 // Interface for storage operations
 export interface IStorage {
