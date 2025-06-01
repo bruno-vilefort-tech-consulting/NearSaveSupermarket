@@ -358,7 +358,9 @@ export class DatabaseStorage implements IStorage {
 
   // Helper method to calculate eco-friendly rewards
   private async calculateEcoRewards(order: Order, items: InsertOrderItem[]): Promise<void> {
-    if (!order.customerEmail) return;
+    // Use email if available, otherwise use phone as identifier
+    const customerIdentifier = order.customerEmail || order.customerPhone;
+    if (!customerIdentifier) return;
 
     let totalEcoPoints = 0;
     const ecoActions: InsertEcoAction[] = [];
@@ -396,7 +398,7 @@ export class DatabaseStorage implements IStorage {
           totalEcoPoints += totalPoints;
 
           ecoActions.push({
-            customerEmail: order.customerEmail,
+            customerEmail: customerIdentifier!,
             actionType: 'purchase_near_expiry',
             pointsEarned: totalPoints,
             description: actionDescription,
@@ -411,7 +413,7 @@ export class DatabaseStorage implements IStorage {
       const bonusPoints = 20;
       totalEcoPoints += bonusPoints;
       ecoActions.push({
-        customerEmail: order.customerEmail,
+        customerEmail: customerIdentifier!,
         actionType: 'large_order_discount',
         pointsEarned: bonusPoints,
         description: `Bônus pedido grande: ${items.length} itens (menos embalagens)`,
@@ -420,12 +422,14 @@ export class DatabaseStorage implements IStorage {
     }
 
     // Check if it's customer's first order
-    const existingOrders = await this.getOrdersByEmail(order.customerEmail);
+    const existingOrders = order.customerEmail 
+      ? await this.getOrdersByEmail(order.customerEmail)
+      : await this.getOrdersByPhone(order.customerPhone!);
     if (existingOrders.length === 1) { // This is their first order
       const firstTimeBonus = 25;
       totalEcoPoints += firstTimeBonus;
       ecoActions.push({
-        customerEmail: order.customerEmail,
+        customerEmail: customerIdentifier,
         actionType: 'first_time_customer',
         pointsEarned: firstTimeBonus,
         description: 'Bônus primeira compra sustentável!',
@@ -438,7 +442,7 @@ export class DatabaseStorage implements IStorage {
       for (const action of ecoActions) {
         await this.createEcoAction(action);
       }
-      await this.updateUserEcoPoints(order.customerEmail, totalEcoPoints);
+      await this.updateUserEcoPoints(customerIdentifier, totalEcoPoints);
     }
   }
 
