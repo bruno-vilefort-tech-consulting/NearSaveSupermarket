@@ -47,8 +47,21 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    // Add staff ID to headers for queries too
+    const headers: Record<string, string> = {};
+    const staffUser = localStorage.getItem('staffUser');
+    if (staffUser) {
+      try {
+        const parsed = JSON.parse(staffUser);
+        headers["X-Staff-Id"] = parsed.id.toString();
+      } catch (e) {
+        // Ignore parsing errors
+      }
+    }
+
     const res = await fetch(queryKey[0] as string, {
       credentials: "include",
+      headers,
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
