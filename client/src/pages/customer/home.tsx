@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +18,13 @@ export default function CustomerHome() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const { toast } = useToast();
+
+  // Carregar contador do carrinho ao inicializar
+  useEffect(() => {
+    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+    const totalItems = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
+    setCartCount(totalItems);
+  }, []);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
@@ -45,9 +52,7 @@ export default function CustomerHome() {
   };
 
   const handleAddToCart = (product: any, quantity: number) => {
-    // Aqui você pode implementar a lógica de adicionar ao carrinho
-    // Por exemplo, salvar no localStorage ou estado global
-    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItem = cartItems.find((item: any) => item.id === product.id);
     
     if (existingItem) {
@@ -56,7 +61,7 @@ export default function CustomerHome() {
       cartItems.push({ ...product, quantity });
     }
     
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    localStorage.setItem('cart', JSON.stringify(cartItems));
     setCartCount(cartItems.reduce((total: number, item: any) => total + item.quantity, 0));
     
     toast({
