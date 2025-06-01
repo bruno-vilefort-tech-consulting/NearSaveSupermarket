@@ -14,9 +14,25 @@ export async function apiRequest(
 ): Promise<Response> {
   const isFormData = data instanceof FormData;
   
+  // Add staff ID to headers if available
+  const headers: Record<string, string> = {};
+  if (data && !isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+  
+  const staffUser = localStorage.getItem('staffUser');
+  if (staffUser) {
+    try {
+      const parsed = JSON.parse(staffUser);
+      headers["X-Staff-Id"] = parsed.id.toString();
+    } catch (e) {
+      // Ignore parsing errors
+    }
+  }
+
   const res = await fetch(url, {
     method,
-    headers: data && !isFormData ? { "Content-Type": "application/json" } : {},
+    headers,
     body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
     credentials: "include",
   });
