@@ -77,6 +77,20 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
     return (originalTotal - discountTotal).toFixed(2);
   };
 
+  const calculateEcoPoints = (expirationDate: string) => {
+    const daysUntilExpiry = Math.ceil((new Date(expirationDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilExpiry <= 1) return 80; // Vence hoje/amanhã
+    if (daysUntilExpiry <= 3) return 60; // Vence em até 3 dias
+    if (daysUntilExpiry <= 7) return 40; // Vence em até 1 semana
+    if (daysUntilExpiry <= 14) return 20; // Vence em até 2 semanas
+    return 10; // Mais de 2 semanas
+  };
+
+  const getTotalEcoPoints = () => {
+    return calculateEcoPoints(product.expirationDate) * selectedQuantity;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -178,6 +192,10 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
               <div className="flex justify-between text-sm text-green-600">
                 <span>Economia total</span>
                 <span>-{formatPrice(getTotalSavings())}</span>
+              </div>
+              <div className="flex justify-between text-sm text-green-700">
+                <span>Pontos eco que você ganhará</span>
+                <span className="font-semibold">+{getTotalEcoPoints()} pts</span>
               </div>
             </div>
           </div>

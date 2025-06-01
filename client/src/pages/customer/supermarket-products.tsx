@@ -62,6 +62,16 @@ export default function SupermarketProducts() {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
   };
 
+  const calculateEcoPoints = (expirationDate: string) => {
+    const daysUntilExpiry = Math.ceil((new Date(expirationDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilExpiry <= 1) return 80; // Vence hoje/amanhã
+    if (daysUntilExpiry <= 3) return 60; // Vence em até 3 dias
+    if (daysUntilExpiry <= 7) return 40; // Vence em até 1 semana
+    if (daysUntilExpiry <= 14) return 20; // Vence em até 2 semanas
+    return 10; // Mais de 2 semanas
+  };
+
   const addToCart = (product: Product, quantity: number) => {
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const existingItem = cartItems.find((item: any) => item.id === product.id);
@@ -76,9 +86,11 @@ export default function SupermarketProducts() {
     const totalItems = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
     setCartCount(totalItems);
 
+    const ecoPoints = calculateEcoPoints(product.expirationDate) * quantity;
+    
     toast({
       title: "Produto adicionado!",
-      description: `${product.name} foi adicionado ao carrinho`,
+      description: `${product.name} foi adicionado ao carrinho. Você ganhará ${ecoPoints} pontos eco!`,
     });
   };
 
@@ -196,6 +208,7 @@ export default function SupermarketProducts() {
             filteredProducts.map((product: Product) => {
               const daysUntilExpiry = Math.ceil((new Date(product.expirationDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
               const discountPercentage = Math.round(((parseFloat(product.originalPrice) - parseFloat(product.discountPrice)) / parseFloat(product.originalPrice)) * 100);
+              const ecoPoints = calculateEcoPoints(product.expirationDate);
 
               return (
                 <Card
@@ -218,13 +231,19 @@ export default function SupermarketProducts() {
                         <Badge variant="secondary" className="text-xs">
                           {product.category}
                         </Badge>
-                        <Badge 
-                          variant={daysUntilExpiry <= 2 ? "destructive" : daysUntilExpiry <= 5 ? "default" : "secondary"}
-                          className="text-xs"
-                        >
-                          <Clock size={12} className="mr-1" />
-                          {daysUntilExpiry}d
-                        </Badge>
+                        <div className="flex gap-1">
+                          <Badge 
+                            variant={daysUntilExpiry <= 2 ? "destructive" : daysUntilExpiry <= 5 ? "default" : "secondary"}
+                            className="text-xs"
+                          >
+                            <Clock size={12} className="mr-1" />
+                            {daysUntilExpiry}d
+                          </Badge>
+                          <Badge className="bg-green-100 text-green-800 text-xs">
+                            <Leaf size={12} className="mr-1" />
+                            +{ecoPoints} pts
+                          </Badge>
+                        </div>
                       </div>
                       <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2">
                         {product.name}
