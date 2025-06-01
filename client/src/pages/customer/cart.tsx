@@ -42,8 +42,21 @@ export default function CustomerCart() {
     if (savedCart) {
       setCartItems(JSON.parse(savedCart));
     } else {
-      // Limpar qualquer carrinho anterior e começar vazio
       setCartItems([]);
+    }
+  }, []);
+
+  // Carregar informações do cliente do localStorage
+  useEffect(() => {
+    const savedCustomer = localStorage.getItem('customerInfo');
+    if (savedCustomer) {
+      const customer = JSON.parse(savedCustomer);
+      setCustomerInfo({
+        name: customer.name || "",
+        phone: customer.phone || "",
+        email: customer.email || "",
+        address: ""
+      });
     }
   }, []);
 
@@ -89,29 +102,21 @@ export default function CustomerCart() {
     }, 0);
   };
 
-  // Carregar informações do cliente do localStorage
-  useEffect(() => {
-    const savedCustomer = localStorage.getItem('customerInfo');
-    if (savedCustomer) {
-      const customer = JSON.parse(savedCustomer);
-      setCustomerInfo({
-        name: customer.name || "",
-        phone: customer.phone || "",
-        email: customer.email || "",
-        address: ""
-      });
-    }
-  }, []);
-
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: any) => {
-      return await apiRequest("/api/public/orders", {
+      const response = await fetch("/api/public/orders", {
         method: "POST",
         body: JSON.stringify(orderData),
         headers: {
           "Content-Type": "application/json",
         },
       });
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      return await response.json();
     },
     onSuccess: () => {
       toast({
@@ -164,32 +169,39 @@ export default function CustomerCart() {
       }))
     };
 
+    // Salvar informações do cliente
+    localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
+
     createOrderMutation.mutate(orderData);
   };
 
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="bg-white shadow-sm p-4">
-          <div className="flex items-center space-x-3">
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-md mx-auto px-4 py-4 flex items-center">
             <Link href="/customer">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft size={20} />
-              </Button>
+              <ArrowLeft className="h-6 w-6 text-gray-600" />
             </Link>
-            <h1 className="text-xl font-bold text-gray-900">Carrinho</h1>
+            <h1 className="ml-4 text-lg font-semibold">Carrinho</h1>
           </div>
         </div>
 
-        <div className="p-4">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <p className="text-gray-500 mb-4">Seu carrinho está vazio</p>
-              <Link href="/customer">
-                <Button>Continuar Comprando</Button>
-              </Link>
-            </CardContent>
-          </Card>
+        <div className="max-w-md mx-auto p-4 pt-8">
+          <div className="text-center">
+            <div className="mb-4">
+              <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto flex items-center justify-center">
+                <span className="text-2xl">🛒</span>
+              </div>
+            </div>
+            <h2 className="text-xl font-semibold mb-2">Seu carrinho está vazio</h2>
+            <p className="text-gray-600 mb-6">Adicione produtos com desconto para continuar</p>
+            <Link href="/customer">
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                Continuar Comprando
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -197,127 +209,97 @@ export default function CustomerCart() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm p-4">
-        <div className="flex items-center space-x-3">
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center">
           <Link href="/customer">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft size={20} />
-            </Button>
+            <ArrowLeft className="h-6 w-6 text-gray-600" />
           </Link>
-          <h1 className="text-xl font-bold text-gray-900">Carrinho</h1>
+          <h1 className="ml-4 text-lg font-semibold">Carrinho ({cartItems.length})</h1>
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
-        {/* Cart Items */}
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="font-semibold text-gray-900 mb-4">Seus Produtos</h2>
-            <div className="space-y-4">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center space-x-4 pb-4 border-b border-gray-100 last:border-b-0">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                    {item.imageUrl ? (
-                      <img 
-                        src={item.imageUrl} 
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-6 h-6 bg-gray-300 rounded"></div>
-                      </div>
-                    )}
+      <div className="max-w-md mx-auto p-4 space-y-4">
+        {/* Itens do Carrinho */}
+        {cartItems.map((item) => (
+          <Card key={item.id} className="bg-white">
+            <CardContent className="p-4">
+              <div className="flex gap-3">
+                {item.imageUrl && (
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.name}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                )}
+                <div className="flex-1">
+                  <h3 className="font-medium text-sm">{item.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Clock className="h-3 w-3 text-orange-500" />
+                    <span className="text-xs text-orange-600">
+                      Válido até {new Date(item.expirationDate).toLocaleDateString('pt-BR')}
+                    </span>
                   </div>
-
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{item.name}</h3>
-                    {item.createdBy?.supermarketName && (
-                      <p className="text-sm text-blue-600 font-medium">{item.createdBy.supermarketName}</p>
-                    )}
-                    <div className="flex items-center space-x-2 mt-1">
-                      <span className="text-green-600 font-semibold">
+                  <div className="flex items-center justify-between mt-2">
+                    <div>
+                      <span className="text-sm font-semibold text-green-600">
                         {formatPrice(item.discountPrice)}
                       </span>
-                      <span className="text-sm text-gray-500 line-through">
+                      <span className="text-xs text-gray-500 line-through ml-2">
                         {formatPrice(item.originalPrice)}
                       </span>
                     </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-8 h-8 p-0"
-                    >
-                      <Minus size={14} />
-                    </Button>
-                    <span className="w-8 text-center">{item.quantity}</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-8 h-8 p-0"
-                    >
-                      <Plus size={14} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeItem(item.id)}
-                      className="text-red-600 hover:text-red-700 ml-2"
-                    >
-                      <Trash2 size={16} />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="text-sm font-medium w-8 text-center">
+                        {item.quantity}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Delivery Options */}
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="font-semibold text-gray-900 mb-4">Tipo de Entrega</h2>
-            <RadioGroup value={deliveryType} onValueChange={setDeliveryType}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="pickup" id="pickup" />
-                <Label htmlFor="pickup" className="flex items-center space-x-2 cursor-pointer">
-                  <MapPin size={16} />
-                  <span>Retirar no Local (Grátis)</span>
-                </Label>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="delivery" id="delivery" />
-                <Label htmlFor="delivery" className="flex items-center space-x-2 cursor-pointer">
-                  <Clock size={16} />
-                  <span>Delivery (R$ 5,00)</span>
-                </Label>
-              </div>
-            </RadioGroup>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
 
-        {/* Customer Info */}
-        <Card>
+        {/* Informações do Cliente */}
+        <Card className="bg-white">
           <CardContent className="p-4">
-            <h2 className="font-semibold text-gray-900 mb-4">Suas Informações</h2>
-            <div className="space-y-4">
+            <h3 className="font-semibold mb-3">Informações de Contato</h3>
+            <div className="space-y-3">
               <div>
-                <Label htmlFor="name">Nome Completo</Label>
+                <Label htmlFor="name">Nome *</Label>
                 <Input
                   id="name"
                   value={customerInfo.name}
                   onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
-                  placeholder="Seu nome"
+                  placeholder="Seu nome completo"
                 />
               </div>
               <div>
-                <Label htmlFor="phone">Telefone</Label>
+                <Label htmlFor="phone">Telefone *</Label>
                 <Input
                   id="phone"
                   value={customerInfo.phone}
@@ -326,7 +308,7 @@ export default function CustomerCart() {
                 />
               </div>
               <div>
-                <Label htmlFor="email">Email (opcional)</Label>
+                <Label htmlFor="email">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
@@ -335,58 +317,84 @@ export default function CustomerCart() {
                   placeholder="seu@email.com"
                 />
               </div>
-              {deliveryType === "delivery" && (
-                <div>
-                  <Label htmlFor="address">Endereço para Entrega</Label>
-                  <Input
-                    id="address"
-                    value={customerInfo.address}
-                    onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
-                    placeholder="Rua, número, bairro"
-                  />
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Order Summary */}
-        <Card>
+        {/* Tipo de Entrega */}
+        <Card className="bg-white">
           <CardContent className="p-4">
-            <h2 className="font-semibold text-gray-900 mb-4">Resumo do Pedido</h2>
-            <div className="space-y-2">
+            <h3 className="font-semibold mb-3">Forma de Retirada</h3>
+            <RadioGroup value={deliveryType} onValueChange={setDeliveryType}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="pickup" id="pickup" />
+                <Label htmlFor="pickup" className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>Retirar no local - Grátis</span>
+                  </div>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="delivery" id="delivery" />
+                <Label htmlFor="delivery" className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span>🚚</span>
+                    <span>Entrega - R$ 5,00</span>
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+            
+            {deliveryType === "delivery" && (
+              <div className="mt-3">
+                <Label htmlFor="address">Endereço para Entrega *</Label>
+                <Input
+                  id="address"
+                  value={customerInfo.address}
+                  onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
+                  placeholder="Rua, número, bairro, cidade"
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Resumo do Pedido */}
+        <Card className="bg-white">
+          <CardContent className="p-4">
+            <h3 className="font-semibold mb-3">Resumo do Pedido</h3>
+            <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span>{formatPrice(calculateTotal().toString())}</span>
               </div>
+              <div className="flex justify-between text-green-600">
+                <span>Economia</span>
+                <span>-{formatPrice(calculateSavings().toString())}</span>
+              </div>
               {deliveryType === "delivery" && (
                 <div className="flex justify-between">
-                  <span>Taxa de Entrega</span>
+                  <span>Entrega</span>
                   <span>R$ 5,00</span>
                 </div>
               )}
-              <div className="flex justify-between text-green-600">
-                <span>Economia Total</span>
-                <span>-{formatPrice(calculateSavings().toString())}</span>
-              </div>
-              <hr />
-              <div className="flex justify-between font-semibold text-lg">
+              <div className="border-t pt-2 flex justify-between font-semibold">
                 <span>Total</span>
-                <span>
-                  {formatPrice((calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toString())}
-                </span>
+                <span>{formatPrice((calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toString())}</span>
               </div>
             </div>
-
-            <Button 
-              onClick={handleCheckout}
-              className="w-full mt-4 bg-green-600 hover:bg-green-700"
-              disabled={!customerInfo.name || !customerInfo.phone || (deliveryType === "delivery" && !customerInfo.address)}
-            >
-              Finalizar Pedido
-            </Button>
           </CardContent>
         </Card>
+
+        {/* Botão de Finalizar */}
+        <Button 
+          className="w-full bg-green-600 hover:bg-green-700 h-12"
+          onClick={handleCheckout}
+          disabled={createOrderMutation.isPending}
+        >
+          {createOrderMutation.isPending ? "Processando..." : "Finalizar Pedido"}
+        </Button>
       </div>
     </div>
   );

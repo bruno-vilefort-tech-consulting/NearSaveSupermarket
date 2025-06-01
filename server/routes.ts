@@ -61,6 +61,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public order creation for customers
+  app.post("/api/public/orders", async (req, res) => {
+    try {
+      const { customerName, customerEmail, customerPhone, fulfillmentMethod, deliveryAddress, totalAmount, items } = req.body;
+      
+      if (!customerName || !customerPhone || !items || items.length === 0) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const orderData = {
+        customerName,
+        customerEmail: customerEmail || null,
+        customerPhone,
+        status: "pending",
+        fulfillmentMethod: fulfillmentMethod || "pickup",
+        deliveryAddress: deliveryAddress || null,
+        totalAmount
+      };
+
+      const orderItems = items.map((item: any) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        priceAtTime: item.priceAtTime
+      }));
+
+      const order = await storage.createOrder(orderData, orderItems);
+      res.json(order);
+    } catch (error) {
+      console.error("Error creating public order:", error);
+      res.status(500).json({ message: "Failed to create order" });
+    }
+  });
+
   // Staff product routes (authenticated)
   app.get("/api/products", isAuthenticated, async (req, res) => {
     try {
