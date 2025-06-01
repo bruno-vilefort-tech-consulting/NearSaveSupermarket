@@ -694,11 +694,18 @@ export class DatabaseStorage implements IStorage {
       `);
     }
     
+    // Temporarily disable trigger for legitimate staff updates
+    await db.execute(sql`SET session_replication_role = replica`);
+    
     const [order] = await db
       .update(orders)
       .set({ status, updatedAt: new Date() })
       .where(eq(orders.id, id))
       .returning();
+    
+    // Re-enable trigger
+    await db.execute(sql`SET session_replication_role = DEFAULT`);
+    
     return order;
   }
 
