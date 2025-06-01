@@ -15,6 +15,10 @@ interface CartItem {
   quantity: number;
   imageUrl?: string;
   expirationDate: string;
+  createdBy?: {
+    supermarketName?: string;
+    supermarketAddress?: string;
+  };
 }
 
 export default function CustomerCart() {
@@ -152,6 +156,9 @@ export default function CustomerCart() {
 
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{item.name}</h3>
+                    {item.createdBy?.supermarketName && (
+                      <p className="text-sm text-blue-600 font-medium">{item.createdBy.supermarketName}</p>
+                    )}
                     <div className="flex items-center space-x-2 mt-1">
                       <span className="text-green-600 font-semibold">
                         {formatPrice(item.discountPrice)}
