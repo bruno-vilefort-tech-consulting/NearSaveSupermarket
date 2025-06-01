@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProductSchema, insertOrderSchema } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertStaffUserSchema } from "@shared/schema";
+import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -34,6 +35,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve uploaded files
   app.use("/uploads", express.static(uploadDir));
+
+  // Staff registration route
+  app.post('/api/staff/register', async (req, res) => {
+    try {
+      const staffData = insertStaffUserSchema.parse(req.body);
+      
+      // Check if email already exists
+      const existingStaff = await storage.getStaffUserByEmail(staffData.email);
+      if (existingStaff) {
+        return res.status(400).json({ message: "Email já está cadastrado" });
+      }
+      
+      // Hash password
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(staffData.password, saltRounds);
+      
+      // Create staff user
+      const newStaffUser = await storage.createStaffUser({
+        ...staffData,
+        password: hashedPassword
+      });
+      
+      // Return user without password
+      const { password, ...staffUserResponse } = newStaffUser;
+      res.status(201).json(staffUserResponse);
+    } catch (error: any) {
+      console.error("Error creating staff user:", error);
+      res.status(500).json({ message: "Erro ao criar conta do supermercado" });
+    }
+  });
+
+  // Staff login route
+  app.post('/api/staff/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email e senha são obrigatórios" });
+      }
+      
+      const staffUser = await storage.getStaffUserByEmail(email);
+      if (!staffUser) {
+        return res.status(401).json({ message: "Email ou senha incorretos" });
+      }
+      
+      const isValidPassword = await bcrypt.compare(password, staffUser.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Email ou senha incorretos" });
+      }
+      
+      if (!staffUser.isActive) {
+        return res.status(401).json({ message: "Conta inativa. Entre em contato com o suporte." });
+      }
+      
+      // Return user without password
+      const { password: _, ...staffUserResponse } = staffUser;
+      res.json(staffUserResponse);
+    } catch (error: any) {
+      console.error("Error logging in staff user:", error);
+      res.status(500).json({ message: "Erro no login" });
+    }
+  });
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

@@ -94,6 +94,35 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  // Staff user operations
+  async getStaffUserByEmail(email: string): Promise<StaffUser | undefined> {
+    const [staffUser] = await db
+      .select()
+      .from(staffUsers)
+      .where(eq(staffUsers.email, email));
+    return staffUser;
+  }
+
+  async createStaffUser(staffUserData: InsertStaffUser): Promise<StaffUser> {
+    const [staffUser] = await db
+      .insert(staffUsers)
+      .values(staffUserData)
+      .returning();
+    return staffUser;
+  }
+
+  async validateStaffUser(email: string, password: string): Promise<StaffUser | undefined> {
+    const [staffUser] = await db
+      .select()
+      .from(staffUsers)
+      .where(and(
+        eq(staffUsers.email, email),
+        eq(staffUsers.password, password),
+        eq(staffUsers.isActive, 1)
+      ));
+    return staffUser;
+  }
+
   // Product operations
   async getProducts(filters?: { category?: string; isActive?: boolean }): Promise<ProductWithCreator[]> {
     let conditions = [];

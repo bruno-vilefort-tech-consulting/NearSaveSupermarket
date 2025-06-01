@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings, Mail, Phone, MapPin, Store, Lock, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function StaffRegister() {
   const [, navigate] = useLocation();
@@ -20,6 +22,33 @@ export default function StaffRegister() {
     companyName: ""
   });
   const { toast } = useToast();
+
+  const registerMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const response = await apiRequest("POST", "/api/staff/register", {
+        email: data.email,
+        password: data.password,
+        phone: data.phone,
+        address: data.address,
+        companyName: data.companyName
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Cadastro realizado com sucesso!",
+        description: `Bem-vindo, ${data.companyName}! Agora você pode fazer login.`,
+      });
+      navigate("/staff-login");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro no cadastro",
+        description: error.message || "Não foi possível criar a conta",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,12 +81,7 @@ export default function StaffRegister() {
       return;
     }
 
-    // Aqui você faria o cadastro real com o backend
-    toast({
-      title: "Função em desenvolvimento",
-      description: "Sistema de cadastro será implementado em breve",
-      variant: "destructive"
-    });
+    registerMutation.mutate(formData);
   };
 
   return (
