@@ -51,7 +51,7 @@ export default function StaffForgotPassword() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2">
-            <Link href="/staff/login">
+            <Link href="/staff-login">
               <Button variant="ghost" size="sm" className="p-1">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -89,7 +89,7 @@ export default function StaffForgotPassword() {
             </Button>
 
             <div className="text-center">
-              <Link href="/staff/login">
+              <Link href="/staff-login">
                 <Button variant="link" className="text-sm">
                   Voltar para o login
                 </Button>
