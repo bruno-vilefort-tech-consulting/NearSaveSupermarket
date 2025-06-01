@@ -48,10 +48,16 @@ export default function CustomerOrders() {
       if (customerInfo?.email) params.append('email', customerInfo.email);
       if (customerInfo?.phone) params.append('phone', customerInfo.phone);
       
+      console.log('🔍 Buscando pedidos com:', {
+        email: customerInfo?.email,
+        phone: customerInfo?.phone,
+        fullCustomerInfo: customerInfo
+      });
+      
       const response = await fetch(`/api/customer/orders?${params}`);
       if (!response.ok) throw new Error('Falha ao carregar pedidos');
       const data = await response.json();
-      console.log('Orders fetched:', data.length, 'orders');
+      console.log('📦 Pedidos encontrados:', data.length, 'pedidos:', data);
       return data;
     }
   });
