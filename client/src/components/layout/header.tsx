@@ -11,6 +11,7 @@ export function Header() {
   
   const { data: stats } = useQuery({
     queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],
+    refetchInterval: 5000, // Auto-refresh every 5 seconds
   });
 
   const getInitials = (firstName?: string, lastName?: string) => {
