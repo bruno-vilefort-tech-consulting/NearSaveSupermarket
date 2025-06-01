@@ -755,8 +755,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expiresAt
       });
 
-      // Generate reset link
-      const resetLink = `${req.protocol}://${req.get('host')}/customer/reset-password?token=${resetToken}`;
+      // Generate reset link - use the correct host for Replit
+      const host = process.env.REPLIT_DOMAINS ? process.env.REPLIT_DOMAINS.split(',')[0] : req.get('host');
+      const resetLink = `https://${host}/customer/reset-password?token=${resetToken}`;
       
       // Generate email content
       const emailContent = generatePasswordResetEmail(resetLink, customer.fullName);
@@ -847,8 +848,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         used: 0
       });
 
-      // Create reset link
-      const resetLink = `${req.protocol}://${req.get('host')}/staff/reset-password?token=${resetToken}`;
+      // Create reset link - use the correct host for Replit
+      const host = process.env.REPLIT_DOMAINS ? process.env.REPLIT_DOMAINS.split(',')[0] : req.get('host');
+      const resetLink = `https://${host}/staff/reset-password?token=${resetToken}`;
       
       // Generate email content
       const emailContent = generateStaffPasswordResetEmail(resetLink, staffUser.companyName);
