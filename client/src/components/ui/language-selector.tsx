@@ -17,9 +17,9 @@ export function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-          <Globe className="h-4 w-4" />
-          <span className="sr-only">Change language</span>
+        <Button variant="outline" size="sm" className="h-8 px-2 bg-white border-gray-300 hover:bg-gray-50 flex items-center gap-1">
+          <Globe className="h-4 w-4 text-gray-600" />
+          <span className="text-xs font-medium text-gray-600">{currentLanguage?.flag}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
