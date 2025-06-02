@@ -118,6 +118,39 @@ export interface CardPaymentResponse {
   transactionAmount?: number;
 }
 
+// Função auxiliar para criar token do cartão
+async function createCardToken(cardNumber: string, securityCode: string, expirationMonth: number, expirationYear: number, cardholderName: string): Promise<string> {
+  const mercadopago = new MercadoPagoConfig({ 
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN_CARD! 
+  });
+  
+  // Usar a API direta para criar o token
+  const response = await fetch('https://api.mercadopago.com/v1/card_tokens', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN_CARD}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      card_number: cardNumber,
+      security_code: securityCode,
+      expiration_month: expirationMonth,
+      expiration_year: expirationYear,
+      cardholder: {
+        name: cardholderName
+      }
+    })
+  });
+
+  const tokenData = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(`Failed to create card token: ${tokenData.message}`);
+  }
+  
+  return tokenData.id;
+}
+
 // Criar pagamento por cartão
 export async function createCardPayment(data: CardPaymentData): Promise<CardPaymentResponse> {
   try {
@@ -140,25 +173,21 @@ export async function createCardPayment(data: CardPaymentData): Promise<CardPaym
     // Remover espaços do número do cartão
     const cardNumber = data.cardData.number.replace(/\s/g, '');
     
+    // Criar token do cartão
+    const cardToken = await createCardToken(cardNumber, data.cardData.cvv, parseInt(month), parseInt(fullYear), data.cardData.name);
+    console.log('Card token created successfully');
+    
     const paymentData = {
       transaction_amount: data.amount,
       description: data.description,
       payment_method_id: getCardBrand(cardNumber),
+      token: cardToken,
       payer: {
         email: data.customerData.email,
         first_name: data.customerData.name.split(' ')[0],
         last_name: data.customerData.name.split(' ').slice(1).join(' ') || '',
         phone: {
           number: data.customerData.phone
-        }
-      },
-      card: {
-        number: cardNumber,
-        security_code: data.cardData.cvv,
-        expiration_month: parseInt(month),
-        expiration_year: parseInt(fullYear),
-        cardholder: {
-          name: data.cardData.name
         }
       },
       external_reference: data.orderId,
@@ -169,7 +198,7 @@ export async function createCardPayment(data: CardPaymentData): Promise<CardPaym
 
     console.log('Sending payment data to Mercado Pago:', {
       ...paymentData,
-      card: { ...paymentData.card, number: '****', security_code: '***' }
+      token: '****'
     });
 
     const result = await cardPayment.create({ body: paymentData });
