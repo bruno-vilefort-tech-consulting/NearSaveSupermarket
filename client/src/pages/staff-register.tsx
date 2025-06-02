@@ -8,6 +8,7 @@ import { Settings, Mail, Phone, MapPin, Store, Lock, Eye, EyeOff } from "lucide-
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function StaffRegister() {
   const [, navigate] = useLocation();
@@ -22,6 +23,7 @@ export default function StaffRegister() {
     companyName: ""
   });
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const registerMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
@@ -36,15 +38,15 @@ export default function StaffRegister() {
     },
     onSuccess: (data) => {
       toast({
-        title: "Cadastro realizado com sucesso!",
-        description: `Bem-vindo, ${data.companyName}! Agora você pode fazer login.`,
+        title: t('staff.registrationSuccess'),
+        description: `${t('staff.welcomeRegistration').replace('{company}', data.companyName)}`,
       });
       navigate("/staff-login");
     },
     onError: (error: any) => {
       toast({
-        title: "Erro no cadastro",
-        description: error.message || "Não foi possível criar a conta",
+        title: t('staff.registrationError'),
+        description: error.message || t('staff.registrationErrorDesc'),
         variant: "destructive"
       });
     }
@@ -56,8 +58,8 @@ export default function StaffRegister() {
     // Validações
     if (!formData.email || !formData.password || !formData.phone || !formData.address || !formData.companyName) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios",
+        title: t('staff.requiredFields'),
+        description: t('staff.fillAllFields'),
         variant: "destructive"
       });
       return;
@@ -65,8 +67,8 @@ export default function StaffRegister() {
 
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Senhas não conferem",
-        description: "Por favor, verifique se as senhas são iguais",
+        title: t('staff.passwordMismatch'),
+        description: t('staff.checkPasswords'),
         variant: "destructive"
       });
       return;
@@ -74,8 +76,8 @@ export default function StaffRegister() {
 
     if (formData.password.length < 6) {
       toast({
-        title: "Senha muito curta",
-        description: "A senha deve ter pelo menos 6 caracteres",
+        title: t('staff.passwordTooShort'),
+        description: t('staff.passwordMinDesc'),
         variant: "destructive"
       });
       return;
@@ -94,7 +96,7 @@ export default function StaffRegister() {
             <h1 className="text-3xl font-bold text-gray-900">EcoMart Staff</h1>
           </div>
           <p className="text-lg text-gray-600">
-            Cadastro de novo supermercado parceiro
+            {t('staff.partnerRegistration')}
           </p>
         </div>
 
@@ -103,10 +105,10 @@ export default function StaffRegister() {
           <Card className="shadow-lg">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl text-gray-900">
-                Novo Cadastro
+                {t('staff.newRegistration')}
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                Registre seu supermercado na plataforma
+                {t('staff.registerSupermarket')}
               </p>
             </CardHeader>
             
@@ -116,14 +118,14 @@ export default function StaffRegister() {
                 <div className="space-y-2">
                   <Label htmlFor="companyName" className="flex items-center space-x-2">
                     <Store size={16} />
-                    <span>Nome Fantasia *</span>
+                    <span>{t('staff.companyName')} *</span>
                   </Label>
                   <Input
                     id="companyName"
                     type="text"
                     value={formData.companyName}
                     onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                    placeholder="Ex: Supermercado Central"
+                    placeholder={t('staff.companyPlaceholder')}
                     className="w-full"
                   />
                 </div>
