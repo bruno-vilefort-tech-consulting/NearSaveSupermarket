@@ -403,6 +403,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.submit': 'Enviar',
     'common.or': 'ou',
     'common.backToHome': 'Voltar ao início',
+    'common.tryAgain': 'Tentar novamente',
 
     // Landing Page
     'landing.title': 'EcoMart',
@@ -500,6 +501,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.loginReplit': 'Login with Replit (Temporary)',
     'auth.unauthorized': 'Unauthorized',
     'auth.sessionExpired': 'You are logged out. Logging in again...',
+    'auth.loginRedirect': 'You need to be logged in as staff. Redirecting...',
 
     // Staff Authentication
     'staff.login': 'Supermarket Login',
@@ -632,6 +634,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.submit': 'Submit',
     'common.or': 'or',
     'common.backToHome': 'Back to Home',
+    'common.tryAgain': 'Try Again',
 
     // Landing Page
     'landing.title': 'EcoMart',
