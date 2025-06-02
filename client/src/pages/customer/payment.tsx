@@ -59,8 +59,11 @@ export default function CustomerPayment() {
       
       // Se é PIX, redirecionar para página PIX
       if (data.method === 'pix') {
+        console.log('PIX payment detected, saving order data and redirecting...');
+        console.log('Order ID:', order.id);
+        
         // Salvar dados do pedido para a página PIX
-        localStorage.setItem(`order_${order.id}`, JSON.stringify({
+        const orderDataForPix = {
           id: order.id,
           customerName: orderData.customerName,
           customerEmail: orderData.customerEmail,
@@ -71,9 +74,13 @@ export default function CustomerPayment() {
             quantity: item.quantity,
             priceAtTime: item.priceAtTime
           }))
-        }));
+        };
+        
+        localStorage.setItem(`order_${order.id}`, JSON.stringify(orderDataForPix));
+        console.log('Order data saved to localStorage:', orderDataForPix);
         
         // Redirecionar para página PIX
+        console.log('Redirecting to PIX page:', `/customer/pix-payment/${order.id}`);
         navigate(`/customer/pix-payment/${order.id}`);
         return { success: true, order, redirect: 'pix' };
       }
@@ -127,6 +134,7 @@ export default function CustomerPayment() {
       }
     }
 
+    console.log('Starting payment process with method:', paymentMethod);
     setIsProcessing(true);
     processPaymentMutation.mutate({
       method: paymentMethod,
