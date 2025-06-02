@@ -74,7 +74,7 @@ export default function StaffForgotPassword() {
               <Input
                 id="email"
                 type="email"
-                placeholder="seu@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -87,13 +87,13 @@ export default function StaffForgotPassword() {
               className="w-full"
               disabled={forgotPasswordMutation.isPending}
             >
-              {forgotPasswordMutation.isPending ? "Enviando..." : "Enviar Email"}
+              {forgotPasswordMutation.isPending ? t('auth.sending') : t('auth.sendEmail')}
             </Button>
 
             <div className="text-center">
               <Link href="/staff-login">
                 <Button variant="link" className="text-sm">
-                  Voltar para o login
+                  {t('auth.backToLogin')}
                 </Button>
               </Link>
             </div>

@@ -9,10 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Leaf, Mail, ArrowLeft } from "lucide-react";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("Email inválido"),
+  email: z.string().email(),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -20,6 +21,7 @@ type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export default function ForgotPassword() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -35,15 +37,15 @@ export default function ForgotPassword() {
     },
     onSuccess: (data) => {
       toast({
-        title: "Email enviado!",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        title: t('auth.emailSentSuccess'),
+        description: t('auth.emailSentDesc'),
       });
       navigate("/customer/login");
     },
     onError: (error: any) => {
       toast({
-        title: "Erro",
-        description: "Não foi possível enviar o email. Tente novamente.",
+        title: t('common.error'),
+        description: t('auth.emailSentError'),
         variant: "destructive",
       });
     },
