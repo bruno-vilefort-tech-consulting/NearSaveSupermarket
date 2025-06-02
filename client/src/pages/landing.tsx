@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Users, Leaf } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function Landing() {
+  const { t, setLanguage } = useLanguage();
+  
   const handleLogin = () => {
     window.location.href = "/staff-login";
   };
@@ -80,6 +83,28 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md space-y-8">
+        
+        {/* Language Selector */}
+        <div className="flex justify-end">
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setLanguage('pt-BR')}
+              className="h-8 px-3 bg-white/50 backdrop-blur-sm border-white/30"
+            >
+              🇧🇷 PT
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setLanguage('en-US')}
+              className="h-8 px-3 bg-white/50 backdrop-blur-sm border-white/30"
+            >
+              🇺🇸 EN
+            </Button>
+          </div>
+        </div>
         
         {/* Logo Principal */}
         <div className="text-center space-y-2">

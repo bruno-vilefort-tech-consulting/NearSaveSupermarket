@@ -24,27 +24,7 @@ export default function Dashboard() {
       
       <main className="pb-20">
         <div className="p-4 space-y-6">
-          {/* Language Selector Test */}
-          <div className="flex justify-end">
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setLanguage('pt-BR')}
-                className="h-8 px-3"
-              >
-                🇧🇷 PT
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setLanguage('en-US')}
-                className="h-8 px-3"
-              >
-                🇺🇸 EN
-              </Button>
-            </div>
-          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-4">
             <Card className="shadow-sm">
