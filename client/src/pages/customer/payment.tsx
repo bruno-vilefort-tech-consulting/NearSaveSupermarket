@@ -85,11 +85,39 @@ export default function CustomerPayment() {
         return { success: true, order, redirect: 'pix' };
       }
       
+      // Se é cartão, redirecionar para página de cartão
+      if (data.method === 'card') {
+        console.log('Card payment detected, saving order data and redirecting...');
+        console.log('Order ID:', order.id);
+        
+        // Salvar dados do pedido para a página de cartão
+        const orderDataForCard = {
+          id: order.id,
+          customerName: orderData.customerName,
+          customerEmail: orderData.customerEmail,
+          customerPhone: orderData.customerPhone,
+          totalAmount: orderData.totalAmount,
+          items: orderData.items.map((item: any) => ({
+            productName: item.productName,
+            quantity: item.quantity,
+            priceAtTime: item.priceAtTime
+          }))
+        };
+        
+        localStorage.setItem('orderData', JSON.stringify(orderDataForCard));
+        console.log('Order data saved to localStorage for card payment:', orderDataForCard);
+        
+        // Redirecionar para página de cartão
+        console.log('Redirecting to card payment page:', `/customer/card-payment?order=${order.id}&amount=${orderData.totalAmount}`);
+        navigate(`/customer/card-payment?order=${order.id}&amount=${orderData.totalAmount}`);
+        return { success: true, order, redirect: 'card' };
+      }
+      
       return { success: true, order, transactionId: Math.random().toString(36).substr(2, 9) };
     },
     onSuccess: (result) => {
-      // Se é PIX, não fazer nada aqui (redirecionamento já foi feito)
-      if (result.redirect === 'pix') {
+      // Se é PIX ou cartão, não fazer nada aqui (redirecionamento já foi feito)
+      if (result.redirect === 'pix' || result.redirect === 'card') {
         return;
       }
       
