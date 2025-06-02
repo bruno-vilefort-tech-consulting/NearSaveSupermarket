@@ -121,9 +121,9 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Adicionar ao Carrinho</DialogTitle>
+          <DialogTitle>{t('addToCartModal.title')}</DialogTitle>
           <DialogDescription>
-            Escolha a quantidade desejada e adicione o produto ao seu carrinho.
+            {t('addToCartModal.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -177,7 +177,7 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
               </div>
 
               <p className="text-sm text-gray-600 mt-1">
-                Vence em {formatDate(product.expirationDate)} • {product.quantity} disponíveis
+                {t('addToCartModal.expiresOn')} {formatDate(product.expirationDate)} • {product.quantity} {t('addToCartModal.available')}
               </p>
             </div>
           </div>
@@ -185,7 +185,7 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
           {/* Quantity Selector */}
           <div className="border border-gray-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="font-medium text-gray-900">Quantidade</span>
+              <span className="font-medium text-gray-900">{t('addToCartModal.quantity')}</span>
               <div className="flex items-center space-x-3">
                 <Button
                   variant="outline"
@@ -212,15 +212,15 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
             {/* Total Summary */}
             <div className="space-y-2 pt-3 border-t border-gray-100">
               <div className="flex justify-between text-sm">
-                <span>Subtotal ({selectedQuantity}x)</span>
+                <span>{t('addToCartModal.subtotalPrefix')} ({selectedQuantity}x)</span>
                 <span className="font-semibold">{formatPrice(getTotalPrice())}</span>
               </div>
               <div className="flex justify-between text-sm text-green-600">
-                <span>Economia total</span>
+                <span>{t('addToCartModal.totalSavings')}</span>
                 <span>-{formatPrice(getTotalSavings())}</span>
               </div>
               <div className="flex justify-between text-sm text-green-700">
-                <span>Pontos eco que você ganhará</span>
+                <span>{t('addToCartModal.ecoPointsEarned')}</span>
                 <span className="font-semibold">+{getTotalEcoPoints()} pts</span>
               </div>
             </div>
@@ -229,14 +229,14 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
           {/* Action Buttons */}
           <div className="flex space-x-3">
             <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancelar
+              {t('addToCartModal.cancel')}
             </Button>
             <Button 
               onClick={handleAddToCart}
               disabled={product.quantity === 0}
               className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {product.quantity === 0 ? 'Sem Estoque' : 'Adicionar ao Carrinho'}
+              {product.quantity === 0 ? t('addToCartModal.outOfStock') : t('addToCartModal.addToCart')}
             </Button>
           </div>
         </div>
