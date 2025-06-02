@@ -37,6 +37,8 @@ export default function PixPayment() {
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutos em segundos
+  const [isExpired, setIsExpired] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
 
