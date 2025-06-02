@@ -323,7 +323,7 @@ export default function AddProduct() {
                       className="flex-1 bg-primary-600 hover:bg-primary-700"
                       disabled={createProductMutation.isPending}
                     >
-                      {createProductMutation.isPending ? t('product.adding') : t('product.addProduct')}
+                      {createProductMutation.isPending ? t('product.adding') : t('product.addButton')}
                     </Button>
                   </div>
                 </form>
