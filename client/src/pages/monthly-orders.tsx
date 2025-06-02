@@ -4,6 +4,7 @@ import { Calendar, Package, TrendingUp, Receipt } from "lucide-react";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { useLanguage } from "@/hooks/useLanguage";
 import { useEffect } from "react";
 
 interface MonthlyOrderData {
@@ -19,6 +20,7 @@ interface MonthlyOrderData {
 export default function MonthlyOrders() {
   const { staffUser, isStaffAuthenticated, isLoading: authLoading } = useStaffAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const {
     data: monthlyData,
@@ -49,8 +51,8 @@ export default function MonthlyOrders() {
   useEffect(() => {
     if (!authLoading && !isStaffAuthenticated) {
       toast({
-        title: "Não autorizado",
-        description: "Você precisa estar logado como staff. Redirecionando...",
+        title: t('messages.unauthorized'),
+        description: t('auth.loginRedirect'),
         variant: "destructive",
       });
       setTimeout(() => {
@@ -63,8 +65,8 @@ export default function MonthlyOrders() {
   useEffect(() => {
     if (error && isUnauthorizedError(error as Error)) {
       toast({
-        title: "Não autorizado",
-        description: "Você foi desconectado. Fazendo login novamente...",
+        title: t('messages.unauthorized'),
+        description: t('messages.sessionExpired'),
         variant: "destructive",
       });
       setTimeout(() => {
@@ -93,15 +95,15 @@ export default function MonthlyOrders() {
           <CardContent className="pt-6">
             <div className="text-center">
               <Receipt className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Erro ao carregar dados</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('monthly.errorLoadingTitle')}</h3>
               <p className="text-muted-foreground mb-4">
-                Não foi possível carregar o resumo mensal dos pedidos.
+                {t('monthly.errorLoadingMessage')}
               </p>
               <button 
                 onClick={() => refetch()}
                 className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
               >
-                Tentar novamente
+                {t('common.tryAgain')}
               </button>
             </div>
           </CardContent>
@@ -122,7 +124,7 @@ export default function MonthlyOrders() {
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex items-center gap-2 mb-6">
         <Calendar className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">Resumo Mensal de Pedidos</h1>
+        <h1 className="text-2xl font-bold">{t('monthly.title')}</h1>
       </div>
 
       {/* Summary Cards */}
