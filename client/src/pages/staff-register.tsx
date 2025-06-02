@@ -133,14 +133,14 @@ export default function StaffRegister() {
                 <div className="space-y-2">
                   <Label htmlFor="email" className="flex items-center space-x-2">
                     <Mail size={16} />
-                    <span>Email *</span>
+                    <span>{t('auth.email')} *</span>
                   </Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="contato@supermercado.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     className="w-full"
                   />
                 </div>
@@ -148,14 +148,14 @@ export default function StaffRegister() {
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="flex items-center space-x-2">
                     <Phone size={16} />
-                    <span>Telefone *</span>
+                    <span>{t('staff.phone')} *</span>
                   </Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="(11) 99999-9999"
+                    placeholder={t('staff.phonePlaceholder')}
                     className="w-full"
                   />
                 </div>
@@ -163,14 +163,14 @@ export default function StaffRegister() {
                 <div className="space-y-2">
                   <Label htmlFor="address" className="flex items-center space-x-2">
                     <MapPin size={16} />
-                    <span>Endereço *</span>
+                    <span>{t('staff.address')} *</span>
                   </Label>
                   <Input
                     id="address"
                     type="text"
                     value={formData.address}
                     onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="Rua, número, bairro, cidade"
+                    placeholder={t('staff.addressPlaceholder')}
                     className="w-full"
                   />
                 </div>
@@ -178,7 +178,7 @@ export default function StaffRegister() {
                 <div className="space-y-2">
                   <Label htmlFor="password" className="flex items-center space-x-2">
                     <Lock size={16} />
-                    <span>Senha *</span>
+                    <span>{t('auth.password')} *</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -186,7 +186,7 @@ export default function StaffRegister() {
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder={t('staff.passwordMin')}
                       className="w-full pr-10"
                     />
                     <button
@@ -202,7 +202,7 @@ export default function StaffRegister() {
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword" className="flex items-center space-x-2">
                     <Lock size={16} />
-                    <span>Confirmar Senha *</span>
+                    <span>{t('staff.confirmPassword')} *</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -210,7 +210,7 @@ export default function StaffRegister() {
                       type={showConfirmPassword ? "text" : "password"}
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      placeholder="Digite a senha novamente"
+                      placeholder={t('staff.confirmPasswordPlaceholder')}
                       className="w-full pr-10"
                     />
                     <button
@@ -228,19 +228,19 @@ export default function StaffRegister() {
                   disabled={registerMutation.isPending}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
                 >
-                  {registerMutation.isPending ? "Cadastrando..." : "Cadastrar Supermercado"}
+                  {registerMutation.isPending ? t('staff.registering') : t('staff.registerButton')}
                 </Button>
               </form>
 
               {/* Login Link */}
               <div className="text-center">
                 <p className="text-gray-600 text-sm">
-                  Já tem conta?{" "}
+                  {t('staff.alreadyHaveAccount')}{" "}
                   <button
                     onClick={() => navigate("/staff-login")}
                     className="text-blue-600 hover:text-blue-800 font-semibold underline"
                   >
-                    Fazer Login
+                    {t('staff.doLogin')}
                   </button>
                 </p>
               </div>
