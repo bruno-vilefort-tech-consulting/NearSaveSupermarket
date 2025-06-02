@@ -97,7 +97,7 @@ export default function CustomerCardPayment() {
 
       return response;
     },
-    onSuccess: (result) => {
+    onSuccess: (result: any) => {
       console.log('Card payment result:', result);
       
       if (result.success) {
@@ -138,8 +138,13 @@ export default function CustomerCardPayment() {
   });
 
   const handleCardPayment = () => {
+    console.log('Card payment button clicked');
+    console.log('Card data:', cardData);
+    console.log('Order data:', orderData);
+    
     // Validar campos do cartão
     if (!cardData.number || !cardData.name || !cardData.expiry || !cardData.cvv) {
+      console.log('Card data validation failed - missing fields');
       toast({
         title: t('payment.incompleteData'),
         description: t('payment.fillAllFields'),
@@ -151,6 +156,7 @@ export default function CustomerCardPayment() {
     // Validar formato básico
     const cleanNumber = cardData.number.replace(/\s/g, '');
     if (cleanNumber.length < 16) {
+      console.log('Card number validation failed - length:', cleanNumber.length);
       toast({
         title: t('payment.incompleteData'),
         description: "Número do cartão deve ter 16 dígitos",
@@ -160,6 +166,7 @@ export default function CustomerCardPayment() {
     }
 
     if (cardData.cvv.length < 3) {
+      console.log('CVV validation failed - length:', cardData.cvv.length);
       toast({
         title: t('payment.incompleteData'),
         description: "CVV deve ter 3 ou 4 dígitos",
@@ -168,6 +175,7 @@ export default function CustomerCardPayment() {
       return;
     }
 
+    console.log('All validations passed, starting payment mutation');
     processCardPaymentMutation.mutate(cardData);
   };
 
