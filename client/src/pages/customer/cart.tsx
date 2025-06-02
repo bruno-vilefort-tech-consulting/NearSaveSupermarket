@@ -349,7 +349,7 @@ export default function CustomerCart() {
                 <Label htmlFor="delivery" className="flex-1">
                   <div className="flex items-center gap-2">
                     <span>🚚</span>
-                    <span>Entrega - R$ 5,00</span>
+                    <span>{t('cart.deliveryFee')}</span>
                   </div>
                 </Label>
               </div>
@@ -357,12 +357,12 @@ export default function CustomerCart() {
             
             {deliveryType === "delivery" && (
               <div className="mt-3">
-                <Label htmlFor="address">Endereço para Entrega *</Label>
+                <Label htmlFor="address">{t('cart.deliveryAddress')}</Label>
                 <Input
                   id="address"
                   value={deliveryAddress}
                   onChange={(e) => setDeliveryAddress(e.target.value)}
-                  placeholder="Rua, número, bairro, cidade"
+                  placeholder={t('cart.deliveryAddressPlaceholder')}
                 />
               </div>
             )}
@@ -372,24 +372,24 @@ export default function CustomerCart() {
         {/* Resumo do Pedido */}
         <Card className="bg-white">
           <CardContent className="p-4">
-            <h3 className="font-semibold mb-3">Resumo do Pedido</h3>
+            <h3 className="font-semibold mb-3">{t('cart.orderSummary')}</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>{t('cart.subtotal')}</span>
                 <span>{formatPrice(calculateTotal().toString())}</span>
               </div>
               <div className="flex justify-between text-green-600">
-                <span>Economia</span>
+                <span>{t('cart.savings')}</span>
                 <span>-{formatPrice(calculateSavings().toString())}</span>
               </div>
               {deliveryType === "delivery" && (
                 <div className="flex justify-between">
-                  <span>Entrega</span>
+                  <span>{t('cart.delivery')}</span>
                   <span>R$ 5,00</span>
                 </div>
               )}
               <div className="border-t pt-2 flex justify-between font-semibold">
-                <span>Total</span>
+                <span>{t('cart.total')}</span>
                 <span>{formatPrice((calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toString())}</span>
               </div>
             </div>
@@ -402,7 +402,7 @@ export default function CustomerCart() {
           onClick={handleCheckout}
           disabled={createOrderMutation.isPending}
         >
-          {createOrderMutation.isPending ? "Processando..." : "Finalizar Pedido"}
+          {createOrderMutation.isPending ? t('cart.processing') : t('cart.finishOrder')}
         </Button>
       </div>
     </div>
