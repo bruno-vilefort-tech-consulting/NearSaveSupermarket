@@ -172,7 +172,7 @@ export default function CustomerHome() {
           <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('customer.menu')}</h2>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -190,7 +190,7 @@ export default function CustomerHome() {
                 <div className="flex items-center mt-2">
                   <Leaf size={16} className="text-green-600 mr-1" />
                   <span className="text-sm font-medium text-green-700">
-                    {customerInfo?.ecoPoints || 0} Pontos Eco
+                    {customerInfo?.ecoPoints || 0} {t('customer.ecoPointsFooter')}
                   </span>
                 </div>
               </div>
@@ -207,8 +207,8 @@ export default function CustomerHome() {
                 >
                   <Leaf size={20} className="mr-3 text-green-600" />
                   <div>
-                    <div className="font-medium">Pontos Eco</div>
-                    <div className="text-xs text-gray-500">{customerInfo?.ecoPoints || 0} pontos disponíveis</div>
+                    <div className="font-medium">{t('customer.ecoPointsFooter')}</div>
+                    <div className="text-xs text-gray-500">{customerInfo?.ecoPoints || 0} {t('customer.pointsAvailable')}</div>
                   </div>
                 </Button>
 
@@ -222,8 +222,8 @@ export default function CustomerHome() {
                 >
                   <Package size={20} className="mr-3 text-blue-600" />
                   <div>
-                    <div className="font-medium">Meus Pedidos</div>
-                    <div className="text-xs text-gray-500">Histórico de compras</div>
+                    <div className="font-medium">{t('nav.myOrders')}</div>
+                    <div className="text-xs text-gray-500">{t('customer.purchaseHistory')}</div>
                   </div>
                 </Button>
 
@@ -237,9 +237,9 @@ export default function CustomerHome() {
                 >
                   <ShoppingCart size={20} className="mr-3 text-orange-600" />
                   <div>
-                    <div className="font-medium">Carrinho</div>
+                    <div className="font-medium">{t('customer.cart')}</div>
                     <div className="text-xs text-gray-500">
-                      {cartCount > 0 ? `${cartCount} itens` : 'Vazio'}
+                      {cartCount > 0 ? `${cartCount} ${t('customer.items')}` : t('customer.empty')}
                     </div>
                   </div>
                 </Button>
@@ -256,8 +256,8 @@ export default function CustomerHome() {
                 >
                   <LogOut size={20} className="mr-3" />
                   <div>
-                    <div className="font-medium">Sair</div>
-                    <div className="text-xs text-gray-500">Fazer logout</div>
+                    <div className="font-medium">{t('customer.logout')}</div>
+                    <div className="text-xs text-gray-500">{t('customer.logoutAction')}</div>
                   </div>
                 </Button>
               </div>
@@ -278,10 +278,10 @@ export default function CustomerHome() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Programa Pontos Eco
+                    {t('customer.ecoPointsProgram')}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Você tem <span className="font-bold text-green-600">{customerInfo?.ecoPoints || 0} pontos</span> por suas compras sustentáveis
+                    {t('customer.youHave')} <span className="font-bold text-green-600">{customerInfo?.ecoPoints || 0} {t('customer.points')}</span> {t('customer.sustainablePurchases')}
                   </p>
                 </div>
               </div>
