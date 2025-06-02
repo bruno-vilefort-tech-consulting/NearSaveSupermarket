@@ -8,10 +8,12 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { ArrowLeft, Mail } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function StaffForgotPassword() {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const forgotPasswordMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -19,15 +21,15 @@ export default function StaffForgotPassword() {
     },
     onSuccess: () => {
       toast({
-        title: "Email enviado!",
-        description: "Se o email estiver cadastrado, você receberá instruções para redefinir sua senha.",
+        title: t('auth.emailSentSuccess'),
+        description: t('auth.emailSentDesc'),
       });
       setEmail("");
     },
     onError: (error: Error) => {
       toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao enviar o email. Tente novamente.",
+        title: t('common.error'),
+        description: t('auth.emailSentError'),
         variant: "destructive",
       });
     },
@@ -37,8 +39,8 @@ export default function StaffForgotPassword() {
     e.preventDefault();
     if (!email.trim()) {
       toast({
-        title: "Campo obrigatório",
-        description: "Por favor, digite seu email.",
+        title: t('auth.emailRequired'),
+        description: t('auth.emailRequiredDesc'),
         variant: "destructive",
       });
       return;

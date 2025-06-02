@@ -41,6 +41,13 @@ export interface TranslationKeys {
   'auth.unauthorized': string;
   'auth.sessionExpired': string;
   'auth.loginRedirect': string;
+  'auth.emailSentSuccess': string;
+  'auth.emailSentDesc': string;
+  'auth.emailSentError': string;
+  'auth.emailRequiredDesc': string;
+  'auth.passwordResetSuccess': string;
+  'auth.passwordResetSuccessDesc': string;
+  'auth.passwordResetError': string;
 
   // Staff Authentication
   'staff.login': string;
