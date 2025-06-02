@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Package, ShoppingCart, Plus, List, Check, Calendar } from "lucide-react";
 import { useLocation } from "wouter";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
+import { useLanguage } from "@/hooks/useLanguage";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
   const { isStaffAuthenticated } = useStaffAuth();
+  const { t } = useLanguage();
   
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],
