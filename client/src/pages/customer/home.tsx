@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Leaf, LogOut, Menu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface Supermarket {
   id: number;
@@ -21,6 +22,7 @@ export default function CustomerHome() {
   const [cartCount, setCartCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [customerInfo, setCustomerInfo] = useState<any>(null);
 
   // Carregar contador do carrinho e informações do cliente ao inicializar
@@ -86,7 +88,7 @@ export default function CustomerHome() {
             <div className="hidden lg:flex items-center space-x-4">
               <div className="hidden xl:block">
                 <p className="text-sm text-gray-600">
-                  Olá, <span className="font-medium">{customerInfo?.fullName}</span>
+                  {t('dashboard.welcome')}, <span className="font-medium">{customerInfo?.fullName}</span>
                 </p>
               </div>
 
@@ -106,7 +108,7 @@ export default function CustomerHome() {
                 onClick={() => navigate("/customer/orders")}
               >
                 <Package size={16} className="mr-1" />
-                Pedidos
+                {t('nav.myOrders')}
               </Button>
 
               <Button

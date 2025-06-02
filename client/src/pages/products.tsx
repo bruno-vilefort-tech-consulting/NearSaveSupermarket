@@ -8,13 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const categories = ["Todos", "Padaria", "Laticínios", "Carnes e Aves", "Hortifruti", "Frios"];
 
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
-
+  const { t } = useLanguage();
   const { isStaffAuthenticated } = useStaffAuth();
   
   const { data: products, isLoading } = useQuery({
