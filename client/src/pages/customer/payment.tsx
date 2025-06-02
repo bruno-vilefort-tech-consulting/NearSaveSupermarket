@@ -266,24 +266,13 @@ export default function CustomerPayment() {
                   {t('payment.pixCodeLabel')}
                 </Label>
                 <div className="bg-white border rounded p-3 mb-3">
-                  <code className="text-xs font-mono break-all text-gray-800">
-                    00020126580014BR.GOV.BCB.PIX013654ae4c2e-92c7-4c3a-8f5d-7b1234567890520400005303986540550.805802BR5913SUPERMERCADO6009SAO_PAULO62070503***6304A1B2
-                  </code>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Processando pagamento PIX...
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Você será redirecionado para a página de pagamento PIX após confirmar o pedido.
+                  </p>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => {
-                    navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX013654ae4c2e-92c7-4c3a-8f5d-7b1234567890520400005303986540550.805802BR5913SUPERMERCADO6009SAO_PAULO62070503***6304A1B2");
-                    toast({
-                      title: t('payment.codeCopied'),
-                      description: "Cole no seu aplicativo bancário para pagar.",
-                    });
-                  }}
-                >
-                  📋 {t('payment.copyCode')}
-                </Button>
               </div>
 
               <div className="text-center">
