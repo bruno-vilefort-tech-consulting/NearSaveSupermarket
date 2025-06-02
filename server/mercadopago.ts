@@ -182,6 +182,7 @@ export async function createCardPayment(data: CardPaymentData): Promise<CardPaym
       description: data.description,
       payment_method_id: getCardBrand(cardNumber),
       token: cardToken,
+      installments: 1,
       payer: {
         email: data.customerData.email,
         first_name: data.customerData.name.split(' ')[0],
