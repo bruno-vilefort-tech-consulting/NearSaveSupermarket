@@ -48,8 +48,7 @@ export function Header() {
             )}
           </div>
           
-          {/* Language Selector */}
-          <LanguageSelector />
+
           
           {/* User Avatar */}
           <Avatar className="w-8 h-8">
