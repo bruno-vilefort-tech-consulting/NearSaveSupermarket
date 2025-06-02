@@ -89,6 +89,9 @@ export interface TranslationKeys {
   'customer.empty': string;
   'customer.items': string;
   'customer.logoutAction': string;
+  'customer.addToCart': string;
+  'customer.productAdded': string;
+  'customer.productAddedDescription': string;
 
   // Dashboard
   'dashboard.title': string;
@@ -390,7 +393,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.logoutAction': 'Fazer logout',
     'customer.addToCart': 'Adicionar ao carrinho',
     'customer.productAdded': 'Produto adicionado!',
-    'customer.productAddedDescription': '{{productName}} foi adicionado ao carrinho. Você ganhará {{points}} pontos eco!',
+    'customer.productAddedDescription': 'foi adicionado ao carrinho. Você ganhará pontos eco!',
 
     // Dashboard
     'dashboard.title': 'Painel de Controle',
@@ -689,6 +692,9 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.empty': 'Empty',
     'customer.items': 'items',
     'customer.logoutAction': 'Logout',
+    'customer.addToCart': 'Add to cart',
+    'customer.productAdded': 'Product added!',
+    'customer.productAddedDescription': 'was added to cart. You will earn eco points!',
 
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -739,6 +745,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'products.searchPlaceholder': 'Search products...',
     'products.noProducts': 'No products found',
     'products.loading': 'Loading products...',
+    'products.noProductsFound': 'No products found',
+    'products.adjustFilters': 'Try adjusting your search filters',
+    'products.noProductsAvailable': 'This supermarket has no products on sale at the moment',
+    'products.stock': 'Stock',
 
     // Orders
     'orders.title': 'Orders',

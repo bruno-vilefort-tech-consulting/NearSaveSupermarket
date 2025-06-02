@@ -129,7 +129,7 @@ export default function SupermarketProducts() {
     
     toast({
       title: t('customer.productAdded'),
-      description: t('customer.productAddedDescription', { productName: product.name, points: ecoPoints }),
+      description: `${product.name} foi adicionado ao carrinho. Você ganhará ${ecoPoints} pontos eco!`,
     });
   };
 
