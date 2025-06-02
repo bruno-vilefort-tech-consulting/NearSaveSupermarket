@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
-import { createPixPayment, getPaymentStatus } from "./mercadopago";
+import { createPixPayment, getPaymentStatus, createCardPayment, type CardPaymentData } from "./mercadopago";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
@@ -983,6 +983,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating PIX payment:", error);
       res.status(500).json({ message: "Erro ao criar pagamento PIX" });
+    }
+  });
+
+  // Card Payment Routes
+  app.post("/api/create-card-payment", async (req, res) => {
+    try {
+      const { orderId, amount, cardData, customerData } = req.body;
+      
+      if (!orderId || !amount || !cardData || !customerData) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Dados obrigatórios: orderId, amount, cardData, customerData" 
+        });
+      }
+
+      // Validar dados do cartão
+      if (!cardData.number || !cardData.name || !cardData.expiry || !cardData.cvv) {
+        return res.status(400).json({
+          success: false,
+          message: "Dados do cartão incompletos"
+        });
+      }
+
+      const cardPaymentData: CardPaymentData = {
+        orderId: orderId.toString(),
+        amount: parseFloat(amount),
+        description: `Pedido #${orderId}`,
+        cardData: {
+          number: cardData.number,
+          name: cardData.name,
+          expiry: cardData.expiry,
+          cvv: cardData.cvv
+        },
+        customerData: {
+          name: customerData.name,
+          email: customerData.email,
+          phone: customerData.phone
+        }
+      };
+
+      const cardPaymentResult = await createCardPayment(cardPaymentData);
+      
+      // Se o pagamento foi aprovado, atualizar status do pedido
+      if (cardPaymentResult.success && cardPaymentResult.status === 'approved') {
+        await storage.updateOrderStatus(parseInt(orderId), 'paid', 'CARD_PAYMENT');
+        console.log(`Order ${orderId} marked as paid via card`);
+      }
+
+      res.json(cardPaymentResult);
+    } catch (error) {
+      console.error("Error creating card payment:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao processar pagamento por cartão" 
+      });
     }
   });
 
