@@ -33,6 +33,11 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  console.log('🚀 Registering routes...');
+  
+  // Add JSON middleware for all API routes
+  app.use('/api', express.json());
+  
   // Auth middleware
   await setupAuth(app);
 
@@ -986,8 +991,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint without auth
+  app.post("/api/test-card-payment", async (req, res) => {
+    console.log('🏁 Test card payment endpoint called');
+    res.json({ message: "Test endpoint working" });
+  });
+
   // Card Payment Routes
-  app.post("/api/create-card-payment", express.json(), async (req, res) => {
+  app.post("/api/create-card-payment", async (req, res) => {
     try {
       console.log('🏁 Card payment endpoint called with data:', {
         orderId: req.body.orderId,
