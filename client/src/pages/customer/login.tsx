@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Leaf, Mail, Lock, ArrowLeft } from "lucide-react";
 
 const loginSchema = z.object({
