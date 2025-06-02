@@ -11,37 +11,47 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Leaf, User, Mail, Lock, Phone, FileText, ArrowLeft } from "lucide-react";
 
-const registerSchema = z.object({
-  cpf: z.string()
-    .min(11, "CPF deve ter 11 dígitos")
-    .max(14, "CPF inválido")
-    .regex(/^[0-9.-]+$/, "CPF deve conter apenas números, pontos e traços"),
-  fullName: z.string()
-    .min(2, "Nome deve ter pelo menos 2 caracteres")
-    .max(100, "Nome muito longo"),
-  phone: z.string()
-    .min(10, "Telefone deve ter pelo menos 10 dígitos")
-    .max(15, "Telefone inválido"),
-  email: z.string().email("Email inválido"),
-  password: z.string()
-    .min(6, "Senha deve ter pelo menos 6 caracteres")
-    .max(100, "Senha muito longa"),
-  confirmPassword: z.string(),
-  acceptTerms: z.boolean().refine(val => val === true, {
-    message: "Você deve aceitar os termos e condições",
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Senhas não coincidem",
-  path: ["confirmPassword"],
-});
-
-type RegisterFormData = z.infer<typeof registerSchema>;
+type RegisterFormData = {
+  cpf: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  acceptTerms: boolean;
+};
 
 export default function CustomerRegister() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
+
+  const registerSchema = z.object({
+    cpf: z.string()
+      .min(11, t('validation.cpfMinLength'))
+      .max(14, t('validation.cpfInvalid'))
+      .regex(/^[0-9.-]+$/, t('validation.cpfFormat')),
+    fullName: z.string()
+      .min(2, t('validation.nameMinLength'))
+      .max(100, t('validation.nameTooLong')),
+    phone: z.string()
+      .min(10, t('validation.phoneMinLength'))
+      .max(15, t('validation.phoneInvalid')),
+    email: z.string().email(t('validation.emailInvalid')),
+    password: z.string()
+      .min(6, t('validation.passwordMinLength'))
+      .max(100, t('validation.passwordTooLong')),
+    confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine(val => val === true, {
+      message: t('validation.acceptTerms'),
+    }),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('validation.passwordMismatch'),
+    path: ["confirmPassword"],
+  });
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),

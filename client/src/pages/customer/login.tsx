@@ -158,14 +158,14 @@ export default function CustomerLogin() {
 
             <div className="text-center space-y-4">
               <p className="text-sm text-gray-600">
-                Não tem uma conta?
+                {t('auth.dontHaveAccount')}
               </p>
               <Button
                 variant="outline"
                 className="w-full border-green-600 text-green-600 hover:bg-green-50"
                 onClick={() => navigate("/customer/register")}
               >
-                Criar nova conta
+                {t('customer.register')}
               </Button>
             </div>
           </CardContent>
@@ -178,7 +178,7 @@ export default function CustomerLogin() {
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft size={16} />
-            <span>Voltar ao início</span>
+            <span>{t('common.backToHome')}</span>
           </button>
         </div>
       </div>
