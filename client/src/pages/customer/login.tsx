@@ -14,16 +14,20 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Leaf, Mail, Lock, ArrowLeft } from "lucide-react";
 
-const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+type LoginFormData = {
+  email: string;
+  password: string;
+};
 
 export default function CustomerLogin() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
+
+  const loginSchema = z.object({
+    email: z.string().email(t('auth.emailRequired')),
+    password: z.string().min(6, t('auth.passwordMinLength')),
+  });
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -41,15 +45,15 @@ export default function CustomerLogin() {
     onSuccess: (data) => {
       localStorage.setItem('customerInfo', JSON.stringify(data));
       toast({
-        title: "Login realizado com sucesso",
-        description: "Bem-vindo ao EcoMart!",
+        title: t('auth.loginSuccess'),
+        description: t('landing.title'),
       });
       navigate("/customer");
     },
     onError: (error: any) => {
       toast({
-        title: "Erro no login",
-        description: "Email ou senha incorretos",
+        title: t('auth.loginError'),
+        description: t('auth.invalidCredentials'),
         variant: "destructive",
       });
     },
@@ -69,17 +73,17 @@ export default function CustomerLogin() {
               <Leaf className="text-white" size={32} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">EcoMart</h1>
-          <p className="text-gray-600 mt-2">Consumo consciente para um futuro sustentável</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('landing.title')}</h1>
+          <p className="text-gray-600 mt-2">{t('landing.subtitle')}</p>
         </div>
 
         <Card className="shadow-lg">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-xl font-semibold text-gray-900">
-              Entrar na sua conta
+              {t('auth.login')}
             </CardTitle>
             <p className="text-sm text-gray-600">
-              Acesse produtos com desconto e ganhe pontos eco
+              {t('nav.ecoPoints')}
             </p>
           </CardHeader>
           
@@ -91,14 +95,14 @@ export default function CustomerLogin() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('auth.email')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
                             {...field}
                             type="email"
-                            placeholder="seu@email.com"
+                            placeholder={t('auth.email')}
                             className="pl-10"
                           />
                         </div>
@@ -113,14 +117,14 @@ export default function CustomerLogin() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Senha</FormLabel>
+                      <FormLabel>{t('auth.password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
                             {...field}
                             type="password"
-                            placeholder="Sua senha"
+                            placeholder={t('auth.password')}
                             className="pl-10"
                           />
                         </div>
@@ -136,7 +140,7 @@ export default function CustomerLogin() {
                     onClick={() => navigate("/customer/forgot-password")}
                     className="text-sm text-green-600 hover:text-green-700 font-medium"
                   >
-                    Esqueci minha senha
+                    {t('auth.forgotPassword')}
                   </button>
                 </div>
 
@@ -145,7 +149,7 @@ export default function CustomerLogin() {
                   className="w-full bg-green-600 hover:bg-green-700"
                   disabled={loginMutation.isPending}
                 >
-                  {loginMutation.isPending ? "Entrando..." : "Entrar"}
+                  {loginMutation.isPending ? t('common.loading') : t('auth.login')}
                 </Button>
               </form>
             </Form>
