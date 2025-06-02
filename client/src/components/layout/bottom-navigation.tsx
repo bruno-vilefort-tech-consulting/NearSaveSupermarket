@@ -8,6 +8,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 export function BottomNavigation() {
   const [location, navigate] = useLocation();
   const { isStaffAuthenticated, logout } = useStaffAuth();
+  const { t } = useLanguage();
   
   const { data: stats } = useQuery({
     queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],
@@ -20,21 +21,21 @@ export function BottomNavigation() {
   const navItems = [
     {
       id: "dashboard",
-      label: "Início",
+      label: t('nav.dashboard'),
       icon: Home,
       path: dashboardPath,
       isActive: isOnDashboard,
     },
     {
       id: "products",
-      label: "Produtos",
+      label: t('nav.products'),
       icon: Package,
       path: "/products",
       isActive: location === "/products",
     },
     {
       id: "add",
-      label: "Adicionar",
+      label: t('nav.add'),
       icon: Plus,
       path: "/add-product",
       isActive: location === "/add-product",
@@ -42,7 +43,7 @@ export function BottomNavigation() {
     },
     {
       id: "orders",
-      label: "Pedidos",
+      label: t('nav.orders'),
       icon: ShoppingCart,
       path: "/orders",
       isActive: location === "/orders",
@@ -50,7 +51,7 @@ export function BottomNavigation() {
     },
     {
       id: "profile",
-      label: "Perfil",
+      label: t('nav.profile'),
       icon: User,
       path: "/profile",
       isActive: location === "/profile",

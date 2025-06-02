@@ -11,6 +11,7 @@ export interface TranslationKeys {
   'nav.supermarkets': string;
   'nav.myOrders': string;
   'nav.ecoPoints': string;
+  'nav.add': string;
 
   // Authentication
   'auth.login': string;
@@ -186,6 +187,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'nav.supermarkets': 'Supermercados',
     'nav.myOrders': 'Meus Pedidos',
     'nav.ecoPoints': 'Eco Pontos',
+    'nav.add': 'Adicionar',
 
     // Authentication
     'auth.login': 'Entrar',
@@ -360,6 +362,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'nav.supermarkets': 'Supermarkets',
     'nav.myOrders': 'My Orders',
     'nav.ecoPoints': 'Eco Points',
+    'nav.add': 'Add',
 
     // Authentication
     'auth.login': 'Login',
