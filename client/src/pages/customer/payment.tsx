@@ -84,8 +84,8 @@ export default function CustomerPayment() {
     onError: () => {
       setIsProcessing(false);
       toast({
-        title: "Erro no pagamento",
-        description: "Tente novamente ou escolha outro método.",
+        title: t('payment.paymentError'),
+        description: t('payment.tryAgain'),
         variant: "destructive",
       });
     },
@@ -95,8 +95,8 @@ export default function CustomerPayment() {
     if (paymentMethod === "card") {
       if (!cardData.number || !cardData.name || !cardData.expiry || !cardData.cvv) {
         toast({
-          title: "Dados incompletos",
-          description: "Preencha todos os campos do cartão.",
+          title: t('payment.incompleteData'),
+          description: t('payment.fillAllFields'),
           variant: "destructive",
         });
         return;
@@ -142,8 +142,8 @@ export default function CustomerPayment() {
           <Card className="text-center">
             <CardContent className="p-8">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Pagamento Aprovado!</h2>
-              <p className="text-gray-600 mb-4">Seu pedido foi confirmado com sucesso.</p>
+              <h2 className="text-xl font-semibold mb-2">{t('payment.paymentSuccess')}</h2>
+              <p className="text-gray-600 mb-4">{t('payment.orderCreated')}</p>
               <p className="text-sm text-gray-500">Redirecionando...</p>
             </CardContent>
           </Card>
