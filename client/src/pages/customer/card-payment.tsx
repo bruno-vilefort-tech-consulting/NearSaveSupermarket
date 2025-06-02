@@ -324,7 +324,10 @@ export default function CustomerCardPayment() {
 
         {/* Botão de pagamento */}
         <Button
-          onClick={handleCardPayment}
+          onClick={() => {
+            console.log('Button clicked - starting handleCardPayment');
+            handleCardPayment();
+          }}
           disabled={processCardPaymentMutation.isPending}
           className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg"
         >
