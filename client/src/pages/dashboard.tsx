@@ -119,15 +119,15 @@ export default function Dashboard() {
           {/* Recent Activity */}
           <Card className="shadow-sm">
             <CardContent className="p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Atividade Recente</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">{t('dashboard.recentActivity')}</h2>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                     <Check className="text-green-600" size={16} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Sistema inicializado</p>
-                    <p className="text-xs text-gray-500">Pronto para gerenciar produtos e pedidos</p>
+                    <p className="text-sm font-medium text-gray-900">{t('dashboard.systemInitialized')}</p>
+                    <p className="text-xs text-gray-500">{t('dashboard.systemReady')}</p>
                   </div>
                 </div>
               </div>

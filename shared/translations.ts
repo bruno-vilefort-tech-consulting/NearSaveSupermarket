@@ -68,6 +68,8 @@ export interface TranslationKeys {
   'dashboard.monthlyReport': string;
   'dashboard.monthlyReportDesc': string;
   'dashboard.recentActivity': string;
+  'dashboard.systemInitialized': string;
+  'dashboard.systemReady': string;
 
   // Products
   'products.title': string;
@@ -238,6 +240,8 @@ export const translations: Record<Language, TranslationKeys> = {
     'dashboard.monthlyReport': 'Resumo Mensal',
     'dashboard.monthlyReportDesc': 'Pedidos concluídos organizados por mês',
     'dashboard.recentActivity': 'Atividade Recente',
+    'dashboard.systemInitialized': 'Sistema inicializado',
+    'dashboard.systemReady': 'Pronto para gerenciar produtos e pedidos',
 
     // Products
     'products.title': 'Produtos',
@@ -407,6 +411,8 @@ export const translations: Record<Language, TranslationKeys> = {
     'dashboard.monthlyReport': 'Monthly Summary',
     'dashboard.monthlyReportDesc': 'Completed orders organized by month',
     'dashboard.recentActivity': 'Recent Activity',
+    'dashboard.systemInitialized': 'System initialized',
+    'dashboard.systemReady': 'Ready to manage products and orders',
 
     // Products
     'products.title': 'Products',
