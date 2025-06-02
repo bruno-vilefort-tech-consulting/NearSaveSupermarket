@@ -987,7 +987,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Card Payment Routes
-  app.post("/api/create-card-payment", async (req, res) => {
+  app.post("/api/create-card-payment", express.json(), async (req, res) => {
     try {
       console.log('🏁 Card payment endpoint called with data:', {
         orderId: req.body.orderId,
