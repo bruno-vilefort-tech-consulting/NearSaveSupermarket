@@ -88,7 +88,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-left">
                       <p className="font-medium text-gray-900">Gerenciar Produtos</p>
-                      <p className="text-sm text-gray-600">Visualizar e editar lista de produtos</p>
+                      <p className="text-xs text-gray-600">Visualizar e editar lista de produtos</p>
                     </div>
                   </div>
                 </Button>
