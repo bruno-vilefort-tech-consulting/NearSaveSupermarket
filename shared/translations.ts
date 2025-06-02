@@ -165,6 +165,46 @@ export interface TranslationKeys {
   'landing.footer': string;
   'landing.features': string;
 
+  // Validation
+  'validation.productNameRequired': string;
+  'validation.categoryRequired': string;
+  'validation.originalPriceRequired': string;
+  'validation.discountPriceRequired': string;
+  'validation.quantityRequired': string;
+  'validation.expirationDateRequired': string;
+
+  // Product form
+  'product.addTitle': string;
+  'product.addSubtitle': string;
+  'product.photo': string;
+  'product.takePhoto': string;
+  'product.uploadImage': string;
+  'product.remove': string;
+  'product.name': string;
+  'product.namePlaceholder': string;
+  'product.category': string;
+  'product.categoryPlaceholder': string;
+  'product.description': string;
+  'product.descriptionPlaceholder': string;
+  'product.originalPrice': string;
+  'product.discountPrice': string;
+  'product.expirationDate': string;
+  'product.quantity': string;
+  'product.cancel': string;
+  'product.adding': string;
+  'product.addButton': string;
+  'product.successTitle': string;
+  'product.successMessage': string;
+  'product.errorTitle': string;
+  'product.errorMessage': string;
+
+  // Categories
+  'category.bakery': string;
+  'category.dairy': string;
+  'category.meat': string;
+  'category.produce': string;
+  'category.deli': string;
+
   // Messages
   'messages.emailSent': string;
   'messages.passwordReset': string;
@@ -341,6 +381,46 @@ export const translations: Record<Language, TranslationKeys> = {
     'landing.footer': 'Menos desperdício, mais valor. Uma iniciativa sustentável da UP Brasil',
     'landing.features': 'Zero Desperdício • Recompensas Eco • 100% Sustentável',
 
+    // Validation
+    'validation.productNameRequired': 'Nome do produto é obrigatório',
+    'validation.categoryRequired': 'Categoria é obrigatória',
+    'validation.originalPriceRequired': 'Preço original é obrigatório',
+    'validation.discountPriceRequired': 'Preço com desconto é obrigatório',
+    'validation.quantityRequired': 'Quantidade é obrigatória',
+    'validation.expirationDateRequired': 'Data de vencimento é obrigatória',
+
+    // Product form
+    'product.addTitle': 'Adicionar Produto com Desconto',
+    'product.addSubtitle': 'Adicionar itens próximos ao vencimento com preço promocional',
+    'product.photo': 'Foto do Produto',
+    'product.takePhoto': 'Tirar Foto',
+    'product.uploadImage': 'Enviar Imagem',
+    'product.remove': 'Remover',
+    'product.name': 'Nome do Produto',
+    'product.namePlaceholder': 'ex.: Pão Francês Fresco',
+    'product.category': 'Categoria',
+    'product.categoryPlaceholder': 'Selecione a categoria',
+    'product.description': 'Descrição',
+    'product.descriptionPlaceholder': 'Breve descrição do produto',
+    'product.originalPrice': 'Preço Original',
+    'product.discountPrice': 'Preço com Desconto',
+    'product.expirationDate': 'Data de Vencimento',
+    'product.quantity': 'Quantidade',
+    'product.cancel': 'Cancelar',
+    'product.adding': 'Adicionando...',
+    'product.addButton': 'Adicionar Produto',
+    'product.successTitle': 'Sucesso',
+    'product.successMessage': 'Produto adicionado com sucesso',
+    'product.errorTitle': 'Erro',
+    'product.errorMessage': 'Falha ao adicionar produto. Tente novamente.',
+
+    // Categories
+    'category.bakery': 'Padaria',
+    'category.dairy': 'Laticínios',
+    'category.meat': 'Carnes e Aves',
+    'category.produce': 'Hortifruti',
+    'category.deli': 'Frios',
+
     // Messages
     'messages.emailSent': 'Email enviado com sucesso',
     'messages.passwordReset': 'Senha redefinida com sucesso',
@@ -515,6 +595,46 @@ export const translations: Record<Language, TranslationKeys> = {
     'landing.staffButton': 'Supermarket Staff',
     'landing.footer': 'Less waste, more value. A sustainable initiative by UP Brasil',
     'landing.features': 'Zero Waste • Eco Rewards • 100% Sustainable',
+
+    // Validation
+    'validation.productNameRequired': 'Product name is required',
+    'validation.categoryRequired': 'Category is required',
+    'validation.originalPriceRequired': 'Original price is required',
+    'validation.discountPriceRequired': 'Discount price is required',
+    'validation.quantityRequired': 'Quantity is required',
+    'validation.expirationDateRequired': 'Expiration date is required',
+
+    // Product form
+    'product.addTitle': 'Add Discounted Product',
+    'product.addSubtitle': 'Add items near expiration with promotional pricing',
+    'product.photo': 'Product Photo',
+    'product.takePhoto': 'Take Photo',
+    'product.uploadImage': 'Upload Image',
+    'product.remove': 'Remove',
+    'product.name': 'Product Name',
+    'product.namePlaceholder': 'e.g.: Fresh French Bread',
+    'product.category': 'Category',
+    'product.categoryPlaceholder': 'Select category',
+    'product.description': 'Description',
+    'product.descriptionPlaceholder': 'Brief product description',
+    'product.originalPrice': 'Original Price',
+    'product.discountPrice': 'Discount Price',
+    'product.expirationDate': 'Expiration Date',
+    'product.quantity': 'Quantity',
+    'product.cancel': 'Cancel',
+    'product.adding': 'Adding...',
+    'product.addButton': 'Add Product',
+    'product.successTitle': 'Success',
+    'product.successMessage': 'Product added successfully',
+    'product.errorTitle': 'Error',
+    'product.errorMessage': 'Failed to add product. Please try again.',
+
+    // Categories
+    'category.bakery': 'Bakery',
+    'category.dairy': 'Dairy',
+    'category.meat': 'Meat & Poultry',
+    'category.produce': 'Produce',
+    'category.deli': 'Deli',
 
     // Messages
     'messages.emailSent': 'Email sent successfully',

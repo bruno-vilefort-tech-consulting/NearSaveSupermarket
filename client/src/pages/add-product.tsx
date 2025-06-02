@@ -18,17 +18,15 @@ import { useLocation } from "wouter";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useLanguage } from "@/hooks/useLanguage";
 
-const productSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
+const createProductSchema = (t: any) => z.object({
+  name: z.string().min(1, t('validation.productNameRequired')),
   description: z.string().optional(),
-  category: z.string().min(1, "Category is required"),
-  originalPrice: z.string().min(1, "Original price is required"),
-  discountPrice: z.string().min(1, "Discount price is required"),
-  quantity: z.string().min(1, "Quantity is required"),
-  expirationDate: z.string().min(1, "Expiration date is required"),
+  category: z.string().min(1, t('validation.categoryRequired')),
+  originalPrice: z.string().min(1, t('validation.originalPriceRequired')),
+  discountPrice: z.string().min(1, t('validation.discountPriceRequired')),
+  quantity: z.string().min(1, t('validation.quantityRequired')),
+  expirationDate: z.string().min(1, t('validation.expirationDateRequired')),
 });
-
-type ProductFormData = z.infer<typeof productSchema>;
 
 export default function AddProduct() {
   const [, navigate] = useLocation();
@@ -36,6 +34,10 @@ export default function AddProduct() {
   const queryClient = useQueryClient();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { t } = useLanguage();
+
+  const productSchema = createProductSchema(t);
+  type ProductFormData = z.infer<typeof productSchema>;
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -56,7 +58,7 @@ export default function AddProduct() {
       
       // Append product data
       Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value);
+        formData.append(key, value as string);
       });
       
       // Append image if selected
