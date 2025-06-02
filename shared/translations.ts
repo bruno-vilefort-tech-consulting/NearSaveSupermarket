@@ -28,7 +28,9 @@ export interface TranslationKeys {
   'auth.loginSuccess': string;
   'auth.loginError': string;
   'auth.registerSuccess': string;
+  'auth.registerSuccessDescription': string;
   'auth.registerError': string;
+  'auth.registerErrorDescription': string;
   'auth.invalidCredentials': string;
   'auth.emailRequired': string;
   'auth.passwordRequired': string;
@@ -52,6 +54,7 @@ export interface TranslationKeys {
 
   // Customer Authentication
   'customer.register': string;
+  'customer.registerSubtitle': string;
   'customer.cpf': string;
   'customer.fullName': string;
   'customer.phone': string;
@@ -207,6 +210,18 @@ export interface TranslationKeys {
   'validation.discountPriceRequired': string;
   'validation.quantityRequired': string;
   'validation.expirationDateRequired': string;
+  'validation.cpfMinLength': string;
+  'validation.cpfInvalid': string;
+  'validation.cpfFormat': string;
+  'validation.nameMinLength': string;
+  'validation.nameTooLong': string;
+  'validation.phoneMinLength': string;
+  'validation.phoneInvalid': string;
+  'validation.emailInvalid': string;
+  'validation.passwordMinLength': string;
+  'validation.passwordTooLong': string;
+  'validation.acceptTerms': string;
+  'validation.passwordMismatch': string;
 
   // Product form
   'product.addTitle': string;
@@ -458,6 +473,18 @@ export const translations: Record<Language, TranslationKeys> = {
     'validation.discountPriceRequired': 'Preço com desconto é obrigatório',
     'validation.quantityRequired': 'Quantidade é obrigatória',
     'validation.expirationDateRequired': 'Data de vencimento é obrigatória',
+    'validation.cpfMinLength': 'CPF deve ter 11 dígitos',
+    'validation.cpfInvalid': 'CPF inválido',
+    'validation.cpfFormat': 'CPF deve conter apenas números, pontos e traços',
+    'validation.nameMinLength': 'Nome deve ter pelo menos 2 caracteres',
+    'validation.nameTooLong': 'Nome muito longo',
+    'validation.phoneMinLength': 'Telefone deve ter pelo menos 10 dígitos',
+    'validation.phoneInvalid': 'Telefone inválido',
+    'validation.emailInvalid': 'Email inválido',
+    'validation.passwordMinLength': 'Senha deve ter pelo menos 6 caracteres',
+    'validation.passwordTooLong': 'Senha muito longa',
+    'validation.acceptTerms': 'Você deve aceitar os termos e condições',
+    'validation.passwordMismatch': 'Senhas não coincidem',
 
     // Product form
     'product.addTitle': 'Adicionar Produto com Desconto',
@@ -708,6 +735,18 @@ export const translations: Record<Language, TranslationKeys> = {
     'validation.discountPriceRequired': 'Discount price is required',
     'validation.quantityRequired': 'Quantity is required',
     'validation.expirationDateRequired': 'Expiration date is required',
+    'validation.cpfMinLength': 'CPF must have 11 digits',
+    'validation.cpfInvalid': 'Invalid CPF',
+    'validation.cpfFormat': 'CPF must contain only numbers, dots and dashes',
+    'validation.nameMinLength': 'Name must have at least 2 characters',
+    'validation.nameTooLong': 'Name too long',
+    'validation.phoneMinLength': 'Phone must have at least 10 digits',
+    'validation.phoneInvalid': 'Invalid phone',
+    'validation.emailInvalid': 'Invalid email',
+    'validation.passwordMinLength': 'Password must have at least 6 characters',
+    'validation.passwordTooLong': 'Password too long',
+    'validation.acceptTerms': 'You must accept the terms and conditions',
+    'validation.passwordMismatch': 'Passwords do not match',
 
     // Product form
     'product.addTitle': 'Add Discounted Product',

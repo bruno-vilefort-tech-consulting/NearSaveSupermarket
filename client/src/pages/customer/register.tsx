@@ -74,15 +74,15 @@ export default function CustomerRegister() {
     },
     onSuccess: (data) => {
       toast({
-        title: "Cadastro realizado com sucesso!",
-        description: "Sua conta foi criada. Faça login para continuar.",
+        title: t('auth.registerSuccess'),
+        description: t('auth.registerSuccessDescription'),
       });
       navigate("/customer/login");
     },
     onError: (error: any) => {
       toast({
-        title: "Erro no cadastro",
-        description: "Verifique os dados e tente novamente",
+        title: t('auth.registerError'),
+        description: t('auth.registerErrorDescription'),
         variant: "destructive",
       });
     },
@@ -119,8 +119,8 @@ export default function CustomerRegister() {
               <Leaf className="text-white" size={32} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">EcoMart</h1>
-          <p className="text-gray-600 mt-2">Crie sua conta e comece a economizar</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('landing.title')}</h1>
+          <p className="text-gray-600 mt-2">{t('customer.registerSubtitle')}</p>
         </div>
 
         <Card className="shadow-lg">
