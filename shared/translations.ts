@@ -293,8 +293,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.alreadyHaveAccount': 'Já tem uma conta?',
     'auth.loginSuccess': 'Login realizado com sucesso',
     'auth.loginError': 'Erro ao fazer login',
-    'auth.registerSuccess': 'Cadastro realizado com sucesso',
-    'auth.registerError': 'Erro ao fazer cadastro',
+    'auth.registerSuccess': 'Cadastro realizado com sucesso!',
+    'auth.registerSuccessDescription': 'Sua conta foi criada. Faça login para continuar.',
+    'auth.registerError': 'Erro no cadastro',
+    'auth.registerErrorDescription': 'Verifique os dados e tente novamente',
     'auth.invalidCredentials': 'Email ou senha incorretos',
     'auth.emailRequired': 'Email é obrigatório',
     'auth.passwordRequired': 'Senha é obrigatória',
@@ -318,6 +320,7 @@ export const translations: Record<Language, TranslationKeys> = {
 
     // Customer Authentication
     'customer.register': 'Cadastro do Cliente',
+    'customer.registerSubtitle': 'Crie sua conta e comece a economizar',
     'customer.cpf': 'CPF',
     'customer.fullName': 'Nome Completo',
     'customer.phone': 'Telefone',
@@ -555,8 +558,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.alreadyHaveAccount': 'Already have an account?',
     'auth.loginSuccess': 'Login successful',
     'auth.loginError': 'Login error',
-    'auth.registerSuccess': 'Registration successful',
+    'auth.registerSuccess': 'Registration successful!',
+    'auth.registerSuccessDescription': 'Your account has been created. Please login to continue.',
     'auth.registerError': 'Registration error',
+    'auth.registerErrorDescription': 'Please check your data and try again',
     'auth.invalidCredentials': 'Invalid email or password',
     'auth.emailRequired': 'Email is required',
     'auth.passwordRequired': 'Password is required',
@@ -580,6 +585,7 @@ export const translations: Record<Language, TranslationKeys> = {
 
     // Customer Authentication
     'customer.register': 'Customer Registration',
+    'customer.registerSubtitle': 'Create your account and start saving',
     'customer.cpf': 'CPF',
     'customer.fullName': 'Full Name',
     'customer.phone': 'Phone',
