@@ -189,11 +189,11 @@ export default function StaffLogin() {
 
               {/* Back Button */}
               <Button
-                onClick={() => window.location.href = '/'}
+                onClick={() => navigate('/')}
                 variant="ghost"
                 className="w-full text-gray-600"
               >
-                ← Voltar ao início
+                {t('common.backToHome')}
               </Button>
             </CardContent>
           </Card>

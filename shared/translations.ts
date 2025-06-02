@@ -149,6 +149,7 @@ export interface TranslationKeys {
   'common.no': string;
   'common.submit': string;
   'common.or': string;
+  'common.backToHome': string;
 
   // Landing Page
   'landing.title': string;
@@ -318,6 +319,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.no': 'Não',
     'common.submit': 'Enviar',
     'common.or': 'ou',
+    'common.backToHome': 'Voltar ao início',
 
     // Landing Page
     'landing.title': 'EcoMart',
@@ -485,6 +487,8 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.yes': 'Yes',
     'common.no': 'No',
     'common.submit': 'Submit',
+    'common.or': 'or',
+    'common.backToHome': 'Back to Home',
 
     // Landing Page
     'landing.title': 'EcoMart',
