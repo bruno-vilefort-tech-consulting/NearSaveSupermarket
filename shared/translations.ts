@@ -689,6 +689,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.no': 'No',
     'common.submit': 'Submit',
     'common.or': 'or',
+    'common.of': 'of',
     'common.backToHome': 'Back to Home',
     'common.tryAgain': 'Try Again',
 

@@ -24,7 +24,7 @@ export default function MonthlyOrders() {
 
   // Function to translate month names from Portuguese to current language
   const translateMonth = (portugueseMonth: string): string => {
-    const monthMap: Record<string, keyof typeof t> = {
+    const monthMap: Record<string, string> = {
       'janeiro': 'month.january',
       'fevereiro': 'month.february',
       'março': 'month.march',
@@ -46,7 +46,7 @@ export default function MonthlyOrders() {
       const year = parts[1];
       const translationKey = monthMap[monthName];
       if (translationKey) {
-        return `${t(translationKey)} ${t('common.of')} ${year}`;
+        return `${t(translationKey as any)} ${t('common.of')} ${year}`;
       }
     }
     
@@ -206,10 +206,10 @@ export default function MonthlyOrders() {
             <Card key={index}>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span className="text-lg">{monthData.month}</span>
+                  <span className="text-lg">{translateMonth(monthData.month)}</span>
                   <div className="text-right">
                     <div className="text-sm text-muted-foreground">
-                      {monthData.orders.length} pedidos
+                      {monthData.orders.length} {t('monthly.ordersCount')}
                     </div>
                     <div className="text-lg font-bold text-green-600">
                       R$ {monthData.totalAmount}
