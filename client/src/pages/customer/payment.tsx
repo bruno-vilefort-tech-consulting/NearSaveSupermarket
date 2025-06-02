@@ -42,10 +42,7 @@ export default function CustomerPayment() {
   // Processar pagamento e criar pedido
   const processPaymentMutation = useMutation({
     mutationFn: async (data: { method: string; cardData?: any }) => {
-      // Simular delay de processamento de pagamento
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Criar o pedido após pagamento aprovado
+      // Criar o pedido primeiro
       const response = await fetch("/api/public/orders", {
         method: "POST",
         body: JSON.stringify(orderData),
@@ -59,9 +56,36 @@ export default function CustomerPayment() {
       }
       
       const order = await response.json();
+      
+      // Se é PIX, redirecionar para página PIX
+      if (data.method === 'pix') {
+        // Salvar dados do pedido para a página PIX
+        localStorage.setItem(`order_${order.id}`, JSON.stringify({
+          id: order.id,
+          customerName: orderData.customerName,
+          customerEmail: orderData.customerEmail,
+          customerPhone: orderData.customerPhone,
+          totalAmount: orderData.totalAmount,
+          items: orderData.items.map((item: any) => ({
+            productName: item.productName,
+            quantity: item.quantity,
+            priceAtTime: item.priceAtTime
+          }))
+        }));
+        
+        // Redirecionar para página PIX
+        navigate(`/customer/pix-payment/${order.id}`);
+        return { success: true, order, redirect: 'pix' };
+      }
+      
       return { success: true, order, transactionId: Math.random().toString(36).substr(2, 9) };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      // Se é PIX, não fazer nada aqui (redirecionamento já foi feito)
+      if (result.redirect === 'pix') {
+        return;
+      }
+      
       setPaymentSuccess(true);
       
       // Invalidar cache dos produtos para mostrar estoque atualizado
