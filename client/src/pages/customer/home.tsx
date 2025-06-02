@@ -185,7 +185,7 @@ export default function CustomerHome() {
 
               {/* User Info */}
               <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Hi,</p>
+                <p className="text-sm text-gray-600 mb-1">{t('customer.hello')},</p>
                 <p className="font-medium text-gray-900">{customerInfo?.fullName}</p>
                 <div className="flex items-center mt-2">
                   <Leaf size={16} className="text-green-600 mr-1" />
