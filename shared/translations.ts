@@ -140,6 +140,20 @@ export interface TranslationKeys {
   'monthly.noOrdersFoundTitle': string;
   'monthly.noOrdersFoundMessage': string;
 
+  // Month names
+  'month.january': string;
+  'month.february': string;
+  'month.march': string;
+  'month.april': string;
+  'month.may': string;
+  'month.june': string;
+  'month.july': string;
+  'month.august': string;
+  'month.september': string;
+  'month.october': string;
+  'month.november': string;
+  'month.december': string;
+
   // Eco Points
   'eco.points': string;
   'eco.totalActions': string;
@@ -174,6 +188,7 @@ export interface TranslationKeys {
   'common.no': string;
   'common.submit': string;
   'common.or': string;
+  'common.of': string;
   'common.backToHome': string;
   'common.tryAgain': string;
 
@@ -376,6 +391,20 @@ export const translations: Record<Language, TranslationKeys> = {
     'monthly.noOrdersFoundTitle': 'Nenhum pedido encontrado',
     'monthly.noOrdersFoundMessage': 'Você ainda não possui pedidos concluídos.',
 
+    // Month names
+    'month.january': 'janeiro',
+    'month.february': 'fevereiro',
+    'month.march': 'março',
+    'month.april': 'abril',
+    'month.may': 'maio',
+    'month.june': 'junho',
+    'month.july': 'julho',
+    'month.august': 'agosto',
+    'month.september': 'setembro',
+    'month.october': 'outubro',
+    'month.november': 'novembro',
+    'month.december': 'dezembro',
+
     // Eco Points
     'eco.points': 'Eco Pontos',
     'eco.totalActions': 'Total de Ações',
@@ -410,6 +439,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.no': 'Não',
     'common.submit': 'Enviar',
     'common.or': 'ou',
+    'common.of': 'de',
     'common.backToHome': 'Voltar ao início',
     'common.tryAgain': 'Tentar novamente',
 
@@ -610,6 +640,20 @@ export const translations: Record<Language, TranslationKeys> = {
     'monthly.completedOrdersLabel': 'Completed orders',
     'monthly.noOrdersFoundTitle': 'No orders found',
     'monthly.noOrdersFoundMessage': 'You don\'t have any completed orders yet.',
+
+    // Month names
+    'month.january': 'January',
+    'month.february': 'February',
+    'month.march': 'March',
+    'month.april': 'April',
+    'month.may': 'May',
+    'month.june': 'June',
+    'month.july': 'July',
+    'month.august': 'August',
+    'month.september': 'September',
+    'month.october': 'October',
+    'month.november': 'November',
+    'month.december': 'December',
 
     // Eco Points
     'eco.points': 'Eco Points',

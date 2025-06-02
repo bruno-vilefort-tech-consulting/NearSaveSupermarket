@@ -22,6 +22,37 @@ export default function MonthlyOrders() {
   const { toast } = useToast();
   const { t } = useLanguage();
 
+  // Function to translate month names from Portuguese to current language
+  const translateMonth = (portugueseMonth: string): string => {
+    const monthMap: Record<string, keyof typeof t> = {
+      'janeiro': 'month.january',
+      'fevereiro': 'month.february',
+      'março': 'month.march',
+      'abril': 'month.april',
+      'maio': 'month.may',
+      'junho': 'month.june',
+      'julho': 'month.july',
+      'agosto': 'month.august',
+      'setembro': 'month.september',
+      'outubro': 'month.october',
+      'novembro': 'month.november',
+      'dezembro': 'month.december'
+    };
+
+    // Extract month name and year from string like "junho de 2025"
+    const parts = portugueseMonth.split(' de ');
+    if (parts.length === 2) {
+      const monthName = parts[0].toLowerCase();
+      const year = parts[1];
+      const translationKey = monthMap[monthName];
+      if (translationKey) {
+        return `${t(translationKey)} ${t('common.of')} ${year}`;
+      }
+    }
+    
+    return portugueseMonth; // Fallback to original if translation fails
+  };
+
   const {
     data: monthlyData,
     isLoading,
@@ -162,9 +193,9 @@ export default function MonthlyOrders() {
           <CardContent className="pt-6">
             <div className="text-center">
               <Receipt className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Nenhum pedido encontrado</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('monthly.noOrdersFoundTitle')}</h3>
               <p className="text-muted-foreground">
-                Você ainda não possui pedidos concluídos.
+                {t('monthly.noOrdersFoundMessage')}
               </p>
             </div>
           </CardContent>
