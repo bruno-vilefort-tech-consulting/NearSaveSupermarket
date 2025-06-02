@@ -182,7 +182,7 @@ export default function CustomerCart() {
             <Link href="/customer">
               <ArrowLeft className="h-6 w-6 text-gray-600" />
             </Link>
-            <h1 className="ml-4 text-lg font-semibold">Carrinho</h1>
+            <h1 className="ml-4 text-lg font-semibold">{t('cart.title')}</h1>
           </div>
         </div>
 
@@ -193,11 +193,11 @@ export default function CustomerCart() {
                 <span className="text-2xl">🛒</span>
               </div>
             </div>
-            <h2 className="text-xl font-semibold mb-2">Seu carrinho está vazio</h2>
-            <p className="text-gray-600 mb-6">Adicione produtos com desconto para continuar</p>
+            <h2 className="text-xl font-semibold mb-2">{t('cart.empty')}</h2>
+            <p className="text-gray-600 mb-6">{t('cart.emptyDescription')}</p>
             <Link href="/customer">
               <Button className="w-full bg-green-600 hover:bg-green-700">
-                Continuar Comprando
+                {t('cart.continueShopping')}
               </Button>
             </Link>
           </div>
@@ -216,11 +216,11 @@ export default function CustomerCart() {
             <ArrowLeft className="h-6 w-6 text-gray-600" />
           </Link>
           <div className="ml-4">
-            <h1 className="text-lg font-semibold">Carrinho ({cartItems.length})</h1>
+            <h1 className="text-lg font-semibold">{t('cart.title')} ({cartItems.length})</h1>
             <p className="text-sm text-gray-500">
               {supermarkets.length === 1 
                 ? `${supermarkets[0].name}` 
-                : `${supermarkets.length} supermercados`
+                : `${supermarkets.length} ${t('cart.supermarkets')}`
               }
             </p>
           </div>
@@ -257,7 +257,7 @@ export default function CustomerCart() {
                       <div className="flex items-center gap-2 mt-1">
                         <Clock className="h-3 w-3 text-orange-500" />
                         <span className="text-xs text-orange-600">
-                          Válido até {new Date(item.expirationDate).toLocaleDateString('pt-BR')}
+                          {t('cart.validUntil')} {new Date(item.expirationDate).toLocaleDateString('pt-BR')}
                         </span>
                       </div>
                       <div className="flex items-center justify-between mt-2">
@@ -311,7 +311,7 @@ export default function CustomerCart() {
         {customerInfo && (
           <Card className="bg-white">
             <CardContent className="p-4">
-              <h3 className="font-semibold mb-3">Dados do Cliente</h3>
+              <h3 className="font-semibold mb-3">{t('cart.customerData')}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-gray-400" />
@@ -333,14 +333,14 @@ export default function CustomerCart() {
         {/* Tipo de Entrega */}
         <Card className="bg-white">
           <CardContent className="p-4">
-            <h3 className="font-semibold mb-3">Forma de Retirada</h3>
+            <h3 className="font-semibold mb-3">{t('cart.deliveryMethod')}</h3>
             <RadioGroup value={deliveryType} onValueChange={setDeliveryType}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="pickup" id="pickup" />
                 <Label htmlFor="pickup" className="flex-1">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    <span>Retirar no local - Grátis</span>
+                    <span>{t('cart.pickupFree')}</span>
                   </div>
                 </Label>
               </div>
