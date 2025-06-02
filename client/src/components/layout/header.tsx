@@ -5,10 +5,12 @@ import { Store, Bell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function Header() {
   const { user } = useAuth();
   const { staffUser, logout: staffLogout, isStaffAuthenticated } = useStaffAuth();
+  const { t } = useLanguage();
   
   const { data: stats } = useQuery({
     queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],
@@ -32,7 +34,7 @@ export function Header() {
             <h1 className="font-semibold text-gray-900">
               {staffUser?.companyName || "Supermercado Silva"}
             </h1>
-            <p className="text-xs text-gray-500">Painel da Equipe</p>
+            <p className="text-xs text-gray-500">{t('header.staffPanel')}</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">

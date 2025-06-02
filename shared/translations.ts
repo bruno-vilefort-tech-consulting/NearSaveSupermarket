@@ -71,6 +71,9 @@ export interface TranslationKeys {
   'dashboard.systemInitialized': string;
   'dashboard.systemReady': string;
 
+  // Header
+  'header.staffPanel': string;
+
   // Products
   'products.title': string;
   'products.addProduct': string;
@@ -243,6 +246,9 @@ export const translations: Record<Language, TranslationKeys> = {
     'dashboard.systemInitialized': 'Sistema inicializado',
     'dashboard.systemReady': 'Pronto para gerenciar produtos e pedidos',
 
+    // Header
+    'header.staffPanel': 'Painel da Equipe',
+
     // Products
     'products.title': 'Produtos',
     'products.addProduct': 'Adicionar Produto',
@@ -413,6 +419,9 @@ export const translations: Record<Language, TranslationKeys> = {
     'dashboard.recentActivity': 'Recent Activity',
     'dashboard.systemInitialized': 'System initialized',
     'dashboard.systemReady': 'Ready to manage products and orders',
+
+    // Header
+    'header.staffPanel': 'Staff Panel',
 
     // Products
     'products.title': 'Products',
