@@ -378,7 +378,7 @@ export default function CustomerHome() {
                         handleSupermarketClick(supermarket.id, supermarket.name);
                       }}
                     >
-                      Ver produtos
+                      {t('customer.viewProducts')}
                       <ArrowRight size={16} className="ml-2" />
                     </Button>
                   </div>
@@ -396,10 +396,10 @@ export default function CustomerHome() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                Pontos Eco: {customerInfo?.ecoPoints || 0}
+                {t('customer.ecoPointsFooter')}: {customerInfo?.ecoPoints || 0}
               </h3>
               <p className="text-sm text-gray-600">
-                Ganhe pontos comprando produtos próximos ao vencimento e ajude o meio ambiente!
+                {t('customer.earnPointsHelp')}
               </p>
             </div>
           </div>
