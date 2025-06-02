@@ -172,7 +172,7 @@ export default function CustomerRegister() {
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
                             {...field}
-                            placeholder="Seu nome completo"
+                            placeholder={t('customer.fullNamePlaceholder')}
                             className="pl-10"
                           />
                         </div>
@@ -219,7 +219,7 @@ export default function CustomerRegister() {
                           <Input
                             {...field}
                             type="email"
-                            placeholder="seu@email.com"
+                            placeholder={t('auth.emailPlaceholder')}
                             className="pl-10"
                           />
                         </div>

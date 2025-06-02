@@ -17,6 +17,7 @@ export interface TranslationKeys {
   'auth.login': string;
   'auth.register': string;
   'auth.email': string;
+  'auth.emailPlaceholder': string;
   'auth.password': string;
   'auth.confirmPassword': string;
   'auth.forgotPassword': string;
@@ -64,6 +65,7 @@ export interface TranslationKeys {
   'customer.registerSubtitle': string;
   'customer.cpf': string;
   'customer.fullName': string;
+  'customer.fullNamePlaceholder': string;
   'customer.phone': string;
   'customer.forgotPassword': string;
   'customer.resetPassword': string;
@@ -409,6 +411,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.login': 'Entrar',
     'auth.register': 'Cadastrar',
     'auth.email': 'Email',
+    'auth.emailPlaceholder': 'seu@email.com',
     'auth.password': 'Senha',
     'auth.confirmPassword': 'Confirmar Senha',
     'auth.forgotPassword': 'Esqueci minha senha',
@@ -456,6 +459,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.registerSubtitle': 'Crie sua conta e comece a economizar',
     'customer.cpf': 'CPF',
     'customer.fullName': 'Nome Completo',
+    'customer.fullNamePlaceholder': 'Seu nome completo',
     'customer.phone': 'Telefone',
     'customer.forgotPassword': 'Esqueci minha senha',
     'customer.resetPassword': 'Redefinir Senha',
@@ -800,6 +804,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.login': 'Login',
     'auth.register': 'Register',
     'auth.email': 'Email',
+    'auth.emailPlaceholder': 'your@email.com',
     'auth.password': 'Password',
     'auth.confirmPassword': 'Confirm Password',
     'auth.forgotPassword': 'Forgot Password',
@@ -847,6 +852,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.registerSubtitle': 'Create your account and start saving',
     'customer.cpf': 'CPF',
     'customer.fullName': 'Full Name',
+    'customer.fullNamePlaceholder': 'Your full name',
     'customer.phone': 'Phone',
     'customer.forgotPassword': 'Forgot Password',
     'customer.resetPassword': 'Reset Password',
