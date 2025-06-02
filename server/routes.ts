@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
+import { createPixPayment, getPaymentStatus } from "./mercadopago";
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
@@ -957,6 +958,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching customer orders:", error);
       res.status(500).json({ message: "Erro ao buscar pedidos do cliente" });
+    }
+  });
+
+  // PIX Payment Routes
+  app.post("/api/payments/pix/create", async (req, res) => {
+    try {
+      const { orderId, amount, description, customerEmail, customerName, customerPhone } = req.body;
+      
+      if (!orderId || !amount || !customerEmail || !customerName) {
+        return res.status(400).json({ message: "Dados obrigatórios: orderId, amount, customerEmail, customerName" });
+      }
+
+      const pixPayment = await createPixPayment({
+        orderId: orderId.toString(),
+        amount: parseFloat(amount),
+        description: description || `Pedido #${orderId}`,
+        customerEmail,
+        customerName,
+        customerPhone
+      });
+
+      res.json(pixPayment);
+    } catch (error) {
+      console.error("Error creating PIX payment:", error);
+      res.status(500).json({ message: "Erro ao criar pagamento PIX" });
+    }
+  });
+
+  app.get("/api/payments/pix/status/:paymentId", async (req, res) => {
+    try {
+      const { paymentId } = req.params;
+      
+      if (!paymentId) {
+        return res.status(400).json({ message: "Payment ID é obrigatório" });
+      }
+
+      const paymentStatus = await getPaymentStatus(paymentId);
+      res.json(paymentStatus);
+    } catch (error) {
+      console.error("Error getting payment status:", error);
+      res.status(500).json({ message: "Erro ao consultar status do pagamento" });
+    }
+  });
+
+  // Mercado Pago Webhook
+  app.post("/api/mercadopago/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+      console.log("Mercado Pago webhook received:", req.body);
+      
+      const notification = JSON.parse(req.body.toString());
+      
+      if (notification.type === 'payment') {
+        const paymentId = notification.data.id;
+        const paymentStatus = await getPaymentStatus(paymentId);
+        
+        console.log("Payment status:", paymentStatus);
+        
+        // Update order status based on payment status
+        if (paymentStatus.status === 'approved') {
+          const orderId = parseInt(paymentStatus.externalReference);
+          if (!isNaN(orderId)) {
+            await storage.updateOrderStatus(orderId, 'paid', 'PIX_WEBHOOK');
+            console.log(`Order ${orderId} marked as paid via PIX`);
+          }
+        }
+      }
+      
+      res.status(200).json({ received: true });
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+      res.status(500).json({ message: "Erro ao processar webhook" });
     }
   });
 

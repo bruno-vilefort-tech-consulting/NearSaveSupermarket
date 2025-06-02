@@ -138,6 +138,26 @@ export interface TranslationKeys {
   'customer.empty': string;
   'customer.items': string;
   'customer.logoutAction': string;
+  
+  // PIX Payment translations
+  'payment.pixTitle': string;
+  'payment.pixInstructions': string;
+  'payment.pixCode': string;
+  'payment.copyCode': string;
+  'payment.codeCopied': string;
+  'payment.paymentConfirmation': string;
+  'payment.orderTotal': string;
+  'payment.paymentMethod': string;
+  'payment.pixPayment': string;
+  'payment.checkingPayment': string;
+  'payment.paymentApproved': string;
+  'payment.paymentPending': string;
+  'payment.paymentRejected': string;
+  'payment.paymentExpired': string;
+  'payment.scanQrCode': string;
+  'payment.orCopyCode': string;
+  'payment.paymentStatus': string;
+  'payment.processingPayment': string;
   'customer.addToCart': string;
   'customer.productAdded': string;
   'customer.productAddedDescription': string;
