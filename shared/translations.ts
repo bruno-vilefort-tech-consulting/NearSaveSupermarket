@@ -33,6 +33,8 @@ export interface TranslationKeys {
   'auth.passwordRequired': string;
   'auth.passwordMinLength': string;
   'auth.passwordMismatch': string;
+  'auth.noAccount': string;
+  'auth.loginReplit': string;
 
   // Staff Authentication
   'staff.login': string;
@@ -146,6 +148,7 @@ export interface TranslationKeys {
   'common.yes': string;
   'common.no': string;
   'common.submit': string;
+  'common.or': string;
 
   // Landing Page
   'landing.title': string;
