@@ -38,6 +38,7 @@ export interface TranslationKeys {
   'auth.loginReplit': string;
   'auth.unauthorized': string;
   'auth.sessionExpired': string;
+  'auth.loginRedirect': string;
 
   // Staff Authentication
   'staff.login': string;
@@ -123,6 +124,18 @@ export interface TranslationKeys {
   'orders.noOrders': string;
   'orders.orderDetails': string;
 
+  // Monthly Orders
+  'monthly.title': string;
+  'monthly.totalOrders': string;
+  'monthly.totalRevenue': string;
+  'monthly.completedOrders': string;
+  'monthly.totalReceived': string;
+  'monthly.noOrdersTitle': string;
+  'monthly.noOrdersMessage': string;
+  'monthly.ordersCount': string;
+  'monthly.errorLoadingTitle': string;
+  'monthly.errorLoadingMessage': string;
+
   // Eco Points
   'eco.points': string;
   'eco.totalActions': string;
@@ -158,6 +171,7 @@ export interface TranslationKeys {
   'common.submit': string;
   'common.or': string;
   'common.backToHome': string;
+  'common.tryAgain': string;
 
   // Landing Page
   'landing.title': string;
@@ -256,6 +270,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.loginReplit': 'Login com Replit (Temporário)',
     'auth.unauthorized': 'Não autorizado',
     'auth.sessionExpired': 'Você foi desconectado. Fazendo login novamente...',
+    'auth.loginRedirect': 'Você precisa estar logado como staff. Redirecionando...',
 
     // Staff Authentication
     'staff.login': 'Login do Supermercado',
@@ -340,6 +355,18 @@ export const translations: Record<Language, TranslationKeys> = {
     'orders.cancelled': 'Cancelado',
     'orders.noOrders': 'Nenhum pedido encontrado',
     'orders.orderDetails': 'Detalhes do Pedido',
+
+    // Monthly Orders
+    'monthly.title': 'Resumo Mensal de Pedidos',
+    'monthly.totalOrders': 'Total de Pedidos',
+    'monthly.totalRevenue': 'Receita Total',
+    'monthly.completedOrders': 'Pedidos concluídos',
+    'monthly.totalReceived': 'Valor total recebido',
+    'monthly.noOrdersTitle': 'Nenhum pedido encontrado',
+    'monthly.noOrdersMessage': 'Você ainda não possui pedidos concluídos.',
+    'monthly.ordersCount': 'pedidos',
+    'monthly.errorLoadingTitle': 'Erro ao carregar dados',
+    'monthly.errorLoadingMessage': 'Não foi possível carregar o resumo mensal dos pedidos.',
 
     // Eco Points
     'eco.points': 'Eco Pontos',
@@ -557,6 +584,18 @@ export const translations: Record<Language, TranslationKeys> = {
     'orders.cancelled': 'Cancelled',
     'orders.noOrders': 'No orders found',
     'orders.orderDetails': 'Order Details',
+
+    // Monthly Orders
+    'monthly.title': 'Monthly Orders Summary',
+    'monthly.totalOrders': 'Total Orders',
+    'monthly.totalRevenue': 'Total Revenue',
+    'monthly.completedOrders': 'Completed orders',
+    'monthly.totalReceived': 'Total amount received',
+    'monthly.noOrdersTitle': 'No orders found',
+    'monthly.noOrdersMessage': 'You don\'t have any completed orders yet.',
+    'monthly.ordersCount': 'orders',
+    'monthly.errorLoadingTitle': 'Error loading data',
+    'monthly.errorLoadingMessage': 'Could not load the monthly orders summary.',
 
     // Eco Points
     'eco.points': 'Eco Points',
