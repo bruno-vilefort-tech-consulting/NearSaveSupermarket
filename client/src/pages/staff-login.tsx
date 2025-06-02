@@ -50,8 +50,8 @@ export default function StaffLogin() {
     
     if (!formData.email || !formData.password) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha email e senha",
+        title: t('auth.emailRequired'),
+        description: t('auth.passwordRequired'),
         variant: "destructive"
       });
       return;
@@ -78,7 +78,7 @@ export default function StaffLogin() {
             <h1 className="text-3xl font-bold text-gray-900">EcoMart Staff</h1>
           </div>
           <p className="text-lg text-gray-600">
-            Painel administrativo para gerenciamento
+            {t('staff.login')}
           </p>
         </div>
 
@@ -87,10 +87,10 @@ export default function StaffLogin() {
           <Card className="shadow-lg">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl text-gray-900">
-                Login do Staff
+                {t('staff.login')}
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                Acesse o painel administrativo
+                {t('staff.login')}
               </p>
             </CardHeader>
             
@@ -100,14 +100,14 @@ export default function StaffLogin() {
                 <div className="space-y-2">
                   <Label htmlFor="email" className="flex items-center space-x-2">
                     <Mail size={16} />
-                    <span>Email *</span>
+                    <span>{t('auth.email')} *</span>
                   </Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="seu@email.com"
+                    placeholder={t('auth.email')}
                     className="w-full"
                   />
                 </div>
@@ -115,7 +115,7 @@ export default function StaffLogin() {
                 <div className="space-y-2">
                   <Label htmlFor="password" className="flex items-center space-x-2">
                     <Lock size={16} />
-                    <span>Senha *</span>
+                    <span>{t('auth.password')} *</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -123,7 +123,7 @@ export default function StaffLogin() {
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder="Digite sua senha"
+                      placeholder={t('auth.password')}
                       className="w-full pr-10"
                     />
                     <button
@@ -141,7 +141,7 @@ export default function StaffLogin() {
                   disabled={loginMutation.isPending}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
                 >
-                  {loginMutation.isPending ? "Entrando..." : "Entrar"}
+                  {loginMutation.isPending ? `${t('auth.login')}...` : t('auth.login')}
                 </Button>
               </form>
 
@@ -151,7 +151,7 @@ export default function StaffLogin() {
                   onClick={handleForgotPassword}
                   className="text-blue-600 hover:text-blue-800 text-sm underline"
                 >
-                  Esqueci minha senha
+                  {t('auth.forgotPassword')}
                 </button>
               </div>
 
@@ -161,7 +161,7 @@ export default function StaffLogin() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">ou</span>
+                  <span className="bg-white px-2 text-gray-500">{t('common.or')}</span>
                 </div>
               </div>
 
