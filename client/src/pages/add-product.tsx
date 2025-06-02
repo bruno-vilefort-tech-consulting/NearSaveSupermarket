@@ -197,19 +197,19 @@ export default function AddProduct() {
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Categoria</FormLabel>
+                        <FormLabel>{t('product.category')}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Selecione a categoria" />
+                              <SelectValue placeholder={t('product.categoryPlaceholder')} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Bakery">Padaria</SelectItem>
-                            <SelectItem value="Dairy">Laticínios</SelectItem>
-                            <SelectItem value="Meat & Poultry">Carnes e Aves</SelectItem>
-                            <SelectItem value="Produce">Hortifruti</SelectItem>
-                            <SelectItem value="Deli">Frios</SelectItem>
+                            <SelectItem value="Bakery">{t('category.bakery')}</SelectItem>
+                            <SelectItem value="Dairy">{t('category.dairy')}</SelectItem>
+                            <SelectItem value="Meat & Poultry">{t('category.meat')}</SelectItem>
+                            <SelectItem value="Produce">{t('category.produce')}</SelectItem>
+                            <SelectItem value="Deli">{t('category.deli')}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -222,9 +222,9 @@ export default function AddProduct() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Descrição</FormLabel>
+                        <FormLabel>{t('product.description')}</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Breve descrição do produto" {...field} />
+                          <Textarea placeholder={t('product.descriptionPlaceholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -237,7 +237,7 @@ export default function AddProduct() {
                       name="originalPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Preço Original</FormLabel>
+                          <FormLabel>{t('product.originalPrice')}</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <span className="absolute left-3 top-3 text-gray-500">R$</span>
@@ -260,7 +260,7 @@ export default function AddProduct() {
                       name="discountPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Preço com Desconto</FormLabel>
+                          <FormLabel>{t('product.discountPrice')}</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <span className="absolute left-3 top-3 text-gray-500">R$</span>
@@ -285,7 +285,7 @@ export default function AddProduct() {
                       name="expirationDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Data de Vencimento</FormLabel>
+                          <FormLabel>{t('product.expirationDate')}</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
                           </FormControl>
@@ -299,7 +299,7 @@ export default function AddProduct() {
                       name="quantity"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Quantidade</FormLabel>
+                          <FormLabel>{t('product.quantity')}</FormLabel>
                           <FormControl>
                             <Input type="number" placeholder="0" min="1" {...field} />
                           </FormControl>
@@ -316,14 +316,14 @@ export default function AddProduct() {
                       className="flex-1"
                       onClick={() => navigate("/")}
                     >
-                      Cancelar
+                      {t('common.cancel')}
                     </Button>
                     <Button 
                       type="submit" 
                       className="flex-1 bg-primary-600 hover:bg-primary-700"
                       disabled={createProductMutation.isPending}
                     >
-                      {createProductMutation.isPending ? "Adicionando..." : "Adicionar Produto"}
+                      {createProductMutation.isPending ? t('product.adding') : t('product.addProduct')}
                     </Button>
                   </div>
                 </form>
