@@ -27,25 +27,35 @@ export default function CustomerCardPayment() {
 
   // Carregar dados do pedido da URL
   useEffect(() => {
+    console.log('Card payment page loaded');
+    console.log('Current URL:', window.location.href);
+    
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('order');
     const amount = urlParams.get('amount');
     
+    console.log('URL params:', { orderId, amount });
+    
     if (orderId && amount) {
       // Buscar dados completos do pedido do localStorage
       const savedOrderData = localStorage.getItem('orderData');
+      console.log('Saved order data:', savedOrderData);
+      
       if (savedOrderData) {
         const parsedData = JSON.parse(savedOrderData);
-        setOrderData({
+        const finalOrderData = {
           ...parsedData,
           id: orderId,
           totalAmount: amount
-        });
+        };
+        console.log('Setting order data:', finalOrderData);
+        setOrderData(finalOrderData);
       } else {
-        // Se não há dados, voltar para o carrinho
+        console.log('No saved order data found, redirecting to cart');
         navigate("/customer/cart");
       }
     } else {
+      console.log('Missing URL params, redirecting to cart');
       navigate("/customer/cart");
     }
   }, [navigate]);
