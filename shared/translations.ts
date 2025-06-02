@@ -93,6 +93,9 @@ export interface TranslationKeys {
   'products.updateError': string;
   'products.deleteSuccess': string;
   'products.deleteError': string;
+  'products.searchPlaceholder': string;
+  'products.noProducts': string;
+  'products.loading': string;
 
   // Orders
   'orders.title': string;
@@ -256,6 +259,9 @@ export const translations: Record<Language, TranslationKeys> = {
     'products.updateError': 'Erro ao atualizar produto',
     'products.deleteSuccess': 'Produto excluído com sucesso',
     'products.deleteError': 'Erro ao excluir produto',
+    'products.searchPlaceholder': 'Buscar produtos...',
+    'products.noProducts': 'Nenhum produto encontrado',
+    'products.loading': 'Carregando produtos...',
 
     // Orders
     'orders.title': 'Pedidos',
@@ -418,6 +424,9 @@ export const translations: Record<Language, TranslationKeys> = {
     'products.updateError': 'Error updating product',
     'products.deleteSuccess': 'Product deleted successfully',
     'products.deleteError': 'Error deleting product',
+    'products.searchPlaceholder': 'Search products...',
+    'products.noProducts': 'No products found',
+    'products.loading': 'Loading products...',
 
     // Orders
     'orders.title': 'Orders',
