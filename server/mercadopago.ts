@@ -33,6 +33,9 @@ export interface PixPaymentResponse {
 
 export async function createPixPayment(data: PixPaymentData): Promise<PixPaymentResponse> {
   try {
+    console.log('Creating PIX payment with Mercado Pago...');
+    console.log('Using access token:', process.env.MERCADOPAGO_ACCESS_TOKEN?.substring(0, 10) + '...');
+    
     const paymentData = {
       transaction_amount: data.amount,
       description: data.description,
@@ -41,12 +44,8 @@ export async function createPixPayment(data: PixPaymentData): Promise<PixPayment
       payer: {
         email: data.customerEmail,
         first_name: data.customerName.split(' ')[0],
-        last_name: data.customerName.split(' ').slice(1).join(' ') || '',
-        phone: {
-          number: data.customerPhone || ''
-        }
-      },
-      notification_url: `${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/api/mercadopago/webhook`
+        last_name: data.customerName.split(' ').slice(1).join(' ') || ''
+      }
     };
 
     const result = await payment.create({ body: paymentData });
