@@ -94,16 +94,20 @@ export default function CustomerCardPayment() {
         cardData: cardDetails
       });
 
-      const response = await apiRequest("POST", "/api/create-card-payment", {
+      const requestBody = {
         orderId: orderData.id,
         amount: parseFloat(orderData.totalAmount),
         cardData: cardDetails,
         customerData: {
-          name: orderData.customerName,
-          email: orderData.customerEmail,
-          phone: orderData.customerPhone
+          name: orderData.customerName.trim(),
+          email: orderData.customerEmail.trim(),
+          phone: orderData.customerPhone.trim()
         }
-      });
+      };
+      
+      console.log('Sending request to server:', requestBody);
+      
+      const response = await apiRequest("POST", "/api/create-card-payment", requestBody);
 
       return response;
     },
