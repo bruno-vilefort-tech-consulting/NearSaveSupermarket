@@ -289,7 +289,7 @@ export default function CustomerHome() {
                 onClick={() => navigate("/customer/eco-points")}
                 className="bg-green-600 hover:bg-green-700"
               >
-                Saiba mais
+                {t('customer.learnMore')}
               </Button>
             </div>
           </CardContent>
@@ -298,10 +298,10 @@ export default function CustomerHome() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Supermercados com ofertas
+            {t('customer.supermarketsWithOffers')}
           </h2>
           <p className="text-gray-600">
-            Encontre os melhores produtos com desconto perto de você
+            {t('customer.findBestDiscounts')}
           </p>
         </div>
 
@@ -310,7 +310,7 @@ export default function CustomerHome() {
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Buscar supermercados..."
+              placeholder={t('customer.searchSupermarkets')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -324,10 +324,10 @@ export default function CustomerHome() {
             <div className="col-span-full text-center py-12">
               <Store size={48} className="mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Nenhum supermercado encontrado
+                {t('customer.noSupermarketsFound')}
               </h3>
               <p className="text-gray-600">
-                {searchTerm ? "Tente outro termo de busca" : "Não há supermercados com ofertas no momento"}
+                {searchTerm ? t('customer.tryAnotherSearch') : t('customer.noSupermarketsAvailable')}
               </p>
             </div>
           ) : (
@@ -362,11 +362,11 @@ export default function CustomerHome() {
                     <div className="flex items-center space-x-2">
                       <Package className="text-green-600" size={16} />
                       <span className="text-sm font-medium text-gray-700">
-                        {supermarket.productCount} produtos em oferta
+                        {supermarket.productCount} {t('customer.productsOnSale')}
                       </span>
                     </div>
                     <Badge variant="secondary" className="bg-green-100 text-green-800">
-                      Disponível
+                      {t('customer.available')}
                     </Badge>
                   </div>
 
