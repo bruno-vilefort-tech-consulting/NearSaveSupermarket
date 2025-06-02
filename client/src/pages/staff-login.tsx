@@ -171,18 +171,18 @@ export default function StaffLogin() {
                 variant="outline"
                 className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
               >
-                Login com Replit (Temporário)
+                {t('auth.loginReplit')}
               </Button>
 
               {/* Register Link */}
               <div className="text-center">
                 <p className="text-gray-600 text-sm">
-                  Não tem conta?{" "}
+                  {t('auth.noAccount')}{" "}
                   <button
                     onClick={() => navigate("/staff-register")}
                     className="text-blue-600 hover:text-blue-800 font-semibold underline"
                   >
-                    Novo Cadastro
+                    {t('auth.register')}
                   </button>
                 </p>
               </div>

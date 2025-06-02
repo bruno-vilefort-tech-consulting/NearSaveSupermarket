@@ -199,6 +199,8 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.passwordRequired': 'Senha é obrigatória',
     'auth.passwordMinLength': 'A senha deve ter pelo menos 6 caracteres',
     'auth.passwordMismatch': 'As senhas não coincidem',
+    'auth.noAccount': 'Não tem conta?',
+    'auth.loginReplit': 'Login com Replit (Temporário)',
 
     // Staff Authentication
     'staff.login': 'Login do Supermercado',
@@ -312,6 +314,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.yes': 'Sim',
     'common.no': 'Não',
     'common.submit': 'Enviar',
+    'common.or': 'ou',
 
     // Landing Page
     'landing.title': 'EcoMart',
@@ -364,6 +367,8 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.passwordRequired': 'Password is required',
     'auth.passwordMinLength': 'Password must be at least 6 characters',
     'auth.passwordMismatch': 'Passwords do not match',
+    'auth.noAccount': "Don't have an account?",
+    'auth.loginReplit': 'Login with Replit (Temporary)',
 
     // Staff Authentication
     'staff.login': 'Supermarket Login',
