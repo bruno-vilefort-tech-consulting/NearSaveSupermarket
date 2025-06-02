@@ -135,6 +135,10 @@ export interface TranslationKeys {
   'monthly.ordersCount': string;
   'monthly.errorLoadingTitle': string;
   'monthly.errorLoadingMessage': string;
+  'monthly.totalRevenueLabel': string;
+  'monthly.completedOrdersLabel': string;
+  'monthly.noOrdersFoundTitle': string;
+  'monthly.noOrdersFoundMessage': string;
 
   // Eco Points
   'eco.points': string;
@@ -367,6 +371,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'monthly.ordersCount': 'pedidos',
     'monthly.errorLoadingTitle': 'Erro ao carregar dados',
     'monthly.errorLoadingMessage': 'Não foi possível carregar o resumo mensal dos pedidos.',
+    'monthly.totalRevenueLabel': 'Receita Total',
+    'monthly.completedOrdersLabel': 'Pedidos concluídos',
+    'monthly.noOrdersFoundTitle': 'Nenhum pedido encontrado',
+    'monthly.noOrdersFoundMessage': 'Você ainda não possui pedidos concluídos.',
 
     // Eco Points
     'eco.points': 'Eco Pontos',
@@ -598,6 +606,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'monthly.ordersCount': 'orders',
     'monthly.errorLoadingTitle': 'Error loading data',
     'monthly.errorLoadingMessage': 'Could not load the monthly orders summary.',
+    'monthly.totalRevenueLabel': 'Total Revenue',
+    'monthly.completedOrdersLabel': 'Completed orders',
+    'monthly.noOrdersFoundTitle': 'No orders found',
+    'monthly.noOrdersFoundMessage': 'You don\'t have any completed orders yet.',
 
     // Eco Points
     'eco.points': 'Eco Points',
