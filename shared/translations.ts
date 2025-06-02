@@ -286,6 +286,19 @@ export interface TranslationKeys {
   'validation.acceptTerms': string;
   'validation.passwordMismatch': string;
 
+  // Add to Cart Modal
+  'addToCartModal.title': string;
+  'addToCartModal.description': string;
+  'addToCartModal.expiresOn': string;
+  'addToCartModal.available': string;
+  'addToCartModal.quantity': string;
+  'addToCartModal.subtotalPrefix': string;
+  'addToCartModal.totalSavings': string;
+  'addToCartModal.ecoPointsEarned': string;
+  'addToCartModal.cancel': string;
+  'addToCartModal.addToCart': string;
+  'addToCartModal.outOfStock': string;
+
   // Product form
   'product.addTitle': string;
   'product.addSubtitle': string;
@@ -448,6 +461,19 @@ export const translations: Record<Language, TranslationKeys> = {
     'cart.orderErrorDescription': 'Tente novamente ou entre em contato conosco.',
     'cart.addressRequired': 'Endereço obrigatório',
     'cart.addressRequiredDescription': 'Por favor, informe o endereço para entrega.',
+
+    // Add to Cart Modal
+    'addToCartModal.title': 'Adicionar ao Carrinho',
+    'addToCartModal.description': 'Escolha a quantidade desejada e adicione o produto ao seu carrinho.',
+    'addToCartModal.expiresOn': 'Vence em',
+    'addToCartModal.available': 'disponíveis',
+    'addToCartModal.quantity': 'Quantidade',
+    'addToCartModal.subtotalPrefix': 'Subtotal',
+    'addToCartModal.totalSavings': 'Economia total',
+    'addToCartModal.ecoPointsEarned': 'Pontos eco que você ganhará',
+    'addToCartModal.cancel': 'Cancelar',
+    'addToCartModal.addToCart': 'Adicionar ao Carrinho',
+    'addToCartModal.outOfStock': 'Sem Estoque',
 
     // Dashboard
     'dashboard.title': 'Painel de Controle',
@@ -776,6 +802,19 @@ export const translations: Record<Language, TranslationKeys> = {
     'cart.orderErrorDescription': 'Please try again or contact us.',
     'cart.addressRequired': 'Address required',
     'cart.addressRequiredDescription': 'Please enter the delivery address.',
+
+    // Add to Cart Modal
+    'addToCartModal.title': 'Add to Cart',
+    'addToCartModal.description': 'Choose the desired quantity and add the product to your cart.',
+    'addToCartModal.expiresOn': 'Expires on',
+    'addToCartModal.available': 'available',
+    'addToCartModal.quantity': 'Quantity',
+    'addToCartModal.subtotalPrefix': 'Subtotal',
+    'addToCartModal.totalSavings': 'Total savings',
+    'addToCartModal.ecoPointsEarned': 'Eco points you will earn',
+    'addToCartModal.cancel': 'Cancel',
+    'addToCartModal.addToCart': 'Add to Cart',
+    'addToCartModal.outOfStock': 'Out of Stock',
 
     // Dashboard
     'dashboard.title': 'Dashboard',

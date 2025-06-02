@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Minus, ShoppingCart, MapPin } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface Product {
   id: number;
@@ -29,6 +30,7 @@ interface AddToCartModalProps {
 
 export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToCartModalProps) {
   const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const { t } = useLanguage();
 
   if (!product) return null;
 
