@@ -9,10 +9,12 @@ import { ArrowLeft, CreditCard, Smartphone, CheckCircle, Lock } from "lucide-rea
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function CustomerPayment() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [paymentMethod, setPaymentMethod] = useState("pix");
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -158,7 +160,7 @@ export default function CustomerPayment() {
             <ArrowLeft className="h-6 w-6 text-gray-600" />
           </Link>
           <div className="ml-4">
-            <h1 className="text-lg font-semibold">Pagamento</h1>
+            <h1 className="text-lg font-semibold">{t('payment.title')}</h1>
             <p className="text-sm text-green-600 font-medium">Supermercado Silva</p>
             <p className="text-xs text-gray-500">Rua das Flores, 123 - Centro</p>
           </div>
@@ -170,11 +172,11 @@ export default function CustomerPayment() {
         {orderData && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Resumo do Pedido</CardTitle>
+              <CardTitle className="text-lg">{t('payment.orderSummary')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex justify-between text-sm mb-2">
-                <span>Subtotal</span>
+                <span>{t('payment.subtotal')}</span>
                 <span>R$ {(parseFloat(orderData.totalAmount) - (orderData.fulfillmentMethod === "delivery" ? 5 : 0)).toFixed(2).replace('.', ',')}</span>
               </div>
               {orderData.fulfillmentMethod === "delivery" && (
@@ -184,7 +186,7 @@ export default function CustomerPayment() {
                 </div>
               )}
               <div className="border-t pt-2 flex justify-between font-semibold">
-                <span>Total</span>
+                <span>{t('payment.total')}</span>
                 <span className="text-green-600">R$ {parseFloat(orderData.totalAmount).toFixed(2).replace('.', ',')}</span>
               </div>
             </CardContent>
@@ -194,7 +196,7 @@ export default function CustomerPayment() {
         {/* Método de pagamento */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Método de Pagamento</CardTitle>
+            <CardTitle className="text-lg">{t('payment.paymentMethod')}</CardTitle>
           </CardHeader>
           <CardContent>
             <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
@@ -203,8 +205,8 @@ export default function CustomerPayment() {
                 <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1">
                   <Smartphone className="h-5 w-5 text-blue-600 mr-2" />
                   <div>
-                    <p className="font-medium">PIX</p>
-                    <p className="text-sm text-gray-600">Pagamento instantâneo</p>
+                    <p className="font-medium">{t('payment.pix')}</p>
+                    <p className="text-sm text-gray-600">{t('payment.pixDescription')}</p>
                   </div>
                 </Label>
               </div>
@@ -214,8 +216,8 @@ export default function CustomerPayment() {
                 <Label htmlFor="card" className="flex items-center cursor-pointer flex-1">
                   <CreditCard className="h-5 w-5 text-green-600 mr-2" />
                   <div>
-                    <p className="font-medium">Cartão de Crédito/Débito</p>
-                    <p className="text-sm text-gray-600">Visa, Mastercard, Elo</p>
+                    <p className="font-medium">{t('payment.card')}</p>
+                    <p className="text-sm text-gray-600">{t('payment.cardDescription')}</p>
                   </div>
                 </Label>
               </div>
@@ -229,15 +231,15 @@ export default function CustomerPayment() {
             <CardContent className="p-6">
               <div className="text-center mb-4">
                 <Smartphone className="h-12 w-12 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold mb-1">Pagamento via PIX</h3>
+                <h3 className="font-semibold mb-1">{t('payment.pixTitle')}</h3>
                 <p className="text-sm text-gray-600">
-                  Copie o código PIX e cole no seu aplicativo bancário
+                  {t('payment.pixInstructions')}
                 </p>
               </div>
               
               <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 mb-4">
                 <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Código PIX Copia e Cola:
+                  {t('payment.pixCodeLabel')}
                 </Label>
                 <div className="bg-white border rounded p-3 mb-3">
                   <code className="text-xs font-mono break-all text-gray-800">
