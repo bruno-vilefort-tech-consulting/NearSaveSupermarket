@@ -31,15 +31,15 @@ export default function StaffLogin() {
     onSuccess: (data) => {
       localStorage.setItem('staffInfo', JSON.stringify(data));
       toast({
-        title: "Login realizado com sucesso!",
-        description: `Bem-vindo, ${data.companyName}!`,
+        title: t('auth.loginSuccess'),
+        description: `${t('dashboard.welcome')}, ${data.companyName}!`,
       });
       window.location.href = "/dashboard";
     },
     onError: (error: any) => {
       toast({
-        title: "Erro no login",
-        description: error.message || "Email ou senha incorretos",
+        title: t('auth.loginError'),
+        description: error.message || t('auth.invalidCredentials'),
         variant: "destructive"
       });
     }

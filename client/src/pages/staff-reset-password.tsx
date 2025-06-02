@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Lock, Eye, EyeOff } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function StaffResetPassword() {
   const [location] = useLocation();
@@ -17,6 +18,7 @@ export default function StaffResetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [token, setToken] = useState("");
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -32,15 +34,15 @@ export default function StaffResetPassword() {
     },
     onSuccess: () => {
       toast({
-        title: "Senha redefinida!",
-        description: "Sua senha foi redefinida com sucesso. Faça login com sua nova senha.",
+        title: t('auth.passwordResetSuccess'),
+        description: t('auth.passwordResetSuccessDesc'),
       });
       window.location.href = '/staff-login';
     },
     onError: (error: Error) => {
       toast({
-        title: "Erro",
-        description: "Erro ao redefinir senha. O link pode ter expirado ou ser inválido.",
+        title: t('common.error'),
+        description: t('auth.passwordResetError'),
         variant: "destructive",
       });
     },
@@ -51,8 +53,8 @@ export default function StaffResetPassword() {
     
     if (!password || !confirmPassword) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos.",
+        title: t('auth.passwordRequired'),
+        description: t('auth.passwordRequired'),
         variant: "destructive",
       });
       return;
@@ -60,8 +62,8 @@ export default function StaffResetPassword() {
 
     if (password.length < 6) {
       toast({
-        title: "Senha muito curta",
-        description: "A senha deve ter pelo menos 6 caracteres.",
+        title: t('auth.passwordMinLength'),
+        description: t('auth.passwordMinLength'),
         variant: "destructive",
       });
       return;
@@ -69,8 +71,8 @@ export default function StaffResetPassword() {
 
     if (password !== confirmPassword) {
       toast({
-        title: "Senhas não coincidem",
-        description: "As senhas digitadas não são iguais.",
+        title: t('auth.passwordMismatch'),
+        description: t('validation.passwordMismatch'),
         variant: "destructive",
       });
       return;
