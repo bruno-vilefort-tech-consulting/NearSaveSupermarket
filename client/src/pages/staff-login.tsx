@@ -8,6 +8,7 @@ import { Settings, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function StaffLogin() {
   const [, navigate] = useLocation();
@@ -17,6 +18,7 @@ export default function StaffLogin() {
     password: ""
   });
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const loginMutation = useMutation({
     mutationFn: async (data: typeof formData) => {

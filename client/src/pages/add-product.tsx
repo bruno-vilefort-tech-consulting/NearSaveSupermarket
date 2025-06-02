@@ -16,6 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Camera, Upload } from "lucide-react";
 import { useLocation } from "wouter";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),

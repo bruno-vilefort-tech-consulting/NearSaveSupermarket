@@ -5,6 +5,7 @@ import { BottomNavigation } from "@/components/layout/bottom-navigation";
 import { OrderCard } from "@/components/order/order-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const statusFilters = [
   { value: "", label: "Todos os Pedidos" },
@@ -16,6 +17,7 @@ const statusFilters = [
 
 export default function Orders() {
   const [selectedStatus, setSelectedStatus] = useState("");
+  const { t } = useLanguage();
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["/api/staff/orders", selectedStatus],
