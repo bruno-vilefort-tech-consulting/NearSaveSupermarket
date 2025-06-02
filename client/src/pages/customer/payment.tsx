@@ -247,44 +247,7 @@ export default function CustomerPayment() {
           </CardContent>
         </Card>
 
-        {/* PIX */}
-        {paymentMethod === "pix" && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="text-center mb-4">
-                <Smartphone className="h-12 w-12 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold mb-1">{t('payment.pixTitle')}</h3>
-                <p className="text-sm text-gray-600">
-                  {t('payment.pixInstructions')}
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 mb-4">
-                <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                  {t('payment.pixCodeLabel')}
-                </Label>
-                <div className="bg-white border rounded p-3 mb-3">
-                  <p className="text-sm text-gray-600 mb-2">
-                    Processando pagamento PIX...
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Você será redirecionado para a página de pagamento PIX após confirmar o pedido.
-                  </p>
-                </div>
-              </div>
 
-              <div className="text-center">
-                <div className="flex items-center justify-center text-sm text-gray-500 mb-2">
-                  <Lock className="h-4 w-4 mr-1" />
-                  {t('payment.securePayment')}
-                </div>
-                <p className="text-xs text-gray-600">
-                  {t('payment.paymentConfirmation')}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Dados do cartão */}
         {paymentMethod === "card" && (
