@@ -1006,9 +1006,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Mercado Pago tem valor mínimo para pagamentos por cartão
+      const finalAmount = Math.max(parseFloat(amount), 0.50);
+      
       const cardPaymentData: CardPaymentData = {
         orderId: orderId.toString(),
-        amount: parseFloat(amount),
+        amount: finalAmount,
         description: `Pedido #${orderId}`,
         cardData: {
           number: cardData.number,
