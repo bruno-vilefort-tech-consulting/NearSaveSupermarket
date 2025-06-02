@@ -149,17 +149,17 @@ export default function PixPayment() {
         
         if (statusData.status === 'approved') {
           toast({
-            title: t('payment.paymentApproved'),
-            description: "Seu pagamento foi confirmado!",
+            title: "Pagamento Confirmado!",
+            description: "Seu pedido foi processado com sucesso. Redirecionando para seus pedidos...",
           });
           
           // Clean up order data
           localStorage.removeItem(`order_${orderId}`);
           localStorage.removeItem('cart');
           
-          // Redirect to success page or home
+          // Redirect to orders page
           setTimeout(() => {
-            setLocation('/customer/home');
+            setLocation('/customer/orders');
           }, 2000);
         }
       }
