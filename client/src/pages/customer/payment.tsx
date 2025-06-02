@@ -15,7 +15,7 @@ export default function CustomerPayment() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const paymentMethod = "pix"; // Sempre PIX
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "card">("pix");
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
@@ -225,25 +225,35 @@ export default function CustomerPayment() {
           </Card>
         )}
 
-        {/* Método de pagamento - Apenas PIX */}
+        {/* Método de pagamento */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">{t('payment.paymentMethod')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-500">
-              <div className="w-4 h-4 bg-green-600 rounded-full"></div>
-              <Smartphone className="h-6 w-6 text-green-600" />
-              <div className="flex-1">
-                <p className="font-medium text-green-800 dark:text-green-200">{t('payment.pix')}</p>
-                <p className="text-sm text-green-700 dark:text-green-300">{t('payment.pixDescription')}</p>
+            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+              <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                <RadioGroupItem value="pix" id="pix" />
+                <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1">
+                  <Smartphone className="h-5 w-5 text-blue-600 mr-2" />
+                  <div>
+                    <p className="font-medium">{t('payment.pix')}</p>
+                    <p className="text-sm text-gray-600">{t('payment.pixDescription')}</p>
+                  </div>
+                </Label>
               </div>
-              <div className="text-green-600">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
+              
+              <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                <RadioGroupItem value="card" id="card" />
+                <Label htmlFor="card" className="flex items-center cursor-pointer flex-1">
+                  <CreditCard className="h-5 w-5 text-green-600 mr-2" />
+                  <div>
+                    <p className="font-medium">{t('payment.card')}</p>
+                    <p className="text-sm text-gray-600">{t('payment.cardDescription')}</p>
+                  </div>
+                </Label>
               </div>
-            </div>
+            </RadioGroup>
           </CardContent>
         </Card>
 
