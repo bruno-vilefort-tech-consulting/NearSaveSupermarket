@@ -203,7 +203,7 @@ export async function createCardPayment(data: CardPaymentData): Promise<CardPaym
     });
 
     const result = await cardPayment.create({ body: paymentData });
-    console.log('Mercado Pago card payment response:', result);
+    console.log('Mercado Pago card payment response:', JSON.stringify(result, null, 2));
 
     return {
       success: true,
