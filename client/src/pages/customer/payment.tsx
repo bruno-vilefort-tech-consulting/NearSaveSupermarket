@@ -253,22 +253,22 @@ export default function CustomerPayment() {
                   onClick={() => {
                     navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX013654ae4c2e-92c7-4c3a-8f5d-7b1234567890520400005303986540550.805802BR5913SUPERMERCADO6009SAO_PAULO62070503***6304A1B2");
                     toast({
-                      title: "Código copiado!",
+                      title: t('payment.codeCopied'),
                       description: "Cole no seu aplicativo bancário para pagar.",
                     });
                   }}
                 >
-                  📋 Copiar Código PIX
+                  📋 {t('payment.copyCode')}
                 </Button>
               </div>
 
               <div className="text-center">
                 <div className="flex items-center justify-center text-sm text-gray-500 mb-2">
                   <Lock className="h-4 w-4 mr-1" />
-                  Pagamento seguro e instantâneo
+                  {t('payment.securePayment')}
                 </div>
                 <p className="text-xs text-gray-600">
-                  Após o pagamento, clique em "Finalizar Pagamento" para confirmar seu pedido
+                  {t('payment.paymentConfirmation')}
                 </p>
               </div>
             </CardContent>
@@ -279,14 +279,14 @@ export default function CustomerPayment() {
         {paymentMethod === "card" && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Dados do Cartão</CardTitle>
+              <CardTitle className="text-lg">{t('payment.cardDetails')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="cardNumber">Número do cartão</Label>
+                <Label htmlFor="cardNumber">{t('payment.cardNumber')}</Label>
                 <Input
                   id="cardNumber"
-                  placeholder="1234 5678 9012 3456"
+                  placeholder={t('payment.cardNumberPlaceholder')}
                   value={cardData.number}
                   onChange={(e) => setCardData({
                     ...cardData,
@@ -297,10 +297,10 @@ export default function CustomerPayment() {
               </div>
 
               <div>
-                <Label htmlFor="cardName">Nome no cartão</Label>
+                <Label htmlFor="cardName">{t('payment.cardHolder')}</Label>
                 <Input
                   id="cardName"
-                  placeholder="João Silva"
+                  placeholder={t('payment.cardHolderPlaceholder')}
                   value={cardData.name}
                   onChange={(e) => setCardData({
                     ...cardData,
@@ -311,10 +311,10 @@ export default function CustomerPayment() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="expiry">Validade</Label>
+                  <Label htmlFor="expiry">{t('payment.expiryDate')}</Label>
                   <Input
                     id="expiry"
-                    placeholder="MM/AA"
+                    placeholder={t('payment.expiryPlaceholder')}
                     value={cardData.expiry}
                     onChange={(e) => setCardData({
                       ...cardData,
@@ -324,10 +324,10 @@ export default function CustomerPayment() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="cvv">CVV</Label>
+                  <Label htmlFor="cvv">{t('payment.cvv')}</Label>
                   <Input
                     id="cvv"
-                    placeholder="123"
+                    placeholder={t('payment.cvvPlaceholder')}
                     value={cardData.cvv}
                     onChange={(e) => setCardData({
                       ...cardData,
@@ -340,7 +340,7 @@ export default function CustomerPayment() {
 
               <div className="flex items-center justify-center text-sm text-gray-500">
                 <Lock className="h-4 w-4 mr-1" />
-                Seus dados estão protegidos com criptografia SSL
+                {t('payment.securePayment')}
               </div>
             </CardContent>
           </Card>
@@ -355,10 +355,10 @@ export default function CustomerPayment() {
           {isProcessing ? (
             <div className="flex items-center">
               <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-              Processando...
+              {t('payment.processing')}
             </div>
           ) : (
-            `Finalizar Pagamento - R$ ${orderData ? parseFloat(orderData.totalAmount).toFixed(2).replace('.', ',') : '0,00'}`
+            `${t('payment.completePayment')} - R$ ${orderData ? parseFloat(orderData.totalAmount).toFixed(2).replace('.', ',') : '0,00'}`
           )}
         </Button>
 
