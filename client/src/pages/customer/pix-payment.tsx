@@ -148,6 +148,9 @@ export default function PixPayment() {
         setPaymentStatus(statusData.status);
         
         if (statusData.status === 'approved') {
+          // Para todos os timers e verificações
+          setIsExpired(true);
+          
           toast({
             title: "Pagamento Confirmado!",
             description: "Seu pedido foi processado com sucesso. Redirecionando para seus pedidos...",
@@ -157,10 +160,12 @@ export default function PixPayment() {
           localStorage.removeItem(`order_${orderId}`);
           localStorage.removeItem('cart');
           
-          // Redirect to orders page
+          // Redirect to orders page immediately
           setTimeout(() => {
-            setLocation('/customer/orders');
-          }, 2000);
+            window.location.href = '/customer/orders';
+          }, 1500);
+          
+          return; // Para a execução desta função
         }
       }
     } catch (error) {
