@@ -64,17 +64,17 @@ export default function ForgotPassword() {
             <Leaf size={32} />
             <span>EcoMart</span>
           </div>
-          <p className="text-gray-600 mt-2">Recuperação de senha</p>
+          <p className="text-gray-600 mt-2">{t('auth.recoverySubtitle')}</p>
         </div>
 
         {/* Formulário */}
         <Card className="shadow-lg">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-xl font-semibold text-gray-900">
-              Esqueci minha senha
+              {t('auth.forgotPasswordTitle')}
             </CardTitle>
             <p className="text-sm text-gray-600">
-              Digite seu email para receber instruções de recuperação
+              {t('auth.forgotPasswordDescription')}
             </p>
           </CardHeader>
           
@@ -86,14 +86,14 @@ export default function ForgotPassword() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('auth.email')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
                             {...field}
                             type="email"
-                            placeholder="seu@email.com"
+                            placeholder={t('auth.emailPlaceholder')}
                             className="pl-10"
                           />
                         </div>
@@ -108,7 +108,7 @@ export default function ForgotPassword() {
                   className="w-full bg-green-600 hover:bg-green-700"
                   disabled={forgotPasswordMutation.isPending}
                 >
-                  {forgotPasswordMutation.isPending ? "Enviando..." : "Enviar instruções"}
+                  {forgotPasswordMutation.isPending ? t('auth.sending') : t('auth.sendInstructions')}
                 </Button>
               </form>
             </Form>
@@ -118,7 +118,7 @@ export default function ForgotPassword() {
                 onClick={() => navigate("/customer/login")}
                 className="text-green-600 hover:text-green-700 font-medium"
               >
-                Voltar ao login
+                {t('auth.backToLogin')}
               </button>
             </div>
           </CardContent>
@@ -131,7 +131,7 @@ export default function ForgotPassword() {
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft size={16} />
-            <span>Voltar ao início</span>
+            <span>{t('common.backToHome')}</span>
           </button>
         </div>
       </div>
