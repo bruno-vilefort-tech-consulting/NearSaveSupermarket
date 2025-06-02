@@ -36,6 +36,8 @@ export interface TranslationKeys {
   'auth.passwordMismatch': string;
   'auth.noAccount': string;
   'auth.loginReplit': string;
+  'auth.unauthorized': string;
+  'auth.sessionExpired': string;
 
   // Staff Authentication
   'staff.login': string;
@@ -252,6 +254,8 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.passwordMismatch': 'As senhas não coincidem',
     'auth.noAccount': 'Não tem conta?',
     'auth.loginReplit': 'Login com Replit (Temporário)',
+    'auth.unauthorized': 'Não autorizado',
+    'auth.sessionExpired': 'Você foi desconectado. Fazendo login novamente...',
 
     // Staff Authentication
     'staff.login': 'Login do Supermercado',
@@ -467,6 +471,8 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.passwordMismatch': 'Passwords do not match',
     'auth.noAccount': "Don't have an account?",
     'auth.loginReplit': 'Login with Replit (Temporary)',
+    'auth.unauthorized': 'Unauthorized',
+    'auth.sessionExpired': 'You are logged out. Logging in again...',
 
     // Staff Authentication
     'staff.login': 'Supermarket Login',

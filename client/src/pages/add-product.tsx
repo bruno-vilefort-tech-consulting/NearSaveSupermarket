@@ -70,8 +70,8 @@ export default function AddProduct() {
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Product added successfully",
+        title: t('product.successTitle'),
+        description: t('product.successMessage'),
       });
       queryClient.invalidateQueries({ queryKey: ["/api/staff/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
@@ -80,8 +80,8 @@ export default function AddProduct() {
     onError: (error) => {
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          title: t('auth.unauthorized'),
+          description: t('auth.sessionExpired'),
           variant: "destructive",
         });
         setTimeout(() => {
@@ -90,8 +90,8 @@ export default function AddProduct() {
         return;
       }
       toast({
-        title: "Error",
-        description: "Failed to add product. Please try again.",
+        title: t('product.errorTitle'),
+        description: t('product.errorMessage'),
         variant: "destructive",
       });
     },
@@ -121,8 +121,8 @@ export default function AddProduct() {
         <div className="p-4">
           <Card className="shadow-sm">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">Adicionar Produto com Desconto</h2>
-              <p className="text-sm text-gray-600 mt-1">Adicionar itens próximos ao vencimento com preço promocional</p>
+              <h2 className="text-xl font-semibold text-gray-900">{t('product.addTitle')}</h2>
+              <p className="text-sm text-gray-600 mt-1">{t('product.addSubtitle')}</p>
             </div>
             
             <CardContent className="p-6">
