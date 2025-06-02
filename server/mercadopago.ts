@@ -204,6 +204,10 @@ export async function createCardPayment(data: CardPaymentData): Promise<CardPaym
 
     const result = await cardPayment.create({ body: paymentData });
     console.log('Mercado Pago card payment response:', JSON.stringify(result, null, 2));
+    
+    if (result.status_detail) {
+      console.log('Payment rejection reason:', result.status_detail);
+    }
 
     return {
       success: true,
@@ -215,9 +219,19 @@ export async function createCardPayment(data: CardPaymentData): Promise<CardPaym
 
   } catch (error: any) {
     console.error('Erro ao criar pagamento por cartão:', error);
+    
+    let errorMessage = 'Erro interno do servidor';
+    if (error.message === 'bin_not_found') {
+      errorMessage = 'Cartão não aceito no ambiente de teste. Use credenciais de produção para aceitar todos os cartões.';
+    } else if (error.cause && error.cause[0] && error.cause[0].description) {
+      errorMessage = error.cause[0].description;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
     return {
       success: false,
-      message: error.message || 'Erro interno do servidor'
+      message: errorMessage
     };
   }
 }
