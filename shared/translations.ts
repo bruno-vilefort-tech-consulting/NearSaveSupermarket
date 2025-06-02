@@ -331,6 +331,45 @@ export interface TranslationKeys {
   'category.produce': string;
   'category.deli': string;
 
+  // Payment
+  'payment.title': string;
+  'payment.backToCart': string;
+  'payment.orderSummary': string;
+  'payment.subtotal': string;
+  'payment.discount': string;
+  'payment.total': string;
+  'payment.paymentMethod': string;
+  'payment.pix': string;
+  'payment.pixDescription': string;
+  'payment.card': string;
+  'payment.cardDescription': string;
+  'payment.pixTitle': string;
+  'payment.pixInstructions': string;
+  'payment.pixCodeLabel': string;
+  'payment.copyCode': string;
+  'payment.codeCopied': string;
+  'payment.securePayment': string;
+  'payment.paymentConfirmation': string;
+  'payment.cardDetails': string;
+  'payment.cardNumber': string;
+  'payment.cardNumberPlaceholder': string;
+  'payment.cardHolder': string;
+  'payment.cardHolderPlaceholder': string;
+  'payment.expiryDate': string;
+  'payment.expiryPlaceholder': string;
+  'payment.cvv': string;
+  'payment.cvvPlaceholder': string;
+  'payment.completePayment': string;
+  'payment.processing': string;
+  'payment.paymentSuccess': string;
+  'payment.orderCreated': string;
+  'payment.orderNumber': string;
+  'payment.backToHome': string;
+  'payment.incompleteData': string;
+  'payment.fillAllFields': string;
+  'payment.paymentError': string;
+  'payment.tryAgain': string;
+
   // Messages
   'messages.emailSent': string;
   'messages.passwordReset': string;
@@ -672,6 +711,45 @@ export const translations: Record<Language, TranslationKeys> = {
     'category.meat': 'Carnes e Aves',
     'category.produce': 'Hortifruti',
     'category.deli': 'Frios',
+
+    // Payment
+    'payment.title': 'Finalizar Pagamento',
+    'payment.backToCart': 'Voltar ao Carrinho',
+    'payment.orderSummary': 'Resumo do Pedido',
+    'payment.subtotal': 'Subtotal',
+    'payment.discount': 'Desconto',
+    'payment.total': 'Total',
+    'payment.paymentMethod': 'Método de Pagamento',
+    'payment.pix': 'PIX',
+    'payment.pixDescription': 'Pagamento instantâneo',
+    'payment.card': 'Cartão de Crédito/Débito',
+    'payment.cardDescription': 'Visa, Mastercard, Elo',
+    'payment.pixTitle': 'Pagamento via PIX',
+    'payment.pixInstructions': 'Copie o código PIX e cole no seu aplicativo bancário',
+    'payment.pixCodeLabel': 'Código PIX Copia e Cola:',
+    'payment.copyCode': 'Copiar Código',
+    'payment.codeCopied': 'Código copiado!',
+    'payment.securePayment': 'Pagamento seguro e instantâneo',
+    'payment.paymentConfirmation': 'Após o pagamento, clique em "Finalizar Pagamento" para confirmar seu pedido',
+    'payment.cardDetails': 'Dados do Cartão',
+    'payment.cardNumber': 'Número do cartão',
+    'payment.cardNumberPlaceholder': '1234 5678 9012 3456',
+    'payment.cardHolder': 'Nome no cartão',
+    'payment.cardHolderPlaceholder': 'Nome como impresso no cartão',
+    'payment.expiryDate': 'Data de validade',
+    'payment.expiryPlaceholder': 'MM/AA',
+    'payment.cvv': 'CVV',
+    'payment.cvvPlaceholder': '123',
+    'payment.completePayment': 'Finalizar Pagamento',
+    'payment.processing': 'Processando...',
+    'payment.paymentSuccess': 'Pagamento Realizado!',
+    'payment.orderCreated': 'Seu pedido foi criado com sucesso!',
+    'payment.orderNumber': 'Número do pedido:',
+    'payment.backToHome': 'Voltar ao Início',
+    'payment.incompleteData': 'Dados incompletos',
+    'payment.fillAllFields': 'Preencha todos os campos do cartão.',
+    'payment.paymentError': 'Erro no pagamento',
+    'payment.tryAgain': 'Tente novamente em alguns instantes.',
 
     // Messages
     'messages.emailSent': 'Email enviado com sucesso',
