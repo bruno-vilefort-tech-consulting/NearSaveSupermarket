@@ -212,7 +212,7 @@ export default function CustomerRegister() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('auth.email')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -234,14 +234,14 @@ export default function CustomerRegister() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Senha</FormLabel>
+                      <FormLabel>{t('auth.password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
                             {...field}
                             type="password"
-                            placeholder="Mínimo 6 caracteres"
+                            placeholder={t('auth.passwordMinLength')}
                             className="pl-10"
                           />
                         </div>
@@ -256,14 +256,14 @@ export default function CustomerRegister() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirmar Senha</FormLabel>
+                      <FormLabel>{t('auth.confirmPassword')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input
                             {...field}
                             type="password"
-                            placeholder="Digite a senha novamente"
+                            placeholder={t('auth.confirmPassword')}
                             className="pl-10"
                           />
                         </div>
@@ -286,15 +286,7 @@ export default function CustomerRegister() {
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <FormLabel className="text-sm font-normal">
-                          Aceito os{" "}
-                          <button
-                            type="button"
-                            onClick={() => navigate("/terms")}
-                            className="text-green-600 hover:text-green-700 underline"
-                          >
-                            termos e condições
-                          </button>{" "}
-                          de uso
+                          {t('customer.acceptTerms')}
                         </FormLabel>
                         <FormMessage />
                       </div>

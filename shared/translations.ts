@@ -67,6 +67,10 @@ export interface TranslationKeys {
   'customer.phone': string;
   'customer.forgotPassword': string;
   'customer.resetPassword': string;
+  'customer.acceptTerms': string;
+  'customer.alreadyHaveAccount': string;
+  'customer.backToHome': string;
+  'customer.registering': string;
 
   // Customer Home
   'customer.loading': string;
@@ -455,6 +459,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.phone': 'Telefone',
     'customer.forgotPassword': 'Esqueci minha senha',
     'customer.resetPassword': 'Redefinir Senha',
+    'customer.acceptTerms': 'Aceito os termos e condições',
+    'customer.alreadyHaveAccount': 'Já tem uma conta?',
+    'customer.backToHome': 'Voltar ao início',
+    'customer.registering': 'Cadastrando...',
 
     // Customer Home
     'customer.loading': 'Carregando',
@@ -842,6 +850,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.phone': 'Phone',
     'customer.forgotPassword': 'Forgot Password',
     'customer.resetPassword': 'Reset Password',
+    'customer.acceptTerms': 'I accept the terms and conditions',
+    'customer.alreadyHaveAccount': 'Already have an account?',
+    'customer.backToHome': 'Back to home',
+    'customer.registering': 'Registering...',
 
     // Customer Home
     'customer.loading': 'Loading',
