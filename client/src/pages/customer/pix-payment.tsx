@@ -39,19 +39,21 @@ export default function PixPayment() {
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutos em segundos
   const [isExpired, setIsExpired] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
 
   const orderId = params?.orderId;
 
   useEffect(() => {
-    if (!orderId) {
-      setLocation('/customer/home');
+    if (!orderId || hasInitialized) {
+      if (!orderId) setLocation('/customer/home');
       return;
     }
 
+    setHasInitialized(true);
     initializePayment();
-  }, [orderId]);
+  }, [orderId, hasInitialized]);
 
   // Timer de 5 minutos
   useEffect(() => {
