@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, ArrowLeft, Package, MapPin, Clock, Leaf } from "lucide-react";
 import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface Product {
   id: number;
@@ -25,6 +26,18 @@ interface Product {
   };
 }
 
+const getCategoryName = (category: string, t: any) => {
+  const categoryMap: Record<string, string> = {
+    "Todos": t('products.all'),
+    "Padaria": t('category.bakery'),
+    "Laticínios": t('category.dairy'),
+    "Carnes e Aves": t('category.meat'),
+    "Hortifruti": t('category.produce'),
+    "Frios": t('category.deli')
+  };
+  return categoryMap[category] || category;
+};
+
 const categories = ["Todos", "Padaria", "Laticínios", "Carnes e Aves", "Hortifruti", "Frios"];
 
 export default function SupermarketProducts() {
@@ -36,6 +49,7 @@ export default function SupermarketProducts() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   // Get supermarket name from URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -139,7 +153,7 @@ export default function SupermarketProducts() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando produtos...</p>
+          <p className="text-gray-600">{t('products.loading')}</p>
         </div>
       </div>
     );
@@ -159,11 +173,11 @@ export default function SupermarketProducts() {
                 className="text-gray-600 hover:text-gray-900 flex-shrink-0"
               >
                 <ArrowLeft size={16} className="mr-1" />
-                Voltar
+                {t('common.back')}
               </Button>
               <div className="min-w-0 flex-1">
                 <h1 className="text-lg font-semibold text-gray-900 truncate">{supermarketName}</h1>
-                <p className="text-xs text-gray-500">Produtos em oferta</p>
+                <p className="text-xs text-gray-500">{t('customer.productsOnSale')}</p>
               </div>
             </div>
 
@@ -174,7 +188,7 @@ export default function SupermarketProducts() {
               className="relative flex-shrink-0 ml-3"
             >
               <ShoppingCart size={16} className="mr-1" />
-              <span className="hidden sm:inline">Carrinho</span>
+              <span className="hidden sm:inline">{t('customer.cart')}</span>
               {cartCount > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                   {cartCount}
@@ -192,7 +206,7 @@ export default function SupermarketProducts() {
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Buscar produtos..."
+              placeholder={t('products.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
