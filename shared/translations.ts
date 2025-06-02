@@ -46,6 +46,13 @@ export interface TranslationKeys {
   'auth.emailSentDesc': string;
   'auth.emailSentError': string;
   'auth.emailRequiredDesc': string;
+  'auth.forgotPasswordTitle': string;
+  'auth.forgotPasswordDescription': string;
+  'auth.sendEmail': string;
+  'auth.sending': string;
+  'auth.sendInstructions': string;
+  'auth.backToLogin': string;
+  'auth.recoverySubtitle': string;
   'auth.passwordResetSuccess': string;
   'auth.passwordResetSuccessDesc': string;
   'auth.passwordResetError': string;
@@ -440,6 +447,13 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.emailSentDesc': 'Se o email estiver cadastrado, você receberá instruções para redefinir sua senha.',
     'auth.emailSentError': 'Ocorreu um erro ao enviar o email. Tente novamente.',
     'auth.emailRequiredDesc': 'Por favor, digite seu email.',
+    'auth.forgotPasswordTitle': 'Esqueci Minha Senha',
+    'auth.forgotPasswordDescription': 'Digite seu email para receber instruções de redefinição de senha',
+    'auth.sendEmail': 'Enviar Email',
+    'auth.sending': 'Enviando...',
+    'auth.sendInstructions': 'Enviar instruções',
+    'auth.backToLogin': 'Voltar para o login',
+    'auth.recoverySubtitle': 'Recuperação de senha',
     'auth.passwordResetSuccess': 'Senha redefinida!',
     'auth.passwordResetSuccessDesc': 'Sua senha foi redefinida com sucesso. Faça login com sua nova senha.',
     'auth.passwordResetError': 'Erro ao redefinir senha. O link pode ter expirado ou ser inválido.',
@@ -833,6 +847,13 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.emailSentDesc': 'If the email is registered, you will receive instructions to reset your password.',
     'auth.emailSentError': 'An error occurred while sending the email. Please try again.',
     'auth.emailRequiredDesc': 'Please enter your email.',
+    'auth.forgotPasswordTitle': 'Forgot My Password',
+    'auth.forgotPasswordDescription': 'Enter your email to receive password reset instructions',
+    'auth.sendEmail': 'Send Email',
+    'auth.sending': 'Sending...',
+    'auth.sendInstructions': 'Send instructions',
+    'auth.backToLogin': 'Back to login',
+    'auth.recoverySubtitle': 'Password recovery',
     'auth.passwordResetSuccess': 'Password reset!',
     'auth.passwordResetSuccessDesc': 'Your password has been reset successfully. Please login with your new password.',
     'auth.passwordResetError': 'Error resetting password. The link may have expired or be invalid.',

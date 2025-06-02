@@ -60,17 +60,17 @@ export default function StaffForgotPassword() {
             </Link>
             <div className="flex items-center gap-2">
               <Mail className="h-5 w-5 text-green-600" />
-              <CardTitle className="text-xl">Esqueci Minha Senha</CardTitle>
+              <CardTitle className="text-xl">{t('auth.forgotPasswordTitle')}</CardTitle>
             </div>
           </div>
           <CardDescription>
-            Digite seu email para receber instruções de redefinição de senha
+            {t('auth.forgotPasswordDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
