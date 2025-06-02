@@ -93,6 +93,33 @@ export interface TranslationKeys {
   'customer.productAdded': string;
   'customer.productAddedDescription': string;
 
+  // Cart
+  'cart.title': string;
+  'cart.empty': string;
+  'cart.emptyDescription': string;
+  'cart.continueShopping': string;
+  'cart.supermarkets': string;
+  'cart.validUntil': string;
+  'cart.customerData': string;
+  'cart.deliveryMethod': string;
+  'cart.pickupFree': string;
+  'cart.deliveryFee': string;
+  'cart.deliveryAddress': string;
+  'cart.deliveryAddressPlaceholder': string;
+  'cart.orderSummary': string;
+  'cart.subtotal': string;
+  'cart.savings': string;
+  'cart.delivery': string;
+  'cart.total': string;
+  'cart.finishOrder': string;
+  'cart.processing': string;
+  'cart.orderSuccess': string;
+  'cart.orderSuccessDescription': string;
+  'cart.orderError': string;
+  'cart.orderErrorDescription': string;
+  'cart.addressRequired': string;
+  'cart.addressRequiredDescription': string;
+
   // Dashboard
   'dashboard.title': string;
   'dashboard.welcome': string;
@@ -395,6 +422,33 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.productAdded': 'Produto adicionado!',
     'customer.productAddedDescription': 'foi adicionado ao carrinho. Você ganhará pontos eco!',
 
+    // Cart
+    'cart.title': 'Carrinho',
+    'cart.empty': 'Seu carrinho está vazio',
+    'cart.emptyDescription': 'Adicione produtos com desconto para continuar',
+    'cart.continueShopping': 'Continuar Comprando',
+    'cart.supermarkets': 'supermercados',
+    'cart.validUntil': 'Válido até',
+    'cart.customerData': 'Dados do Cliente',
+    'cart.deliveryMethod': 'Forma de Retirada',
+    'cart.pickupFree': 'Retirar no local - Grátis',
+    'cart.deliveryFee': 'Entrega - R$ 5,00',
+    'cart.deliveryAddress': 'Endereço para Entrega *',
+    'cart.deliveryAddressPlaceholder': 'Rua, número, bairro, cidade',
+    'cart.orderSummary': 'Resumo do Pedido',
+    'cart.subtotal': 'Subtotal',
+    'cart.savings': 'Economia',
+    'cart.delivery': 'Entrega',
+    'cart.total': 'Total',
+    'cart.finishOrder': 'Finalizar Pedido',
+    'cart.processing': 'Processando...',
+    'cart.orderSuccess': 'Pedido realizado com sucesso!',
+    'cart.orderSuccessDescription': 'Você receberá uma confirmação em breve.',
+    'cart.orderError': 'Erro ao finalizar pedido',
+    'cart.orderErrorDescription': 'Tente novamente ou entre em contato conosco.',
+    'cart.addressRequired': 'Endereço obrigatório',
+    'cart.addressRequiredDescription': 'Por favor, informe o endereço para entrega.',
+
     // Dashboard
     'dashboard.title': 'Painel de Controle',
     'dashboard.welcome': 'Bem-vindo',
@@ -695,6 +749,33 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.addToCart': 'Add to cart',
     'customer.productAdded': 'Product added!',
     'customer.productAddedDescription': 'was added to cart. You will earn eco points!',
+
+    // Cart
+    'cart.title': 'Cart',
+    'cart.empty': 'Your cart is empty',
+    'cart.emptyDescription': 'Add discounted products to continue',
+    'cart.continueShopping': 'Continue Shopping',
+    'cart.supermarkets': 'supermarkets',
+    'cart.validUntil': 'Valid until',
+    'cart.customerData': 'Customer Data',
+    'cart.deliveryMethod': 'Delivery Method',
+    'cart.pickupFree': 'Pickup at store - Free',
+    'cart.deliveryFee': 'Delivery - $5.00',
+    'cart.deliveryAddress': 'Delivery Address *',
+    'cart.deliveryAddressPlaceholder': 'Street, number, neighborhood, city',
+    'cart.orderSummary': 'Order Summary',
+    'cart.subtotal': 'Subtotal',
+    'cart.savings': 'Savings',
+    'cart.delivery': 'Delivery',
+    'cart.total': 'Total',
+    'cart.finishOrder': 'Finish Order',
+    'cart.processing': 'Processing...',
+    'cart.orderSuccess': 'Order placed successfully!',
+    'cart.orderSuccessDescription': 'You will receive a confirmation soon.',
+    'cart.orderError': 'Error finishing order',
+    'cart.orderErrorDescription': 'Please try again or contact us.',
+    'cart.addressRequired': 'Address required',
+    'cart.addressRequiredDescription': 'Please enter the delivery address.',
 
     // Dashboard
     'dashboard.title': 'Dashboard',

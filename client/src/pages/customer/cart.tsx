@@ -9,6 +9,7 @@ import { ArrowLeft, Plus, Minus, Trash2, MapPin, Clock, User, Phone, Mail } from
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface CartItem {
   id: number;
@@ -27,6 +28,7 @@ interface CartItem {
 export default function CustomerCart() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [deliveryAddress, setDeliveryAddress] = useState("");
@@ -127,8 +129,8 @@ export default function CustomerCart() {
     },
     onSuccess: () => {
       toast({
-        title: "Pedido realizado com sucesso!",
-        description: "Você receberá uma confirmação em breve.",
+        title: t('cart.orderSuccess'),
+        description: t('cart.orderSuccessDescription'),
       });
       clearCart();
       navigate("/customer");
@@ -136,8 +138,8 @@ export default function CustomerCart() {
     onError: (error) => {
       console.error("Erro ao criar pedido:", error);
       toast({
-        title: "Erro ao finalizar pedido",
-        description: "Tente novamente ou entre em contato conosco.",
+        title: t('cart.orderError'),
+        description: t('cart.orderErrorDescription'),
         variant: "destructive",
       });
     },
@@ -146,8 +148,8 @@ export default function CustomerCart() {
   const handleCheckout = () => {
     if (deliveryType === "delivery" && !deliveryAddress.trim()) {
       toast({
-        title: "Endereço obrigatório",
-        description: "Por favor, informe o endereço para entrega.",
+        title: t('cart.addressRequired'),
+        description: t('cart.addressRequiredDescription'),
         variant: "destructive",
       });
       return;
