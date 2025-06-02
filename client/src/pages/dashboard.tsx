@@ -72,7 +72,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-left">
                       <p className="font-medium text-gray-900">Adicionar Produto com Desconto</p>
-                      <p className="text-sm text-gray-600">Adicionar itens próximos ao vencimento</p>
+                      <p className="text-xs text-gray-600">Adicionar itens próximos ao vencimento</p>
                     </div>
                   </div>
                 </Button>
@@ -104,7 +104,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-left">
                       <p className="font-medium text-gray-900">Resumo Mensal</p>
-                      <p className="text-sm text-gray-600">Pedidos concluídos organizados por mês</p>
+                      <p className="text-xs text-gray-600">Pedidos concluídos organizados por mês</p>
                     </div>
                   </div>
                 </Button>
