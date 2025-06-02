@@ -259,104 +259,21 @@ export default function CustomerPayment() {
             <CardTitle className="text-lg">{t('payment.paymentMethod')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as "pix" | "card")}>
-              <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                <RadioGroupItem value="pix" id="pix" />
-                <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1">
-                  <Smartphone className="h-5 w-5 text-blue-600 mr-2" />
-                  <div>
-                    <p className="font-medium">{t('payment.pix')}</p>
-                    <p className="text-sm text-gray-600">{t('payment.pixDescription')}</p>
-                  </div>
-                </Label>
+            <div className="p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
+              <div className="flex items-center">
+                <Smartphone className="h-6 w-6 text-blue-600 mr-3" />
+                <div>
+                  <p className="font-medium text-blue-900">{t('payment.pix')}</p>
+                  <p className="text-sm text-blue-700">{t('payment.pixDescription')}</p>
+                </div>
               </div>
-              
-              <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                <RadioGroupItem value="card" id="card" />
-                <Label htmlFor="card" className="flex items-center cursor-pointer flex-1">
-                  <CreditCard className="h-5 w-5 text-green-600 mr-2" />
-                  <div>
-                    <p className="font-medium">{t('payment.card')}</p>
-                    <p className="text-sm text-gray-600">{t('payment.cardDescription')}</p>
-                  </div>
-                </Label>
-              </div>
-            </RadioGroup>
+            </div>
           </CardContent>
         </Card>
 
 
 
-        {/* Dados do cartão */}
-        {paymentMethod === "card" && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">{t('payment.cardDetails')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="cardNumber">{t('payment.cardNumber')}</Label>
-                <Input
-                  id="cardNumber"
-                  placeholder={t('payment.cardNumberPlaceholder')}
-                  value={cardData.number}
-                  onChange={(e) => setCardData({
-                    ...cardData,
-                    number: formatCardNumber(e.target.value)
-                  })}
-                  maxLength={19}
-                />
-              </div>
 
-              <div>
-                <Label htmlFor="cardName">{t('payment.cardHolder')}</Label>
-                <Input
-                  id="cardName"
-                  placeholder={t('payment.cardHolderPlaceholder')}
-                  value={cardData.name}
-                  onChange={(e) => setCardData({
-                    ...cardData,
-                    name: e.target.value.toUpperCase()
-                  })}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="expiry">{t('payment.expiryDate')}</Label>
-                  <Input
-                    id="expiry"
-                    placeholder={t('payment.expiryPlaceholder')}
-                    value={cardData.expiry}
-                    onChange={(e) => setCardData({
-                      ...cardData,
-                      expiry: formatExpiry(e.target.value)
-                    })}
-                    maxLength={5}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="cvv">{t('payment.cvv')}</Label>
-                  <Input
-                    id="cvv"
-                    placeholder={t('payment.cvvPlaceholder')}
-                    value={cardData.cvv}
-                    onChange={(e) => setCardData({
-                      ...cardData,
-                      cvv: e.target.value.replace(/\D/g, '')
-                    })}
-                    maxLength={4}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center text-sm text-gray-500">
-                <Lock className="h-4 w-4 mr-1" />
-                {t('payment.securePayment')}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Botão de pagamento */}
         <Button
