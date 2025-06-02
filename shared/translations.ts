@@ -139,6 +139,10 @@ export interface TranslationKeys {
   'products.searchPlaceholder': string;
   'products.noProducts': string;
   'products.loading': string;
+  'products.noProductsFound': string;
+  'products.adjustFilters': string;
+  'products.noProductsAvailable': string;
+  'products.stock': string;
 
   // Orders
   'orders.title': string;
@@ -384,6 +388,9 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.empty': 'Vazio',
     'customer.items': 'itens',
     'customer.logoutAction': 'Fazer logout',
+    'customer.addToCart': 'Adicionar ao carrinho',
+    'customer.productAdded': 'Produto adicionado!',
+    'customer.productAddedDescription': '{{productName}} foi adicionado ao carrinho. Você ganhará {{points}} pontos eco!',
 
     // Dashboard
     'dashboard.title': 'Painel de Controle',
@@ -434,6 +441,10 @@ export const translations: Record<Language, TranslationKeys> = {
     'products.searchPlaceholder': 'Buscar produtos...',
     'products.noProducts': 'Nenhum produto encontrado',
     'products.loading': 'Carregando produtos...',
+    'products.noProductsFound': 'Nenhum produto encontrado',
+    'products.adjustFilters': 'Tente ajustar os filtros de busca',
+    'products.noProductsAvailable': 'Este supermercado não possui produtos em oferta no momento',
+    'products.stock': 'Estoque',
 
     // Orders
     'orders.title': 'Pedidos',

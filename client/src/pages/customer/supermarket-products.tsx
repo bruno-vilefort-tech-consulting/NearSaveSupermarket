@@ -128,8 +128,8 @@ export default function SupermarketProducts() {
     const ecoPoints = calculateEcoPoints(product.expirationDate, product.category) * quantity;
     
     toast({
-      title: "Produto adicionado!",
-      description: `${product.name} foi adicionado ao carrinho. Você ganhará ${ecoPoints} pontos eco!`,
+      title: t('customer.productAdded'),
+      description: t('customer.productAddedDescription', { productName: product.name, points: ecoPoints }),
     });
   };
 
@@ -223,7 +223,7 @@ export default function SupermarketProducts() {
                 onClick={() => setSelectedCategory(category)}
                 className={selectedCategory === category ? "bg-green-600 hover:bg-green-700" : ""}
               >
-                {category}
+                {getCategoryName(category, t)}
               </Button>
             ))}
           </div>
@@ -235,12 +235,12 @@ export default function SupermarketProducts() {
             <div className="col-span-full text-center py-12">
               <Package size={48} className="mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Nenhum produto encontrado
+                {t('products.noProductsFound')}
               </h3>
               <p className="text-gray-600">
                 {searchTerm || selectedCategory !== "Todos" 
-                  ? "Tente ajustar os filtros de busca" 
-                  : "Este supermercado não possui produtos em oferta no momento"}
+                  ? t('products.adjustFilters')
+                  : t('products.noProductsAvailable')}
               </p>
             </div>
           ) : (
@@ -312,7 +312,7 @@ export default function SupermarketProducts() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-600">Estoque</p>
+                          <p className="text-sm text-gray-600">{t('products.stock')}</p>
                           <p className="font-semibold">{product.quantity}</p>
                         </div>
                       </div>
@@ -325,7 +325,7 @@ export default function SupermarketProducts() {
                         }}
                       >
                         <ShoppingCart size={16} className="mr-2" />
-                        Adicionar ao carrinho
+                        {t('customer.addToCart')}
                       </Button>
                     </div>
                   </CardContent>
