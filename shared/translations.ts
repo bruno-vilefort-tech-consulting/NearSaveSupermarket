@@ -53,6 +53,35 @@ export interface TranslationKeys {
   'auth.sendInstructions': string;
   'auth.backToLogin': string;
   'auth.recoverySubtitle': string;
+
+  // Staff Registration
+  'staff.newRegistration': string;
+  'staff.partnerRegistration': string;
+  'staff.registerSupermarket': string;
+  'staff.companyName': string;
+  'staff.companyPlaceholder': string;
+  'staff.phone': string;
+  'staff.phonePlaceholder': string;
+  'staff.address': string;
+  'staff.addressPlaceholder': string;
+  'staff.passwordMin': string;
+  'staff.confirmPassword': string;
+  'staff.confirmPasswordPlaceholder': string;
+  'staff.registering': string;
+  'staff.registerButton': string;
+  'staff.alreadyHaveAccount': string;
+  'staff.doLogin': string;
+  'staff.agreementText': string;
+  'staff.registrationSuccess': string;
+  'staff.welcomeRegistration': string;
+  'staff.registrationError': string;
+  'staff.registrationErrorDesc': string;
+  'staff.requiredFields': string;
+  'staff.fillAllFields': string;
+  'staff.passwordMismatch': string;
+  'staff.checkPasswords': string;
+  'staff.passwordTooShort': string;
+  'staff.passwordMinDesc': string;
   'auth.passwordResetSuccess': string;
   'auth.passwordResetSuccessDesc': string;
   'auth.passwordResetError': string;
@@ -454,6 +483,35 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.sendInstructions': 'Enviar instruções',
     'auth.backToLogin': 'Voltar para o login',
     'auth.recoverySubtitle': 'Recuperação de senha',
+
+    // Staff Registration
+    'staff.newRegistration': 'Novo Cadastro',
+    'staff.partnerRegistration': 'Cadastro de novo supermercado parceiro',
+    'staff.registerSupermarket': 'Registre seu supermercado na plataforma',
+    'staff.companyName': 'Nome Fantasia',
+    'staff.companyPlaceholder': 'Ex: Supermercado Central',
+    'staff.phone': 'Telefone',
+    'staff.phonePlaceholder': '(11) 99999-9999',
+    'staff.address': 'Endereço',
+    'staff.addressPlaceholder': 'Rua, número, bairro, cidade',
+    'staff.passwordMin': 'Mínimo 6 caracteres',
+    'staff.confirmPassword': 'Confirmar Senha',
+    'staff.confirmPasswordPlaceholder': 'Digite a senha novamente',
+    'staff.registering': 'Cadastrando...',
+    'staff.registerButton': 'Cadastrar Supermercado',
+    'staff.alreadyHaveAccount': 'Já tem conta?',
+    'staff.doLogin': 'Fazer Login',
+    'staff.agreementText': 'Ao se cadastrar, você concorda com nossos termos de uso',
+    'staff.registrationSuccess': 'Cadastro realizado com sucesso!',
+    'staff.welcomeRegistration': 'Agora você pode fazer login.',
+    'staff.registrationError': 'Erro no cadastro',
+    'staff.registrationErrorDesc': 'Não foi possível criar a conta',
+    'staff.requiredFields': 'Campos obrigatórios',
+    'staff.fillAllFields': 'Por favor, preencha todos os campos obrigatórios',
+    'staff.passwordMismatch': 'Senhas não conferem',
+    'staff.checkPasswords': 'Por favor, verifique se as senhas são iguais',
+    'staff.passwordTooShort': 'Senha muito curta',
+    'staff.passwordMinDesc': 'A senha deve ter pelo menos 6 caracteres',
     'auth.passwordResetSuccess': 'Senha redefinida!',
     'auth.passwordResetSuccessDesc': 'Sua senha foi redefinida com sucesso. Faça login com sua nova senha.',
     'auth.passwordResetError': 'Erro ao redefinir senha. O link pode ter expirado ou ser inválido.',
@@ -461,9 +519,6 @@ export const translations: Record<Language, TranslationKeys> = {
     // Staff Authentication
     'staff.login': 'Login do Supermercado',
     'staff.register': 'Cadastro do Supermercado',
-    'staff.companyName': 'Nome da Empresa',
-    'staff.phone': 'Telefone',
-    'staff.address': 'Endereço',
     'staff.forgotPassword': 'Esqueci minha senha',
     'staff.resetPassword': 'Redefinir Senha',
     'staff.backToLogin': 'Voltar ao Login',
@@ -854,6 +909,35 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.sendInstructions': 'Send instructions',
     'auth.backToLogin': 'Back to login',
     'auth.recoverySubtitle': 'Password recovery',
+
+    // Staff Registration
+    'staff.newRegistration': 'New Registration',
+    'staff.partnerRegistration': 'New partner supermarket registration',
+    'staff.registerSupermarket': 'Register your supermarket on the platform',
+    'staff.companyName': 'Company Name',
+    'staff.companyPlaceholder': 'Ex: Central Supermarket',
+    'staff.phone': 'Phone',
+    'staff.phonePlaceholder': '(11) 99999-9999',
+    'staff.address': 'Address',
+    'staff.addressPlaceholder': 'Street, number, neighborhood, city',
+    'staff.passwordMin': 'Minimum 6 characters',
+    'staff.confirmPassword': 'Confirm Password',
+    'staff.confirmPasswordPlaceholder': 'Enter password again',
+    'staff.registering': 'Registering...',
+    'staff.registerButton': 'Register Supermarket',
+    'staff.alreadyHaveAccount': 'Already have an account?',
+    'staff.doLogin': 'Sign In',
+    'staff.agreementText': 'By signing up, you agree to our terms of use',
+    'staff.registrationSuccess': 'Registration completed successfully!',
+    'staff.welcomeRegistration': 'Welcome! Now you can log in.',
+    'staff.registrationError': 'Registration error',
+    'staff.registrationErrorDesc': 'Could not create account',
+    'staff.requiredFields': 'Required fields',
+    'staff.fillAllFields': 'Please fill in all required fields',
+    'staff.passwordMismatch': 'Passwords do not match',
+    'staff.checkPasswords': 'Please verify that passwords match',
+    'staff.passwordTooShort': 'Password too short',
+    'staff.passwordMinDesc': 'Password must be at least 6 characters',
     'auth.passwordResetSuccess': 'Password reset!',
     'auth.passwordResetSuccessDesc': 'Your password has been reset successfully. Please login with your new password.',
     'auth.passwordResetError': 'Error resetting password. The link may have expired or be invalid.',
@@ -861,9 +945,6 @@ export const translations: Record<Language, TranslationKeys> = {
     // Staff Authentication
     'staff.login': 'Supermarket Login',
     'staff.register': 'Supermarket Registration',
-    'staff.companyName': 'Company Name',
-    'staff.phone': 'Phone',
-    'staff.address': 'Address',
     'staff.forgotPassword': 'Forgot Password',
     'staff.resetPassword': 'Reset Password',
     'staff.backToLogin': 'Back to Login',
