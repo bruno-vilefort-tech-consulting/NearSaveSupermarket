@@ -115,11 +115,14 @@ export default function PixPayment() {
     try {
       setIsCheckingPayment(true);
       const response = await apiRequest('GET', `/api/payments/pix/status/${pixData.id}`);
+      const statusData = await response.json();
       
-      if (response.status !== paymentStatus) {
-        setPaymentStatus(response.status);
+      console.log('Payment status check:', statusData);
+      
+      if (statusData.status !== paymentStatus) {
+        setPaymentStatus(statusData.status);
         
-        if (response.status === 'approved') {
+        if (statusData.status === 'approved') {
           toast({
             title: t('payment.paymentApproved'),
             description: "Seu pagamento foi confirmado!",
