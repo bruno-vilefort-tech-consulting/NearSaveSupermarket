@@ -231,7 +231,7 @@ export default function CustomerPayment() {
             <CardTitle className="text-lg">{t('payment.paymentMethod')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+            <RadioGroup value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as "pix" | "card")}>
               <div className="flex items-center space-x-2 p-3 border rounded-lg">
                 <RadioGroupItem value="pix" id="pix" />
                 <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1">
