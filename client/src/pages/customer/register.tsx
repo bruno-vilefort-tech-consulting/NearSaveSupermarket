@@ -126,10 +126,10 @@ export default function CustomerRegister() {
         <Card className="shadow-lg">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-xl font-semibold text-gray-900">
-              Criar nova conta
+              {t('customer.register')}
             </CardTitle>
             <p className="text-sm text-gray-600">
-              Preencha seus dados para se cadastrar
+              {t('customer.registerSubtitle')}
             </p>
           </CardHeader>
           
@@ -141,7 +141,7 @@ export default function CustomerRegister() {
                   name="cpf"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>CPF</FormLabel>
+                      <FormLabel>{t('customer.cpf')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -166,7 +166,7 @@ export default function CustomerRegister() {
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome Completo</FormLabel>
+                      <FormLabel>{t('customer.fullName')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -187,7 +187,7 @@ export default function CustomerRegister() {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Telefone</FormLabel>
+                      <FormLabel>{t('customer.phone')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -299,19 +299,19 @@ export default function CustomerRegister() {
                   className="w-full bg-green-600 hover:bg-green-700"
                   disabled={registerMutation.isPending}
                 >
-                  {registerMutation.isPending ? "Cadastrando..." : "Cadastrar"}
+                  {registerMutation.isPending ? t('customer.registering') : t('auth.register')}
                 </Button>
               </form>
             </Form>
 
             <div className="text-center mt-6">
               <p className="text-sm text-gray-600">
-                Já tem uma conta?{" "}
+                {t('customer.alreadyHaveAccount')}{" "}
                 <button
                   onClick={() => navigate("/customer/login")}
                   className="text-green-600 hover:text-green-700 font-medium"
                 >
-                  Fazer login
+                  {t('auth.login')}
                 </button>
               </p>
             </div>
@@ -325,7 +325,7 @@ export default function CustomerRegister() {
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft size={16} />
-            <span>Voltar ao início</span>
+            <span>{t('customer.backToHome')}</span>
           </button>
         </div>
       </div>
