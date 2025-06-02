@@ -65,7 +65,7 @@ export default function CustomerHome() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando supermercados...</p>
+          <p className="text-gray-600">{t('customer.loadingSupermarkets')}</p>
         </div>
       </div>
     );
@@ -81,7 +81,7 @@ export default function CustomerHome() {
               <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
                 <Leaf className="text-white" size={20} />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">EcoMart</h1>
+              <h1 className="text-xl font-bold text-gray-900">{t('landing.title')}</h1>
             </div>
 
             {/* Desktop Menu */}
@@ -118,7 +118,7 @@ export default function CustomerHome() {
                 className="relative"
               >
                 <ShoppingCart size={16} className="mr-2" />
-                Carrinho
+                {t('customer.cart')}
                 {cartCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                     {cartCount}
@@ -133,7 +133,7 @@ export default function CustomerHome() {
                 className="text-gray-600 hover:text-gray-900"
               >
                 <LogOut size={16} className="mr-1" />
-                Sair
+                {t('customer.logout')}
               </Button>
             </div>
 

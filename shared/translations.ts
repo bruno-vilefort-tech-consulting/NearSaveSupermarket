@@ -61,6 +61,35 @@ export interface TranslationKeys {
   'customer.forgotPassword': string;
   'customer.resetPassword': string;
 
+  // Customer Home
+  'customer.loading': string;
+  'customer.loadingSupermarkets': string;
+  'customer.hello': string;
+  'customer.cart': string;
+  'customer.logout': string;
+  'customer.menu': string;
+  'customer.ecoPointsProgram': string;
+  'customer.youHave': string;
+  'customer.points': string;
+  'customer.sustainablePurchases': string;
+  'customer.learnMore': string;
+  'customer.supermarketsWithOffers': string;
+  'customer.findBestDiscounts': string;
+  'customer.searchSupermarkets': string;
+  'customer.noSupermarketsFound': string;
+  'customer.tryAnotherSearch': string;
+  'customer.noSupermarketsAvailable': string;
+  'customer.productsOnSale': string;
+  'customer.available': string;
+  'customer.viewProducts': string;
+  'customer.ecoPointsFooter': string;
+  'customer.earnPointsHelp': string;
+  'customer.pointsAvailable': string;
+  'customer.purchaseHistory': string;
+  'customer.empty': string;
+  'customer.items': string;
+  'customer.logoutAction': string;
+
   // Dashboard
   'dashboard.title': string;
   'dashboard.welcome': string;
@@ -327,6 +356,35 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.forgotPassword': 'Esqueci minha senha',
     'customer.resetPassword': 'Redefinir Senha',
 
+    // Customer Home
+    'customer.loading': 'Carregando',
+    'customer.loadingSupermarkets': 'Carregando supermercados...',
+    'customer.hello': 'Olá',
+    'customer.cart': 'Carrinho',
+    'customer.logout': 'Sair',
+    'customer.menu': 'Menu',
+    'customer.ecoPointsProgram': 'Programa Pontos Eco',
+    'customer.youHave': 'Você tem',
+    'customer.points': 'pontos',
+    'customer.sustainablePurchases': 'por suas compras sustentáveis',
+    'customer.learnMore': 'Saiba mais',
+    'customer.supermarketsWithOffers': 'Supermercados com ofertas',
+    'customer.findBestDiscounts': 'Encontre os melhores produtos com desconto perto de você',
+    'customer.searchSupermarkets': 'Buscar supermercados...',
+    'customer.noSupermarketsFound': 'Nenhum supermercado encontrado',
+    'customer.tryAnotherSearch': 'Tente outro termo de busca',
+    'customer.noSupermarketsAvailable': 'Não há supermercados com ofertas no momento',
+    'customer.productsOnSale': 'produtos em oferta',
+    'customer.available': 'Disponível',
+    'customer.viewProducts': 'Ver produtos',
+    'customer.ecoPointsFooter': 'Pontos Eco',
+    'customer.earnPointsHelp': 'Ganhe pontos comprando produtos próximos ao vencimento e ajude o meio ambiente!',
+    'customer.pointsAvailable': 'pontos disponíveis',
+    'customer.purchaseHistory': 'Histórico de compras',
+    'customer.empty': 'Vazio',
+    'customer.items': 'itens',
+    'customer.logoutAction': 'Fazer logout',
+
     // Dashboard
     'dashboard.title': 'Painel de Controle',
     'dashboard.welcome': 'Bem-vindo',
@@ -591,6 +649,35 @@ export const translations: Record<Language, TranslationKeys> = {
     'customer.phone': 'Phone',
     'customer.forgotPassword': 'Forgot Password',
     'customer.resetPassword': 'Reset Password',
+
+    // Customer Home
+    'customer.loading': 'Loading',
+    'customer.loadingSupermarkets': 'Loading supermarkets...',
+    'customer.hello': 'Hello',
+    'customer.cart': 'Cart',
+    'customer.logout': 'Logout',
+    'customer.menu': 'Menu',
+    'customer.ecoPointsProgram': 'Eco Points Program',
+    'customer.youHave': 'You have',
+    'customer.points': 'points',
+    'customer.sustainablePurchases': 'for your sustainable purchases',
+    'customer.learnMore': 'Learn more',
+    'customer.supermarketsWithOffers': 'Supermarkets with offers',
+    'customer.findBestDiscounts': 'Find the best discounted products near you',
+    'customer.searchSupermarkets': 'Search supermarkets...',
+    'customer.noSupermarketsFound': 'No supermarkets found',
+    'customer.tryAnotherSearch': 'Try another search term',
+    'customer.noSupermarketsAvailable': 'No supermarkets with offers available at the moment',
+    'customer.productsOnSale': 'products on sale',
+    'customer.available': 'Available',
+    'customer.viewProducts': 'View products',
+    'customer.ecoPointsFooter': 'Eco Points',
+    'customer.earnPointsHelp': 'Earn points by buying products close to expiration and help the environment!',
+    'customer.pointsAvailable': 'points available',
+    'customer.purchaseHistory': 'Purchase history',
+    'customer.empty': 'Empty',
+    'customer.items': 'items',
+    'customer.logoutAction': 'Logout',
 
     // Dashboard
     'dashboard.title': 'Dashboard',
