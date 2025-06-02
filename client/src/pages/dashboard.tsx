@@ -30,7 +30,7 @@ export default function Dashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Produtos Ativos</p>
+                    <p className="text-sm text-gray-600">{t('dashboard.stats.products')}</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {statsLoading ? "..." : stats?.activeProducts || 0}
                     </p>
@@ -46,7 +46,7 @@ export default function Dashboard() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Pedidos Pendentes</p>
+                    <p className="text-sm text-gray-600">{t('dashboard.stats.orders')}</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {statsLoading ? "..." : stats?.pendingOrders || 0}
                     </p>
@@ -62,7 +62,7 @@ export default function Dashboard() {
           {/* Quick Actions */}
           <Card className="shadow-sm">
             <CardContent className="p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Ações Rápidas</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">{t('dashboard.quickActions')}</h2>
               <div className="space-y-3">
                 <Button
                   onClick={() => navigate("/add-product")}
@@ -74,8 +74,8 @@ export default function Dashboard() {
                       <Plus className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Adicionar Produto com Desconto</p>
-                      <p className="text-xs text-gray-600">Adicionar itens próximos ao vencimento</p>
+                      <p className="font-medium text-gray-900">{t('dashboard.addProduct')}</p>
+                      <p className="text-xs text-gray-600">{t('dashboard.addProductDesc')}</p>
                     </div>
                   </div>
                 </Button>
@@ -90,8 +90,8 @@ export default function Dashboard() {
                       <List className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Gerenciar Produtos</p>
-                      <p className="text-xs text-gray-600">Visualizar e editar lista de produtos</p>
+                      <p className="font-medium text-gray-900">{t('dashboard.manageProducts')}</p>
+                      <p className="text-xs text-gray-600">{t('dashboard.manageProductsDesc')}</p>
                     </div>
                   </div>
                 </Button>
@@ -106,8 +106,8 @@ export default function Dashboard() {
                       <Calendar className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Resumo Mensal</p>
-                      <p className="text-xs text-gray-600">Pedidos concluídos organizados por mês</p>
+                      <p className="font-medium text-gray-900">{t('dashboard.monthlyReport')}</p>
+                      <p className="text-xs text-gray-600">{t('dashboard.monthlyReportDesc')}</p>
                     </div>
                   </div>
                 </Button>

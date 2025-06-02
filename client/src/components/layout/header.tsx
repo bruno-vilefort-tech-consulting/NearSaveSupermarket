@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Store, Bell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { LanguageSelector } from "@/components/ui/language-selector";
 
 export function Header() {
   const { user } = useAuth();
