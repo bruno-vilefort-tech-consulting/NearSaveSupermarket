@@ -90,6 +90,10 @@ export default function PixPayment() {
         customerPhone: order.customerPhone,
       });
 
+      console.log('Response from Mercado Pago API:', response);
+      console.log('PIX code received:', response.pixCopyPaste);
+      console.log('Payment ID received:', response.id);
+      
       setPixData(response as PixPaymentData);
       setPaymentStatus(response.status);
     } catch (error) {
