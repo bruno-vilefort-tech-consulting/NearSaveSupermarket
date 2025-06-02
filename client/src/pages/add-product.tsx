@@ -130,7 +130,7 @@ export default function AddProduct() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   {/* Photo Upload */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">Foto do Produto</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">{t('product.photo')}</label>
                     {imagePreview ? (
                       <div className="relative">
                         <img
@@ -148,14 +148,14 @@ export default function AddProduct() {
                           }}
                           className="absolute top-2 right-2"
                         >
-                          Remover
+                          {t('product.remove')}
                         </Button>
                       </div>
                     ) : (
                       <div className="flex space-x-3">
                         <label className="flex-1 p-6 border-2 border-dashed border-gray-300 rounded-xl text-center hover:border-primary-500 transition-colors cursor-pointer">
                           <Camera className="text-gray-400 text-2xl mb-2 mx-auto" size={32} />
-                          <p className="text-sm text-gray-600">Tirar Foto</p>
+                          <p className="text-sm text-gray-600">{t('product.takePhoto')}</p>
                           <input
                             type="file"
                             accept="image/*"
@@ -166,7 +166,7 @@ export default function AddProduct() {
                         </label>
                         <label className="flex-1 p-6 border-2 border-dashed border-gray-300 rounded-xl text-center hover:border-primary-500 transition-colors cursor-pointer">
                           <Upload className="text-gray-400 text-2xl mb-2 mx-auto" size={32} />
-                          <p className="text-sm text-gray-600">Enviar Imagem</p>
+                          <p className="text-sm text-gray-600">{t('product.uploadImage')}</p>
                           <input
                             type="file"
                             accept="image/*"
@@ -183,9 +183,9 @@ export default function AddProduct() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nome do Produto</FormLabel>
+                        <FormLabel>{t('product.name')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="ex.: Pão Francês Fresco" {...field} />
+                          <Input placeholder={t('product.namePlaceholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
