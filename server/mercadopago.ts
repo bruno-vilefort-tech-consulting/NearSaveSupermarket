@@ -7,8 +7,7 @@ if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
 const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
   options: {
-    timeout: 5000,
-    idempotencyKey: 'abc'
+    timeout: 5000
   }
 });
 
@@ -48,19 +47,29 @@ export async function createPixPayment(data: PixPaymentData): Promise<PixPayment
       }
     };
 
+    console.log('Payment data being sent:', JSON.stringify(paymentData, null, 2));
+    
     const result = await payment.create({ body: paymentData });
+    
+    console.log('Full Mercado Pago response:', JSON.stringify(result, null, 2));
+    console.log('Point of interaction:', result.point_of_interaction);
+    console.log('Transaction data:', result.point_of_interaction?.transaction_data);
 
     if (!result.point_of_interaction?.transaction_data?.qr_code) {
       throw new Error('Failed to generate PIX code');
     }
 
-    return {
+    const pixResponse = {
       id: result.id!.toString(),
       status: result.status!,
       pixCopyPaste: result.point_of_interaction.transaction_data.qr_code,
       qrCodeBase64: result.point_of_interaction.transaction_data.qr_code_base64,
       expirationDate: result.date_of_expiration || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     };
+    
+    console.log('PIX response being returned:', JSON.stringify(pixResponse, null, 2));
+    
+    return pixResponse;
   } catch (error) {
     console.error('Mercado Pago error:', error);
     throw new Error('Failed to create PIX payment');
