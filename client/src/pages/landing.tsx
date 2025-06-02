@@ -1,13 +1,30 @@
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Users, Leaf } from "lucide-react";
+import { ShoppingCart, Users, Leaf, Globe, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useState, useEffect, useRef } from "react";
 
 export default function Landing() {
   const { t, setLanguage } = useLanguage();
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+  const languageMenuRef = useRef<HTMLDivElement>(null);
   
   const handleLogin = () => {
     window.location.href = "/staff-login";
   };
+
+  // Fechar menu quando clicar fora dele
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
+        setIsLanguageMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // SVG de compras sustentáveis
   const SustainableShoppingSVG = () => (
@@ -86,23 +103,41 @@ export default function Landing() {
         
         {/* Language Selector */}
         <div className="flex justify-end">
-          <div className="flex gap-2">
+          <div className="relative" ref={languageMenuRef}>
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => setLanguage('pt-BR')}
-              className="h-8 px-3 bg-white/50 backdrop-blur-sm border-white/30"
+              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+              className="h-10 px-3 bg-white/80 backdrop-blur-sm border-white/50 hover:bg-white/90 flex items-center gap-2"
             >
-              🇧🇷 PT
+              <Globe className="h-4 w-4 text-green-600" />
+              <ChevronDown className={`h-3 w-3 text-green-600 transition-transform ${isLanguageMenuOpen ? 'rotate-180' : ''}`} />
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setLanguage('en-US')}
-              className="h-8 px-3 bg-white/50 backdrop-blur-sm border-white/30"
-            >
-              🇺🇸 EN
-            </Button>
+            
+            {isLanguageMenuOpen && (
+              <div className="absolute right-0 top-12 bg-white/95 backdrop-blur-md border border-white/50 rounded-lg shadow-lg py-2 min-w-32 z-10">
+                <button
+                  onClick={() => {
+                    setLanguage('pt-BR');
+                    setIsLanguageMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-3 text-gray-700"
+                >
+                  <span className="text-lg">🇧🇷</span>
+                  <span className="font-medium">Português</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setLanguage('en-US');
+                    setIsLanguageMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-3 text-gray-700"
+                >
+                  <span className="text-lg">🇺🇸</span>
+                  <span className="font-medium">English</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
         
