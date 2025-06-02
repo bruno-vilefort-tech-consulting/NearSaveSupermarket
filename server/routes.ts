@@ -989,6 +989,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Card Payment Routes
   app.post("/api/create-card-payment", async (req, res) => {
     try {
+      console.log('🏁 Card payment endpoint called with data:', {
+        orderId: req.body.orderId,
+        amount: req.body.amount,
+        cardDataReceived: !!req.body.cardData,
+        customerDataReceived: !!req.body.customerData
+      });
+      
       const { orderId, amount, cardData, customerData } = req.body;
       
       if (!orderId || !amount || !cardData || !customerData) {
