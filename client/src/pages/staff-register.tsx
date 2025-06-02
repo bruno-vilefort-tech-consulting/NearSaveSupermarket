@@ -251,7 +251,7 @@ export default function StaffRegister() {
                 variant="ghost"
                 className="w-full text-gray-600"
               >
-                ← Voltar ao início
+                ← {t('common.backToHome')}
               </Button>
             </CardContent>
           </Card>
@@ -259,7 +259,7 @@ export default function StaffRegister() {
           {/* Footer */}
           <div className="text-center mt-8">
             <p className="text-xs text-gray-500">
-              Ao se cadastrar, você concorda com nossos termos de uso
+              {t('staff.agreementText')}
             </p>
           </div>
         </div>
