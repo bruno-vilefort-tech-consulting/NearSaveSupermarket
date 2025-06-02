@@ -114,10 +114,10 @@ export default function Landing() {
             </div>
           </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text text-transparent">
-            EcoMart
+            {t('landing.title')}
           </h1>
           <p className="text-sm text-gray-500 font-medium">
-            By Up Brasil
+            {t('landing.subtitle')}
           </p>
         </div>
 
@@ -135,7 +135,7 @@ export default function Landing() {
           >
             <div className="flex items-center justify-center space-x-3">
               <ShoppingCart className="h-6 w-6" />
-              <span className="font-bold text-lg">Cliente - Consumidor</span>
+              <span className="font-bold text-lg">{t('landing.customerButton')}</span>
             </div>
           </Button>
 
@@ -146,17 +146,17 @@ export default function Landing() {
           >
             <div className="flex items-center justify-center space-x-3">
               <Users className="h-6 w-6" />
-              <span className="font-bold text-lg">Staff do Supermercado</span>
+              <span className="font-bold text-lg">{t('landing.staffButton')}</span>
             </div>
           </Button>
         </div>
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500 space-y-2 pt-6">
-          <p className="font-medium">Menos desperdício, mais valor. Uma iniciativa sustentável da UP Brasil</p>
+          <p className="font-medium">{t('landing.footer')}</p>
           <div className="flex items-center justify-center space-x-1 text-xs">
             <Leaf className="h-3 w-3 text-green-500" />
-            <span>Zero Desperdício • Recompensas Eco • 100% Sustentável</span>
+            <span>{t('landing.features')}</span>
           </div>
         </div>
         

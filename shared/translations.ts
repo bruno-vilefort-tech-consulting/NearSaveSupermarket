@@ -144,6 +144,14 @@ export interface TranslationKeys {
   'common.no': string;
   'common.submit': string;
 
+  // Landing Page
+  'landing.title': string;
+  'landing.subtitle': string;
+  'landing.customerButton': string;
+  'landing.staffButton': string;
+  'landing.footer': string;
+  'landing.features': string;
+
   // Messages
   'messages.emailSent': string;
   'messages.passwordReset': string;
@@ -299,6 +307,14 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.no': 'Não',
     'common.submit': 'Enviar',
 
+    // Landing Page
+    'landing.title': 'EcoMart',
+    'landing.subtitle': 'By Up Brasil',
+    'landing.customerButton': 'Cliente - Consumidor',
+    'landing.staffButton': 'Staff do Supermercado',
+    'landing.footer': 'Menos desperdício, mais valor. Uma iniciativa sustentável da UP Brasil',
+    'landing.features': 'Zero Desperdício • Recompensas Eco • 100% Sustentável',
+
     // Messages
     'messages.emailSent': 'Email enviado com sucesso',
     'messages.passwordReset': 'Senha redefinida com sucesso',
@@ -452,6 +468,14 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.yes': 'Yes',
     'common.no': 'No',
     'common.submit': 'Submit',
+
+    // Landing Page
+    'landing.title': 'EcoMart',
+    'landing.subtitle': 'By Up Brasil',
+    'landing.customerButton': 'Customer - Consumer',
+    'landing.staffButton': 'Supermarket Staff',
+    'landing.footer': 'Less waste, more value. A sustainable initiative by UP Brasil',
+    'landing.features': 'Zero Waste • Eco Rewards • 100% Sustainable',
 
     // Messages
     'messages.emailSent': 'Email sent successfully',
