@@ -429,6 +429,13 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.unauthorized': 'Não autorizado',
     'auth.sessionExpired': 'Você foi desconectado. Fazendo login novamente...',
     'auth.loginRedirect': 'Você precisa estar logado como staff. Redirecionando...',
+    'auth.emailSentSuccess': 'Email enviado!',
+    'auth.emailSentDesc': 'Se o email estiver cadastrado, você receberá instruções para redefinir sua senha.',
+    'auth.emailSentError': 'Ocorreu um erro ao enviar o email. Tente novamente.',
+    'auth.emailRequiredDesc': 'Por favor, digite seu email.',
+    'auth.passwordResetSuccess': 'Senha redefinida!',
+    'auth.passwordResetSuccessDesc': 'Sua senha foi redefinida com sucesso. Faça login com sua nova senha.',
+    'auth.passwordResetError': 'Erro ao redefinir senha. O link pode ter expirado ou ser inválido.',
 
     // Staff Authentication
     'staff.login': 'Login do Supermercado',
@@ -809,6 +816,13 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.unauthorized': 'Unauthorized',
     'auth.sessionExpired': 'You are logged out. Logging in again...',
     'auth.loginRedirect': 'You need to be logged in as staff. Redirecting...',
+    'auth.emailSentSuccess': 'Email sent!',
+    'auth.emailSentDesc': 'If the email is registered, you will receive instructions to reset your password.',
+    'auth.emailSentError': 'An error occurred while sending the email. Please try again.',
+    'auth.emailRequiredDesc': 'Please enter your email.',
+    'auth.passwordResetSuccess': 'Password reset!',
+    'auth.passwordResetSuccessDesc': 'Your password has been reset successfully. Please login with your new password.',
+    'auth.passwordResetError': 'Error resetting password. The link may have expired or be invalid.',
 
     // Staff Authentication
     'staff.login': 'Supermarket Login',
