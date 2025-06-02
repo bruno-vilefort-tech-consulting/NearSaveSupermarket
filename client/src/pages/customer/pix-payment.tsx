@@ -53,15 +53,38 @@ export default function PixPayment() {
     initializePayment();
   }, [orderId]);
 
+  // Timer de 5 minutos
   useEffect(() => {
-    if (pixData && paymentStatus === 'pending') {
+    if (!pixData || isExpired) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          setIsExpired(true);
+          toast({
+            title: "Código PIX Expirado",
+            description: "O tempo para pagamento expirou. Retornando ao início.",
+            variant: "destructive",
+          });
+          setTimeout(() => setLocation('/customer/home'), 3000);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [pixData, isExpired]);
+
+  useEffect(() => {
+    if (pixData && paymentStatus === 'pending' && !isExpired) {
       const interval = setInterval(() => {
         checkPaymentStatus();
-      }, 5000); // Check every 5 seconds
+      }, 3000); // Check every 3 seconds for faster detection
 
       return () => clearInterval(interval);
     }
-  }, [pixData, paymentStatus]);
+  }, [pixData, paymentStatus, isExpired]);
 
   const initializePayment = async () => {
     try {
@@ -239,6 +262,14 @@ export default function PixPayment() {
                 {t('payment.pixPayment')}
                 {getStatusBadge()}
               </CardTitle>
+              {!isExpired && timeLeft > 0 && (
+                <div className="flex items-center justify-center space-x-2 text-orange-600">
+                  <Clock className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    Expira em: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
+                  </span>
+                </div>
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
