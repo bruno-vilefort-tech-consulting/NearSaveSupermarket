@@ -114,6 +114,16 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => navigate("/customer/map")}
+                className="relative"
+              >
+                <MapPin size={16} className="mr-2" />
+                Mapa
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => navigate("/customer/cart")}
                 className="relative"
               >
@@ -139,6 +149,15 @@ export default function CustomerHome() {
 
             {/* Mobile Menu Button */}
             <div className="lg:hidden flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/customer/map")}
+                className="relative"
+              >
+                <MapPin size={16} />
+              </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
