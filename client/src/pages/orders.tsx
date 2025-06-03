@@ -50,7 +50,7 @@ export default function Orders() {
 
   // Check for new orders and play notification sound
   useEffect(() => {
-    if (!orders || !isEnabled) return;
+    if (!orders) return;
 
     const currentOrderCount = orders.length;
     const pendingOrders = orders.filter((order: any) => order.status === 'pending').length;
@@ -62,13 +62,33 @@ export default function Orders() {
       
       if (pendingOrders > prevPending) {
         console.log('🔔 New order detected! Playing notification sound...');
-        playNotification();
+        
+        // Try to enable sound automatically if not enabled
+        if (!isEnabled && isReady) {
+          enableSound().then((success) => {
+            if (success) {
+              setTimeout(() => playNotification(), 100);
+            }
+          });
+        } else if (isEnabled) {
+          playNotification();
+        }
+        
+        // Also show browser notification if permission is granted
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Novo Pedido!', {
+            body: 'Um novo pedido foi recebido no seu supermercado.',
+            icon: '/icon-192x192.png'
+          });
+        } else if ('Notification' in window && Notification.permission !== 'denied') {
+          Notification.requestPermission();
+        }
       }
     }
 
     previousOrderCountRef.current = currentOrderCount;
     localStorage.setItem('previousPendingCount', pendingOrders.toString());
-  }, [orders, isEnabled, playNotification]);
+  }, [orders, isEnabled, isReady, enableSound, playNotification]);
 
   const handleToggleSound = async () => {
     if (!isEnabled) {
@@ -77,6 +97,11 @@ export default function Orders() {
         console.log('✅ Notification sound enabled');
         // Play a test sound to confirm it's working
         setTimeout(() => playNotification(), 100);
+        
+        // Request browser notification permission
+        if ('Notification' in window && Notification.permission !== 'granted') {
+          await Notification.requestPermission();
+        }
       }
     }
   };
