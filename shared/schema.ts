@@ -52,6 +52,8 @@ export const staffUsers = pgTable("staff_users", {
   phone: varchar("phone").notNull(),
   address: text("address").notNull(),
   companyName: varchar("company_name").notNull(),
+  latitude: numeric("latitude", { precision: 10, scale: 8 }),
+  longitude: numeric("longitude", { precision: 11, scale: 8 }),
   isActive: integer("is_active").default(1),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
