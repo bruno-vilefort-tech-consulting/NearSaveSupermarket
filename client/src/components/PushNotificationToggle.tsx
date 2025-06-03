@@ -1,6 +1,5 @@
 import { Bell, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface PushNotificationToggleProps {
@@ -8,7 +7,6 @@ interface PushNotificationToggleProps {
 }
 
 export function PushNotificationToggle({ customerEmail }: PushNotificationToggleProps) {
-  const { toast } = useToast();
   const { 
     isEnabled, 
     isLoading, 
@@ -20,28 +18,12 @@ export function PushNotificationToggle({ customerEmail }: PushNotificationToggle
   const handleToggle = async () => {
     try {
       if (isEnabled) {
-        const success = await unsubscribeFromPushNotifications(customerEmail);
-        if (success) {
-          toast({
-            title: "Notificações Desativadas",
-            description: "Você não receberá mais notificações push.",
-          });
-        }
+        await unsubscribeFromPushNotifications(customerEmail);
       } else {
-        const success = await subscribeToPushNotifications(customerEmail);
-        if (success) {
-          toast({
-            title: "Notificações Ativadas!",
-            description: "Você receberá atualizações sobre seus pedidos.",
-          });
-        }
+        await subscribeToPushNotifications(customerEmail);
       }
     } catch (error: any) {
-      toast({
-        title: "Erro",
-        description: error.message || "Não foi possível alterar as notificações.",
-        variant: "destructive",
-      });
+      console.error('Erro ao alterar notificações:', error);
     }
   };
 

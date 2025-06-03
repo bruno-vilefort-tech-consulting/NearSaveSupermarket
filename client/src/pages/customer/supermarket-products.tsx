@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, ArrowLeft, Package, MapPin, Clock, Leaf } from "lucide-react";
 import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
-import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface Product {

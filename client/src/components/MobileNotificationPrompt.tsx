@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bell, Smartphone, CheckCircle, AlertCircle } from 'lucide-react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
-import { useToast } from '@/hooks/use-toast';
 
 interface MobileNotificationPromptProps {
   userEmail: string;
@@ -13,7 +12,6 @@ interface MobileNotificationPromptProps {
 export function MobileNotificationPrompt({ userEmail, onPermissionResult }: MobileNotificationPromptProps) {
   const [permissionStep, setPermissionStep] = useState<'initial' | 'requesting' | 'completed'>('initial');
   const { subscribeToPushNotifications, isLoading, checkBrowserSupport } = usePushNotifications();
-  const { toast } = useToast();
 
   const requestNotificationPermission = async () => {
     setPermissionStep('requesting');
@@ -30,23 +28,10 @@ export function MobileNotificationPrompt({ userEmail, onPermissionResult }: Mobi
       setPermissionStep('completed');
       onPermissionResult(success);
 
-      if (success) {
-        toast({
-          title: "Notificações Ativadas!",
-          description: "Você receberá atualizações sobre seus pedidos e promoções.",
-        });
-      }
-
     } catch (error: any) {
       console.error('Erro ao ativar notificações:', error);
       setPermissionStep('completed');
       onPermissionResult(false);
-      
-      toast({
-        title: "Erro ao Ativar Notificações",
-        description: error.message || "Erro desconhecido. Tente novamente.",
-        variant: "destructive",
-      });
     }
   };
 
