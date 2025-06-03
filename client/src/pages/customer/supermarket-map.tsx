@@ -22,8 +22,8 @@ interface SupermarketLocation {
   id: number;
   name: string;
   address: string;
-  latitude: number;
-  longitude: number;
+  latitude: string | number;
+  longitude: string | number;
   productCount: number;
   hasPromotions: boolean;
 }
@@ -81,36 +81,16 @@ export default function SupermarketMap() {
     }
   };
 
-  // Mock data for demonstration - you mentioned this should use real data
-  const mockSupermarkets: SupermarketLocation[] = [
-    {
-      id: 1,
-      name: 'Supermercado Central',
-      address: 'Av. João Naves de Ávila, 1435 - Uberlândia, MG',
-      latitude: -18.9180,
-      longitude: -48.2760,
-      productCount: 15,
-      hasPromotions: true
-    },
-    {
-      id: 2,
-      name: 'EcoMart Vila Madalena',
-      address: 'Rua Harmonia, 123 - Vila Madalena, São Paulo - SP',
-      latitude: -23.5505,
-      longitude: -46.6833,
-      productCount: 8,
-      hasPromotions: false
-    },
-    {
-      id: 3,
-      name: 'Green Market Ipanema',
-      address: 'Rua Visconde de Pirajá, 456 - Ipanema, Rio de Janeiro - RJ',
-      latitude: -22.9868,
-      longitude: -43.2037,
-      productCount: 12,
-      hasPromotions: true
-    }
-  ];
+  // Fetch real supermarket data with locations
+  const { data: supermarkets = [], isLoading: isLoadingSupermarkets } = useQuery({
+    queryKey: ['/api/customer/supermarkets/map'],
+  });
+
+  // Filter supermarkets that have valid coordinates
+  const validSupermarkets = (supermarkets as SupermarketLocation[]).filter((s: SupermarketLocation) => 
+    s.latitude && s.longitude && 
+    !isNaN(parseFloat(s.latitude.toString())) && !isNaN(parseFloat(s.longitude.toString()))
+  );
 
   // Create custom icons
   const createIcon = (hasPromotions: boolean) => {
@@ -123,7 +103,7 @@ export default function SupermarketMap() {
     });
   };
 
-  if (!userLocation) {
+  if (!userLocation || isLoadingSupermarkets) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
@@ -150,44 +130,36 @@ export default function SupermarketMap() {
           </p>
         </div>
 
-        {/* Location Status Alert */}
-        {locationStatus === 'denied' && (
-          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <MapPin className="h-5 w-5 text-amber-600 mr-3" />
-                <div>
-                  <p className="text-sm font-bold text-amber-800 mb-1">
-                    🔒 Localização bloqueada
-                  </p>
-                  <p className="text-sm text-amber-700 mb-2">
-                    Para ver sua posição no mapa:
-                  </p>
-                  <ol className="text-xs text-amber-700 list-decimal list-inside space-y-1">
-                    <li>Clique no botão "Ativar Localização" abaixo</li>
-                    <li>Quando o navegador perguntar, clique em "Permitir"</li>
-                    <li>Sua localização aparecerá como um ponto azul no mapa</li>
-                  </ol>
-                </div>
+        {/* Location Info */}
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <MapPin className="h-5 w-5 text-blue-600 mr-3" />
+              <div>
+                <p className="text-sm font-bold text-blue-800 mb-1">
+                  {locationStatus === 'granted' ? '✅ Localização ativada' : '📍 Mapa de Supermercados'}
+                </p>
+                <p className="text-sm text-blue-700">
+                  {locationStatus === 'granted' 
+                    ? 'Sua localização está sendo exibida no mapa (ponto azul piscando)'
+                    : 'Veja todos os supermercados disponíveis na região de São Paulo'
+                  }
+                </p>
               </div>
+            </div>
+            {locationStatus !== 'granted' && (
               <Button 
                 onClick={requestLocation} 
                 size="sm" 
-                className="ml-4 bg-amber-600 hover:bg-amber-700 text-white"
+                variant="outline"
                 disabled={locationStatus === 'loading'}
+                className="ml-4"
               >
-                {locationStatus === 'loading' ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                    Aguardando...
-                  </div>
-                ) : (
-                  '📍 Ativar Localização'
-                )}
+                {locationStatus === 'loading' ? 'Carregando...' : 'Tentar Localização'}
               </Button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
         {locationStatus === 'unavailable' && (
           <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
@@ -260,10 +232,10 @@ export default function SupermarketMap() {
                   </Marker>
 
                   {/* Supermarket markers */}
-                  {mockSupermarkets.map((supermarket) => (
+                  {validSupermarkets.map((supermarket) => (
                     <Marker
                       key={supermarket.id}
-                      position={[supermarket.latitude, supermarket.longitude]}
+                      position={[parseFloat(supermarket.latitude.toString()), parseFloat(supermarket.longitude.toString())]}
                       icon={createIcon(supermarket.hasPromotions)}
                       eventHandlers={{
                         click: () => setSelectedSupermarket(supermarket)
@@ -310,7 +282,7 @@ export default function SupermarketMap() {
                   Supermercados Encontrados
                 </h2>
                 <div className="space-y-3">
-                  {mockSupermarkets.map((supermarket) => (
+                  {validSupermarkets.map((supermarket) => (
                     <div
                       key={supermarket.id}
                       className={`p-3 rounded-lg border cursor-pointer transition-colors ${
