@@ -315,37 +315,6 @@ export default function PixPayment() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Order Summary */}
-          <Card>
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-lg font-bold text-gray-900">Resumo do Pedido #{orderId}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="font-medium">{orderData.customerName}</p>
-                <p className="text-xs text-gray-600">{orderData.customerEmail}</p>
-                <p className="text-xs text-gray-600">{orderData.customerPhone}</p>
-              </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-2">Itens:</h4>
-                {orderData.items.map((item, index) => (
-                  <div key={index} className="flex justify-between text-xs">
-                    <span>{item.quantity}x {item.productName}</span>
-                    <span>R$ {item.priceAtTime}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t pt-4">
-                <div className="flex justify-between font-bold">
-                  <span>{t('payment.orderTotal')}:</span>
-                  <span>R$ {orderData.totalAmount}</span>
-                </div>
-              </div>
-            </CardContent>
-        </Card>
       </div>
     </div>
   );
