@@ -162,9 +162,7 @@ export default function SupermarketMap() {
             Voltar
           </Button>
           
-          <h1 className="text-lg font-semibold text-gray-900">
-            Mapa de Supermercados
-          </h1>
+          <div className="flex-1"></div>
           
           <Button
             variant="outline"
