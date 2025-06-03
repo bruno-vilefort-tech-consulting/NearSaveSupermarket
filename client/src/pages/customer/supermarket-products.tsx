@@ -391,7 +391,7 @@ export default function SupermarketProducts() {
 
       {/* Supermarket Conflict Dialog */}
       <Dialog open={showSupermarketConflict} onOpenChange={setShowSupermarketConflict}>
-        <DialogContent className="max-w-sm mx-4 rounded-2xl shadow-2xl border-0">
+        <DialogContent className="max-w-sm rounded-2xl shadow-2xl border-0 p-6">
           <DialogHeader className="text-center pb-2">
             <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
               <AlertTriangle className="h-8 w-8 text-orange-600" />
