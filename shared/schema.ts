@@ -112,6 +112,7 @@ export const orders = pgTable("orders", {
   lastManualStatus: varchar("last_manual_status", { length: 50 }).default("pending"),
   lastManualUpdate: timestamp("last_manual_update").defaultNow(),
   notes: text("notes"),
+  externalReference: varchar("external_reference", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

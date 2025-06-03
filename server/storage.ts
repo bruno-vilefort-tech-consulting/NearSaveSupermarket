@@ -69,6 +69,7 @@ export interface IStorage {
   getOrder(id: number): Promise<OrderWithItems | undefined>;
   getOrdersByPhone(phone: string): Promise<OrderWithItems[]>;
   getOrdersByEmail(email: string): Promise<OrderWithItems[]>;
+  getOrderByExternalReference(externalReference: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   
@@ -536,6 +537,16 @@ export class DatabaseStorage implements IStorage {
     );
 
     return ordersWithItems;
+  }
+
+  async getOrderByExternalReference(externalReference: string): Promise<Order | undefined> {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.externalReference, externalReference))
+      .limit(1);
+    
+    return order;
   }
 
   async getOrdersByEmail(email: string): Promise<OrderWithItems[]> {

@@ -15,6 +15,7 @@ export default function PixPaymentFixed() {
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutos em segundos
   const [isExpired, setIsExpired] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const { toast } = useToast();
 
   const tempOrderId = params?.tempOrderId;
@@ -78,7 +79,7 @@ export default function PixPaymentFixed() {
 
   // Verificar status do pagamento
   const checkPaymentStatus = async () => {
-    if (!pixData?.pixPayment?.id) return;
+    if (!pixData?.pixPayment?.id || isProcessingPayment || paymentStatus === 'approved') return;
 
     setIsCheckingPayment(true);
     try {
@@ -87,8 +88,10 @@ export default function PixPaymentFixed() {
       
       console.log('Payment status:', status);
       
-      if (status.status === 'approved') {
-        // Pagamento aprovado - confirmar e criar pedido
+      if (status.status === 'approved' && !isProcessingPayment) {
+        // Marcar como processando para evitar duplicação
+        setIsProcessingPayment(true);
+        
         try {
           const confirmResponse = await apiRequest("POST", "/api/pix/confirm", {
             tempOrderId: pixData.tempOrderId,
@@ -123,12 +126,17 @@ export default function PixPaymentFixed() {
           
         } catch (error) {
           console.error('Error confirming payment:', error);
+          setIsProcessingPayment(false); // Reset em caso de erro
           toast({
             title: "Erro",
             description: "Erro ao confirmar pagamento. Tente novamente.",
             variant: "destructive",
           });
         }
+      } else if (status.status === 'rejected' || status.status === 'cancelled') {
+        setPaymentStatus('rejected');
+      } else {
+        setPaymentStatus(status.status);
       }
     } catch (error) {
       console.error('Error checking payment status:', error);

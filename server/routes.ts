@@ -281,6 +281,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { tempOrderId, pixPaymentId, customerData } = req.body;
       console.log('🔍 Confirmando pagamento PIX:', { tempOrderId, pixPaymentId });
       
+      // Verificar se já existe um pedido para este PIX (proteção contra duplicação)
+      const existingOrder = await storage.getOrderByExternalReference(tempOrderId);
+      if (existingOrder) {
+        console.log('⚠️ Pedido já existe para este PIX:', existingOrder.id);
+        return res.json({ order: existingOrder, paymentStatus: { status: 'approved' } });
+      }
+      
       // Buscar dados temporários do pedido
       let tempOrderData;
       if ((global as any).tempOrders && (global as any).tempOrders.has(tempOrderId)) {
@@ -333,7 +340,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "pending",
         fulfillmentMethod: "pickup",
         deliveryAddress: null,
-        totalAmount: tempOrderData.totalAmount
+        totalAmount: tempOrderData.totalAmount,
+        externalReference: tempOrderId // Adicionar referência externa para evitar duplicação
       };
 
       const orderItems = tempOrderData.items.map((item: any) => ({
