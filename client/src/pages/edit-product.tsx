@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertProductSchema, type ProductWithCreator } from "@shared/schema";
+import { insertProductSchema, type Product } from "@shared/schema";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { ArrowLeft, Save, Upload } from "lucide-react";
@@ -49,8 +49,8 @@ export default function EditProduct() {
   const productId = params?.id ? parseInt(params.id) : null;
 
   // Buscar dados do produto
-  const { data: product, isLoading } = useQuery<ProductWithCreator>({
-    queryKey: ["/api/products", productId],
+  const { data: product, isLoading, error } = useQuery({
+    queryKey: ["/api/staff/products", productId],
     enabled: !!productId,
   });
 
@@ -77,18 +77,19 @@ export default function EditProduct() {
 
   // Preencher formulário quando produto carregar
   useEffect(() => {
-    if (product && product.name) {
+    if (product && typeof product === 'object' && 'name' in product) {
+      const productData = product as any;
       reset({
-        name: product.name,
-        description: product.description || "",
-        category: product.category,
-        originalPrice: product.originalPrice,
-        discountPrice: product.discountPrice,
-        quantity: product.quantity,
-        expirationDate: product.expirationDate.split('T')[0], // Formato YYYY-MM-DD
-        imageUrl: product.imageUrl || ""
+        name: productData.name || "",
+        description: productData.description || "",
+        category: productData.category || "",
+        originalPrice: productData.originalPrice || "",
+        discountPrice: productData.discountPrice || "",
+        quantity: productData.quantity || 0,
+        expirationDate: productData.expirationDate ? productData.expirationDate.split('T')[0] : "",
+        imageUrl: productData.imageUrl || ""
       });
-      setImagePreview(product.imageUrl || "");
+      setImagePreview(productData.imageUrl || "");
     }
   }, [product, reset]);
 

@@ -165,6 +165,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get single product for staff editing
+  app.get('/api/staff/products/:id', async (req, res) => {
+    try {
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
+
+      const productId = parseInt(req.params.id);
+      if (isNaN(productId)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      const product = await storage.getProduct(productId);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      // Verify product belongs to this staff member
+      if (product.createdByStaff !== parseInt(staffId)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      res.json(product);
+    } catch (error: any) {
+      console.error("Error fetching product:", error);
+      res.status(500).json({ message: "Failed to fetch product" });
+    }
+  });
+
   app.post('/api/staff/products', upload.single('image'), async (req, res) => {
     try {
       // Get staff ID from session/token
@@ -195,6 +225,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating product:", error);
       res.status(500).json({ message: "Failed to create product" });
+    }
+  });
+
+  // Update product for staff
+  app.put('/api/staff/products/:id', async (req, res) => {
+    try {
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
+
+      const productId = parseInt(req.params.id);
+      if (isNaN(productId)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      // Verify product exists and belongs to this staff member
+      const existingProduct = await storage.getProduct(productId);
+      if (!existingProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      if (existingProduct.createdByStaff !== parseInt(staffId)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Parse and validate the update data
+      const productData = insertProductSchema.parse({
+        ...req.body,
+        originalPrice: req.body.originalPrice.toString(),
+        discountPrice: req.body.discountPrice.toString(),
+        quantity: parseInt(req.body.quantity),
+      });
+
+      const updatedProduct = await storage.updateProduct(productId, productData);
+      if (!updatedProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(updatedProduct);
+    } catch (error: any) {
+      console.error("Error updating product:", error);
+      res.status(500).json({ message: "Failed to update product" });
     }
   });
 
