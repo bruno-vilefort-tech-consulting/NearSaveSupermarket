@@ -49,7 +49,7 @@ export default function EditProduct() {
   const productId = params?.id ? parseInt(params.id) : null;
 
   // Buscar dados do produto
-  const { data: product, isLoading } = useQuery({
+  const { data: product, isLoading } = useQuery<ProductWithCreator>({
     queryKey: ["/api/products", productId],
     enabled: !!productId,
   });
@@ -77,7 +77,7 @@ export default function EditProduct() {
 
   // Preencher formulário quando produto carregar
   useEffect(() => {
-    if (product && 'name' in product && product.name) {
+    if (product && product.name) {
       reset({
         name: product.name,
         description: product.description || "",
