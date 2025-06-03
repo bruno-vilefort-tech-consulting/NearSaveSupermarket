@@ -33,7 +33,7 @@ export default function Products() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Produtos Sustentáveis</h1>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products?.map((product: any) => (
+          {(products || []).map((product: any) => (
             <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
               <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
                 <span className="text-4xl">🥬</span>

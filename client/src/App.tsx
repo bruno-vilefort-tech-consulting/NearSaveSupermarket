@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Route, Switch } from "wouter";
-import { Toaster } from "@/components/ui/toaster";
+// import { Toaster } from "@/components/ui/toaster";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
@@ -59,7 +59,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-gray-50">
         <Router />
-        <Toaster />
+        {/* <Toaster /> */}
       </div>
     </QueryClientProvider>
   );

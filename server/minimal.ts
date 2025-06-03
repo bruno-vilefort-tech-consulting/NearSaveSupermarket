@@ -1,11 +1,12 @@
 import express from "express";
-import { setupVite } from "./vite";
+import path from "path";
 import { createServer } from "http";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(express.static("client/dist"));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -42,30 +43,13 @@ app.get('/api/products', (req, res) => {
   ]);
 });
 
-// Supermarkets endpoint
-app.get('/api/supermarkets', (req, res) => {
-  res.json([
-    {
-      id: 1,
-      name: "SuperFresh Eco",
-      address: "Rua Verde, 123 - São Paulo",
-      distance: "2.1 km",
-      products: 45
-    },
-    {
-      id: 2,
-      name: "Bio Market",
-      address: "Av. Sustentável, 456 - São Paulo",
-      distance: "3.7 km",
-      products: 32
-    }
-  ]);
+// Serve React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'client/index.html'));
 });
 
-(async () => {
-  const server = createServer(app);
-  
-  if (process.env.NODE_ENV === "development") {
-    await setupVite(app, server);
-  }
-})();
+const server = createServer(app);
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`EcoMarket rodando na porta ${PORT}`);
+});
