@@ -409,22 +409,7 @@ export default function CustomerHome() {
           )}
         </div>
 
-        {/* Eco Points Info */}
-        <div className="mt-12 bg-green-50 rounded-lg p-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
-              <Leaf className="text-white" size={20} />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('customer.ecoPointsFooter')}: {customerInfo?.ecoPoints || 0}
-              </h3>
-              <p className="text-sm text-gray-600">
-                {t('customer.earnPointsHelp')}
-              </p>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   );
