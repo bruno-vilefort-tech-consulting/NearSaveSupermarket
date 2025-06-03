@@ -45,29 +45,47 @@ export default function SupermarketMap() {
     // Start with São Paulo center as default
     setUserLocation([-23.5505, -46.6333]);
     
-    // On mobile, don't auto-request location (browsers block it)
-    // User must explicitly click the button
-    if (!isMobileDevice && navigator.geolocation) {
+    // Auto-request location with Android-optimized settings
+    if (navigator.geolocation) {
+      // Optimized settings for mobile devices (especially Android)
+      const locationOptions = isMobileDevice ? {
+        enableHighAccuracy: true,  // Better accuracy for mobile
+        timeout: 20000,           // Longer timeout for mobile GPS
+        maximumAge: 60000         // 1 minute cache for mobile
+      } : {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000
+      };
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation([position.coords.latitude, position.coords.longitude]);
           setLocationStatus('granted');
+          console.log('Localização obtida:', position.coords.latitude, position.coords.longitude);
         },
         (error) => {
-          console.log('Location access denied or unavailable');
+          console.log('Erro de geolocalização:', error.code, error.message);
           setLocationStatus('denied');
+          
+          // Se for Android e erro de permissão, tentar novamente com configurações diferentes
+          if (isMobileDevice && error.code === 1) {
+            setTimeout(() => {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  setUserLocation([position.coords.latitude, position.coords.longitude]);
+                  setLocationStatus('granted');
+                },
+                () => setLocationStatus('denied'),
+                { enableHighAccuracy: false, timeout: 15000, maximumAge: 0 }
+              );
+            }, 2000);
+          }
         },
-        {
-          enableHighAccuracy: false,
-          timeout: 15000,
-          maximumAge: 300000
-        }
+        locationOptions
       );
-    } else if (!navigator.geolocation) {
-      setLocationStatus('unavailable');
     } else {
-      // Mobile device - wait for user interaction
-      setLocationStatus('denied');
+      setLocationStatus('unavailable');
     }
   }, []);
 
