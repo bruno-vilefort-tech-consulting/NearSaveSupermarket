@@ -23,10 +23,10 @@ export function LocationPicker({ onLocationChange, initialLat, initialLng, addre
   const [manualLng, setManualLng] = useState(initialLng?.toString() || '');
 
   useEffect(() => {
-    if (location) {
+    if (location && location.lat !== 0 && location.lng !== 0) {
       onLocationChange(location.lat, location.lng);
     }
-  }, [location, onLocationChange]);
+  }, [location?.lat, location?.lng]);
 
   const getCurrentLocation = async () => {
     setIsLoading(true);
