@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertProductSchema } from "@shared/schema";
+import { insertProductSchema, type ProductWithCreator } from "@shared/schema";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { ArrowLeft, Save, Upload } from "lucide-react";
@@ -77,7 +77,7 @@ export default function EditProduct() {
 
   // Preencher formulário quando produto carregar
   useEffect(() => {
-    if (product) {
+    if (product && 'name' in product && product.name) {
       reset({
         name: product.name,
         description: product.description || "",

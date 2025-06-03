@@ -198,6 +198,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get single product by ID
+  app.get('/api/products/:id', async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      if (isNaN(productId)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      const product = await storage.getProduct(productId);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error: any) {
+      console.error("Error fetching product:", error);
+      res.status(500).json({ message: "Failed to fetch product" });
+    }
+  });
+
+  // Update product by ID
+  app.put('/api/products/:id', async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      if (isNaN(productId)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      // Validate the product data
+      const productData = insertProductSchema.parse({
+        ...req.body,
+        originalPrice: req.body.originalPrice.toString(),
+        discountPrice: req.body.discountPrice.toString(),
+        quantity: parseInt(req.body.quantity),
+      });
+
+      const updatedProduct = await storage.updateProduct(productId, productData);
+      if (!updatedProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(updatedProduct);
+    } catch (error: any) {
+      console.error("Error updating product:", error);
+      res.status(500).json({ message: "Failed to update product" });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
