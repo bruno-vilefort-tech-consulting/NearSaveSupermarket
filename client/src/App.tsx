@@ -10,6 +10,7 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Products from "@/pages/products";
 import AddProduct from "@/pages/add-product";
+import EditProduct from "@/pages/edit-product";
 import Orders from "@/pages/orders";
 import MonthlyOrders from "@/pages/monthly-orders";
 
@@ -85,6 +86,7 @@ function Router() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/products" component={Products} />
           <Route path="/add-product" component={AddProduct} />
+          <Route path="/edit-product/:id" component={EditProduct} />
           <Route path="/orders" component={Orders} />
           <Route path="/monthly-orders" component={MonthlyOrders} />
           <Route path="/settings" component={StaffSettings} />
