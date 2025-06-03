@@ -32,25 +32,54 @@ export default function SupermarketMap() {
   // const { t } = useLanguage();
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [selectedSupermarket, setSelectedSupermarket] = useState<SupermarketLocation | null>(null);
+  const [locationStatus, setLocationStatus] = useState<'loading' | 'granted' | 'denied' | 'unavailable'>('loading');
 
   // Get user's location
   useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationStatus('unavailable');
+      setUserLocation([-23.5505, -46.6333]); // São Paulo center
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation([position.coords.latitude, position.coords.longitude]);
+        setLocationStatus('granted');
+      },
+      (error) => {
+        console.log('Location access denied or unavailable');
+        setLocationStatus('denied');
+        // Default to São Paulo center
+        setUserLocation([-23.5505, -46.6333]);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
+  }, []);
+
+  const requestLocation = () => {
+    setLocationStatus('loading');
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation([position.coords.latitude, position.coords.longitude]);
+          setLocationStatus('granted');
         },
         (error) => {
-          console.log('Location access denied or unavailable');
-          // Default to São Paulo center
-          setUserLocation([-23.5505, -46.6333]);
+          setLocationStatus('denied');
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
-    } else {
-      // Default location
-      setUserLocation([-23.5505, -46.6333]);
     }
-  }, []);
+  };
 
   // Mock data for demonstration - you mentioned this should use real data
   const mockSupermarkets: SupermarketLocation[] = [
@@ -120,6 +149,61 @@ export default function SupermarketMap() {
             Encontre supermercados com promoções perto de você
           </p>
         </div>
+
+        {/* Location Status Alert */}
+        {locationStatus === 'denied' && (
+          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <MapPin className="h-5 w-5 text-yellow-600 mr-2" />
+                <div>
+                  <p className="text-sm font-medium text-yellow-800">
+                    Permissão de localização negada
+                  </p>
+                  <p className="text-sm text-yellow-700">
+                    Para mostrar sua localização no mapa, clique em "Permitir localização" quando solicitado pelo navegador
+                  </p>
+                </div>
+              </div>
+              <Button 
+                onClick={requestLocation} 
+                size="sm" 
+                variant="outline"
+                disabled={locationStatus === 'loading'}
+                className="ml-4"
+              >
+                {locationStatus === 'loading' ? 'Carregando...' : 'Tentar Novamente'}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {locationStatus === 'unavailable' && (
+          <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="flex items-center">
+              <MapPin className="h-5 w-5 text-gray-600 mr-2" />
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  Geolocalização não disponível
+                </p>
+                <p className="text-sm text-gray-600">
+                  Seu navegador não suporta geolocalização. Exibindo localização padrão.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {locationStatus === 'granted' && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center">
+              <MapPin className="h-4 w-4 text-green-600 mr-2" />
+              <p className="text-sm text-green-800">
+                Sua localização atual está sendo exibida no mapa
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Map */}
