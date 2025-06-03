@@ -213,7 +213,7 @@ export default function CustomerHome() {
               <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
                 <Leaf className="text-white" size={20} />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">{t('landing.title')}</h1>
+              <h1 className="text-lg font-bold text-gray-900">{t('landing.title')}</h1>
             </div>
 
             {/* Desktop Menu */}
@@ -504,10 +504,10 @@ export default function CustomerHome() {
 
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
             {t('customer.supermarketsWithOffers')}
           </h2>
-          <p className="text-gray-600">
+          <p className="text-sm text-gray-600">
             {locationPermission === 'granted' ? 'Supermercados próximos com as melhores ofertas' : t('customer.findBestDiscounts')}
           </p>
         </div>

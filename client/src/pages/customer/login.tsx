@@ -81,12 +81,12 @@ export default function CustomerLogin() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">{t('landing.title')}</h1>
-          <p className="text-gray-600 mt-2">{t('landing.subtitle')}</p>
+          <p className="text-sm text-gray-600 mt-2">{t('landing.subtitle')}</p>
         </div>
 
         <Card className="shadow-lg">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl font-semibold text-gray-900">
+            <CardTitle className="text-lg font-semibold text-gray-900">
               {t('auth.login')}
             </CardTitle>
             <p className="text-sm text-gray-600">
