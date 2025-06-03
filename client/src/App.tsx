@@ -56,9 +56,10 @@ function Router() {
       <Route path="/customer/register" component={CustomerRegister} />
       <Route path="/customer/forgot-password" component={ForgotPassword} />
       <Route path="/customer/reset-password" component={ResetPassword} />
+      <Route path="/customer/home" component={CustomerHome} />
       <Route path="/customer" component={CustomerHome} />
-      <Route path="/customer/supermarket/:id" component={SupermarketProducts} />
-      <Route path="/customer/map" component={SupermarketMap} />
+      <Route path="/customer/supermarket/:id/products" component={SupermarketProducts} />
+      <Route path="/customer/supermarket-map" component={SupermarketMap} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPaymentFixed} />
       <Route path="/customer/pix-payment/:tempOrderId" component={PixPaymentFixed} />
