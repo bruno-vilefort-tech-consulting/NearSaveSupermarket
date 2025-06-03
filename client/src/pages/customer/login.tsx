@@ -51,9 +51,20 @@ export default function CustomerLogin() {
       navigate("/customer");
     },
     onError: (error: any) => {
+      let errorMessage = "Email ou senha incorretos. Verifique suas credenciais e tente novamente.";
+      
+      // Verificar se é erro de credenciais inválidas
+      if (error.message && error.message.includes('401')) {
+        errorMessage = "Email ou senha incorretos. Verifique suas credenciais e tente novamente.";
+      } else if (error.message && error.message.includes('404')) {
+        errorMessage = "Usuário não encontrado. Verifique seu email ou registre-se.";
+      } else if (error.message && error.message.includes('400')) {
+        errorMessage = "Dados inválidos. Verifique os campos preenchidos.";
+      }
+      
       toast({
-        title: t('auth.loginError'),
-        description: t('auth.invalidCredentials'),
+        title: "Erro no Login",
+        description: errorMessage,
         variant: "destructive",
       });
     },
