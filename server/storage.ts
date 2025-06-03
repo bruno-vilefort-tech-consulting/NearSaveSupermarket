@@ -1041,31 +1041,36 @@ export class DatabaseStorage implements IStorage {
     productCount: number;
     hasPromotions: boolean;
   }>> {
-    const result = await db
-      .select({
-        id: users.id,
-        name: users.supermarketName,
-        address: users.supermarketAddress,
-        latitude: users.latitude,
-        longitude: users.longitude,
-        productCount: sql<number>`count(${products.id})::int`,
-        hasPromotions: sql<boolean>`count(case when ${products.discountPrice} is not null and ${products.discountPrice} < ${products.originalPrice} then 1 end) > 0`,
-      })
-      .from(users)
-      .leftJoin(products, eq(products.createdBy, users.id))
-      .where(isNotNull(users.supermarketName))
-      .groupBy(users.id, users.supermarketName, users.supermarketAddress, users.latitude, users.longitude)
-      .orderBy(users.supermarketName);
+    try {
+      const result = await db.execute(sql`
+        SELECT 
+          u.id,
+          u.supermarket_name as name,
+          u.supermarket_address as address,
+          u.latitude::text as latitude,
+          u.longitude::text as longitude,
+          COUNT(p.id) as product_count,
+          COUNT(CASE WHEN p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions
+        FROM users u
+        LEFT JOIN products p ON u.id = p.created_by
+        WHERE u.supermarket_name IS NOT NULL
+        GROUP BY u.id, u.supermarket_name, u.supermarket_address, u.latitude, u.longitude
+        ORDER BY u.supermarket_name
+      `);
 
-    return result.map(item => ({
-      id: parseInt(item.id),
-      name: item.name || 'Supermercado',
-      address: item.address || '',
-      latitude: item.latitude,
-      longitude: item.longitude,
-      productCount: item.productCount,
-      hasPromotions: item.hasPromotions
-    }));
+      return result.rows.map((row: any) => ({
+        id: parseInt(row.id),
+        name: row.name || 'Supermercado',
+        address: row.address || '',
+        latitude: row.latitude,
+        longitude: row.longitude,
+        productCount: parseInt(row.product_count || '0'),
+        hasPromotions: row.has_promotions || false
+      }));
+    } catch (error) {
+      console.error('Error in getSupermarketsWithLocations:', error);
+      return [];
+    }
   }
 
   async getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]> {

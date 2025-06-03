@@ -17,6 +17,7 @@ import MonthlyOrders from "@/pages/monthly-orders";
 // Customer App Pages
 import CustomerHome from "@/pages/customer/home";
 import SupermarketProducts from "@/pages/customer/supermarket-products";
+import SupermarketMap from "@/pages/customer/supermarket-map";
 import CustomerCart from "@/pages/customer/cart";
 import CustomerOrders from "@/pages/customer/orders";
 import CustomerPaymentFixed from "@/pages/customer/payment-fixed";
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/customer/reset-password" component={ResetPassword} />
       <Route path="/customer" component={CustomerHome} />
       <Route path="/customer/supermarket/:id" component={SupermarketProducts} />
+      <Route path="/customer/map" component={SupermarketMap} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPaymentFixed} />
       <Route path="/customer/pix-payment/:tempOrderId" component={PixPaymentFixed} />
