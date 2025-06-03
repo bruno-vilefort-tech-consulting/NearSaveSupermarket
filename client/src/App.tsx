@@ -107,11 +107,9 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Router />
-        </TooltipProvider>
-      </LanguageProvider>
+      <TooltipProvider>
+        <Router />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

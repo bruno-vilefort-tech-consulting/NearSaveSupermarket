@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Language, getTranslation, TranslationKeys } from '@shared/translations';
 
 interface LanguageContextType {
@@ -7,32 +7,51 @@ interface LanguageContextType {
   t: (key: keyof TranslationKeys) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | null>(null);
+// Create context with default values
+const LanguageContext = createContext<LanguageContextType>({
+  language: 'pt-BR',
+  setLanguage: () => {},
+  t: (key: keyof TranslationKeys) => key as string,
+});
 
 interface LanguageProviderProps {
   children: ReactNode;
 }
 
-export function LanguageProvider({ children }: LanguageProviderProps) {
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>('pt-BR');
 
   // Load language from localStorage on mount
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('app-language') as Language;
-    if (savedLanguage && (savedLanguage === 'pt-BR' || savedLanguage === 'en-US')) {
-      setLanguageState(savedLanguage);
+    try {
+      const savedLanguage = localStorage.getItem('app-language') as Language;
+      if (savedLanguage && (savedLanguage === 'pt-BR' || savedLanguage === 'en-US')) {
+        setLanguageState(savedLanguage);
+      }
+    } catch (error) {
+      console.warn('Failed to load language from localStorage:', error);
     }
   }, []);
 
   // Save language to localStorage when it changes
   const setLanguage = (newLanguage: Language) => {
-    setLanguageState(newLanguage);
-    localStorage.setItem('app-language', newLanguage);
+    try {
+      setLanguageState(newLanguage);
+      localStorage.setItem('app-language', newLanguage);
+    } catch (error) {
+      console.warn('Failed to save language to localStorage:', error);
+      setLanguageState(newLanguage);
+    }
   };
 
   // Translation function
   const t = (key: keyof TranslationKeys): string => {
-    return getTranslation(key, language);
+    try {
+      return getTranslation(key, language);
+    } catch (error) {
+      console.warn('Translation error:', error);
+      return key as string;
+    }
   };
 
   const value: LanguageContextType = {
@@ -46,12 +65,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       {children}
     </LanguageContext.Provider>
   );
-}
+};
 
-export function useLanguageGlobal() {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguageGlobal must be used within a LanguageProvider');
-  }
-  return context;
+export function useLanguageGlobal(): LanguageContextType {
+  return useContext(LanguageContext);
 }
