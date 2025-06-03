@@ -105,6 +105,15 @@ export interface IStorage {
     address: string;
     productCount: number;
   }>>;
+  getSupermarketsWithLocations(): Promise<Array<{
+    id: number;
+    name: string;
+    address: string;
+    latitude: string | null;
+    longitude: string | null;
+    productCount: number;
+    hasPromotions: boolean;
+  }>>;
   getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]>;
   
   // Password reset operations
@@ -1021,6 +1030,42 @@ export class DatabaseStorage implements IStorage {
       .having(sql`count(${products.id}) > 0`);
 
     return result;
+  }
+
+  async getSupermarketsWithLocations(): Promise<Array<{
+    id: number;
+    name: string;
+    address: string;
+    latitude: string | null;
+    longitude: string | null;
+    productCount: number;
+    hasPromotions: boolean;
+  }>> {
+    const result = await db
+      .select({
+        id: users.id,
+        name: users.supermarketName,
+        address: users.supermarketAddress,
+        latitude: users.latitude,
+        longitude: users.longitude,
+        productCount: sql<number>`count(${products.id})::int`,
+        hasPromotions: sql<boolean>`count(case when ${products.discountPrice} is not null and ${products.discountPrice} < ${products.originalPrice} then 1 end) > 0`,
+      })
+      .from(users)
+      .leftJoin(products, eq(products.createdBy, users.id))
+      .where(isNotNull(users.supermarketName))
+      .groupBy(users.id, users.supermarketName, users.supermarketAddress, users.latitude, users.longitude)
+      .orderBy(users.supermarketName);
+
+    return result.map(item => ({
+      id: parseInt(item.id),
+      name: item.name || 'Supermercado',
+      address: item.address || '',
+      latitude: item.latitude,
+      longitude: item.longitude,
+      productCount: item.productCount,
+      hasPromotions: item.hasPromotions
+    }));
   }
 
   async getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]> {
