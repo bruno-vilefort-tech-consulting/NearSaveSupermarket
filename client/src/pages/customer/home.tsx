@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Leaf, LogOut, Menu, X } from "lucide-react";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { MobilePushDiagnostic } from "@/components/MobilePushDiagnostic";
+import { t } from "@/lib/translations";
 
 interface Supermarket {
   id: number;
