@@ -491,7 +491,7 @@ export default function CustomerHome() {
               </p>
             </div>
           ) : (
-            filteredSupermarkets.map((supermarket: Supermarket) => (
+            filteredSupermarkets.map((supermarket: SupermarketWithLocation) => (
               <Card
                 key={supermarket.id}
                 className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-green-600"
@@ -511,6 +511,12 @@ export default function CustomerHome() {
                           <MapPin size={14} className="mr-1" />
                           {supermarket.address}
                         </div>
+                        {supermarket.distance && (
+                          <div className="flex items-center text-xs text-blue-600 mt-1 font-medium">
+                            <MapPin size={12} className="mr-1" />
+                            {supermarket.distance.toFixed(1)} km de distância
+                          </div>
+                        )}
                       </div>
                     </div>
                     <ArrowRight className="text-gray-400" size={20} />
@@ -548,10 +554,7 @@ export default function CustomerHome() {
           )}
         </div>
 
-        {/* Diagnóstico de Push Notifications (temporário para debug mobile) */}
-        <div className="mt-8">
-          <MobilePushDiagnostic />
-        </div>
+
 
       </div>
     </div>
