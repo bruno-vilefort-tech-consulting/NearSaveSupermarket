@@ -1,99 +1,122 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { apiRequest } from '@/lib/queryClient';
 
-export interface PushNotificationState {
-  isSupported: boolean;
-  isSubscribed: boolean;
-  isLoading: boolean;
-  subscription: PushSubscription | null;
-}
+export function usePushNotifications() {
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-export function usePushNotifications(customerEmail?: string) {
-  const [state, setState] = useState<PushNotificationState>({
-    isSupported: false,
-    isSubscribed: false,
-    isLoading: true,
-    subscription: null,
-  });
+  // Helper functions
+  const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
 
-  useEffect(() => {
-    checkPushSupport();
-  }, []);
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
 
-  const checkPushSupport = async () => {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      setState(prev => ({ ...prev, isSupported: false, isLoading: false }));
-      return;
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
     }
-
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      await navigator.serviceWorker.ready;
-
-      const subscription = await registration.pushManager.getSubscription();
-      
-      setState(prev => ({
-        ...prev,
-        isSupported: true,
-        isSubscribed: !!subscription,
-        subscription,
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Erro ao verificar suporte a push:', error);
-      setState(prev => ({ ...prev, isSupported: false, isLoading: false }));
-    }
+    return outputArray;
   };
 
-  const subscribe = async (): Promise<boolean> => {
-    if (!customerEmail) {
-      console.error('Email do cliente é necessário para subscrever');
-      return false;
+  const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
     }
+    return window.btoa(binary);
+  };
 
-    setState(prev => ({ ...prev, isLoading: true }));
+  const checkBrowserSupport = (): string | null => {
+    if (!('serviceWorker' in navigator)) {
+      return 'Service Workers não são suportados neste navegador';
+    }
+    if (!('PushManager' in window)) {
+      return 'Push Manager não é suportado neste navegador';
+    }
+    if (!('Notification' in window)) {
+      return 'Notificações não são suportadas neste navegador';
+    }
+    return null;
+  };
 
+  const subscribeToPushNotifications = async (email: string): Promise<boolean> => {
+    setIsLoading(true);
+    
     try {
-      // Check if notifications are supported
-      if (!('Notification' in window)) {
-        throw new Error('Notificações não são suportadas neste dispositivo');
+      // Check browser support
+      const supportError = checkBrowserSupport();
+      if (supportError) {
+        throw new Error(supportError);
       }
 
-      // Request notification permission first (important for mobile)
+      // Step 1: Check and request permission
       let permission = Notification.permission;
+      console.log('Current notification permission:', permission);
       
       if (permission === 'default') {
+        // Show explanation before requesting permission
+        const userConfirmed = confirm(
+          'Para receber notificações sobre seus pedidos e promoções, ' +
+          'precisamos da sua permissão. Deseja ativar as notificações?'
+        );
+        
+        if (!userConfirmed) {
+          throw new Error('Usuário cancelou a ativação das notificações');
+        }
+        
         permission = await Notification.requestPermission();
+        console.log('Permission after request:', permission);
+      }
+      
+      if (permission === 'denied') {
+        throw new Error('Notificações foram bloqueadas. Para ativar:\n\n1. Clique no ícone de cadeado na barra de endereço\n2. Altere Notificações para "Permitir"\n3. Recarregue a página');
       }
       
       if (permission !== 'granted') {
-        throw new Error('Permissão de notificação negada');
+        throw new Error('Permissão de notificação é necessária');
       }
 
-      // Get VAPID public key
+      // Step 2: Get VAPID key
+      console.log('Getting VAPID public key...');
       const response = await apiRequest('GET', '/api/push/vapid-public-key');
       const publicKey = (response as any).publicKey;
+      
+      if (!publicKey) {
+        throw new Error('Servidor não forneceu a chave VAPID');
+      }
+      console.log('VAPID key received');
 
-      // Register service worker with specific scope for mobile
+      // Step 3: Register service worker
+      console.log('Registering service worker...');
       const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/'
+        scope: '/',
+        updateViaCache: 'none'
       });
       
       // Wait for service worker to be ready
       await navigator.serviceWorker.ready;
+      console.log('Service worker ready');
 
-      // Check if already subscribed
+      // Step 4: Subscribe to push notifications
+      console.log('Creating push subscription...');
       let subscription = await registration.pushManager.getSubscription();
       
       if (!subscription) {
-        // Subscribe to push notifications with mobile-optimized options
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(publicKey),
         });
       }
 
-      // Convert keys to base64
+      if (!subscription) {
+        throw new Error('Falha ao criar subscrição push');
+      }
+
+      // Step 5: Get subscription keys
       const p256dhKey = subscription.getKey('p256dh');
       const authKey = subscription.getKey('auth');
       
@@ -101,81 +124,82 @@ export function usePushNotifications(customerEmail?: string) {
         throw new Error('Falha ao obter chaves de subscrição');
       }
 
-      // Send subscription to server
-      await apiRequest('POST', '/api/push/subscribe', {
-        customerEmail,
+      // Step 6: Save to backend
+      const subscriptionData = {
+        email,
         endpoint: subscription.endpoint,
-        p256dhKey: btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(p256dhKey)))),
-        authKey: btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(authKey)))),
+        p256dhKey: arrayBufferToBase64(p256dhKey),
+        authKey: arrayBufferToBase64(authKey),
+      };
+
+      console.log('Saving subscription to backend...');
+      await apiRequest('POST', '/api/push/subscribe', subscriptionData);
+      
+      // Step 7: Show success notification
+      new Notification('🔔 Notificações Ativadas!', {
+        body: 'Você receberá atualizações sobre seus pedidos e promoções.',
+        icon: '/icon-192x192.png'
       });
 
-      setState(prev => ({
-        ...prev,
-        isSubscribed: true,
-        subscription,
-        isLoading: false,
-      }));
-
+      setIsEnabled(true);
+      console.log('Push notifications successfully enabled');
       return true;
-    } catch (error) {
-      console.error('Erro ao subscrever para notificações:', error);
-      setState(prev => ({ ...prev, isLoading: false }));
-      return false;
+
+    } catch (error: any) {
+      console.error('Push notification error:', error);
+      
+      // Provide specific error messages
+      let userMessage = 'Erro ao ativar notificações';
+      
+      if (error.message.includes('denied') || error.message.includes('bloqueadas')) {
+        userMessage = 'Notificações foram bloqueadas. Verifique as configurações do navegador.';
+      } else if (error.message.includes('não são suportadas') || error.message.includes('não é suportado')) {
+        userMessage = 'Seu navegador não suporta notificações push.';
+      } else if (error.message.includes('cancelou')) {
+        userMessage = 'Ativação cancelada pelo usuário.';
+      } else if (error.message.includes('VAPID') || error.message.includes('Servidor')) {
+        userMessage = 'Erro de configuração do servidor. Tente novamente.';
+      }
+      
+      throw new Error(userMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const unsubscribe = async (): Promise<boolean> => {
-    if (!customerEmail) {
-      console.error('Email do cliente é necessário para cancelar subscrição');
-      return false;
-    }
-
-    setState(prev => ({ ...prev, isLoading: true }));
-
+  const unsubscribeFromPushNotifications = async (email: string): Promise<boolean> => {
+    setIsLoading(true);
+    
     try {
-      // Unsubscribe from server
-      await apiRequest('POST', '/api/push/unsubscribe', {
-        email: customerEmail,
-      });
-
+      // Unsubscribe from backend
+      await apiRequest('POST', '/api/push/unsubscribe', { email });
+      
       // Unsubscribe from browser
-      if (state.subscription) {
-        await state.subscription.unsubscribe();
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          const subscription = await registration.pushManager.getSubscription();
+          if (subscription) {
+            await subscription.unsubscribe();
+          }
+        }
       }
-
-      setState(prev => ({
-        ...prev,
-        isSubscribed: false,
-        subscription: null,
-        isLoading: false,
-      }));
-
+      
+      setIsEnabled(false);
       return true;
     } catch (error) {
-      console.error('Erro ao cancelar subscrição:', error);
-      setState(prev => ({ ...prev, isLoading: false }));
-      return false;
+      console.error('Error unsubscribing from push notifications:', error);
+      throw new Error('Erro ao desativar notificações');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return {
-    ...state,
-    subscribe,
-    unsubscribe,
-    checkPushSupport,
+    isEnabled,
+    isLoading,
+    subscribeToPushNotifications,
+    unsubscribeFromPushNotifications,
+    checkBrowserSupport
   };
-}
-
-// Helper function to convert VAPID key
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-
-  return outputArray;
 }

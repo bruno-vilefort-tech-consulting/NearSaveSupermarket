@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Bell, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -11,49 +10,46 @@ interface PushNotificationToggleProps {
 export function PushNotificationToggle({ customerEmail }: PushNotificationToggleProps) {
   const { toast } = useToast();
   const { 
-    isSupported, 
-    isSubscribed, 
+    isEnabled, 
     isLoading, 
-    subscribe, 
-    unsubscribe 
-  } = usePushNotifications(customerEmail);
+    subscribeToPushNotifications, 
+    unsubscribeFromPushNotifications,
+    checkBrowserSupport
+  } = usePushNotifications();
 
   const handleToggle = async () => {
-    if (isSubscribed) {
-      const success = await unsubscribe();
-      if (success) {
-        toast({
-          title: "Notificações Desativadas",
-          description: "Você não receberá mais notificações push.",
-        });
+    try {
+      if (isEnabled) {
+        const success = await unsubscribeFromPushNotifications(customerEmail);
+        if (success) {
+          toast({
+            title: "Notificações Desativadas",
+            description: "Você não receberá mais notificações push.",
+          });
+        }
       } else {
-        toast({
-          title: "Erro",
-          description: "Não foi possível desativar as notificações.",
-          variant: "destructive",
-        });
+        const success = await subscribeToPushNotifications(customerEmail);
+        if (success) {
+          toast({
+            title: "Notificações Ativadas!",
+            description: "Você receberá atualizações sobre seus pedidos.",
+          });
+        }
       }
-    } else {
-      const success = await subscribe();
-      if (success) {
-        toast({
-          title: "Notificações Ativadas!",
-          description: "Você receberá atualizações sobre seus pedidos.",
-        });
-      } else {
-        toast({
-          title: "Erro",
-          description: "Não foi possível ativar as notificações. Verifique as permissões do navegador.",
-          variant: "destructive",
-        });
-      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível alterar as notificações.",
+        variant: "destructive",
+      });
     }
   };
 
-  if (!isSupported) {
+  const supportError = checkBrowserSupport();
+  if (supportError) {
     return (
       <div className="text-sm text-gray-500 text-center p-2">
-        Notificações não suportadas neste navegador
+        {supportError}
       </div>
     );
   }
@@ -61,13 +57,13 @@ export function PushNotificationToggle({ customerEmail }: PushNotificationToggle
   return (
     <div className="flex items-center gap-2 p-2">
       <Button
-        variant={isSubscribed ? "default" : "outline"}
+        variant={isEnabled ? "default" : "outline"}
         size="sm"
         onClick={handleToggle}
         disabled={isLoading}
         className="flex items-center gap-2"
       >
-        {isSubscribed ? (
+        {isEnabled ? (
           <>
             <Bell className="h-4 w-4" />
             Notificações Ativas
@@ -80,7 +76,7 @@ export function PushNotificationToggle({ customerEmail }: PushNotificationToggle
         )}
       </Button>
       
-      {isSubscribed && (
+      {isEnabled && (
         <span className="text-xs text-green-600 font-medium">
           ✓ Ativo
         </span>

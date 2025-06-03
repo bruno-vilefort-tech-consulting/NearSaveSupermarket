@@ -1,68 +1,52 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bell, Smartphone, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, Smartphone, CheckCircle, AlertCircle } from 'lucide-react';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useToast } from '@/hooks/use-toast';
 
 interface MobileNotificationPromptProps {
+  userEmail: string;
   onPermissionResult: (granted: boolean) => void;
 }
 
-export function MobileNotificationPrompt({ onPermissionResult }: MobileNotificationPromptProps) {
-  const [isRequesting, setIsRequesting] = useState(false);
+export function MobileNotificationPrompt({ userEmail, onPermissionResult }: MobileNotificationPromptProps) {
   const [permissionStep, setPermissionStep] = useState<'initial' | 'requesting' | 'completed'>('initial');
+  const { subscribeToPushNotifications, isLoading, checkBrowserSupport } = usePushNotifications();
+  const { toast } = useToast();
 
   const requestNotificationPermission = async () => {
-    setIsRequesting(true);
     setPermissionStep('requesting');
 
     try {
-      // Check if notifications are supported
-      if (!('Notification' in window)) {
-        throw new Error('Notificações não são suportadas neste dispositivo');
+      // Check browser support first
+      const supportError = checkBrowserSupport();
+      if (supportError) {
+        throw new Error(supportError);
       }
 
-      // Show detailed explanation before requesting
-      const userWantsNotifications = confirm(
-        'Deseja receber notificações sobre:\n\n' +
-        '• Status dos seus pedidos\n' +
-        '• Promoções especiais\n' +
-        '• Produtos próximos ao vencimento\n' +
-        '• Pontos eco conquistados\n\n' +
-        'Toque "OK" para ativar as notificações.'
-      );
-
-      if (!userWantsNotifications) {
-        setPermissionStep('completed');
-        onPermissionResult(false);
-        return;
-      }
-
-      // Request permission
-      let permission = Notification.permission;
+      const success = await subscribeToPushNotifications(userEmail);
       
-      if (permission === 'default') {
-        permission = await Notification.requestPermission();
-      }
-
-      const granted = permission === 'granted';
       setPermissionStep('completed');
-      onPermissionResult(granted);
+      onPermissionResult(success);
 
-      if (granted) {
-        // Show a test notification to confirm it's working
-        new Notification('🔔 Notificações Ativadas!', {
-          body: 'Você receberá atualizações importantes sobre seus pedidos.',
-          icon: '/icon-192x192.png',
-          tag: 'welcome'
+      if (success) {
+        toast({
+          title: "Notificações Ativadas!",
+          description: "Você receberá atualizações sobre seus pedidos e promoções.",
         });
       }
 
-    } catch (error) {
-      console.error('Erro ao solicitar permissão:', error);
+    } catch (error: any) {
+      console.error('Erro ao ativar notificações:', error);
       setPermissionStep('completed');
       onPermissionResult(false);
-    } finally {
-      setIsRequesting(false);
+      
+      toast({
+        title: "Erro ao Ativar Notificações",
+        description: error.message || "Erro desconhecido. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -109,13 +93,13 @@ export function MobileNotificationPrompt({ onPermissionResult }: MobileNotificat
 
           <Button 
             onClick={requestNotificationPermission}
-            disabled={isRequesting}
+            disabled={isLoading}
             className="w-full bg-blue-600 hover:bg-blue-700"
           >
-            {isRequesting ? (
+            {isLoading ? (
               <>
                 <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                Solicitando permissão...
+                Ativando notificações...
               </>
             ) : (
               <>
