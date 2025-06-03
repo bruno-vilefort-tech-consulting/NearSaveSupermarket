@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/hooks/useLanguage";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export default function StaffRegister() {
   const [, navigate] = useLocation();
@@ -20,7 +21,9 @@ export default function StaffRegister() {
     confirmPassword: "",
     phone: "",
     address: "",
-    companyName: ""
+    companyName: "",
+    latitude: "",
+    longitude: ""
   });
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -32,7 +35,9 @@ export default function StaffRegister() {
         password: data.password,
         phone: data.phone,
         address: data.address,
-        companyName: data.companyName
+        companyName: data.companyName,
+        latitude: data.latitude ? parseFloat(data.latitude) : null,
+        longitude: data.longitude ? parseFloat(data.longitude) : null
       });
       return response.json();
     },
@@ -172,6 +177,28 @@ export default function StaffRegister() {
                     onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
                     placeholder={t('staff.addressPlaceholder')}
                     className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center space-x-2">
+                    <MapPin size={16} />
+                    <span>Localização do Supermercado</span>
+                  </Label>
+                  <p className="text-sm text-gray-600">
+                    Defina a localização exata do seu supermercado para aparecer no mapa dos clientes
+                  </p>
+                  <LocationPicker
+                    onLocationChange={(lat, lng) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        latitude: lat.toString(),
+                        longitude: lng.toString()
+                      }));
+                    }}
+                    initialLat={formData.latitude ? parseFloat(formData.latitude) : undefined}
+                    initialLng={formData.longitude ? parseFloat(formData.longitude) : undefined}
+                    address={formData.address}
                   />
                 </div>
                 

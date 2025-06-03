@@ -53,7 +53,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staff registration route
   app.post('/api/staff/register', async (req, res) => {
     try {
-      const staffData = insertStaffUserSchema.parse(req.body);
+      const { latitude, longitude, ...otherData } = req.body;
+      const staffData = insertStaffUserSchema.parse(otherData);
       
       // Check if email already exists
       const existingStaff = await storage.getStaffUserByEmail(staffData.email);
@@ -65,10 +66,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(staffData.password, saltRounds);
       
-      // Create staff user
+      // Create staff user with location data
       const newStaffUser = await storage.createStaffUser({
         ...staffData,
-        password: hashedPassword
+        password: hashedPassword,
+        latitude: latitude ? latitude.toString() : null,
+        longitude: longitude ? longitude.toString() : null
       });
       
       // Return user without password
@@ -1271,6 +1274,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error processing webhook:", error);
       res.status(500).json({ message: "Erro ao processar webhook" });
+    }
+  });
+
+  // Staff location update route
+  app.put("/api/staff/location", async (req, res) => {
+    try {
+      const { staffId, latitude, longitude } = req.body;
+      
+      if (!staffId || !latitude || !longitude) {
+        return res.status(400).json({ message: "Staff ID, latitude e longitude são obrigatórios" });
+      }
+
+      await storage.updateStaffLocation(staffId, parseFloat(latitude), parseFloat(longitude));
+      res.json({ message: "Localização atualizada com sucesso" });
+    } catch (error: any) {
+      console.error("Error updating staff location:", error);
+      res.status(500).json({ message: "Erro ao atualizar localização" });
     }
   });
 
