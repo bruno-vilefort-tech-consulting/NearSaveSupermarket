@@ -16,14 +16,20 @@ export function PushNotificationToggle({ customerEmail }: PushNotificationToggle
   } = usePushNotifications();
 
   const handleToggle = async () => {
+    console.log('Botão de notificação clicado. Email:', customerEmail);
+    console.log('Estado atual - isEnabled:', isEnabled, 'isLoading:', isLoading);
+    
     try {
       if (isEnabled) {
+        console.log('Tentando desativar notificações...');
         await unsubscribeFromPushNotifications(customerEmail);
       } else {
+        console.log('Tentando ativar notificações...');
         await subscribeToPushNotifications(customerEmail);
       }
     } catch (error: any) {
       console.error('Erro ao alterar notificações:', error);
+      alert('Erro: ' + error.message);
     }
   };
 
