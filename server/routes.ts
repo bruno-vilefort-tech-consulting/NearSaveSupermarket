@@ -1331,20 +1331,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Subscribe to push notifications
   app.post("/api/push/subscribe", async (req, res) => {
     try {
+      console.log('Push subscribe request received:', {
+        body: req.body,
+        headers: req.headers['content-type']
+      });
+
       const subscriptionData = insertPushSubscriptionSchema.parse(req.body);
+      console.log('Subscription data parsed successfully:', subscriptionData);
+
       const subscription = await storage.createPushSubscription(subscriptionData);
+      console.log('Subscription created in database:', subscription.id);
       
       // Send welcome notification
-      await sendPushNotification(subscriptionData.customerEmail, {
+      console.log('Sending welcome notification...');
+      const notificationSent = await sendPushNotification(subscriptionData.customerEmail, {
         title: '🔔 Notificações Ativadas!',
         body: 'Você receberá atualizações sobre seus pedidos e promoções',
         url: '/customer/home'
       });
+      console.log('Welcome notification sent:', notificationSent);
 
       res.json(subscription);
     } catch (error: any) {
-      console.error('Error creating push subscription:', error);
-      res.status(500).json({ message: 'Erro ao criar subscrição push' });
+      console.error('Error creating push subscription - Details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        requestBody: req.body
+      });
+      res.status(500).json({ 
+        message: 'Erro ao criar subscrição push',
+        details: error.message 
+      });
     }
   });
 
