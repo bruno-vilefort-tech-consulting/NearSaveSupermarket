@@ -1277,6 +1277,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get staff user info
+  app.get('/api/staff/user', async (req, res) => {
+    try {
+      const staffId = req.headers['x-staff-id'] || req.headers['staff-id'];
+      
+      if (!staffId || isNaN(Number(staffId))) {
+        return res.status(400).json({ message: "Staff ID é obrigatório" });
+      }
+
+      // We need to add a method to get staff by ID, for now using a workaround
+      const stats = await storage.getStatsForStaff(Number(staffId)); // This ensures staff exists
+      
+      // Get staff info from the first product's creator or use the stored localStorage data
+      // This is a simplified approach - in production, you'd have a proper getStaffById method
+      const staffData = JSON.parse(req.headers['staff-data'] as string || '{}');
+      
+      if (!staffData.id) {
+        return res.status(404).json({ message: "Staff não encontrado" });
+      }
+
+      res.json(staffData);
+    } catch (error: any) {
+      console.error("Error fetching staff user:", error);
+      res.status(500).json({ message: "Erro ao buscar dados do staff" });
+    }
+  });
+
   // Staff location update route
   app.put("/api/staff/location", async (req, res) => {
     try {

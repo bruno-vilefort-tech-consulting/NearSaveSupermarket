@@ -33,6 +33,7 @@ import StaffLogin from "@/pages/staff-login";
 import StaffRegister from "@/pages/staff-register";
 import StaffForgotPassword from "@/pages/staff-forgot-password";
 import StaffResetPassword from "@/pages/staff-reset-password";
+import StaffSettings from "@/pages/staff-settings";
 import Terms from "@/pages/terms";
 
 function Router() {
@@ -84,6 +85,7 @@ function Router() {
           <Route path="/add-product" component={AddProduct} />
           <Route path="/orders" component={Orders} />
           <Route path="/monthly-orders" component={MonthlyOrders} />
+          <Route path="/settings" component={StaffSettings} />
         </>
       ) : (
         <>
