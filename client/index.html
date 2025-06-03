@@ -2,21 +2,118 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <meta name="description" content="Aplicativo revolucionário para experiências sustentáveis em supermercados do Brasil" />
-    <meta name="theme-color" content="#10b981" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="EcoMarket" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EcoMarket - Supermercados Sustentáveis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+        <header class="bg-white shadow-sm">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+              <div class="flex items-center">
+                <span class="text-green-600 text-2xl mr-2">🌱</span>
+                <span class="text-2xl font-bold text-gray-900">EcoMarket</span>
+              </div>
+              <div class="flex space-x-4">
+                <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Entrar como Staff</button>
+                <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Entrar como Cliente</button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section class="py-20">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+              Supermercados <span class="text-green-600">Sustentáveis</span>
+            </h1>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Revolucionando a experiência de compras no Brasil com foco em sustentabilidade,
+              redução de desperdício e pontos ecológicos.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button class="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700">
+                🛒 Começar a Comprar
+              </button>
+              <button class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50">
+                Cadastrar Supermercado
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="py-16 bg-white">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
+              Por que escolher o EcoMarket?
+            </h2>
+            <div class="grid md:grid-cols-3 gap-8">
+              <div class="text-center bg-white border border-gray-200 rounded-lg p-6">
+                <div class="text-green-600 text-4xl mb-4">🌱</div>
+                <h3 class="text-xl font-bold mb-4">Sustentabilidade</h3>
+                <p class="text-gray-600">
+                  Ganhe pontos ecológicos comprando produtos próximos ao vencimento
+                  e ajude a reduzir o desperdício de alimentos.
+                </p>
+              </div>
+
+              <div class="text-center bg-white border border-gray-200 rounded-lg p-6">
+                <div class="text-blue-600 text-4xl mb-4">🛒</div>
+                <h3 class="text-xl font-bold mb-4">Compras Inteligentes</h3>
+                <p class="text-gray-600">
+                  Encontre supermercados próximos, compare preços e faça pedidos
+                  com entrega ou retirada no local.
+                </p>
+              </div>
+
+              <div class="text-center bg-white border border-gray-200 rounded-lg p-6">
+                <div class="text-yellow-600 text-4xl mb-4">⭐</div>
+                <h3 class="text-xl font-bold mb-4">Experiência Premium</h3>
+                <p class="text-gray-600">
+                  Interface móvel otimizada, pagamentos PIX seguros e
+                  notificações push em tempo real.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="py-16 bg-green-50">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+              <div>
+                <div class="text-4xl font-bold text-green-600 mb-2">500+</div>
+                <div class="text-gray-600">Produtos Disponíveis</div>
+              </div>
+              <div>
+                <div class="text-4xl font-bold text-green-600 mb-2">50+</div>
+                <div class="text-gray-600">Supermercados Parceiros</div>
+              </div>
+              <div>
+                <div class="text-4xl font-bold text-green-600 mb-2">1000+</div>
+                <div class="text-gray-600">Clientes Ativos</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="bg-gray-900 text-white py-12">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+              <div class="flex items-center mb-4 md:mb-0">
+                <span class="text-green-400 text-xl mr-2">🌱</span>
+                <span class="text-xl font-bold">EcoMarket</span>
+              </div>
+              <div class="text-gray-400 text-sm">
+                © 2025 EcoMarket. Todos os direitos reservados.
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>

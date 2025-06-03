@@ -6,7 +6,6 @@ import {
   ecoActions,
   staffUsers,
   customers,
-  passwordResetTokens,
   type User,
   type UpsertUser,
   type Product,
@@ -23,14 +22,9 @@ import {
   type InsertCustomer,
   type ProductWithCreator,
   type OrderWithItems,
-  type PasswordResetToken,
-  type InsertPasswordResetToken,
-  type PushSubscription,
-  type InsertPushSubscription,
-  pushSubscriptions,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql, or } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 // Interface for storage operations
@@ -44,7 +38,6 @@ export interface IStorage {
   getStaffUserByEmail(email: string): Promise<StaffUser | undefined>;
   createStaffUser(staffUser: InsertStaffUser): Promise<StaffUser>;
   validateStaffUser(email: string, password: string): Promise<StaffUser | undefined>;
-  updateStaffLocation(id: number, latitude: number, longitude: number): Promise<void>;
   
   // Customer operations
   getCustomerByEmail(email: string): Promise<Customer | undefined>;
@@ -69,7 +62,6 @@ export interface IStorage {
   getOrder(id: number): Promise<OrderWithItems | undefined>;
   getOrdersByPhone(phone: string): Promise<OrderWithItems[]>;
   getOrdersByEmail(email: string): Promise<OrderWithItems[]>;
-  getOrderByExternalReference(externalReference: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   
@@ -79,24 +71,6 @@ export interface IStorage {
     pendingOrders: number;
     totalRevenue: number;
   }>;
-  
-  // Statistics for specific staff
-  getStatsForStaff(staffId: number): Promise<{
-    activeProducts: number;
-    pendingOrders: number;
-    totalRevenue: number;
-  }>;
-  
-  // Monthly completed orders summary
-  getMonthlyCompletedOrders(staffId: number): Promise<Array<{
-    month: string;
-    orders: Array<{
-      id: number;
-      date: string;
-      amount: string;
-    }>;
-    totalAmount: string;
-  }>>;
   
   // Eco-friendly actions
   createEcoAction(action: InsertEcoAction): Promise<EcoAction>;
@@ -110,34 +84,7 @@ export interface IStorage {
     address: string;
     productCount: number;
   }>>;
-  getSupermarketsWithLocations(): Promise<Array<{
-    id: number;
-    name: string;
-    address: string;
-    latitude: string | null;
-    longitude: string | null;
-    productCount: number;
-    hasPromotions: boolean;
-  }>>;
   getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]>;
-  
-  // Password reset operations
-  createPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken>;
-  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
-  markTokenAsUsed(token: string): Promise<void>;
-  cleanupExpiredTokens(): Promise<void>;
-  updateCustomerPassword(email: string, newPassword: string): Promise<void>;
-  
-  // Staff password reset operations
-  createStaffPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken>;
-  getStaffPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
-  markStaffTokenAsUsed(token: string): Promise<void>;
-  updateStaffPassword(email: string, newPassword: string): Promise<void>;
-  
-  // Push notification operations
-  createPushSubscription(subscription: InsertPushSubscription): Promise<PushSubscription>;
-  getPushSubscriptionsByEmail(email: string): Promise<PushSubscription[]>;
-  removePushSubscription(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -198,17 +145,6 @@ export class DatabaseStorage implements IStorage {
         eq(staffUsers.isActive, 1)
       ));
     return staffUser;
-  }
-
-  async updateStaffLocation(id: number, latitude: number, longitude: number): Promise<void> {
-    await db
-      .update(staffUsers)
-      .set({
-        latitude: latitude.toString(),
-        longitude: longitude.toString(),
-        updatedAt: new Date()
-      })
-      .where(eq(staffUsers.id, id));
   }
 
   // Customer operations
@@ -444,10 +380,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByStaff(staffId: number, filters?: { status?: string }): Promise<OrderWithItems[]> {
-    console.log(`🔍 CRITICAL DEBUG: Starting getOrdersByStaff for staffId: ${staffId}`);
-    
-    // CRITICAL: Check if this query is somehow triggering status updates
-    console.log(`🔍 CRITICAL DEBUG: About to query orders - checking for any side effects`);
+    console.log(`Starting getOrdersByStaff for staffId: ${staffId}`);
     
     // First, get all orders that contain products created by this staff
     let whereConditions = [eq(products.createdByStaff, staffId)];
@@ -457,7 +390,7 @@ export class DatabaseStorage implements IStorage {
       console.log(`Filtering by status: ${filters.status}`);
     }
 
-    console.log(`🔍 CRITICAL DEBUG: About to execute query - NO updates should happen here`);
+    console.log(`Querying orders for products created by staff ${staffId}`);
     const staffOrders = await db
       .selectDistinct({
         id: orders.id,
@@ -539,26 +472,12 @@ export class DatabaseStorage implements IStorage {
     return ordersWithItems;
   }
 
-  async getOrderByExternalReference(externalReference: string): Promise<Order | undefined> {
-    const [order] = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.externalReference, externalReference))
-      .limit(1);
-    
-    return order;
-  }
-
   async getOrdersByEmail(email: string): Promise<OrderWithItems[]> {
-    console.log(`🔍 MONITORING: Querying orders for email ${email}`);
     const customerOrders = await db
       .select()
       .from(orders)
       .where(eq(orders.customerEmail, email))
       .orderBy(desc(orders.createdAt));
-      
-    console.log(`📊 MONITORING: Found ${customerOrders.length} orders for ${email}:`, 
-      customerOrders.map(o => ({ id: o.id, status: o.status, updated: o.updatedAt })));
 
     const ordersWithItems = await Promise.all(
       customerOrders.map(async (order) => {
@@ -659,61 +578,7 @@ export class DatabaseStorage implements IStorage {
     // Calculate and apply eco-friendly rewards
     await this.calculateEcoRewards(order, items);
 
-    // Iniciar monitoramento de proteção para este pedido
-    console.log(`🛡️ STARTING PROTECTION: Order ${order.id} created, initiating protection system`);
-    this.startOrderProtection(order.id);
-
     return order;
-  }
-
-  private protectionMap = new Map<number, NodeJS.Timeout>();
-
-  private async startOrderProtection(orderId: number): Promise<void> {
-    console.log(`🛡️ PROTECTION INITIATED: Starting protection for order ${orderId}`);
-    
-    // Verificar de forma mais agressiva com intervals menores
-    const checkTimes = [5000, 10000, 15000, 20000, 30000, 45000, 60000]; // 5s, 10s, 15s, 20s, 30s, 45s, 1min
-    
-    checkTimes.forEach((delay, index) => {
-      const timeoutId = setTimeout(async () => {
-        try {
-          console.log(`🔍 PROTECTION CHECK ${index + 1}: Checking order ${orderId} after ${delay}ms`);
-          
-          const [currentOrder] = await db.select().from(orders).where(eq(orders.id, orderId));
-          
-          if (currentOrder) {
-            console.log(`📊 PROTECTION DATA: Order ${orderId} - Status: ${currentOrder.status}, LastManual: ${currentOrder.lastManualStatus}`);
-            
-            if (currentOrder.lastManualStatus && currentOrder.status !== currentOrder.lastManualStatus) {
-              console.log(`🚨 PROTECTION ACTIVATED: Automatic status change detected for order ${orderId} from ${currentOrder.status} back to ${currentOrder.lastManualStatus}`);
-              
-              await db
-                .update(orders)
-                .set({ 
-                  status: currentOrder.lastManualStatus,
-                  updatedAt: currentOrder.lastManualUpdate || currentOrder.createdAt
-                })
-                .where(eq(orders.id, orderId));
-                
-              console.log(`✅ PROTECTION SUCCESS: Order ${orderId} status reverted to ${currentOrder.lastManualStatus}`);
-            } else {
-              console.log(`✓ PROTECTION OK: Order ${orderId} status unchanged`);
-            }
-          }
-        } catch (error) {
-          console.error(`❌ PROTECTION ERROR: Failed to protect order ${orderId}:`, error);
-        }
-        
-        // Limpar o timeout do mapa após execução
-        if (index === checkTimes.length - 1) {
-          this.protectionMap.delete(orderId);
-          console.log(`🛡️ PROTECTION ENDED: Protection cycle completed for order ${orderId}`);
-        }
-      }, delay);
-      
-      // Armazenar o timeout no mapa para possível limpeza
-      this.protectionMap.set(orderId, timeoutId);
-    });
   }
 
   // Helper method to calculate eco-friendly rewards
@@ -807,166 +672,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
-    // ABSOLUTE SECURITY: Block ALL automatic updates
-    console.log(`🔒 SECURITY CHECK: Order ${id} status change attempt to ${status} by ${changedBy}`);
-    
-    // Only allow explicit staff updates
+    // SECURITY: Only allow manual updates by staff
     if (!changedBy.startsWith('STAFF_')) {
-      console.log(`🛑 SECURITY BLOCK: Unauthorized status change blocked for order ${id}`);
-      console.log(`🛑 Attempted by: ${changedBy}`);
-      console.log(`🛑 Target status: ${status}`);
-      throw new Error(`SECURITY: Order status changes are restricted to authorized staff only. Source: ${changedBy}`);
+      console.log(`BLOCKED: Attempted automatic status change for order ${id} by ${changedBy}`);
+      throw new Error('Order status can only be updated manually by staff');
     }
     
-    // Log authorized update
-    console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} to ${status}`);
+    // Get current order status for logging
+    const [currentOrder] = await db
+      .select({ id: orders.id, status: orders.status })
+      .from(orders)
+      .where(eq(orders.id, id));
     
-    try {
-      // Fazer a atualização e salvar como último status manual
-      const [order] = await db
-        .update(orders)
-        .set({ 
-          status, 
-          lastManualStatus: status,
-          lastManualUpdate: new Date(),
-          updatedAt: new Date() 
-        })
-        .where(eq(orders.id, id))
-        .returning();
+    if (currentOrder) {
+      console.log(`Order ${id} status change: ${currentOrder.status} -> ${status} (by: ${changedBy})`);
       
-      console.log(`✅ SUCCESS: Order ${id} status updated to ${status} by ${changedBy}`);
-      
-      return order;
-    } catch (error) {
-      console.error(`❌ ERROR: Failed to update order ${id}:`, error);
-      throw error;
+      // Log to database
+      await db.execute(sql`
+        INSERT INTO order_status_log (order_id, old_status, new_status, changed_by)
+        VALUES (${id}, ${currentOrder.status}, ${status}, ${changedBy})
+      `);
     }
+    
+    const [order] = await db
+      .update(orders)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    
+    return order;
   }
 
-  // Monthly completed orders summary
-  async getMonthlyCompletedOrders(staffId: number): Promise<Array<{
-    month: string;
-    orders: Array<{
-      id: number;
-      date: string;
-      amount: string;
-    }>;
-    totalAmount: string;
-  }>> {
-    const completedOrders = await db
-      .select({
-        id: orders.id,
-        totalAmount: orders.totalAmount,
-        createdAt: orders.createdAt
-      })
-      .from(orders)
-      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .innerJoin(products, eq(orderItems.productId, products.id))
-      .where(
-        and(
-          eq(orders.status, 'completed'),
-          eq(products.createdByStaff, staffId)
-        )
-      )
-      .groupBy(orders.id, orders.totalAmount, orders.createdAt)
-      .orderBy(desc(orders.createdAt));
-
-    // Group by month
-    const monthlyData = new Map<string, Array<{
-      id: number;
-      date: string;
-      amount: string;
-    }>>();
-
-    completedOrders.forEach(order => {
-      if (order.createdAt) {
-        const monthKey = new Date(order.createdAt).toISOString().slice(0, 7); // YYYY-MM
-        const orderData = {
-          id: order.id,
-          date: new Date(order.createdAt).toLocaleDateString('pt-BR'),
-          amount: order.totalAmount
-        };
-
-        if (!monthlyData.has(monthKey)) {
-          monthlyData.set(monthKey, []);
-        }
-        monthlyData.get(monthKey)!.push(orderData);
-      }
-    });
-
-    // Convert to array and calculate totals
-    const result = Array.from(monthlyData.entries()).map(([month, orders]) => {
-      const totalAmount = orders.reduce((sum, order) => {
-        return sum + parseFloat(order.amount);
-      }, 0);
-
-      return {
-        month: new Date(month + '-01').toLocaleDateString('pt-BR', { 
-          year: 'numeric', 
-          month: 'long' 
-        }),
-        orders: orders.sort((a, b) => b.id - a.id), // Most recent first
-        totalAmount: totalAmount.toFixed(2)
-      };
-    });
-
-    return result.sort((a, b) => b.month.localeCompare(a.month)); // Most recent month first
-  }
-
-  // Statistics for specific staff
-  async getStatsForStaff(staffId: number): Promise<{
-    activeProducts: number;
-    pendingOrders: number;
-    totalRevenue: number;
-  }> {
-    const [activeProductsResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(products)
-      .where(and(eq(products.isActive, 1), eq(products.createdByStaff, staffId)));
-
-    // Count pending orders that contain products from this staff
-    const pendingOrdersQuery = await db
-      .select({ orderId: orders.id })
-      .from(orders)
-      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .innerJoin(products, eq(orderItems.productId, products.id))
-      .where(
-        and(
-          eq(products.createdByStaff, staffId),
-          or(
-            eq(orders.status, "pending"),
-            eq(orders.status, "confirmed"),
-            eq(orders.status, "preparing")
-          )
-        )
-      )
-      .groupBy(orders.id);
-
-    const pendingOrdersCount = pendingOrdersQuery.length;
-
-    // Calculate revenue from completed orders containing this staff's products
-    const [revenueResult] = await db
-      .select({ 
-        total: sql<number>`COALESCE(SUM(CAST(${orders.totalAmount} AS DECIMAL)), 0)` 
-      })
-      .from(orders)
-      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .innerJoin(products, eq(orderItems.productId, products.id))
-      .where(
-        and(
-          eq(products.createdByStaff, staffId),
-          eq(orders.status, "completed")
-        )
-      );
-
-    return {
-      activeProducts: activeProductsResult.count,
-      pendingOrders: pendingOrdersCount,
-      totalRevenue: revenueResult.total || 0,
-    };
-  }
-
-  // Global statistics (for general use)
+  // Statistics
   async getStats(): Promise<{
     activeProducts: number;
     pendingOrders: number;
@@ -980,23 +717,19 @@ export class DatabaseStorage implements IStorage {
     const [pendingOrdersResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(orders)
-      .where(or(
-        eq(orders.status, "pending"),
-        eq(orders.status, "confirmed"),
-        eq(orders.status, "preparing")
-      ));
+      .where(eq(orders.status, "pending"));
 
     const [revenueResult] = await db
       .select({ 
-        total: sql<number>`COALESCE(SUM(CAST(${orders.totalAmount} AS DECIMAL)), 0)` 
+        total: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)` 
       })
       .from(orders)
-      .where(eq(orders.status, "completed"));
+      .where(eq(orders.status, "shipped"));
 
     return {
       activeProducts: activeProductsResult.count,
       pendingOrders: pendingOrdersResult.count,
-      totalRevenue: revenueResult.total || 0,
+      totalRevenue: revenueResult.total,
     };
   }
 
@@ -1063,50 +796,6 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async getSupermarketsWithLocations(): Promise<Array<{
-    id: number;
-    name: string;
-    address: string;
-    latitude: string | null;
-    longitude: string | null;
-    productCount: number;
-    hasPromotions: boolean;
-  }>> {
-    try {
-      const result = await db.execute(sql`
-        SELECT 
-          s.id,
-          s.company_name as name,
-          s.address,
-          s.latitude::text as latitude,
-          s.longitude::text as longitude,
-          COUNT(CASE WHEN p.is_active = 1 THEN p.id END) as product_count,
-          COUNT(CASE WHEN p.is_active = 1 AND p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions
-        FROM staff_users s
-        LEFT JOIN products p ON s.id = p.created_by_staff
-        WHERE s.company_name IS NOT NULL 
-          AND s.latitude IS NOT NULL 
-          AND s.longitude IS NOT NULL
-          AND s.is_active = 1
-        GROUP BY s.id, s.company_name, s.address, s.latitude, s.longitude
-        ORDER BY s.company_name
-      `);
-
-      return result.rows.map((row: any) => ({
-        id: parseInt(row.id),
-        name: row.name || 'Supermercado',
-        address: row.address || '',
-        latitude: row.latitude,
-        longitude: row.longitude,
-        productCount: parseInt(row.product_count || '0'),
-        hasPromotions: row.has_promotions || false
-      }));
-    } catch (error) {
-      console.error('Error in getSupermarketsWithLocations:', error);
-      return [];
-    }
-  }
-
   async getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]> {
     const result = await db
       .select({
@@ -1154,136 +843,6 @@ export class DatabaseStorage implements IStorage {
         updatedAt: null,
       }
     }));
-  }
-
-  // Password reset operations
-  async createPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken> {
-    const [token] = await db
-      .insert(passwordResetTokens)
-      .values(tokenData)
-      .returning();
-    return token;
-  }
-
-  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
-    const [resetToken] = await db
-      .select()
-      .from(passwordResetTokens)
-      .where(
-        and(
-          eq(passwordResetTokens.token, token),
-          eq(passwordResetTokens.used, 0),
-          sql`${passwordResetTokens.expiresAt} > NOW()`
-        )
-      );
-    return resetToken;
-  }
-
-  async markTokenAsUsed(token: string): Promise<void> {
-    await db
-      .update(passwordResetTokens)
-      .set({ used: 1 })
-      .where(eq(passwordResetTokens.token, token));
-  }
-
-  async cleanupExpiredTokens(): Promise<void> {
-    await db
-      .delete(passwordResetTokens)
-      .where(sql`${passwordResetTokens.expiresAt} < NOW()`);
-  }
-
-  async updateCustomerPassword(email: string, newPassword: string): Promise<void> {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await db
-      .update(customers)
-      .set({ password: hashedPassword, updatedAt: new Date() })
-      .where(eq(customers.email, email));
-  }
-
-  // Staff password reset operations
-  async createStaffPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken> {
-    // Mark token type as 'staff' to differentiate from customer tokens
-    const staffTokenData = {
-      ...tokenData,
-      userType: 'staff' as const
-    };
-    
-    const [token] = await db
-      .insert(passwordResetTokens)
-      .values(staffTokenData)
-      .returning();
-    return token;
-  }
-
-  async getStaffPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
-    const [resetToken] = await db
-      .select()
-      .from(passwordResetTokens)
-      .where(
-        and(
-          eq(passwordResetTokens.token, token),
-          eq(passwordResetTokens.used, 0),
-          sql`${passwordResetTokens.expiresAt} > NOW()`
-        )
-      );
-    
-    // Verify that the email belongs to a staff user
-    if (resetToken) {
-      const staffUser = await db
-        .select()
-        .from(staffUsers)
-        .where(eq(staffUsers.email, resetToken.email));
-      
-      if (staffUser.length > 0) {
-        return resetToken;
-      }
-    }
-    
-    return undefined;
-  }
-
-  async markStaffTokenAsUsed(token: string): Promise<void> {
-    await db
-      .update(passwordResetTokens)
-      .set({ used: 1 })
-      .where(eq(passwordResetTokens.token, token));
-  }
-
-  async updateStaffPassword(email: string, newPassword: string): Promise<void> {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await db.update(staffUsers)
-      .set({ 
-        password: hashedPassword,
-        updatedAt: new Date()
-      })
-      .where(eq(staffUsers.email, email));
-  }
-
-  // Push notification operations
-  async createPushSubscription(subscriptionData: InsertPushSubscription): Promise<PushSubscription> {
-    // Remove existing subscription for the same email if exists
-    await db
-      .delete(pushSubscriptions)
-      .where(eq(pushSubscriptions.customerEmail, subscriptionData.customerEmail));
-
-    const [subscription] = await db
-      .insert(pushSubscriptions)
-      .values(subscriptionData)
-      .returning();
-    return subscription;
-  }
-
-  async getPushSubscriptionsByEmail(email: string): Promise<PushSubscription[]> {
-    return await db
-      .select()
-      .from(pushSubscriptions)
-      .where(eq(pushSubscriptions.customerEmail, email));
-  }
-
-  async removePushSubscription(id: number): Promise<void> {
-    await db
-      .delete(pushSubscriptions)
-      .where(eq(pushSubscriptions.id, id));
   }
 }
 
