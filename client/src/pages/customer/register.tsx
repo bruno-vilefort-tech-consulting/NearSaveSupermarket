@@ -11,7 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { useLanguage } from "@/hooks/useLanguage";
 import { Leaf, User, Mail, Lock, Phone, FileText, ArrowLeft } from "lucide-react";
 
 type RegisterFormData = {
@@ -27,7 +26,6 @@ type RegisterFormData = {
 export default function CustomerRegister() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   const registerSchema = z.object({
     cpf: z.string()

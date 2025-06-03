@@ -3,12 +3,10 @@ import { Home, Package, Plus, ShoppingCart, User, Bell } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
-import { useLanguage } from "@/hooks/useLanguage";
 
 export function BottomNavigation() {
   const [location, navigate] = useLocation();
   const { isStaffAuthenticated, logout } = useStaffAuth();
-  const { t } = useLanguage();
   
   const { data: stats } = useQuery({
     queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],

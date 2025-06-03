@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Users, Leaf, Globe, ChevronDown } from "lucide-react";
-// import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect, useRef } from "react";
 
 export default function Landing() {
-  // const { t, setLanguage } = useLanguage();
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
-  const languageMenuRef = useRef<HTMLDivElement>(null);
+//   const languageMenuRef = useRef<HTMLDivElement>(null);
   
   const handleLogin = () => {
     window.location.href = "/staff-login";
@@ -15,9 +13,7 @@ export default function Landing() {
   // Fechar menu quando clicar fora dele
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
-        setIsLanguageMenuOpen(false);
-      }
+      setIsLanguageMenuOpen(false);
     }
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -103,7 +99,7 @@ export default function Landing() {
         
         {/* Language Selector */}
         <div className="flex justify-end">
-          <div className="relative" ref={languageMenuRef}>
+//           <div className="relative" ref={languageMenuRef}>
             <Button 
               variant="outline" 
               size="sm"
@@ -118,7 +114,7 @@ export default function Landing() {
               <div className="absolute right-0 top-12 bg-white/95 backdrop-blur-md border border-white/50 rounded-lg shadow-lg py-2 min-w-32 z-10">
                 <button
                   onClick={() => {
-                    setLanguage('pt-BR');
+//                     setLanguage('pt-BR');
                     setIsLanguageMenuOpen(false);
                   }}
                   className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-3 text-gray-700"
@@ -128,7 +124,7 @@ export default function Landing() {
                 </button>
                 <button
                   onClick={() => {
-                    setLanguage('en-US');
+//                     setLanguage('en-US');
                     setIsLanguageMenuOpen(false);
                   }}
                   className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-3 text-gray-700"

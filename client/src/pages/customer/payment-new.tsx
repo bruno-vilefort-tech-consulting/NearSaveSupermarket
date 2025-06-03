@@ -6,12 +6,10 @@ import { ArrowLeft, Smartphone, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useLanguage } from "@/hooks/useLanguage";
 
 export default function CustomerPaymentNew() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useLanguage();
   const [orderData, setOrderData] = useState<any>(null);
   
   // Carregar dados do pedido

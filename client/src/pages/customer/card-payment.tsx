@@ -8,12 +8,10 @@ import { ArrowLeft, CreditCard, Lock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useLanguage } from "@/hooks/useLanguage";
 
 export default function CustomerCardPayment() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useLanguage();
   const [orderData, setOrderData] = useState<any>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   

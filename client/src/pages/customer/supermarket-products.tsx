@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, ShoppingCart, ArrowLeft, Package, MapPin, Clock, Leaf, AlertTriangle } from "lucide-react";
 import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface Product {
   id: number;
@@ -50,7 +49,6 @@ export default function SupermarketProducts() {
   const [cartCount, setCartCount] = useState(0);
   const [showSupermarketConflict, setShowSupermarketConflict] = useState(false);
   const [pendingCartItem, setPendingCartItem] = useState<{ product: Product; quantity: number } | null>(null);
-  const { t } = useLanguage();
 
   // Get supermarket name from URL params
   const urlParams = new URLSearchParams(window.location.search);

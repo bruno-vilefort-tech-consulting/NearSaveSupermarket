@@ -8,7 +8,6 @@ import { Settings, Mail, Phone, MapPin, Store, Lock, Eye, EyeOff } from "lucide-
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useLanguage } from "@/hooks/useLanguage";
 import { LocationPicker } from "@/components/LocationPicker";
 
 export default function StaffRegister() {
@@ -26,7 +25,6 @@ export default function StaffRegister() {
     longitude: ""
   });
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   const registerMutation = useMutation({
     mutationFn: async (data: typeof formData) => {

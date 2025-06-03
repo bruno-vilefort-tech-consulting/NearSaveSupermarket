@@ -9,7 +9,6 @@ import { ArrowLeft, Plus, Minus, Trash2, MapPin, Clock, User, Phone, Mail } from
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface CartItem {
   id: number;
@@ -30,7 +29,6 @@ interface CartItem {
 export default function CustomerCart() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useLanguage();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [deliveryAddress, setDeliveryAddress] = useState("");

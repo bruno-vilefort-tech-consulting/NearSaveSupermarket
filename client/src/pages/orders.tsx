@@ -5,7 +5,6 @@ import { BottomNavigation } from "@/components/layout/bottom-navigation";
 import { OrderCard } from "@/components/order/order-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/hooks/useLanguage";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
 import { Volume2, VolumeX } from "lucide-react";
 
@@ -19,7 +18,6 @@ const statusFilters = [
 
 export default function Orders() {
   const [selectedStatus, setSelectedStatus] = useState("");
-  const { t } = useLanguage();
   const { isEnabled, isReady, enableSound, playNotification } = useNotificationSound();
   const previousOrderCountRef = useRef<number>(0);
 

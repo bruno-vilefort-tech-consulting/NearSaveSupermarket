@@ -4,7 +4,6 @@ import { Calendar, Package, TrendingUp, Receipt } from "lucide-react";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { useLanguage } from "@/hooks/useLanguage";
 import { useEffect } from "react";
 
 interface MonthlyOrderData {
@@ -20,9 +19,8 @@ interface MonthlyOrderData {
 export default function MonthlyOrders() {
   const { staffUser, isStaffAuthenticated, isLoading: authLoading } = useStaffAuth();
   const { toast } = useToast();
-  const { t } = useLanguage();
 
-  // Function to translate month names from Portuguese to current language
+//   // Function to translate month names from Portuguese to current language
   const translateMonth = (portugueseMonth: string): string => {
     const monthMap: Record<string, string> = {
       'janeiro': 'month.january',

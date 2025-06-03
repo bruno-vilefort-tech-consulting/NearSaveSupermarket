@@ -6,13 +6,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLanguage } from "@/hooks/useLanguage";
 import { Language } from "@shared/translations";
 
 export function LanguageSelector() {
-  const { language, setLanguage, availableLanguages } = useLanguage();
 
-  const currentLanguage = availableLanguages.find(lang => lang.code === language);
+//   const currentLanguage = availableLanguages.find(lang => lang.code === language);
 
   return (
     <DropdownMenu>
@@ -26,9 +24,9 @@ export function LanguageSelector() {
         {availableLanguages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLanguage(lang.code as Language)}
+//             onClick={() => setLanguage(lang.code as Language)}
             className={`flex items-center gap-2 ${
-              language === lang.code ? "bg-accent" : ""
+//               language === lang.code ? "bg-accent" : ""
             }`}
           >
             <span className="text-lg">{lang.flag}</span>

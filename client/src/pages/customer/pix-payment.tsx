@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useLanguage } from '@/hooks/useLanguage';
 import { apiRequest } from '@/lib/queryClient';
 import { Copy, CheckCircle, Clock, X, ArrowLeft } from 'lucide-react';
 
@@ -41,7 +40,6 @@ export default function PixPayment() {
   const [isExpired, setIsExpired] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   const orderId = params?.orderId;
 

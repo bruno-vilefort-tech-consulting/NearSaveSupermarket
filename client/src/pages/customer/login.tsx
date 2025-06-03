@@ -12,7 +12,6 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { useLanguage } from "@/hooks/useLanguage";
 import { Leaf, Mail, Lock, ArrowLeft, AlertCircle } from "lucide-react";
 
 type LoginFormData = {
@@ -24,7 +23,6 @@ export default function CustomerLogin() {
   const [, navigate] = useLocation();
   const [errorMessage, setErrorMessage] = useState("");
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   const loginSchema = z.object({
     email: z.string().email(t('auth.emailRequired')),

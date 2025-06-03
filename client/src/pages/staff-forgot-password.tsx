@@ -8,12 +8,10 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { ArrowLeft, Mail } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
 
 export default function StaffForgotPassword() {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   const forgotPasswordMutation = useMutation({
     mutationFn: async (email: string) => {

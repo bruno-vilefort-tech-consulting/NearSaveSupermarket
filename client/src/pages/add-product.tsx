@@ -16,7 +16,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { Camera, Upload } from "lucide-react";
 import { useLocation } from "wouter";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { useLanguage } from "@/hooks/useLanguage";
 
 const createProductSchema = (t: any) => z.object({
   name: z.string().min(1, t('validation.productNameRequired')),
@@ -34,7 +33,6 @@ export default function AddProduct() {
   const queryClient = useQueryClient();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const { t } = useLanguage();
 
   const productSchema = createProductSchema(t);
   type ProductFormData = z.infer<typeof productSchema>;

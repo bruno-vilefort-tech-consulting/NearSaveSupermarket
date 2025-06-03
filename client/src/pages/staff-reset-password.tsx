@@ -8,7 +8,6 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Lock, Eye, EyeOff } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
 
 export default function StaffResetPassword() {
   const [location] = useLocation();
@@ -18,7 +17,6 @@ export default function StaffResetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [token, setToken] = useState("");
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
