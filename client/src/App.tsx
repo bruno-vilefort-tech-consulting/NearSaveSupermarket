@@ -10,7 +10,6 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Products from "@/pages/products";
 import AddProduct from "@/pages/add-product";
-import EditProduct from "@/pages/edit-product";
 import Orders from "@/pages/orders";
 import MonthlyOrders from "@/pages/monthly-orders";
 
@@ -35,7 +34,6 @@ import StaffForgotPassword from "@/pages/staff-forgot-password";
 import StaffResetPassword from "@/pages/staff-reset-password";
 import StaffSettings from "@/pages/staff-settings";
 import Terms from "@/pages/terms";
-import PrivacyPolicy from "@/pages/privacy-policy";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -69,18 +67,34 @@ function Router() {
       <Route path="/customer/eco-rewards" component={EcoRewards} />
       <Route path="/customer/eco-points" component={EcoPoints} />
       
-      {/* Legal Pages - Public access */}
+      {/* Terms and Conditions - Public access */}
       <Route path="/terms" component={Terms} />
-      <Route path="/privacy-policy" component={PrivacyPolicy} />
       
-      {/* Staff App Routes - Always render routes to maintain hook order */}
-      <Route path="/dashboard" component={isStaffLoading ? () => <div>Carregando...</div> : (isStaffAuthenticated || isAuthenticated) ? Dashboard : Landing} />
-      <Route path="/products" component={isStaffLoading ? () => <div>Carregando...</div> : (isStaffAuthenticated || isAuthenticated) ? Products : Landing} />
-      <Route path="/add-product" component={isStaffLoading ? () => <div>Carregando...</div> : (isStaffAuthenticated || isAuthenticated) ? AddProduct : Landing} />
-      <Route path="/edit-product/:id" component={isStaffLoading ? () => <div>Carregando...</div> : (isStaffAuthenticated || isAuthenticated) ? EditProduct : Landing} />
-      <Route path="/orders" component={isStaffLoading ? () => <div>Carregando...</div> : (isStaffAuthenticated || isAuthenticated) ? Orders : Landing} />
-      <Route path="/monthly-orders" component={isStaffLoading ? () => <div>Carregando...</div> : (isStaffAuthenticated || isAuthenticated) ? MonthlyOrders : Landing} />
-      <Route path="/settings" component={isStaffLoading ? () => <div>Carregando...</div> : (isStaffAuthenticated || isAuthenticated) ? StaffSettings : Landing} />
+      {/* Staff App Routes - Allow access if either authenticated */}
+      {isStaffLoading ? (
+        <>
+          <Route path="/dashboard" component={() => <div>Carregando...</div>} />
+          <Route path="/products" component={() => <div>Carregando...</div>} />
+          <Route path="/add-product" component={() => <div>Carregando...</div>} />
+          <Route path="/orders" component={() => <div>Carregando...</div>} />
+        </>
+      ) : (isStaffAuthenticated || isAuthenticated) ? (
+        <>
+          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/products" component={Products} />
+          <Route path="/add-product" component={AddProduct} />
+          <Route path="/orders" component={Orders} />
+          <Route path="/monthly-orders" component={MonthlyOrders} />
+          <Route path="/settings" component={StaffSettings} />
+        </>
+      ) : (
+        <>
+          <Route path="/dashboard" component={Landing} />
+          <Route path="/products" component={Landing} />
+          <Route path="/add-product" component={Landing} />
+          <Route path="/orders" component={Landing} />
+        </>
+      )}
       <Route component={NotFound} />
     </Switch>
   );

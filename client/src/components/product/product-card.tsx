@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +42,6 @@ export function ProductCard({ product }: ProductCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [, setLocation] = useLocation();
 
   const deleteProductMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -98,10 +96,6 @@ export function ProductCard({ product }: ProductCardProps) {
     deleteProductMutation.mutate(product.id);
   };
 
-  const handleEdit = () => {
-    setLocation(`/edit-product/${product.id}`);
-  };
-
   return (
     <>
       <Card className="shadow-sm overflow-hidden">
@@ -152,7 +146,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleEdit}>
+                    <DropdownMenuItem>
                       <Edit size={16} className="mr-2" />
                       Editar Produto
                     </DropdownMenuItem>
