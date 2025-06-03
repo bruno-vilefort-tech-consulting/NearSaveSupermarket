@@ -278,11 +278,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('🔍 Confirmando pagamento PIX:', { tempOrderId, pixPaymentId });
       
       // Buscar dados temporários do pedido
-      if (!global.tempOrders || !global.tempOrders.has(tempOrderId)) {
+      if (!(global as any).tempOrders || !(global as any).tempOrders.has(tempOrderId)) {
         return res.status(404).json({ message: "Pedido temporário não encontrado" });
       }
       
-      const tempOrderData = global.tempOrders.get(tempOrderId);
+      const tempOrderData = (global as any).tempOrders.get(tempOrderId);
       
       // Verificar status do pagamento no Mercado Pago
       const paymentStatus = await getPaymentStatus(pixPaymentId);
@@ -314,13 +314,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const order = await storage.createOrder(orderData, orderItems);
       
       // Remover dados temporários
-      global.tempOrders.delete(tempOrderId);
+      if ((global as any).tempOrders) {
+        (global as any).tempOrders.delete(tempOrderId);
+      }
       
       console.log('✅ Pedido confirmado e criado:', order.id);
       res.json({ order, paymentStatus });
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erro ao confirmar pagamento PIX:', error);
-      res.status(500).json({ message: "Erro ao confirmar pagamento PIX" });
+      res.status(500).json({ message: "Erro ao confirmar pagamento PIX", error: error.message });
+    }
+  });
+
+  // Verificar status do pagamento PIX
+  app.get("/api/payments/pix/status/:paymentId", async (req, res) => {
+    try {
+      const { paymentId } = req.params;
+      console.log('🔍 Verificando status do pagamento PIX:', paymentId);
+      
+      const paymentStatus = await getPaymentStatus(paymentId);
+      console.log('✅ Status do pagamento PIX:', paymentStatus);
+      
+      res.json(paymentStatus);
+    } catch (error: any) {
+      console.error('❌ Erro ao verificar status do PIX:', error);
+      res.status(500).json({ message: "Erro ao verificar status do pagamento", error: error.message });
     }
   });
 
