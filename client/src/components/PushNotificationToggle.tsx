@@ -18,6 +18,8 @@ export function PushNotificationToggle({ customerEmail }: PushNotificationToggle
   } = usePushNotifications();
   
   const [showBlockedHelp, setShowBlockedHelp] = useState(false);
+  
+  console.log('PushNotificationToggle rendered, showBlockedHelp:', showBlockedHelp);
 
   const handleToggle = async () => {
     try {
