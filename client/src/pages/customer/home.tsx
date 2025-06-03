@@ -54,27 +54,66 @@ export default function CustomerHome() {
   // Obter localização do usuário
   const getUserLocation = () => {
     if (!navigator.geolocation) {
+      console.log('Geolocalização não suportada pelo navegador');
       setLocationPermission('denied');
       return;
     }
 
+    // Verificar permissão primeiro
+    if ('permissions' in navigator) {
+      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+        console.log('Status da permissão de geolocalização:', result.state);
+        if (result.state === 'denied') {
+          setLocationPermission('denied');
+          return;
+        }
+      }).catch(() => {
+        // Se não conseguir verificar a permissão, continua tentando obter localização
+        console.log('Não foi possível verificar permissão, tentando obter localização...');
+      });
+    }
+
+    console.log('Tentando obter localização do usuário...');
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        console.log('Localização obtida com sucesso:', {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        });
         setUserLocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude
         });
         setLocationPermission('granted');
-        console.log('Localização obtida:', position.coords.latitude, position.coords.longitude);
       },
       (error) => {
-        console.error('Erro ao obter localização:', error);
-        setLocationPermission('denied');
+        console.error('Erro ao obter localização:', {
+          code: error.code,
+          message: error.message,
+          errorTypes: {
+            1: 'PERMISSION_DENIED',
+            2: 'POSITION_UNAVAILABLE', 
+            3: 'TIMEOUT'
+          }
+        });
+        
+        switch (error.code) {
+          case 1: // PERMISSION_DENIED
+            setLocationPermission('denied');
+            break;
+          case 2: // POSITION_UNAVAILABLE
+          case 3: // TIMEOUT
+            setLocationPermission('denied');
+            break;
+          default:
+            setLocationPermission('denied');
+        }
       },
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5 minutos
+        enableHighAccuracy: false, // Mudar para false para ser mais compatível
+        timeout: 15000, // Aumentar timeout
+        maximumAge: 600000 // 10 minutos
       }
     );
   };
@@ -425,22 +464,22 @@ export default function CustomerHome() {
         )}
         
         {locationPermission === 'denied' && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <MapPin className="text-yellow-600 mr-2" size={20} />
+                <MapPin className="text-blue-600 mr-2" size={20} />
                 <div>
-                  <span className="text-yellow-800 font-medium">Localização não disponível</span>
-                  <p className="text-sm text-yellow-700">Mostrando todos os supermercados disponíveis</p>
+                  <span className="text-blue-800 font-medium">Ativar localização para supermercados próximos</span>
+                  <p className="text-sm text-blue-700">Permita acesso à localização para ver apenas supermercados dentro de 20km</p>
                 </div>
               </div>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={getUserLocation}
-                className="border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                className="border-blue-300 text-blue-700 hover:bg-blue-100"
               >
-                Tentar Novamente
+                Ativar Localização
               </Button>
             </div>
           </div>
