@@ -1073,7 +1073,9 @@ export class DatabaseStorage implements IStorage {
           COUNT(CASE WHEN p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions
         FROM users u
         LEFT JOIN products p ON u.id = p.created_by
-        WHERE u.supermarket_name IS NOT NULL
+        WHERE u.supermarket_name IS NOT NULL 
+          AND u.latitude IS NOT NULL 
+          AND u.longitude IS NOT NULL
         GROUP BY u.id, u.supermarket_name, u.supermarket_address, u.latitude, u.longitude
         ORDER BY u.supermarket_name
       `);
