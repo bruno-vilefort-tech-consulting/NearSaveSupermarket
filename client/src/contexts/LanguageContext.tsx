@@ -7,51 +7,32 @@ interface LanguageContextType {
   t: (key: keyof TranslationKeys) => string;
 }
 
-// Create context with default values
-const LanguageContext = createContext<LanguageContextType>({
-  language: 'pt-BR',
-  setLanguage: () => {},
-  t: (key: keyof TranslationKeys) => key as string,
-});
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 interface LanguageProviderProps {
   children: ReactNode;
 }
 
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
+export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>('pt-BR');
 
   // Load language from localStorage on mount
   useEffect(() => {
-    try {
-      const savedLanguage = localStorage.getItem('app-language') as Language;
-      if (savedLanguage && (savedLanguage === 'pt-BR' || savedLanguage === 'en-US')) {
-        setLanguageState(savedLanguage);
-      }
-    } catch (error) {
-      console.warn('Failed to load language from localStorage:', error);
+    const savedLanguage = localStorage.getItem('app-language') as Language;
+    if (savedLanguage && (savedLanguage === 'pt-BR' || savedLanguage === 'en-US')) {
+      setLanguageState(savedLanguage);
     }
   }, []);
 
   // Save language to localStorage when it changes
   const setLanguage = (newLanguage: Language) => {
-    try {
-      setLanguageState(newLanguage);
-      localStorage.setItem('app-language', newLanguage);
-    } catch (error) {
-      console.warn('Failed to save language to localStorage:', error);
-      setLanguageState(newLanguage);
-    }
+    setLanguageState(newLanguage);
+    localStorage.setItem('app-language', newLanguage);
   };
 
   // Translation function
   const t = (key: keyof TranslationKeys): string => {
-    try {
-      return getTranslation(key, language);
-    } catch (error) {
-      console.warn('Translation error:', error);
-      return key as string;
-    }
+    return getTranslation(key, language);
   };
 
   const value: LanguageContextType = {
@@ -65,8 +46,12 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       {children}
     </LanguageContext.Provider>
   );
-};
+}
 
-export function useLanguageGlobal(): LanguageContextType {
-  return useContext(LanguageContext);
+export function useLanguageGlobal() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguageGlobal must be used within a LanguageProvider');
+  }
+  return context;
 }

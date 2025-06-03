@@ -64,30 +64,18 @@ export function useNotificationSound() {
   }, []);
 
   const playNotification = useCallback(async () => {
-    console.log('🔊 Attempting to play notification sound...', {
-      audioContext: !!audioContextRef.current,
-      isEnabled,
-      isReady,
-      audioState: audioContextRef.current?.state
-    });
-
-    if (!audioContextRef.current || !isReady) {
-      console.warn('❌ Audio context not available or not ready');
-      return false;
-    }
+    if (!audioContextRef.current || !isEnabled || !isReady) return false;
 
     try {
       // Resume audio context if needed
       if (audioContextRef.current.state === 'suspended') {
-        console.log('🔄 Resuming suspended audio context...');
         await audioContextRef.current.resume();
       }
       
-      console.log('✅ Playing notification sound');
       createNotificationSound(audioContextRef.current);
       return true;
     } catch (error) {
-      console.error('❌ Failed to play notification sound:', error);
+      console.error('Failed to play notification sound:', error);
       return false;
     }
   }, [isEnabled, isReady, createNotificationSound]);
