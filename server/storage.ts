@@ -1069,13 +1069,14 @@ export class DatabaseStorage implements IStorage {
           s.address,
           s.latitude::text as latitude,
           s.longitude::text as longitude,
-          COUNT(p.id) as product_count,
-          COUNT(CASE WHEN p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions
+          COUNT(CASE WHEN p.is_active = 1 THEN p.id END) as product_count,
+          COUNT(CASE WHEN p.is_active = 1 AND p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions
         FROM staff_users s
         LEFT JOIN products p ON s.id = p.created_by_staff
         WHERE s.company_name IS NOT NULL 
           AND s.latitude IS NOT NULL 
           AND s.longitude IS NOT NULL
+          AND s.is_active = 1
         GROUP BY s.id, s.company_name, s.address, s.latitude, s.longitude
         ORDER BY s.company_name
       `);
