@@ -146,7 +146,12 @@ export function usePushNotifications() {
       return true;
 
     } catch (error: any) {
-      console.error('Push notification error:', error);
+      console.error('Push notification error details:', {
+        error: error,
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       
       // Provide specific error messages
       let userMessage = 'Erro ao ativar notificações';
@@ -159,8 +164,13 @@ export function usePushNotifications() {
         userMessage = 'Ativação cancelada pelo usuário.';
       } else if (error.message.includes('VAPID') || error.message.includes('Servidor')) {
         userMessage = 'Erro de configuração do servidor. Tente novamente.';
+      } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        userMessage = 'Erro de autenticação. Faça login novamente.';
+      } else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+        userMessage = 'Erro interno do servidor. Tente novamente.';
       }
       
+      console.error('Final error message to user:', userMessage);
       throw new Error(userMessage);
     } finally {
       setIsLoading(false);
