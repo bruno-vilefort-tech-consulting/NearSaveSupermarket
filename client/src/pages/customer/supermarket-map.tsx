@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+
+// Component to update map center
+function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [map, center, zoom]);
+  
+  return null;
+}
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +42,8 @@ interface SupermarketLocation {
 export default function SupermarketMap() {
   // const { t } = useLanguage();
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  // Centro padrão do mapa (Uberlândia, MG, Brasil)
+  const defaultCenter: [number, number] = [-18.9188, -48.2766];
   const [selectedSupermarket, setSelectedSupermarket] = useState<SupermarketLocation | null>(null);
   const [locationStatus, setLocationStatus] = useState<'loading' | 'granted' | 'denied' | 'unavailable'>('loading');
   const [isMobile, setIsMobile] = useState(false);
@@ -363,8 +376,8 @@ export default function SupermarketMap() {
             <Card className="h-[600px] overflow-hidden">
               <CardContent className="p-0 h-full">
                 <MapContainer
-                  center={userLocation}
-                  zoom={10}
+                  center={userLocation || defaultCenter}
+                  zoom={userLocation ? 13 : 10}
                   className="h-full w-full"
                 >
                   <TileLayer
@@ -372,22 +385,27 @@ export default function SupermarketMap() {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   />
                   
+                  {/* Map Controller for Mobile */}
+                  <MapUpdater center={userLocation || defaultCenter} zoom={userLocation ? 13 : 10} />
+                  
                   {/* User location */}
-                  <Marker 
-                    position={userLocation}
-                    icon={L.divIcon({
-                      html: '<div style="background-color: #3b82f6; width: 15px; height: 15px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
-                      className: 'user-marker',
-                      iconSize: [15, 15],
-                      iconAnchor: [7, 7]
-                    })}
-                  >
-                    <Popup>
-                      <div className="text-center">
-                        <strong>Sua Localização</strong>
-                      </div>
-                    </Popup>
-                  </Marker>
+                  {userLocation && (
+                    <Marker 
+                      position={userLocation}
+                      icon={L.divIcon({
+                        html: '<div style="background-color: #3b82f6; width: 15px; height: 15px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+                        className: 'user-marker',
+                        iconSize: [15, 15],
+                        iconAnchor: [7, 7]
+                      })}
+                    >
+                      <Popup>
+                        <div className="text-center">
+                          <strong>Sua Localização</strong>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  )}
 
                   {/* Supermarket markers */}
                   {validSupermarkets.map((supermarket) => (
