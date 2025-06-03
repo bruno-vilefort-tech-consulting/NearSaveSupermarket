@@ -282,8 +282,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Confirmar pagamento PIX e criar pedido
   app.post("/api/pix/confirm", async (req, res) => {
+    const { tempOrderId, pixPaymentId, customerData } = req.body;
+    
     try {
-      const { tempOrderId, pixPaymentId, customerData } = req.body;
       console.log('🔍 Confirmando pagamento PIX:', { tempOrderId, pixPaymentId });
       
       // Verificar se o pedido já está sendo processado (proteção contra chamadas simultâneas)
