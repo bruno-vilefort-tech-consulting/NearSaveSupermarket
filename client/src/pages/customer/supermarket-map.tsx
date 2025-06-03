@@ -34,6 +34,7 @@ export default function SupermarketMap() {
   const [selectedSupermarket, setSelectedSupermarket] = useState<SupermarketLocation | null>(null);
   const [locationStatus, setLocationStatus] = useState<'loading' | 'granted' | 'denied' | 'unavailable'>('loading');
   const [isMobile, setIsMobile] = useState(false);
+  const [searchLocation, setSearchLocation] = useState('');
 
   // Detect mobile device and initialize
   useEffect(() => {
@@ -72,25 +73,41 @@ export default function SupermarketMap() {
 
   const requestLocation = () => {
     setLocationStatus('loading');
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation([position.coords.latitude, position.coords.longitude]);
-          setLocationStatus('granted');
-        },
-        (error) => {
-          console.log('Geolocation error:', error.code, error.message);
-          setLocationStatus('denied');
-        },
-        {
-          enableHighAccuracy: false, // Better for mobile battery and faster
-          timeout: 15000, // Longer timeout for mobile networks
-          maximumAge: 300000 // Accept cached position up to 5 minutes
-        }
-      );
-    } else {
+    
+    if (!navigator.geolocation) {
       setLocationStatus('unavailable');
+      return;
     }
+
+    // Create a promise that times out after 5 seconds
+    const locationPromise = new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: false,
+        timeout: 8000,
+        maximumAge: 300000
+      });
+    });
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 5000);
+    });
+
+    Promise.race([locationPromise, timeoutPromise])
+      .then((position) => {
+        setUserLocation([position.coords.latitude, position.coords.longitude]);
+        setLocationStatus('granted');
+      })
+      .catch((error) => {
+        console.log('Geolocation error:', error.code || 'timeout', error.message || 'timeout');
+        setLocationStatus('denied');
+        
+        // Show a helpful message for mobile users
+        if (isMobile) {
+          setTimeout(() => {
+            alert('🔒 Localização bloqueada\n\nPara ativar:\n1. Toque no ícone de cadeado 🔒 na barra de endereço\n2. Toque em "Localização"\n3. Selecione "Permitir"\n4. Recarregue a página');
+          }, 500);
+        }
+      });
   };
 
   // Fetch real supermarket data with locations
@@ -142,66 +159,79 @@ export default function SupermarketMap() {
           </p>
         </div>
 
-        {/* Location Info */}
+        {/* Mobile-Optimized Location Info */}
         <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <MapPin className="h-5 w-5 text-blue-600 mr-3" />
               <div>
                 <p className="text-sm font-bold text-blue-800 mb-1">
-                  {locationStatus === 'granted' ? '✅ Localização ativada' : '📍 Mapa de Supermercados'}
+                  {locationStatus === 'granted' ? '✅ Sua localização ativa' : '🗺️ Mapa de Supermercados'}
                 </p>
                 <p className="text-sm text-blue-700">
                   {locationStatus === 'granted' 
-                    ? 'Sua localização está sendo exibida no mapa (ponto azul piscando)'
-                    : 'Veja todos os supermercados disponíveis na região de São Paulo'
+                    ? 'Você está no mapa (ponto azul piscando)'
+                    : `${validSupermarkets.length} supermercados na região`
                   }
                 </p>
-                {locationStatus === 'denied' && isMobile && (
-                  <div className="mt-2 p-3 bg-amber-50 rounded border-l-4 border-amber-400">
-                    <p className="text-xs font-semibold text-amber-800 mb-2">
-                      📱 Como ativar localização no Android:
-                    </p>
-                    <ol className="text-xs text-amber-700 space-y-1 list-decimal list-inside">
-                      <li>Clique no botão "🔓 Permitir Localização" abaixo</li>
-                      <li>Na popup que aparecer, escolha "Permitir"</li>
-                      <li>Se não aparecer popup, toque no ícone 🔒 na barra de endereço</li>
-                      <li>Toque em "Localização" e selecione "Permitir"</li>
-                    </ol>
-                  </div>
-                )}
-                {locationStatus === 'denied' && !isMobile && (
-                  <p className="text-xs text-amber-600 mt-2">
-                    💡 Clique em "Permitir" quando o navegador solicitar sua localização
-                  </p>
-                )}
               </div>
             </div>
             <div className="flex flex-col gap-2 ml-4">
-              {locationStatus !== 'granted' && (
+              {/* Desktop location button */}
+              {locationStatus !== 'granted' && !isMobile && (
                 <Button 
                   onClick={requestLocation} 
                   size="sm" 
-                  variant={isMobile ? "default" : "outline"}
+                  variant="outline"
                   disabled={locationStatus === 'loading'}
-                  className={isMobile ? "bg-blue-600 hover:bg-blue-700 text-white font-semibold" : ""}
                 >
-                  {locationStatus === 'loading' ? 'Aguardando...' : isMobile ? '🔓 Permitir Localização' : 'Tentar Localização'}
+                  {locationStatus === 'loading' ? 'Aguardando...' : 'Localização'}
                 </Button>
               )}
+              
+              {/* Mobile location button with fallback */}
+              {locationStatus !== 'granted' && isMobile && (
+                <Button 
+                  onClick={() => {
+                    // Try location first, then fallback to center view
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                          setUserLocation([position.coords.latitude, position.coords.longitude]);
+                          setLocationStatus('granted');
+                        },
+                        () => {
+                          // If location fails, show São Paulo center with all supermarkets
+                          const avgLat = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.latitude.toString()), 0) / validSupermarkets.length;
+                          const avgLng = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.longitude.toString()), 0) / validSupermarkets.length;
+                          setUserLocation([avgLat, avgLng]);
+                          setLocationStatus('denied');
+                        },
+                        { timeout: 3000, enableHighAccuracy: false }
+                      );
+                    }
+                  }}
+                  size="sm" 
+                  variant="default"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  📍 Localizar
+                </Button>
+              )}
+              
+              {/* Center view button */}
               {validSupermarkets.length > 0 && (
                 <Button 
                   onClick={() => {
-                    // Calculate center of all supermarkets
                     const avgLat = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.latitude.toString()), 0) / validSupermarkets.length;
                     const avgLng = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.longitude.toString()), 0) / validSupermarkets.length;
                     setUserLocation([avgLat, avgLng]);
                   }}
                   size="sm" 
-                  variant="default"
-                  className="bg-green-600 hover:bg-green-700"
+                  variant="outline"
+                  className="text-green-600 border-green-600 hover:bg-green-50"
                 >
-                  Ver Todos
+                  🏪 Ver Todos
                 </Button>
               )}
             </div>
