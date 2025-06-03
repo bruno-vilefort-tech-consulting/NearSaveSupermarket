@@ -274,15 +274,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Confirmar pagamento PIX e criar pedido
   app.post("/api/pix/confirm", async (req, res) => {
     try {
-      const { tempOrderId, pixPaymentId } = req.body;
+      const { tempOrderId, pixPaymentId, customerData } = req.body;
       console.log('🔍 Confirmando pagamento PIX:', { tempOrderId, pixPaymentId });
       
       // Buscar dados temporários do pedido
-      if (!(global as any).tempOrders || !(global as any).tempOrders.has(tempOrderId)) {
-        return res.status(404).json({ message: "Pedido temporário não encontrado" });
+      let tempOrderData;
+      if ((global as any).tempOrders && (global as any).tempOrders.has(tempOrderId)) {
+        tempOrderData = (global as any).tempOrders.get(tempOrderId);
+        console.log('✅ Dados encontrados na memória do servidor');
+      } else {
+        // Se os dados não estão na memória (servidor reiniciou), usar dados do frontend
+        console.log('⚠️ Dados temporários não encontrados na memória, usando dados do frontend...');
+        
+        if (!customerData) {
+          return res.status(400).json({ message: "Dados do pedido não encontrados e nenhum dado foi enviado pelo frontend" });
+        }
+        
+        // Verificar se o pagamento existe no Mercado Pago
+        const paymentInfo = await getPaymentStatus(pixPaymentId);
+        if (!paymentInfo) {
+          return res.status(404).json({ message: "Pagamento PIX não encontrado" });
+        }
+        
+        // Usar dados do cliente enviados pelo frontend
+        tempOrderData = {
+          tempOrderId,
+          customerName: customerData.customerName,
+          customerEmail: customerData.customerEmail,
+          customerPhone: customerData.customerPhone,
+          totalAmount: customerData.totalAmount,
+          items: customerData.items,
+          pixPaymentId: pixPaymentId,
+          createdAt: new Date().toISOString()
+        };
+        
+        console.log('✅ Usando dados do cliente enviados pelo frontend');
       }
-      
-      const tempOrderData = (global as any).tempOrders.get(tempOrderId);
       
       // Verificar status do pagamento no Mercado Pago
       const paymentStatus = await getPaymentStatus(pixPaymentId);

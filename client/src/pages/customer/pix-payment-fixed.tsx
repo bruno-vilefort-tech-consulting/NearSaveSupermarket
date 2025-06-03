@@ -92,7 +92,14 @@ export default function PixPaymentFixed() {
         try {
           const confirmResponse = await apiRequest("POST", "/api/pix/confirm", {
             tempOrderId: pixData.tempOrderId,
-            pixPaymentId: pixData.pixPayment.id
+            pixPaymentId: pixData.pixPayment.id,
+            customerData: {
+              customerName: pixData.customerName,
+              customerEmail: pixData.customerEmail,
+              customerPhone: pixData.customerPhone,
+              totalAmount: pixData.totalAmount,
+              items: pixData.items
+            }
           });
           
           const result = await confirmResponse.json();
