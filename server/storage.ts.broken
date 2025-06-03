@@ -225,6 +225,7 @@ export class DatabaseStorage implements IStorage {
       expirationDate: result.expirationDate,
       imageUrl: result.imageUrl,
       isActive: result.isActive,
+      createdByStaff: null,
       createdBy: result.createdByUser,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
@@ -265,6 +266,7 @@ export class DatabaseStorage implements IStorage {
       expirationDate: result.expirationDate,
       imageUrl: result.imageUrl,
       isActive: result.isActive,
+      createdByStaff: null,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
       createdBy: result.createdByUser,
@@ -326,7 +328,35 @@ export class DatabaseStorage implements IStorage {
 
       return results.map(result => ({
         ...result,
-        createdBy: result.createdBy || { id: 0, companyName: "Unknown", email: "unknown@email.com" }
+        createdBy: result.createdBy ? {
+          id: String(result.createdBy.id),
+          email: result.createdBy.email,
+          firstName: null,
+          lastName: null,
+          profileImageUrl: null,
+          supermarketName: result.createdBy.companyName,
+          supermarketAddress: "",
+          ecoPoints: null,
+          totalEcoActions: null,
+          latitude: null,
+          longitude: null,
+          createdAt: null,
+          updatedAt: null
+        } : {
+          id: "0",
+          email: "unknown@email.com",
+          firstName: null,
+          lastName: null,
+          profileImageUrl: null,
+          supermarketName: "Unknown",
+          supermarketAddress: "",
+          ecoPoints: null,
+          totalEcoActions: null,
+          latitude: null,
+          longitude: null,
+          createdAt: null,
+          updatedAt: null
+        }
       }));
     } catch (error) {
       console.error("Error fetching products by staff:", error);

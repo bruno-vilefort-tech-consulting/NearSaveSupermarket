@@ -11,6 +11,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Products endpoint
+  app.get('/api/products', (req, res) => {
+    res.json([
+      {
+        id: 1,
+        name: "Banana Orgânica",
+        originalPrice: "8.99",
+        discountPrice: "5.99",
+        category: "Frutas",
+        expirationDate: "2025-06-05",
+        ecoPoints: 15,
+        quantity: 25
+      },
+      {
+        id: 2,
+        name: "Pão Integral",
+        originalPrice: "6.50",
+        discountPrice: "4.00",
+        category: "Padaria",
+        expirationDate: "2025-06-04",
+        ecoPoints: 20,
+        quantity: 12
+      }
+    ]);
+  });
+
   // Basic API endpoints for testing
   app.get('/api/supermarkets', (req, res) => {
     res.json({
