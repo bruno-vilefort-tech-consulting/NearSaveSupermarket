@@ -34,6 +34,7 @@ import StaffForgotPassword from "@/pages/staff-forgot-password";
 import StaffResetPassword from "@/pages/staff-reset-password";
 import StaffSettings from "@/pages/staff-settings";
 import Terms from "@/pages/terms";
+import PrivacyPolicy from "@/pages/privacy-policy";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -67,8 +68,9 @@ function Router() {
       <Route path="/customer/eco-rewards" component={EcoRewards} />
       <Route path="/customer/eco-points" component={EcoPoints} />
       
-      {/* Terms and Conditions - Public access */}
+      {/* Legal Pages - Public access */}
       <Route path="/terms" component={Terms} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
       
       {/* Staff App Routes - Allow access if either authenticated */}
       {isStaffLoading ? (
