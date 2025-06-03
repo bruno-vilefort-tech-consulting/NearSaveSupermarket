@@ -264,13 +264,11 @@ export default function PixPayment() {
       <div className="max-w-md mx-auto p-4 space-y-6">
           {/* PIX Payment Card */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between text-lg font-bold text-gray-900">
-                {t('payment.pixPayment')}
-                {getStatusBadge()}
-              </CardTitle>
+            <CardHeader className="text-center pb-4">
+              <CardTitle className="text-lg font-bold text-gray-900 mb-2">{t('payment.pixPayment')}</CardTitle>
+              {getStatusBadge()}
               {!isExpired && timeLeft > 0 && (
-                <div className="flex items-center justify-center space-x-2 text-orange-600">
+                <div className="flex items-center justify-center space-x-2 text-orange-600 mt-3">
                   <Clock className="w-4 h-4" />
                   <span className="text-xs font-medium">
                     Expira em: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
@@ -278,7 +276,7 @@ export default function PixPayment() {
                 </div>
               )}
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <div className="text-center">
                 <p className="text-xs text-gray-600 mb-4">
                   {t('payment.pixInstructions')}
@@ -320,7 +318,7 @@ export default function PixPayment() {
 
           {/* Order Summary */}
           <Card>
-            <CardHeader>
+            <CardHeader className="text-center pb-4">
               <CardTitle className="text-lg font-bold text-gray-900">Resumo do Pedido #{orderId}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
