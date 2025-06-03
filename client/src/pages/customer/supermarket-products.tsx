@@ -404,14 +404,9 @@ export default function SupermarketProducts() {
           
           <div className="space-y-4">
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-600 mb-2">
-                Para adicionar este produto de <span className="font-semibold">{supermarketName}</span>, precisamos limpar seu carrinho atual.
+              <p className="text-sm text-gray-600">
+                Para adicionar produtos de <span className="font-semibold">{supermarketName}</span>, precisamos limpar seu carrinho atual.
               </p>
-              {pendingCartItem && (
-                <p className="text-sm font-medium">
-                  Produto: {pendingCartItem.product.name} (x{pendingCartItem.quantity})
-                </p>
-              )}
             </div>
             
             <div className="flex space-x-3">
