@@ -121,14 +121,47 @@ export default function SupermarketMap() {
     !isNaN(parseFloat(s.latitude.toString())) && !isNaN(parseFloat(s.longitude.toString()))
   );
 
-  // Create custom icons
-  const createIcon = (hasPromotions: boolean) => {
-    const color = hasPromotions ? '#ef4444' : '#10b981'; // red for promotions, green for regular
+  // Create custom icons with product count
+  const createIcon = (hasPromotions: boolean, productCount: number) => {
+    const baseColor = hasPromotions ? '#ef4444' : '#10b981'; // red for promotions, green for regular
+    const textColor = '#ffffff';
+    const size = productCount > 10 ? 38 : 32; // Larger pin for more products
+    
     return L.divIcon({
-      html: `<div style="background-color: ${color}; width: 25px; height: 25px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-      className: 'custom-marker',
-      iconSize: [25, 25],
-      iconAnchor: [12, 12]
+      html: `
+        <div style="
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: ${baseColor};
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+          font-weight: bold;
+          font-size: ${productCount > 99 ? '10px' : '13px'};
+          color: ${textColor};
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        ">
+          ${productCount > 99 ? '99+' : productCount}
+        </div>
+        ${hasPromotions ? `<div style="
+          position: absolute;
+          top: -3px;
+          right: -3px;
+          background-color: #fbbf24;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          border: 2px solid white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        "></div>` : ''}
+      `,
+      className: 'custom-supermarket-marker',
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2]
     });
   };
 
@@ -343,7 +376,7 @@ export default function SupermarketMap() {
                     <Marker
                       key={supermarket.id}
                       position={[parseFloat(supermarket.latitude.toString()), parseFloat(supermarket.longitude.toString())]}
-                      icon={createIcon(supermarket.hasPromotions)}
+                      icon={createIcon(supermarket.hasPromotions, supermarket.productCount)}
                       eventHandlers={{
                         click: () => setSelectedSupermarket(supermarket)
                       }}
