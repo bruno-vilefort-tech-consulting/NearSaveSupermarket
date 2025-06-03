@@ -109,7 +109,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/map")}
+                onClick={() => navigate("/customer/supermarket-map")}
                 className="relative"
               >
                 <MapPin size={16} className="mr-2" />
@@ -147,7 +147,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/map")}
+                onClick={() => navigate("/customer/supermarket-map")}
                 className="relative"
               >
                 <MapPin size={16} />
