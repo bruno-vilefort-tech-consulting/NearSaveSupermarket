@@ -1,68 +1,99 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Header } from "@/components/layout/header";
+import { BottomNavigation } from "@/components/layout/bottom-navigation";
+import { ProductCard } from "@/components/product/product-card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
+import { useStaffAuth } from "@/hooks/useStaffAuth";
+import { useLanguage } from "@/hooks/useLanguage";
+
+const categories = ["Todos", "Padaria", "Laticínios", "Carnes e Aves", "Hortifruti", "Frios"];
 
 export default function Products() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const { t } = useLanguage();
+  const { isStaffAuthenticated } = useStaffAuth();
+  
   const { data: products, isLoading } = useQuery({
-    queryKey: ["/api/products"],
+    queryKey: isStaffAuthenticated ? ["/api/staff/products", selectedCategory === "Todos" ? undefined : selectedCategory] : ["/api/products", selectedCategory === "Todos" ? undefined : selectedCategory],
+    // Removed automatic refresh to prevent interference
   });
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-500"></div>
-      </div>
-    );
-  }
+  const filteredProducts = products?.filter((product: any) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <span className="text-green-600 text-2xl mr-2">🌱</span>
-              <span className="text-xl font-bold text-gray-900">EcoMarket</span>
-            </div>
-            <a href="/" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">
-              Voltar
-            </a>
+      <Header />
+      
+      <main className="pb-20">
+        <div className="p-4 space-y-4">
+          {/* Search and Filter */}
+          <Card className="shadow-sm">
+            <CardContent className="p-4">
+              <div className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+                  <Input
+                    placeholder={t('products.searchPlaceholder')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+                
+                <div className="flex space-x-2 overflow-x-auto pb-2">
+                  {categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-full ${
+                        selectedCategory === category
+                          ? "bg-primary-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {category}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Products List */}
+          <div className="space-y-3">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Carregando produtos...</p>
+              </div>
+            ) : filteredProducts && filteredProducts.length > 0 ? (
+              filteredProducts.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
+              ))
+            ) : (
+              <Card className="shadow-sm">
+                <CardContent className="p-8 text-center">
+                  <p className="text-gray-500">Nenhum produto encontrado</p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Tente ajustar sua busca ou critérios de filtro
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Produtos Sustentáveis</h1>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {(products || []).map((product: any) => (
-            <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
-              <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                <span className="text-4xl">🥬</span>
-              </div>
-              <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-              <p className="text-gray-600 text-sm mb-3">{product.category}</p>
-              <div className="flex justify-between items-center mb-3">
-                <div>
-                  <span className="text-lg font-bold text-green-600">
-                    R$ {product.discountPrice}
-                  </span>
-                  <span className="text-sm text-gray-500 line-through ml-2">
-                    R$ {product.originalPrice}
-                  </span>
-                </div>
-                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                  {product.ecoPoints} pts eco
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mb-3">
-                Vence em: {new Date(product.expirationDate).toLocaleDateString()}
-              </p>
-              <button className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
-                Adicionar ao Carrinho
-              </button>
-            </div>
-          ))}
-        </div>
       </main>
+      
+      <BottomNavigation />
     </div>
   );
 }

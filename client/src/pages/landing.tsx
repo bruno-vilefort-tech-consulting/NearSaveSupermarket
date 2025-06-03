@@ -1,84 +1,201 @@
-import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Users, Leaf, Globe, ChevronDown } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
+import { useState, useEffect, useRef } from "react";
 
 export default function Landing() {
+  const { t, setLanguage } = useLanguage();
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+  const languageMenuRef = useRef<HTMLDivElement>(null);
+  
+  const handleLogin = () => {
+    window.location.href = "/staff-login";
+  };
+
+  // Fechar menu quando clicar fora dele
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
+        setIsLanguageMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // SVG de compras sustentáveis
+  const SustainableShoppingSVG = () => (
+    <svg viewBox="0 0 400 300" className="w-full max-w-sm mx-auto">
+      {/* Fundo */}
+      <rect width="400" height="300" fill="url(#bgGradient)" />
+      
+      {/* Gradients */}
+      <defs>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ecfdf5" />
+          <stop offset="100%" stopColor="#d1fae5" />
+        </linearGradient>
+        <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#10b981" />
+          <stop offset="100%" stopColor="#059669" />
+        </linearGradient>
+        <linearGradient id="cartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3b82f6" />
+          <stop offset="100%" stopColor="#1d4ed8" />
+        </linearGradient>
+      </defs>
+      
+      {/* Terra/Base */}
+      <ellipse cx="200" cy="280" rx="180" ry="15" fill="#16a34a" opacity="0.3" />
+      
+      {/* Árvore grande */}
+      <rect x="320" y="180" width="12" height="80" fill="#92400e" />
+      <circle cx="326" cy="180" r="35" fill="url(#leafGradient)" />
+      <circle cx="340" cy="165" r="25" fill="url(#leafGradient)" opacity="0.8" />
+      <circle cx="312" cy="165" r="25" fill="url(#leafGradient)" opacity="0.8" />
+      
+      {/* Carrinho de compras */}
+      <rect x="150" y="200" width="60" height="40" rx="5" fill="url(#cartGradient)" />
+      <rect x="155" y="190" width="50" height="15" rx="3" fill="url(#cartGradient)" opacity="0.7" />
+      <circle cx="165" cy="250" r="8" fill="#374151" />
+      <circle cx="195" cy="250" r="8" fill="#374151" />
+      <rect x="145" y="185" width="8" height="25" fill="url(#cartGradient)" />
+      
+      {/* Produtos no carrinho */}
+      <rect x="160" y="195" width="12" height="15" rx="2" fill="#fbbf24" />
+      <rect x="175" y="195" width="12" height="15" rx="2" fill="#ef4444" />
+      <rect x="190" y="195" width="12" height="15" rx="2" fill="#10b981" />
+      
+      {/* Folhas flutuando */}
+      <path d="M80 100 Q85 95 90 100 Q85 105 80 100" fill="#10b981" opacity="0.6" />
+      <path d="M120 80 Q125 75 130 80 Q125 85 120 80" fill="#059669" opacity="0.7" />
+      <path d="M280 120 Q285 115 290 120 Q285 125 280 120" fill="#10b981" opacity="0.5" />
+      
+      {/* Plantas pequenas */}
+      <circle cx="100" cy="240" r="15" fill="url(#leafGradient)" opacity="0.6" />
+      <rect x="98" y="240" width="4" height="20" fill="#92400e" />
+      
+      <circle cx="260" cy="230" r="12" fill="url(#leafGradient)" opacity="0.7" />
+      <rect x="258" y="230" width="4" height="18" fill="#92400e" />
+      
+      {/* Sol */}
+      <circle cx="350" cy="50" r="25" fill="#fbbf24" opacity="0.8" />
+      <path d="M350 20 L350 10" stroke="#fbbf24" strokeWidth="2" />
+      <path d="M375 35 L383 28" stroke="#fbbf24" strokeWidth="2" />
+      <path d="M375 65 L383 72" stroke="#fbbf24" strokeWidth="2" />
+      <path d="M325 35 L317 28" stroke="#fbbf24" strokeWidth="2" />
+      
+      {/* Símbolo de reciclagem */}
+      <g transform="translate(50, 150)">
+        <path d="M0 0 Q-10 -10 0 -20 Q10 -10 0 0" fill="#10b981" />
+        <path d="M15 10 Q25 0 15 -10 Q5 0 15 10" fill="#10b981" />
+        <path d="M-15 10 Q-25 0 -15 -10 Q-5 0 -15 10" fill="#10b981" />
+      </g>
+    </svg>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <span className="text-green-600 text-2xl mr-2">🌱</span>
-              <span className="text-xl font-bold text-gray-900">EcoMarket</span>
-            </div>
-            <div className="space-x-4">
-              <Link href="/customer/login">
-                <a className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium">
-                  Cliente
-                </a>
-              </Link>
-              <Link href="/staff/login">
-                <a className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium">
-                  Supermercado
-                </a>
-              </Link>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-md space-y-8">
+        
+        {/* Language Selector */}
+        <div className="flex justify-end">
+          <div className="relative" ref={languageMenuRef}>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+              className="h-10 px-3 bg-white/80 backdrop-blur-sm border-white/50 hover:bg-white/90 flex items-center gap-2"
+            >
+              <Globe className="h-4 w-4 text-green-600" />
+              <ChevronDown className={`h-3 w-3 text-green-600 transition-transform ${isLanguageMenuOpen ? 'rotate-180' : ''}`} />
+            </Button>
+            
+            {isLanguageMenuOpen && (
+              <div className="absolute right-0 top-12 bg-white/95 backdrop-blur-md border border-white/50 rounded-lg shadow-lg py-2 min-w-32 z-10">
+                <button
+                  onClick={() => {
+                    setLanguage('pt-BR');
+                    setIsLanguageMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-3 text-gray-700"
+                >
+                  <span className="text-lg">🇧🇷</span>
+                  <span className="font-medium">Português</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setLanguage('en-US');
+                    setIsLanguageMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-3 text-gray-700"
+                >
+                  <span className="text-lg">🇺🇸</span>
+                  <span className="font-medium">English</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
-      </header>
-
-      {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-8">
-            Supermercados
-            <span className="text-green-600"> Sustentáveis</span>
-            <br />
-            no Brasil
+        
+        {/* Logo Principal */}
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-2xl shadow-lg">
+              <Leaf className="h-12 w-12 text-white" />
+            </div>
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text text-transparent">
+            {t('landing.title')}
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Conectamos consumidores conscientes com supermercados locais para reduzir 
-            o desperdício de alimentos e promover compras sustentáveis.
+          <p className="text-sm text-gray-500 font-medium">
+            {t('landing.subtitle')}
           </p>
-          <div className="space-x-4">
-            <Link href="/customer/login">
-              <a className="bg-green-600 text-white hover:bg-green-700 px-8 py-3 rounded-lg text-lg font-medium inline-block">
-                Começar a Comprar
-              </a>
-            </Link>
-            <Link href="/staff/login">
-              <a className="border-2 border-green-600 text-green-600 hover:bg-green-50 px-8 py-3 rounded-lg text-lg font-medium inline-block">
-                Cadastrar Loja
-              </a>
-            </Link>
-          </div>
         </div>
 
-        {/* Features */}
-        <div className="mt-20 grid md:grid-cols-3 gap-8">
-          <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-            <div className="text-4xl mb-4">🌱</div>
-            <h3 className="text-xl font-semibold mb-2">Sustentabilidade</h3>
-            <p className="text-gray-600">
-              Ganhe pontos ecológicos comprando produtos próximos ao vencimento
-            </p>
-          </div>
-          <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-            <div className="text-4xl mb-4">🛒</div>
-            <h3 className="text-xl font-semibold mb-2">Compras Inteligentes</h3>
-            <p className="text-gray-600">
-              Encontre supermercados próximos e faça pedidos com entrega
-            </p>
-          </div>
-          <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-            <div className="text-4xl mb-4">💳</div>
-            <h3 className="text-xl font-semibold mb-2">Pagamento PIX</h3>
-            <p className="text-gray-600">
-              Pagamentos seguros e instantâneos via PIX
-            </p>
+        {/* Imagem Sustentável */}
+        <div className="my-8">
+          <SustainableShoppingSVG />
+        </div>
+
+        {/* Botões de Login */}
+        <div className="space-y-4">
+          <Button 
+            onClick={() => window.location.href = '/customer/login'}
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
+            size="lg"
+          >
+            <div className="flex items-center justify-center space-x-3">
+              <ShoppingCart className="h-6 w-6" />
+              <span className="font-bold text-lg">{t('landing.customerButton')}</span>
+            </div>
+          </Button>
+
+          <Button 
+            onClick={handleLogin}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
+            size="lg"
+          >
+            <div className="flex items-center justify-center space-x-3">
+              <Users className="h-6 w-6" />
+              <span className="font-bold text-lg">{t('landing.staffButton')}</span>
+            </div>
+          </Button>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-sm text-gray-500 space-y-2 pt-6">
+          <p className="font-medium">{t('landing.footer')}</p>
+          <div className="flex items-center justify-center space-x-1 text-xs">
+            <Leaf className="h-3 w-3 text-green-500" />
+            <span>{t('landing.features')}</span>
           </div>
         </div>
-      </main>
+        
+      </div>
     </div>
   );
 }

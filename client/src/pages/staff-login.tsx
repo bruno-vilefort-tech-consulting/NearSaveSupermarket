@@ -1,41 +1,210 @@
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Settings, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/hooks/useLanguage";
+
 export default function StaffLogin() {
+  const [, navigate] = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  const { toast } = useToast();
+  const { t } = useLanguage();
+
+  const loginMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const response = await apiRequest("POST", "/api/staff/login", {
+        email: data.email,
+        password: data.password
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      localStorage.setItem('staffInfo', JSON.stringify(data));
+      toast({
+        title: t('auth.loginSuccess'),
+        description: `${t('dashboard.welcome')}, ${data.companyName}!`,
+      });
+      window.location.href = "/dashboard";
+    },
+    onError: (error: any) => {
+      toast({
+        title: t('auth.loginError'),
+        description: error.message || t('auth.invalidCredentials'),
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.email || !formData.password) {
+      toast({
+        title: t('auth.emailRequired'),
+        description: t('auth.passwordRequired'),
+        variant: "destructive"
+      });
+      return;
+    }
+
+    loginMutation.mutate(formData);
+  };
+
+  const handleForgotPassword = () => {
+    navigate("/staff/forgot-password");
+  };
+
+  const handleReplitLogin = () => {
+    window.location.href = "/api/login";
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-lg shadow p-8">
-        <h2 className="text-2xl font-bold text-center mb-6">Login Supermercado</h2>
-        <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="seu@email.com"
-            />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <Settings className="text-blue-600 mr-2" size={32} />
+            <h1 className="text-3xl font-bold text-gray-900">EcoMart Staff</h1>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Senha
-            </label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="••••••••"
-            />
+          <p className="text-lg text-gray-600">
+            {t('staff.login')}
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-md mx-auto">
+          <Card className="shadow-lg">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl text-gray-900">
+                {t('staff.login')}
+              </CardTitle>
+              <p className="text-gray-600 mt-2">
+                {t('staff.login')}
+              </p>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              {/* Login Form */}
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="flex items-center space-x-2">
+                    <Mail size={16} />
+                    <span>{t('auth.email')} *</span>
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder={t('auth.email')}
+                    className="w-full"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="flex items-center space-x-2">
+                    <Lock size={16} />
+                    <span>{t('auth.password')} *</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                      placeholder={t('auth.password')}
+                      className="w-full pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  disabled={loginMutation.isPending}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                >
+                  {loginMutation.isPending ? `${t('auth.login')}...` : t('auth.login')}
+                </Button>
+              </form>
+
+              {/* Forgot Password */}
+              <div className="text-center">
+                <button
+                  onClick={handleForgotPassword}
+                  className="text-blue-600 hover:text-blue-800 text-sm underline"
+                >
+                  {t('auth.forgotPassword')}
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-gray-500">{t('common.or')}</span>
+                </div>
+              </div>
+
+              {/* Replit Login */}
+              <Button
+                onClick={handleReplitLogin}
+                variant="outline"
+                className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+              >
+                {t('auth.loginReplit')}
+              </Button>
+
+              {/* Register Link */}
+              <div className="text-center">
+                <p className="text-gray-600 text-sm">
+                  {t('auth.noAccount')}{" "}
+                  <button
+                    onClick={() => navigate("/staff-register")}
+                    className="text-blue-600 hover:text-blue-800 font-semibold underline"
+                  >
+                    {t('auth.register')}
+                  </button>
+                </p>
+              </div>
+
+              {/* Back Button */}
+              <Button
+                onClick={() => navigate('/')}
+                variant="ghost"
+                className="w-full text-gray-600"
+              >
+                {t('common.backToHome')}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
+          <div className="text-center mt-8">
+            <p className="text-xs text-gray-500">
+              Sistema de gerenciamento para supermercados parceiros
+            </p>
           </div>
-          <button
-            type="submit"
-            className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition-colors"
-          >
-            Entrar
-          </button>
-        </form>
-        <p className="text-center text-sm text-gray-600 mt-4">
-          <a href="/" className="text-green-600 hover:underline">
-            Voltar ao início
-          </a>
-        </p>
+        </div>
       </div>
     </div>
   );
