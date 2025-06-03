@@ -105,11 +105,12 @@ export default function CustomerPaymentFixed() {
               <div className="bg-gray-50 p-4 rounded-lg">
                 {orderData.items?.map((item: any, index: number) => (
                   <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                    <div className="flex-1">
-                      <span className="text-gray-900 font-medium">{item.productName}</span>
-                      <span className="text-gray-500 text-sm ml-2">x{item.quantity}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-gray-900 font-medium text-sm truncate">
+                        {item.quantity}x {item.productName}
+                      </div>
                     </div>
-                    <span className="font-semibold text-green-700">
+                    <span className="font-semibold text-green-700 text-sm ml-2 flex-shrink-0">
                       R$ {(parseFloat(item.priceAtTime) * item.quantity).toFixed(2)}
                     </span>
                   </div>
