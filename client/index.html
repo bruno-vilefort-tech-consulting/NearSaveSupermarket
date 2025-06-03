@@ -114,6 +114,43 @@
         </footer>
       </div>
     </div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Initialize EcoMarket application directly
+      document.addEventListener('DOMContentLoaded', function() {
+        const root = document.getElementById('root');
+        
+        // Add interactivity to buttons
+        const staffBtn = document.querySelector('button:first-of-type');
+        const customerBtn = document.querySelector('button:last-of-type');
+        const shopBtn = document.querySelector('.bg-green-600');
+        const registerBtn = document.querySelector('.border-gray-300');
+        
+        if (staffBtn) {
+          staffBtn.addEventListener('click', function() {
+            window.location.href = '/staff/login';
+          });
+        }
+        
+        if (customerBtn) {
+          customerBtn.addEventListener('click', function() {
+            window.location.href = '/customer/login';
+          });
+        }
+        
+        if (shopBtn) {
+          shopBtn.addEventListener('click', function() {
+            window.location.href = '/customer/home';
+          });
+        }
+        
+        if (registerBtn) {
+          registerBtn.addEventListener('click', function() {
+            window.location.href = '/staff/register';
+          });
+        }
+        
+        console.log('EcoMarket aplicação carregada com sucesso');
+      });
+    </script>
   </body>
 </html>
