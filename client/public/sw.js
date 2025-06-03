@@ -1,12 +1,29 @@
-// Service Worker for Push Notifications
+// Service Worker for Push Notifications - Mobile Optimized
+const CACHE_NAME = 'eco-superapp-v1';
+
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
+  // Force activation for immediate use
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...');
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    Promise.all([
+      self.clients.claim(),
+      // Clean up old caches
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    ])
+  );
 });
 
 self.addEventListener('push', (event) => {

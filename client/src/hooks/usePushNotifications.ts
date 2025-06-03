@@ -54,19 +54,44 @@ export function usePushNotifications(customerEmail?: string) {
     setState(prev => ({ ...prev, isLoading: true }));
 
     try {
+      // Check if notifications are supported
+      if (!('Notification' in window)) {
+        throw new Error('Notificações não são suportadas neste dispositivo');
+      }
+
+      // Request notification permission first (important for mobile)
+      let permission = Notification.permission;
+      
+      if (permission === 'default') {
+        permission = await Notification.requestPermission();
+      }
+      
+      if (permission !== 'granted') {
+        throw new Error('Permissão de notificação negada');
+      }
+
       // Get VAPID public key
       const response = await apiRequest('GET', '/api/push/vapid-public-key');
-      const publicKey = response.publicKey;
+      const publicKey = (response as any).publicKey;
 
-      // Register service worker
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      // Register service worker with specific scope for mobile
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+      });
+      
+      // Wait for service worker to be ready
       await navigator.serviceWorker.ready;
 
-      // Subscribe to push notifications
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey),
-      });
+      // Check if already subscribed
+      let subscription = await registration.pushManager.getSubscription();
+      
+      if (!subscription) {
+        // Subscribe to push notifications with mobile-optimized options
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey),
+        });
+      }
 
       // Convert keys to base64
       const p256dhKey = subscription.getKey('p256dh');
