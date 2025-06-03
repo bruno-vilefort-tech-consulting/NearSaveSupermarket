@@ -33,32 +33,41 @@ export default function SupermarketMap() {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [selectedSupermarket, setSelectedSupermarket] = useState<SupermarketLocation | null>(null);
   const [locationStatus, setLocationStatus] = useState<'loading' | 'granted' | 'denied' | 'unavailable'>('loading');
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Get user's location
+  // Detect mobile device and initialize
   useEffect(() => {
-    if (!navigator.geolocation) {
+    // Detect if it's a mobile device
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsMobile(isMobileDevice);
+    
+    // Start with São Paulo center as default
+    setUserLocation([-23.5505, -46.6333]);
+    
+    // On mobile, don't auto-request location (browsers block it)
+    // User must explicitly click the button
+    if (!isMobileDevice && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
+          setLocationStatus('granted');
+        },
+        (error) => {
+          console.log('Location access denied or unavailable');
+          setLocationStatus('denied');
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 300000
+        }
+      );
+    } else if (!navigator.geolocation) {
       setLocationStatus('unavailable');
-      setUserLocation([-23.5505, -46.6333]); // São Paulo center
-      return;
+    } else {
+      // Mobile device - wait for user interaction
+      setLocationStatus('denied');
     }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation([position.coords.latitude, position.coords.longitude]);
-        setLocationStatus('granted');
-      },
-      (error) => {
-        console.log('Location access denied or unavailable');
-        setLocationStatus('denied');
-        // Default to São Paulo center
-        setUserLocation([-23.5505, -46.6333]);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 60000
-      }
-    );
   }, []);
 
   const requestLocation = () => {
@@ -148,24 +157,54 @@ export default function SupermarketMap() {
                     : 'Veja todos os supermercados disponíveis na região de São Paulo'
                   }
                 </p>
-                {locationStatus === 'denied' && (
+                {locationStatus === 'denied' && isMobile && (
+                  <div className="mt-2 p-3 bg-amber-50 rounded border-l-4 border-amber-400">
+                    <p className="text-xs font-semibold text-amber-800 mb-2">
+                      📱 Como ativar localização no Android:
+                    </p>
+                    <ol className="text-xs text-amber-700 space-y-1 list-decimal list-inside">
+                      <li>Clique no botão "🔓 Permitir Localização" abaixo</li>
+                      <li>Na popup que aparecer, escolha "Permitir"</li>
+                      <li>Se não aparecer popup, toque no ícone 🔒 na barra de endereço</li>
+                      <li>Toque em "Localização" e selecione "Permitir"</li>
+                    </ol>
+                  </div>
+                )}
+                {locationStatus === 'denied' && !isMobile && (
                   <p className="text-xs text-amber-600 mt-2">
-                    💡 No celular: Configurações → Site → Permitir localização
+                    💡 Clique em "Permitir" quando o navegador solicitar sua localização
                   </p>
                 )}
               </div>
             </div>
-            {locationStatus !== 'granted' && (
-              <Button 
-                onClick={requestLocation} 
-                size="sm" 
-                variant="outline"
-                disabled={locationStatus === 'loading'}
-                className="ml-4"
-              >
-                {locationStatus === 'loading' ? 'Carregando...' : 'Tentar Localização'}
-              </Button>
-            )}
+            <div className="flex flex-col gap-2 ml-4">
+              {locationStatus !== 'granted' && (
+                <Button 
+                  onClick={requestLocation} 
+                  size="sm" 
+                  variant={isMobile ? "default" : "outline"}
+                  disabled={locationStatus === 'loading'}
+                  className={isMobile ? "bg-blue-600 hover:bg-blue-700 text-white font-semibold" : ""}
+                >
+                  {locationStatus === 'loading' ? 'Aguardando...' : isMobile ? '🔓 Permitir Localização' : 'Tentar Localização'}
+                </Button>
+              )}
+              {validSupermarkets.length > 0 && (
+                <Button 
+                  onClick={() => {
+                    // Calculate center of all supermarkets
+                    const avgLat = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.latitude.toString()), 0) / validSupermarkets.length;
+                    const avgLng = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.longitude.toString()), 0) / validSupermarkets.length;
+                    setUserLocation([avgLat, avgLng]);
+                  }}
+                  size="sm" 
+                  variant="default"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Ver Todos
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
