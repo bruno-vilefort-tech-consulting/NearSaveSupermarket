@@ -73,7 +73,7 @@ export function usePushNotifications() {
       }
       
       if (permission === 'denied') {
-        throw new Error('Notificações foram bloqueadas. Para ativar:\n\n1. Clique no ícone de cadeado na barra de endereço\n2. Altere Notificações para "Permitir"\n3. Recarregue a página');
+        throw new Error('Notificações bloqueadas. Para ativar: 1) Clique no ícone ao lado da URL 2) Mude Notificações para "Permitir" 3) Recarregue a página');
       }
       
       if (permission !== 'granted') {
