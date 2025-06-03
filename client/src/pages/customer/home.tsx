@@ -189,7 +189,7 @@ export default function CustomerHome() {
   }, [supermarkets, userLocation, locationPermission, searchTerm]);
 
   const handleSupermarketClick = (supermarketId: number, supermarketName: string) => {
-    navigate(`/customer/supermarket/${supermarketId}?name=${encodeURIComponent(supermarketName)}`);
+    navigate(`/customer/supermarket/${supermarketId}/products?name=${encodeURIComponent(supermarketName)}`);
   };
 
   if (isLoading) {
