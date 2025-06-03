@@ -104,7 +104,7 @@ export default function EditProduct() {
         expirationDate: new Date(data.expirationDate).toISOString(),
       };
       
-      await apiRequest("PUT", `/api/products/${productId}`, payload);
+      await apiRequest("PUT", `/api/staff/products/${productId}`, payload);
     },
     onSuccess: () => {
       toast({

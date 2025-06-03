@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Users, Leaf, Globe, ChevronDown } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+// import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect, useRef } from "react";
 
 export default function Landing() {
-  const { t, setLanguage } = useLanguage();
+  // const { t, setLanguage } = useLanguage();
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const languageMenuRef = useRef<HTMLDivElement>(null);
   
