@@ -1064,20 +1064,20 @@ export class DatabaseStorage implements IStorage {
     try {
       const result = await db.execute(sql`
         SELECT 
-          u.id,
-          u.supermarket_name as name,
-          u.supermarket_address as address,
-          u.latitude::text as latitude,
-          u.longitude::text as longitude,
+          s.id,
+          s.company_name as name,
+          s.address,
+          s.latitude::text as latitude,
+          s.longitude::text as longitude,
           COUNT(p.id) as product_count,
           COUNT(CASE WHEN p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions
-        FROM users u
-        LEFT JOIN products p ON u.id = p.created_by
-        WHERE u.supermarket_name IS NOT NULL 
-          AND u.latitude IS NOT NULL 
-          AND u.longitude IS NOT NULL
-        GROUP BY u.id, u.supermarket_name, u.supermarket_address, u.latitude, u.longitude
-        ORDER BY u.supermarket_name
+        FROM staff_users s
+        LEFT JOIN products p ON s.id = p.created_by_staff
+        WHERE s.company_name IS NOT NULL 
+          AND s.latitude IS NOT NULL 
+          AND s.longitude IS NOT NULL
+        GROUP BY s.id, s.company_name, s.address, s.latitude, s.longitude
+        ORDER BY s.company_name
       `);
 
       return result.rows.map((row: any) => ({
