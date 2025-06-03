@@ -55,8 +55,8 @@ export function usePushNotifications(customerEmail?: string) {
 
     try {
       // Get VAPID public key
-      const data = await apiRequest('GET', '/api/push/vapid-public-key');
-      const { publicKey } = data;
+      const response = await apiRequest('GET', '/api/push/vapid-public-key');
+      const publicKey = response.publicKey;
 
       // Register service worker
       const registration = await navigator.serviceWorker.register('/sw.js');
