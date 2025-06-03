@@ -90,15 +90,15 @@ export default function CustomerPaymentFixed() {
             </Button>
           </Link>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-green-800 mb-2">Finalizar Pedido</h1>
-            <p className="text-sm text-gray-600">Confirme seu pedido e pague com PIX</p>
+            <h1 className="text-lg font-bold text-gray-900 mb-2">Finalizar Pedido</h1>
+            <p className="text-xs text-gray-600">Confirme seu pedido e pague com PIX</p>
           </div>
         </div>
 
         {/* Resumo do Pedido */}
         <Card className="mb-8 shadow-lg border-0 bg-white">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl text-gray-900">Resumo do Pedido</CardTitle>
+            <CardTitle className="text-lg font-bold text-gray-900">Resumo do Pedido</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -118,8 +118,8 @@ export default function CustomerPaymentFixed() {
               
               <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-green-700">
+                  <span className="text-sm font-semibold text-gray-900">Total</span>
+                  <span className="text-lg font-bold text-green-700">
                     R$ {parseFloat(orderData.totalAmount).toFixed(2)}
                   </span>
                 </div>
@@ -134,8 +134,8 @@ export default function CustomerPaymentFixed() {
             <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
               <Smartphone className="h-8 w-8 text-blue-600" />
             </div>
-            <CardTitle className="text-xl text-gray-900 mb-2">Pagamento PIX</CardTitle>
-            <p className="text-sm text-gray-600">
+            <CardTitle className="text-lg font-bold text-gray-900 mb-2">Pagamento PIX</CardTitle>
+            <p className="text-xs text-gray-600">
               Pagamento instantâneo e seguro
             </p>
           </CardHeader>
@@ -155,7 +155,7 @@ export default function CustomerPaymentFixed() {
         {/* Dados do Cliente */}
         <Card className="mb-8 shadow-lg border-0 bg-white">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl text-gray-900">Dados do Cliente</CardTitle>
+            <CardTitle className="text-lg font-bold text-gray-900">Dados do Cliente</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="bg-gray-50 p-4 rounded-lg space-y-3">
@@ -180,7 +180,7 @@ export default function CustomerPaymentFixed() {
           <Button
             onClick={handlePayment}
             disabled={isProcessing}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-4 text-lg font-semibold shadow-lg"
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-4 text-sm font-semibold shadow-lg"
             size="lg"
           >
             {isProcessing ? (
