@@ -1,22 +1,10 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-
-// Component to update map center
-function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    map.setView(center, zoom);
-  }, [map, center, zoom]);
-  
-  return null;
-}
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { MapPin, Store, Package, Percent } from 'lucide-react';
-// import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'wouter';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -29,6 +17,17 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Component to update map center for mobile
+function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [map, center, zoom]);
+  
+  return null;
+}
+
 interface SupermarketLocation {
   id: number;
   name: string;
@@ -40,33 +39,28 @@ interface SupermarketLocation {
 }
 
 export default function SupermarketMap() {
-  // const { t } = useLanguage();
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  // Centro padrão do mapa (Uberlândia, MG, Brasil)
   const defaultCenter: [number, number] = [-18.9188, -48.2766];
   const [selectedSupermarket, setSelectedSupermarket] = useState<SupermarketLocation | null>(null);
   const [locationStatus, setLocationStatus] = useState<'loading' | 'granted' | 'denied' | 'unavailable'>('loading');
   const [isMobile, setIsMobile] = useState(false);
-  const [searchLocation, setSearchLocation] = useState('');
 
-  // Detect mobile device and initialize
+  // Detect mobile device
   useEffect(() => {
-    // Detect if it's a mobile device
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    setIsMobile(isMobileDevice);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
     
-    // Start with São Paulo center as default
-    setUserLocation([-23.5505, -46.6333]);
-    
-    // Auto-request location with Android-optimized settings
-    if (navigator.geolocation) {
-      // Optimized settings for mobile devices (especially Android)
-      const locationOptions = isMobileDevice ? {
-        enableHighAccuracy: true,  // Better accuracy for mobile
-        timeout: 20000,           // Longer timeout for mobile GPS
-        maximumAge: 60000         // 1 minute cache for mobile
-      } : {
-        enableHighAccuracy: false,
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-request location on mobile
+  useEffect(() => {
+    if (isMobile && navigator.geolocation) {
+      const locationOptions = {
+        enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 300000
       };
@@ -75,14 +69,12 @@ export default function SupermarketMap() {
         (position) => {
           setUserLocation([position.coords.latitude, position.coords.longitude]);
           setLocationStatus('granted');
-          console.log('Localização obtida:', position.coords.latitude, position.coords.longitude);
         },
         (error) => {
-          console.log('Erro de geolocalização:', error.code, error.message);
+          console.log('Geolocation error:', error.code, error.message);
           setLocationStatus('denied');
-          
-          // Se for Android e erro de permissão, tentar novamente com configurações diferentes
-          if (isMobileDevice && error.code === 1) {
+          // Fallback with lower accuracy for mobile
+          if (error.code === 1) {
             setTimeout(() => {
               navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -100,7 +92,7 @@ export default function SupermarketMap() {
     } else {
       setLocationStatus('unavailable');
     }
-  }, []);
+  }, [isMobile]);
 
   const requestLocation = () => {
     setLocationStatus('loading');
@@ -110,7 +102,6 @@ export default function SupermarketMap() {
       return;
     }
 
-    // Create a promise that times out after 5 seconds
     const locationPromise = new Promise<GeolocationPosition>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
         enableHighAccuracy: false,
@@ -131,85 +122,39 @@ export default function SupermarketMap() {
       .catch((error) => {
         console.log('Geolocation error:', error.code || 'timeout', error.message || 'timeout');
         setLocationStatus('denied');
-        
-        // Show a helpful message for mobile users
-        if (isMobile) {
-          setTimeout(() => {
-            alert('🔒 Localização bloqueada\n\nPara ativar:\n1. Toque no ícone de cadeado 🔒 na barra de endereço\n2. Toque em "Localização"\n3. Selecione "Permitir"\n4. Recarregue a página');
-          }, 500);
-        }
       });
   };
 
-  // Fetch real supermarket data with locations
-  const { data: supermarkets = [], isLoading: isLoadingSupermarkets } = useQuery({
-    queryKey: ['/api/customer/supermarkets/map'],
+  const { data: supermarkets = [] } = useQuery({
+    queryKey: ['/api/supermarkets-with-locations'],
   });
 
-  // Filter supermarkets that have valid coordinates
-  const validSupermarkets = (supermarkets as SupermarketLocation[]).filter((s: SupermarketLocation) => 
+  const validSupermarkets = supermarkets.filter((s: SupermarketLocation) => 
     s.latitude && s.longitude && 
-    !isNaN(parseFloat(s.latitude.toString())) && !isNaN(parseFloat(s.longitude.toString()))
+    !isNaN(parseFloat(s.latitude.toString())) && 
+    !isNaN(parseFloat(s.longitude.toString()))
   );
 
-  // Create custom icons with product count
   const createIcon = (hasPromotions: boolean, productCount: number) => {
-    const baseColor = hasPromotions ? '#ef4444' : '#10b981'; // red for promotions, green for regular
-    const textColor = '#ffffff';
-    const size = productCount > 10 ? 38 : 32; // Larger pin for more products
+    const baseColor = hasPromotions ? '#dc2626' : '#059669';
+    const promotionDot = hasPromotions ? '<div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: #fbbf24; border-radius: 50%; border: 1px solid white;"></div>' : '';
     
     return L.divIcon({
       html: `
-        <div style="
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background-color: ${baseColor};
-          width: ${size}px;
-          height: ${size}px;
-          border-radius: 50%;
-          border: 3px solid white;
-          box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-          font-weight: bold;
-          font-size: ${productCount > 99 ? '10px' : '13px'};
-          color: ${textColor};
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        ">
-          ${productCount > 99 ? '99+' : productCount}
+        <div style="position: relative; background-color: ${baseColor}; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+          ${productCount}
+          ${promotionDot}
         </div>
-        ${hasPromotions ? `<div style="
-          position: absolute;
-          top: -3px;
-          right: -3px;
-          background-color: #fbbf24;
-          width: 14px;
-          height: 14px;
-          border-radius: 50%;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        "></div>` : ''}
       `,
-      className: 'custom-supermarket-marker',
-      iconSize: [size, size],
-      iconAnchor: [size/2, size/2]
+      className: 'supermarket-marker',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
     });
   };
 
-  if (!userLocation || isLoadingSupermarkets) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando mapa...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      <div className="container mx-auto p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
@@ -241,107 +186,30 @@ export default function SupermarketMap() {
               </div>
             </div>
             <div className="flex flex-col gap-2 ml-4">
-              {/* Desktop location button */}
-              {locationStatus !== 'granted' && !isMobile && (
+              {locationStatus !== 'granted' && (
                 <Button 
                   onClick={requestLocation} 
                   size="sm" 
                   variant="outline"
                   disabled={locationStatus === 'loading'}
                 >
-                  {locationStatus === 'loading' ? 'Aguardando...' : 'Localização'}
-                </Button>
-              )}
-              
-              {/* Mobile location button with forced permission request */}
-              {locationStatus !== 'granted' && isMobile && (
-                <Button 
-                  onClick={async () => {
-                    setLocationStatus('loading');
-                    
-                    try {
-                      // First check if permissions API is available
-                      if ('permissions' in navigator) {
-                        const permission = await navigator.permissions.query({name: 'geolocation'});
-                        console.log('Geolocation permission:', permission.state);
-                        
-                        if (permission.state === 'denied') {
-                          alert('🔒 Localização bloqueada\n\nPara ativar:\n1. Toque no ícone 🔒 ao lado da URL\n2. Toque em "Localização"\n3. Selecione "Permitir"\n4. Recarregue a página');
-                          setLocationStatus('denied');
-                          return;
-                        }
-                      }
-                      
-                      // Force the permission request
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                          (position) => {
-                            setUserLocation([position.coords.latitude, position.coords.longitude]);
-                            setLocationStatus('granted');
-                          },
-                          (error) => {
-                            console.log('Geolocation failed:', error.code, error.message);
-                            
-                            if (error.code === 1) { // PERMISSION_DENIED
-                              alert('📱 Permissão negada!\n\nComo permitir localização:\n\n1. Toque no ícone de cadeado 🔒 na barra de endereço\n2. Toque em "Localização"\n3. Selecione "Permitir sempre"\n4. Recarregue a página');
-                            }
-                            
-                            // Show all supermarkets as fallback
-                            const avgLat = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.latitude.toString()), 0) / validSupermarkets.length;
-                            const avgLng = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.longitude.toString()), 0) / validSupermarkets.length;
-                            setUserLocation([avgLat, avgLng]);
-                            setLocationStatus('denied');
-                          },
-                          { 
-                            enableHighAccuracy: true,
-                            timeout: 10000,
-                            maximumAge: 0 // Force fresh location
-                          }
-                        );
-                      }
-                    } catch (error) {
-                      console.log('Permission check failed:', error);
-                      setLocationStatus('denied');
-                    }
-                  }}
-                  size="sm" 
-                  variant="default"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-                  disabled={locationStatus === 'loading'}
-                >
-                  {locationStatus === 'loading' ? '🔄 Aguardando...' : '🔓 Solicitar Localização'}
-                </Button>
-              )}
-              
-              {/* Center view button */}
-              {validSupermarkets.length > 0 && (
-                <Button 
-                  onClick={() => {
-                    const avgLat = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.latitude.toString()), 0) / validSupermarkets.length;
-                    const avgLng = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.longitude.toString()), 0) / validSupermarkets.length;
-                    setUserLocation([avgLat, avgLng]);
-                  }}
-                  size="sm" 
-                  variant="outline"
-                  className="text-green-600 border-green-600 hover:bg-green-50"
-                >
-                  🏪 Ver Todos
+                  {locationStatus === 'loading' ? 'Aguardando...' : 'Minha Localização'}
                 </Button>
               )}
             </div>
           </div>
         </div>
 
-        {locationStatus === 'unavailable' && (
-          <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        {locationStatus === 'denied' && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-center">
-              <MapPin className="h-5 w-5 text-gray-600 mr-2" />
+              <div className="text-yellow-600 mr-3">⚠️</div>
               <div>
-                <p className="text-sm font-medium text-gray-800">
-                  Geolocalização não disponível
+                <p className="text-sm font-semibold text-yellow-800 mb-1">
+                  Localização não disponível
                 </p>
                 <p className="text-sm text-gray-600">
-                  Seu navegador não suporta geolocalização. Exibindo localização padrão.
+                  Permita acesso à localização para ver supermercados próximos
                 </p>
               </div>
             </div>
@@ -408,7 +276,7 @@ export default function SupermarketMap() {
                   )}
 
                   {/* Supermarket markers */}
-                  {validSupermarkets.map((supermarket) => (
+                  {validSupermarkets.map((supermarket: SupermarketLocation) => (
                     <Marker
                       key={supermarket.id}
                       position={[parseFloat(supermarket.latitude.toString()), parseFloat(supermarket.longitude.toString())]}
@@ -418,24 +286,22 @@ export default function SupermarketMap() {
                       }}
                     >
                       <Popup>
-                        <div className="min-w-[200px]">
-                          <h3 className="font-semibold text-lg mb-2">
-                            {supermarket.name}
-                          </h3>
-                          <p className="text-sm text-gray-600 mb-2">
-                            {supermarket.address}
-                          </p>
-                          <div className="flex items-center gap-2 mb-2">
-                            <Package className="h-4 w-4 text-gray-500" />
-                            <span className="text-sm">{supermarket.productCount} produtos</span>
-                          </div>
-                          {supermarket.hasPromotions && (
-                            <Badge variant="destructive" className="mb-2">
-                              <Percent className="h-3 w-3 mr-1" />
-                              Promoções ativas
+                        <div className="text-center min-w-[200px]">
+                          <h3 className="font-bold text-lg mb-2">{supermarket.name}</h3>
+                          <p className="text-sm text-gray-600 mb-2">{supermarket.address}</p>
+                          <div className="flex items-center justify-center gap-2 mb-3">
+                            <Badge variant="secondary" className="flex items-center gap-1">
+                              <Package className="h-3 w-3" />
+                              {supermarket.productCount} produtos
                             </Badge>
-                          )}
-                          <Link href={`/customer/supermarket/${supermarket.id}/products?name=${encodeURIComponent(supermarket.name)}`}>
+                            {supermarket.hasPromotions && (
+                              <Badge variant="destructive" className="flex items-center gap-1">
+                                <Percent className="h-3 w-3" />
+                                Promoções
+                              </Badge>
+                            )}
+                          </div>
+                          <Link href={`/customer/supermarket/${supermarket.id}`}>
                             <Button size="sm" className="w-full">
                               Ver Produtos
                             </Button>
@@ -453,41 +319,37 @@ export default function SupermarketMap() {
           <div className="space-y-4">
             <Card>
               <CardContent className="p-4">
-                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                   <Store className="h-5 w-5 text-green-600" />
-                  Supermercados Encontrados
-                </h2>
-                <div className="space-y-3">
-                  {validSupermarkets.map((supermarket) => (
+                  Supermercados Próximos
+                </h3>
+                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                  {validSupermarkets.map((supermarket: SupermarketLocation) => (
                     <div
                       key={supermarket.id}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                         selectedSupermarket?.id === supermarket.id
                           ? 'border-green-500 bg-green-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                       onClick={() => setSelectedSupermarket(supermarket)}
                     >
-                      <h3 className="font-medium text-gray-800">
-                        {supermarket.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {supermarket.address}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Package className="h-4 w-4 text-gray-500" />
-                          <span className="text-sm">{supermarket.productCount}</span>
-                        </div>
+                      <h4 className="font-semibold mb-1">{supermarket.name}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{supermarket.address}</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <Package className="h-3 w-3" />
+                          {supermarket.productCount}
+                        </Badge>
                         {supermarket.hasPromotions && (
-                          <Badge variant="destructive">
-                            <Percent className="h-3 w-3 mr-1" />
+                          <Badge variant="destructive" className="flex items-center gap-1">
+                            <Percent className="h-3 w-3" />
                             Promoções
                           </Badge>
                         )}
                       </div>
-                      <Link href={`/customer/supermarket/${supermarket.id}/products?name=${encodeURIComponent(supermarket.name)}`}>
-                        <Button size="sm" className="w-full mt-2">
+                      <Link href={`/customer/supermarket/${supermarket.id}`}>
+                        <Button size="sm" variant="outline" className="w-full mt-2">
                           Ver Produtos
                         </Button>
                       </Link>
@@ -500,19 +362,22 @@ export default function SupermarketMap() {
             {/* Legend */}
             <Card>
               <CardContent className="p-4">
-                <h3 className="font-medium mb-3">Legenda</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow"></div>
+                <h3 className="font-bold text-lg mb-4">Legenda</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 bg-blue-500 rounded-full border-2 border-white"></div>
                     <span className="text-sm">Sua localização</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow"></div>
-                    <span className="text-sm">Supermercado com promoções</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 bg-green-600 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold">5</div>
+                    <span className="text-sm">Supermercado (número = produtos)</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow"></div>
-                    <span className="text-sm">Supermercado regular</span>
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-6 h-6 bg-red-600 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold">
+                      3
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full border border-white"></div>
+                    </div>
+                    <span className="text-sm">Com promoções (ponto dourado)</span>
                   </div>
                 </div>
               </CardContent>
