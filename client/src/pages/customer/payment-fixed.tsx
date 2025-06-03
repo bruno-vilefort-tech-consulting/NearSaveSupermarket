@@ -76,86 +76,127 @@ export default function CustomerPaymentFixed() {
   }
 
   return (
-    <div className="min-h-screen bg-green-50 p-4">
-      <div className="max-w-md mx-auto">
-        <div className="flex items-center gap-4 mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-4">
+      <div className="max-w-lg mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-center mb-8 relative">
           <Link href="/customer/cart">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="absolute left-0 top-1/2 -translate-y-1/2"
+            >
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-green-800">Pagamento</h1>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-green-800 mb-2">Finalizar Pedido</h1>
+            <p className="text-sm text-gray-600">Confirme seu pedido e pague com PIX</p>
+          </div>
         </div>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Resumo do Pedido</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {orderData.items?.map((item: any, index: number) => (
-              <div key={index} className="flex justify-between">
-                <span>{item.productName} x{item.quantity}</span>
-                <span>R$ {(parseFloat(item.priceAtTime) * item.quantity).toFixed(2)}</span>
-              </div>
-            ))}
-            <div className="border-t pt-3 font-bold">
-              <div className="flex justify-between">
-                <span>Total</span>
-                <span>R$ {parseFloat(orderData.totalAmount).toFixed(2)}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Smartphone className="h-5 w-5 text-blue-600" />
-              Pagamento PIX
-            </CardTitle>
+        {/* Resumo do Pedido */}
+        <Card className="mb-8 shadow-lg border-0 bg-white">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-xl text-gray-900">Resumo do Pedido</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-600 mb-4">
-              Pagamento instantâneo e seguro via PIX. Após confirmar, você receberá o código PIX para efetuar o pagamento.
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                {orderData.items?.map((item: any, index: number) => (
+                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                    <div className="flex-1">
+                      <span className="text-gray-900 font-medium">{item.productName}</span>
+                      <span className="text-gray-500 text-sm ml-2">x{item.quantity}</span>
+                    </div>
+                    <span className="font-semibold text-green-700">
+                      R$ {(parseFloat(item.priceAtTime) * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-gray-900">Total</span>
+                  <span className="text-2xl font-bold text-green-700">
+                    R$ {parseFloat(orderData.totalAmount).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* PIX Payment Card */}
+        <Card className="mb-8 shadow-lg border-0 bg-white">
+          <CardHeader className="text-center pb-4">
+            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Smartphone className="h-8 w-8 text-blue-600" />
+            </div>
+            <CardTitle className="text-xl text-gray-900 mb-2">Pagamento PIX</CardTitle>
+            <p className="text-sm text-gray-600">
+              Pagamento instantâneo e seguro
             </p>
-            
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <Lock className="h-4 w-4" />
-              <span>Transação segura e criptografada</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg">Dados do Cliente</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div><strong>Nome:</strong> {orderData.customerName}</div>
-            <div><strong>Email:</strong> {orderData.customerEmail}</div>
-            <div><strong>Telefone:</strong> {orderData.customerPhone}</div>
+          <CardContent>
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-3 mb-3">
+                <Lock className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-blue-900">Transação Segura</span>
+              </div>
+              <p className="text-sm text-blue-800">
+                Após confirmar, você receberá o código PIX para pagamento instantâneo no seu aplicativo bancário.
+              </p>
+            </div>
           </CardContent>
         </Card>
 
-        <Button
-          onClick={handlePayment}
-          disabled={isProcessing}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
-        >
-          {isProcessing ? (
-            <div className="flex items-center gap-2">
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-              Gerando PIX...
+        {/* Dados do Cliente */}
+        <Card className="mb-8 shadow-lg border-0 bg-white">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-xl text-gray-900">Dados do Cliente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Nome:</span>
+                <span className="font-medium text-gray-900">{orderData.customerName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Email:</span>
+                <span className="font-medium text-gray-900">{orderData.customerEmail}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Telefone:</span>
+                <span className="font-medium text-gray-900">{orderData.customerPhone}</span>
+              </div>
             </div>
-          ) : (
-            `Pagar R$ ${parseFloat(orderData.totalAmount).toFixed(2)} via PIX`
-          )}
-        </Button>
+          </CardContent>
+        </Card>
 
-        <p className="text-xs text-gray-500 text-center mt-4">
-          Ao confirmar, você será redirecionado para a tela de pagamento PIX.
-          O pedido só será criado após a confirmação do pagamento.
-        </p>
+        {/* Botão de Pagamento */}
+        <div className="text-center mb-8">
+          <Button
+            onClick={handlePayment}
+            disabled={isProcessing}
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-4 text-lg font-semibold shadow-lg"
+            size="lg"
+          >
+            {isProcessing ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                Gerando PIX...
+              </div>
+            ) : (
+              `Pagar R$ ${parseFloat(orderData.totalAmount).toFixed(2)} via PIX`
+            )}
+          </Button>
+          
+          <p className="text-xs text-gray-500 mt-3">
+            Você será redirecionado para a tela de pagamento PIX após confirmar
+          </p>
+        </div>
       </div>
     </div>
   );
