@@ -28,12 +28,15 @@ export function PushNotificationToggle({ customerEmail }: PushNotificationToggle
       }
     } catch (error: any) {
       console.error('Erro ao alterar notificações:', error);
+      console.log('Error type:', typeof error);
+      console.log('Error message:', error?.message);
+      console.log('Current permission:', Notification.permission);
       
-      // Check if notifications are blocked
-      if (error.message.includes('bloqueadas') || error.message.includes('denied')) {
+      // Check if notifications are blocked based on permission status
+      if (Notification.permission === 'denied' || error?.message?.includes('bloqueadas') || error?.message?.includes('denied')) {
         setShowBlockedHelp(true);
       } else {
-        alert('Erro: ' + error.message);
+        alert('Erro: ' + (error?.message || 'Erro desconhecido'));
       }
     }
   };
