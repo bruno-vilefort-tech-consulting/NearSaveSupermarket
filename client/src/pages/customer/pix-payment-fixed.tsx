@@ -255,38 +255,7 @@ export default function PixPaymentFixed() {
           </CardContent>
         </Card>
 
-        {/* Resumo do Pedido */}
-        <Card className="mb-8 shadow-lg border-0 bg-white">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl text-gray-900">Resumo do Pedido</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                {pixData.items?.map((item: any, index: number) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                    <div className="flex-1">
-                      <span className="text-gray-900 font-medium">{item.productName}</span>
-                      <span className="text-gray-500 text-sm ml-2">x{item.quantity}</span>
-                    </div>
-                    <span className="font-semibold text-green-700">
-                      R$ {(parseFloat(item.priceAtTime) * item.quantity).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-green-700">
-                    R$ {parseFloat(pixData.totalAmount).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Botão de verificar pagamento */}
         <div className="text-center mb-8">
