@@ -258,7 +258,7 @@ export default function PixPayment() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
-          <h1 className="text-2xl font-bold">{t('payment.pixTitle')}</h1>
+          <h1 className="text-lg font-bold text-gray-900">{t('payment.pixTitle')}</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -272,7 +272,7 @@ export default function PixPayment() {
               {!isExpired && timeLeft > 0 && (
                 <div className="flex items-center justify-center space-x-2 text-orange-600">
                   <Clock className="w-4 h-4" />
-                  <span className="text-sm font-medium">
+                  <span className="text-xs font-medium">
                     Expira em: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
                   </span>
                 </div>
@@ -280,7 +280,7 @@ export default function PixPayment() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center">
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-xs text-gray-600 mb-4">
                   {t('payment.pixInstructions')}
                 </p>
                 
@@ -301,7 +301,7 @@ export default function PixPayment() {
 
                 {paymentStatus === 'pending' && (
                   <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-800">
+                    <p className="text-xs text-blue-800">
                       {isCheckingPayment ? t('payment.checkingPayment') : t('payment.processingPayment')}
                     </p>
                   </div>
@@ -309,7 +309,7 @@ export default function PixPayment() {
 
                 {paymentStatus === 'approved' && (
                   <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                    <p className="text-sm text-green-800">
+                    <p className="text-xs text-green-800">
                       Pagamento confirmado! Redirecionando...
                     </p>
                   </div>
@@ -321,13 +321,13 @@ export default function PixPayment() {
           {/* Order Summary */}
           <Card>
             <CardHeader>
-              <CardTitle>Resumo do Pedido #{orderId}</CardTitle>
+              <CardTitle className="text-lg font-bold text-gray-900">Resumo do Pedido #{orderId}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <p className="font-medium">{orderData.customerName}</p>
-                <p className="text-sm text-gray-600">{orderData.customerEmail}</p>
-                <p className="text-sm text-gray-600">{orderData.customerPhone}</p>
+                <p className="text-xs text-gray-600">{orderData.customerEmail}</p>
+                <p className="text-xs text-gray-600">{orderData.customerPhone}</p>
               </div>
 
               <div className="border-t pt-4">
