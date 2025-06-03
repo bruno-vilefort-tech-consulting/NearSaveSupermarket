@@ -13,7 +13,7 @@ export default function PixPaymentFixed() {
   const [pixData, setPixData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(1800); // 30 minutos em segundos
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutos em segundos
   const [isExpired, setIsExpired] = useState(false);
   const { toast } = useToast();
 
@@ -40,7 +40,7 @@ export default function PixPaymentFixed() {
     }
   }, [tempOrderId, setLocation]);
 
-  // Timer para expiração do PIX
+  // Timer para expiração do PIX e verificação automática
   useEffect(() => {
     if (!pixData) return;
 
@@ -48,6 +48,14 @@ export default function PixPaymentFixed() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           setIsExpired(true);
+          toast({
+            title: "PIX Expirado",
+            description: "O tempo para pagamento expirou. Tente novamente.",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            setLocation('/customer/cart');
+          }, 3000);
           return 0;
         }
         return prev - 1;
@@ -55,7 +63,18 @@ export default function PixPaymentFixed() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [pixData]);
+  }, [pixData, toast, setLocation]);
+
+  // Verificação automática do pagamento a cada 10 segundos
+  useEffect(() => {
+    if (!pixData?.pixPayment?.id || isExpired || paymentStatus === 'approved') return;
+
+    const checkInterval = setInterval(() => {
+      checkPaymentStatus();
+    }, 10000); // 10 segundos
+
+    return () => clearInterval(checkInterval);
+  }, [pixData, isExpired, paymentStatus]);
 
   // Verificar status do pagamento
   const checkPaymentStatus = async () => {
@@ -81,8 +100,8 @@ export default function PixPaymentFixed() {
           
           setPaymentStatus('approved');
           toast({
-            title: "Pagamento Aprovado!",
-            description: `Pedido #${result.order.id} criado com sucesso`,
+            title: "Pagamento Identificado!",
+            description: `Seu pedido #${result.order.id} foi confirmado e enviado ao supermercado`,
           });
           
           // Limpar dados temporários
@@ -90,10 +109,10 @@ export default function PixPaymentFixed() {
           localStorage.removeItem('orderData');
           localStorage.removeItem('cart');
           
-          // Redirecionar para pedidos após 3 segundos
+          // Redirecionar para pedidos após 2 segundos
           setTimeout(() => {
             setLocation('/customer/orders');
-          }, 3000);
+          }, 2000);
           
         } catch (error) {
           console.error('Error confirming payment:', error);
@@ -191,44 +210,29 @@ export default function PixPaymentFixed() {
           </CardContent>
         </Card>
 
-        {/* QR Code */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>QR Code PIX</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            {pixData.pixPayment.qrCodeBase64 && (
-              <div className="bg-white p-4 rounded-lg mb-4 inline-block">
-                <img 
-                  src={`data:image/png;base64,${pixData.pixPayment.qrCodeBase64}`}
-                  alt="QR Code PIX"
-                  className="w-64 h-64 mx-auto"
-                />
-              </div>
-            )}
-            <p className="text-sm text-gray-600 mb-4">
-              Escaneie o QR Code acima com seu app de banco ou use o código copia e cola abaixo
-            </p>
-          </CardContent>
-        </Card>
 
-        {/* Código Copia e Cola */}
+
+        {/* Código PIX */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Código Copia e Cola</CardTitle>
+            <CardTitle>Código PIX</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-gray-100 p-3 rounded mb-4 break-all text-sm font-mono">
-              {pixData.pixPayment.pixCopyPaste}
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-3">
+                Copie o código abaixo e cole no seu app de banco para fazer o pagamento PIX:
+              </p>
+              <div className="bg-gray-100 p-3 rounded mb-4 break-all text-sm font-mono border">
+                {pixData.pixPayment.pixCopyPaste}
+              </div>
+              <Button 
+                onClick={() => copyToClipboard(pixData.pixPayment.pixCopyPaste)}
+                className="w-full bg-green-600 hover:bg-green-700"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copiar Código PIX
+              </Button>
             </div>
-            <Button 
-              onClick={() => copyToClipboard(pixData.pixPayment.pixCopyPaste)}
-              className="w-full"
-              variant="outline"
-            >
-              <Copy className="h-4 w-4 mr-2" />
-              Copiar Código PIX
-            </Button>
           </CardContent>
         </Card>
 
@@ -269,9 +273,15 @@ export default function PixPaymentFixed() {
           )}
         </Button>
 
-        <p className="text-xs text-gray-500 text-center">
-          Após efetuar o pagamento PIX, clique em "Verificar Pagamento" ou aguarde alguns segundos para confirmação automática.
-        </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+          <p className="text-sm text-blue-800 font-medium mb-2">
+            🔍 Verificação Automática Ativa
+          </p>
+          <p className="text-xs text-blue-600">
+            Após efetuar o pagamento PIX, aguarde. O sistema verificará automaticamente a cada 10 segundos. 
+            Quando o pagamento for identificado, você será redirecionado automaticamente.
+          </p>
+        </div>
       </div>
     </div>
   );
