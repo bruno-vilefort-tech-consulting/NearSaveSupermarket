@@ -5,7 +5,12 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
-import { createPixPayment, getPaymentStatus, createCardPayment, type CardPaymentData } from "./mercadopago";
+import { createPixPayment, getPaymentStatus, createCardPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
+
+// Declaração global para armazenar pedidos temporários
+declare global {
+  var tempOrders: Map<string, any> | undefined;
+}
 import bcrypt from "bcrypt";
 import multer from "multer";
 import path from "path";
@@ -215,7 +220,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public order creation for customers
+  // Gerar PIX sem criar pedido
+  app.post("/api/pix/generate", async (req, res) => {
+    try {
+      const { customerName, customerEmail, customerPhone, totalAmount, items } = req.body;
+      console.log('📝 Gerando PIX sem criar pedido:', { customerName, customerEmail, totalAmount });
+      
+      // Gerar ID temporário único para o PIX
+      const tempOrderId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const pixData: PixPaymentData = {
+        amount: parseFloat(totalAmount),
+        description: `Pedido ${tempOrderId}`,
+        orderId: tempOrderId,
+        customerEmail,
+        customerName,
+        customerPhone
+      };
+
+      const pixPayment = await createPixPayment(pixData);
+      
+      // Salvar dados temporários do pedido para criação posterior
+      const tempOrderData = {
+        tempOrderId,
+        customerName,
+        customerEmail,
+        customerPhone,
+        totalAmount,
+        items,
+        pixPaymentId: pixPayment.id,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Em um sistema real, isso seria salvo em cache/Redis
+      // Por enquanto vamos usar uma variável global temporária
+      if (!global.tempOrders) {
+        global.tempOrders = new Map();
+      }
+      global.tempOrders.set(tempOrderId, tempOrderData);
+      
+      console.log('✅ PIX gerado com sucesso:', pixPayment.id);
+      res.json({
+        tempOrderId,
+        pixPayment,
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 minutos
+      });
+    } catch (error) {
+      console.error('❌ Erro ao gerar PIX:', error);
+      res.status(500).json({ message: "Erro ao gerar PIX" });
+    }
+  });
+
+  // Confirmar pagamento PIX e criar pedido
+  app.post("/api/pix/confirm", async (req, res) => {
+    try {
+      const { tempOrderId, pixPaymentId } = req.body;
+      console.log('🔍 Confirmando pagamento PIX:', { tempOrderId, pixPaymentId });
+      
+      // Buscar dados temporários do pedido
+      if (!global.tempOrders || !global.tempOrders.has(tempOrderId)) {
+        return res.status(404).json({ message: "Pedido temporário não encontrado" });
+      }
+      
+      const tempOrderData = global.tempOrders.get(tempOrderId);
+      
+      // Verificar status do pagamento no Mercado Pago
+      const paymentStatus = await getPaymentStatus(pixPaymentId);
+      
+      if (paymentStatus.status !== 'approved') {
+        return res.status(400).json({ 
+          message: "Pagamento não foi aprovado", 
+          status: paymentStatus.status 
+        });
+      }
+      
+      // Criar pedido real no banco de dados
+      const orderData = {
+        customerName: tempOrderData.customerName,
+        customerEmail: tempOrderData.customerEmail,
+        customerPhone: tempOrderData.customerPhone,
+        status: "pending",
+        fulfillmentMethod: "pickup",
+        deliveryAddress: null,
+        totalAmount: tempOrderData.totalAmount
+      };
+
+      const orderItems = tempOrderData.items.map((item: any) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        priceAtTime: item.priceAtTime
+      }));
+
+      const order = await storage.createOrder(orderData, orderItems);
+      
+      // Remover dados temporários
+      global.tempOrders.delete(tempOrderId);
+      
+      console.log('✅ Pedido confirmado e criado:', order.id);
+      res.json({ order, paymentStatus });
+    } catch (error) {
+      console.error('❌ Erro ao confirmar pagamento PIX:', error);
+      res.status(500).json({ message: "Erro ao confirmar pagamento PIX" });
+    }
+  });
+
+  // Public order creation for customers (mantido para compatibilidade)
   app.post("/api/public/orders", async (req, res) => {
     try {
       const { customerName, customerEmail, customerPhone, fulfillmentMethod, deliveryAddress, totalAmount, items } = req.body;
