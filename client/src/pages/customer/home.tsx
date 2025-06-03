@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,17 @@ interface Supermarket {
   productCount: number;
 }
 
+interface SupermarketWithLocation {
+  id: number;
+  name: string;
+  address: string;
+  latitude: string | null;
+  longitude: string | null;
+  productCount: number;
+  hasPromotions: boolean;
+  distance?: number;
+}
+
 export default function CustomerHome() {
   const [, navigate] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,8 +35,51 @@ export default function CustomerHome() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
   const [customerInfo, setCustomerInfo] = useState<any>(null);
+  const [userLocation, setUserLocation] = useState<{latitude: number, longitude: number} | null>(null);
+  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt' | 'loading'>('loading');
 
-  // Carregar contador do carrinho e informações do cliente ao inicializar
+  // Função para calcular distância entre duas coordenadas usando fórmula de Haversine
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Raio da Terra em km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  // Obter localização do usuário
+  const getUserLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationPermission('denied');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+        setLocationPermission('granted');
+        console.log('Localização obtida:', position.coords.latitude, position.coords.longitude);
+      },
+      (error) => {
+        console.error('Erro ao obter localização:', error);
+        setLocationPermission('denied');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000 // 5 minutos
+      }
+    );
+  };
+
+  // Carregar dados iniciais e obter localização
   useEffect(() => {
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const totalItems = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
@@ -35,6 +89,9 @@ export default function CustomerHome() {
     if (savedCustomer) {
       setCustomerInfo(JSON.parse(savedCustomer));
     }
+
+    // Obter localização do usuário
+    getUserLocation();
   }, []);
 
   const handleLogout = () => {
@@ -45,12 +102,52 @@ export default function CustomerHome() {
   };
 
   const { data: supermarkets, isLoading } = useQuery({
-    queryKey: ["/api/customer/supermarkets"],
+    queryKey: ["/api/customer/supermarkets-with-locations"],
   });
 
-  const filteredSupermarkets = supermarkets?.filter((supermarket: Supermarket) =>
-    supermarket.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  // Filtrar supermercados por proximidade (20km) e termo de busca
+  const filteredSupermarkets = React.useMemo(() => {
+    if (!supermarkets || !Array.isArray(supermarkets)) return [];
+    
+    let filtered = supermarkets as SupermarketWithLocation[];
+    
+    // Se temos localização do usuário, filtrar por proximidade
+    if (userLocation && locationPermission === 'granted') {
+      filtered = filtered
+        .map((supermarket: SupermarketWithLocation) => {
+          if (supermarket.latitude && supermarket.longitude) {
+            const distance = calculateDistance(
+              userLocation.latitude,
+              userLocation.longitude,
+              parseFloat(supermarket.latitude),
+              parseFloat(supermarket.longitude)
+            );
+            return { ...supermarket, distance };
+          }
+          return supermarket;
+        })
+        .filter((supermarket: SupermarketWithLocation) => {
+          // Mostrar apenas supermercados dentro de 20km
+          return !supermarket.distance || supermarket.distance <= 20;
+        })
+        .sort((a: SupermarketWithLocation, b: SupermarketWithLocation) => {
+          // Ordenar por distância (mais próximos primeiro)
+          if (a.distance && b.distance) return a.distance - b.distance;
+          if (a.distance && !b.distance) return -1;
+          if (!a.distance && b.distance) return 1;
+          return 0;
+        });
+    }
+    
+    // Filtrar por termo de busca
+    if (searchTerm) {
+      filtered = filtered.filter((supermarket: SupermarketWithLocation) =>
+        supermarket.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    return filtered;
+  }, [supermarkets, userLocation, locationPermission, searchTerm]);
 
   const handleSupermarketClick = (supermarketId: number, supermarketName: string) => {
     navigate(`/customer/supermarket/${supermarketId}?name=${encodeURIComponent(supermarketName)}`);
@@ -317,13 +414,54 @@ export default function CustomerHome() {
           </CardContent>
         </Card>
 
+        {/* Location Status */}
+        {locationPermission === 'loading' && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center">
+              <MapPin className="animate-pulse text-blue-600 mr-2" size={20} />
+              <span className="text-blue-800">Obtendo sua localização...</span>
+            </div>
+          </div>
+        )}
+        
+        {locationPermission === 'denied' && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <MapPin className="text-yellow-600 mr-2" size={20} />
+                <div>
+                  <span className="text-yellow-800 font-medium">Localização não disponível</span>
+                  <p className="text-sm text-yellow-700">Mostrando todos os supermercados disponíveis</p>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={getUserLocation}
+                className="border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+              >
+                Tentar Novamente
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {locationPermission === 'granted' && userLocation && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center">
+              <MapPin className="text-green-600 mr-2" size={20} />
+              <span className="text-green-800">Mostrando supermercados próximos (até 20km)</span>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {t('customer.supermarketsWithOffers')}
           </h2>
           <p className="text-gray-600">
-            {t('customer.findBestDiscounts')}
+            {locationPermission === 'granted' ? 'Supermercados próximos com as melhores ofertas' : t('customer.findBestDiscounts')}
           </p>
         </div>
 

@@ -1096,6 +1096,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Customer Routes - Get supermarkets with locations for proximity filtering
+  app.get("/api/customer/supermarkets-with-locations", async (req, res) => {
+    try {
+      const supermarkets = await storage.getSupermarketsWithLocations();
+      res.json(supermarkets);
+    } catch (error) {
+      console.error("Error fetching supermarkets with locations:", error);
+      res.status(500).json({ message: "Erro ao buscar supermercados com localizações" });
+    }
+  });
+
   // Customer Routes - Get products by supermarket
   app.get("/api/customer/supermarket/:id/products", async (req, res) => {
     try {
