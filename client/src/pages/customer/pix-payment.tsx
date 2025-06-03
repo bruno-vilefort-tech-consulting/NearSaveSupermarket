@@ -246,26 +246,26 @@ export default function PixPayment() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center mb-6">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setLocation('/customer/cart')}
             className="mr-4"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
+            <ArrowLeft className="w-4 h-4" />
           </Button>
           <h1 className="text-lg font-bold text-gray-900">{t('payment.pixTitle')}</h1>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="max-w-md mx-auto p-4 space-y-6">
           {/* PIX Payment Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
+              <CardTitle className="flex items-center justify-between text-lg font-bold text-gray-900">
                 {t('payment.pixPayment')}
                 {getStatusBadge()}
               </CardTitle>
@@ -347,8 +347,7 @@ export default function PixPayment() {
                 </div>
               </div>
             </CardContent>
-          </Card>
-        </div>
+        </Card>
       </div>
     </div>
   );
