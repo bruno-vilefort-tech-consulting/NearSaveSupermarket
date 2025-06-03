@@ -16,6 +16,7 @@ export default function PixPaymentFixed() {
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutos em segundos
   const [isExpired, setIsExpired] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [orderCompleted, setOrderCompleted] = useState(false);
   const { toast } = useToast();
 
   const tempOrderId = params?.tempOrderId;
@@ -23,6 +24,22 @@ export default function PixPaymentFixed() {
   useEffect(() => {
     if (!tempOrderId) {
       setLocation('/customer/home');
+      return;
+    }
+
+    // Verificar se o pedido já foi completado
+    const completedOrders = JSON.parse(localStorage.getItem('completedOrders') || '[]');
+    if (completedOrders.includes(tempOrderId)) {
+      console.log('Order already completed:', tempOrderId);
+      setOrderCompleted(true);
+      setPaymentStatus('approved');
+      toast({
+        title: "Pedido Já Processado",
+        description: "Este pedido já foi confirmado anteriormente.",
+      });
+      setTimeout(() => {
+        setLocation('/customer/orders');
+      }, 2000);
       return;
     }
 
@@ -39,7 +56,7 @@ export default function PixPaymentFixed() {
     } else {
       setLocation('/customer/home');
     }
-  }, [tempOrderId, setLocation]);
+  }, [tempOrderId, setLocation, toast]);
 
   // Timer para expiração do PIX e verificação automática
   useEffect(() => {
@@ -79,7 +96,7 @@ export default function PixPaymentFixed() {
 
   // Verificar status do pagamento
   const checkPaymentStatus = async () => {
-    if (!pixData?.pixPayment?.id || isProcessingPayment || paymentStatus === 'approved') return;
+    if (!pixData?.pixPayment?.id || isProcessingPayment || paymentStatus === 'approved' || orderCompleted) return;
 
     setIsCheckingPayment(true);
     try {
@@ -88,7 +105,7 @@ export default function PixPaymentFixed() {
       
       console.log('Payment status:', status);
       
-      if (status.status === 'approved' && !isProcessingPayment) {
+      if (status.status === 'approved' && !isProcessingPayment && !orderCompleted) {
         // Marcar como processando para evitar duplicação
         setIsProcessingPayment(true);
         
@@ -108,7 +125,16 @@ export default function PixPaymentFixed() {
           const result = await confirmResponse.json();
           console.log('Order created:', result);
           
+          // Marcar pedido como completado no localStorage
+          const completedOrders = JSON.parse(localStorage.getItem('completedOrders') || '[]');
+          if (!completedOrders.includes(pixData.tempOrderId)) {
+            completedOrders.push(pixData.tempOrderId);
+            localStorage.setItem('completedOrders', JSON.stringify(completedOrders));
+          }
+          
           setPaymentStatus('approved');
+          setOrderCompleted(true);
+          
           toast({
             title: "Pagamento Identificado!",
             description: `Seu pedido #${result.order.id} foi confirmado e enviado ao supermercado`,

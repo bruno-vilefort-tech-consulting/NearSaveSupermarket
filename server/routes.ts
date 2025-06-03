@@ -275,18 +275,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cache em memória para processamento de pedidos
+  if (!(global as any).processingOrders) {
+    (global as any).processingOrders = new Set();
+  }
+
   // Confirmar pagamento PIX e criar pedido
   app.post("/api/pix/confirm", async (req, res) => {
     try {
       const { tempOrderId, pixPaymentId, customerData } = req.body;
       console.log('🔍 Confirmando pagamento PIX:', { tempOrderId, pixPaymentId });
       
-      // Verificar se já existe um pedido para este PIX (proteção contra duplicação)
-      const existingOrder = await storage.getOrderByExternalReference(tempOrderId);
-      if (existingOrder) {
-        console.log('⚠️ Pedido já existe para este PIX:', existingOrder.id);
-        return res.json({ order: existingOrder, paymentStatus: { status: 'approved' } });
+      // Verificar se o pedido já está sendo processado (proteção contra chamadas simultâneas)
+      if ((global as any).processingOrders.has(tempOrderId)) {
+        console.log('⚠️ Pedido já está sendo processado:', tempOrderId);
+        return res.status(409).json({ message: "Pedido já está sendo processado", tempOrderId });
       }
+      
+      // Marcar como processando
+      (global as any).processingOrders.add(tempOrderId);
+      
+      try {
+        // Verificar se já existe um pedido para este PIX (proteção contra duplicação)
+        const existingOrder = await storage.getOrderByExternalReference(tempOrderId);
+        if (existingOrder) {
+          console.log('⚠️ Pedido já existe para este PIX:', existingOrder.id);
+          return res.json({ order: existingOrder, paymentStatus: { status: 'approved' } });
+        }
       
       // Buscar dados temporários do pedido
       let tempOrderData;
@@ -357,11 +372,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (global as any).tempOrders.delete(tempOrderId);
       }
       
-      console.log('✅ Pedido confirmado e criado:', order.id);
-      res.json({ order, paymentStatus });
+        console.log('✅ Pedido confirmado e criado:', order.id);
+        res.json({ order, paymentStatus });
+        
+      } catch (orderError: any) {
+        console.error('❌ Erro ao confirmar pagamento PIX:', orderError);
+        res.status(500).json({ message: "Erro ao confirmar pagamento PIX", error: orderError.message });
+      } finally {
+        // Remover do cache de processamento
+        (global as any).processingOrders.delete(tempOrderId);
+      }
     } catch (error: any) {
-      console.error('❌ Erro ao confirmar pagamento PIX:', error);
-      res.status(500).json({ message: "Erro ao confirmar pagamento PIX", error: error.message });
+      console.error('❌ Erro geral ao processar PIX:', error);
+      // Remover do cache de processamento em caso de erro
+      (global as any).processingOrders.delete(tempOrderId);
+      res.status(500).json({ message: "Erro ao processar pagamento PIX", error: error.message });
     }
   });
 
