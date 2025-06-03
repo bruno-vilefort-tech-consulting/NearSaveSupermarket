@@ -189,33 +189,63 @@ export default function SupermarketMap() {
                 </Button>
               )}
               
-              {/* Mobile location button with fallback */}
+              {/* Mobile location button with forced permission request */}
               {locationStatus !== 'granted' && isMobile && (
                 <Button 
-                  onClick={() => {
-                    // Try location first, then fallback to center view
-                    if (navigator.geolocation) {
-                      navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                          setUserLocation([position.coords.latitude, position.coords.longitude]);
-                          setLocationStatus('granted');
-                        },
-                        () => {
-                          // If location fails, show São Paulo center with all supermarkets
-                          const avgLat = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.latitude.toString()), 0) / validSupermarkets.length;
-                          const avgLng = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.longitude.toString()), 0) / validSupermarkets.length;
-                          setUserLocation([avgLat, avgLng]);
+                  onClick={async () => {
+                    setLocationStatus('loading');
+                    
+                    try {
+                      // First check if permissions API is available
+                      if ('permissions' in navigator) {
+                        const permission = await navigator.permissions.query({name: 'geolocation'});
+                        console.log('Geolocation permission:', permission.state);
+                        
+                        if (permission.state === 'denied') {
+                          alert('🔒 Localização bloqueada\n\nPara ativar:\n1. Toque no ícone 🔒 ao lado da URL\n2. Toque em "Localização"\n3. Selecione "Permitir"\n4. Recarregue a página');
                           setLocationStatus('denied');
-                        },
-                        { timeout: 3000, enableHighAccuracy: false }
-                      );
+                          return;
+                        }
+                      }
+                      
+                      // Force the permission request
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                          (position) => {
+                            setUserLocation([position.coords.latitude, position.coords.longitude]);
+                            setLocationStatus('granted');
+                          },
+                          (error) => {
+                            console.log('Geolocation failed:', error.code, error.message);
+                            
+                            if (error.code === 1) { // PERMISSION_DENIED
+                              alert('📱 Permissão negada!\n\nComo permitir localização:\n\n1. Toque no ícone de cadeado 🔒 na barra de endereço\n2. Toque em "Localização"\n3. Selecione "Permitir sempre"\n4. Recarregue a página');
+                            }
+                            
+                            // Show all supermarkets as fallback
+                            const avgLat = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.latitude.toString()), 0) / validSupermarkets.length;
+                            const avgLng = validSupermarkets.reduce((sum, s) => sum + parseFloat(s.longitude.toString()), 0) / validSupermarkets.length;
+                            setUserLocation([avgLat, avgLng]);
+                            setLocationStatus('denied');
+                          },
+                          { 
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0 // Force fresh location
+                          }
+                        );
+                      }
+                    } catch (error) {
+                      console.log('Permission check failed:', error);
+                      setLocationStatus('denied');
                     }
                   }}
                   size="sm" 
                   variant="default"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  disabled={locationStatus === 'loading'}
                 >
-                  📍 Localizar
+                  {locationStatus === 'loading' ? '🔄 Aguardando...' : '🔓 Solicitar Localização'}
                 </Button>
               )}
               
