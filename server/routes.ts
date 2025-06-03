@@ -3,9 +3,10 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import { createPixPayment, getPaymentStatus, createCardPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
+import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
 
 // Declaração global para armazenar pedidos temporários
 declare global {
@@ -1270,6 +1271,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error processing webhook:", error);
       res.status(500).json({ message: "Erro ao processar webhook" });
+    }
+  });
+
+  // Push Notification Routes
+  
+  // Get VAPID public key
+  app.get("/api/push/vapid-public-key", (req, res) => {
+    res.json({ publicKey: getVapidPublicKey() });
+  });
+
+  // Subscribe to push notifications
+  app.post("/api/push/subscribe", async (req, res) => {
+    try {
+      const subscriptionData = insertPushSubscriptionSchema.parse(req.body);
+      const subscription = await storage.createPushSubscription(subscriptionData);
+      
+      // Send welcome notification
+      await sendPushNotification(subscriptionData.customerEmail, {
+        title: '🔔 Notificações Ativadas!',
+        body: 'Você receberá atualizações sobre seus pedidos e promoções',
+        url: '/customer/home'
+      });
+
+      res.json(subscription);
+    } catch (error: any) {
+      console.error('Error creating push subscription:', error);
+      res.status(500).json({ message: 'Erro ao criar subscrição push' });
+    }
+  });
+
+  // Unsubscribe from push notifications
+  app.post("/api/push/unsubscribe", async (req, res) => {
+    try {
+      const { email } = req.body;
+      const subscriptions = await storage.getPushSubscriptionsByEmail(email);
+      
+      for (const sub of subscriptions) {
+        await storage.removePushSubscription(sub.id);
+      }
+
+      res.json({ message: 'Unsubscribed successfully' });
+    } catch (error: any) {
+      console.error('Error unsubscribing:', error);
+      res.status(500).json({ message: 'Erro ao cancelar subscrição' });
+    }
+  });
+
+  // Send test notification (for staff)
+  app.post("/api/push/test", async (req, res) => {
+    try {
+      const { customerEmail, title, body } = req.body;
+      
+      const success = await sendPushNotification(customerEmail, {
+        title: title || 'Teste de Notificação',
+        body: body || 'Esta é uma notificação de teste',
+        url: '/customer/home'
+      });
+
+      res.json({ success, message: success ? 'Notificação enviada' : 'Falha ao enviar' });
+    } catch (error: any) {
+      console.error('Error sending test notification:', error);
+      res.status(500).json({ message: 'Erro ao enviar notificação teste' });
     }
   });
 
