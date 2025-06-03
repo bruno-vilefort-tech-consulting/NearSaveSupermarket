@@ -25,6 +25,9 @@ import {
   type OrderWithItems,
   type PasswordResetToken,
   type InsertPasswordResetToken,
+  type PushSubscription,
+  type InsertPushSubscription,
+  pushSubscriptions,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql, or } from "drizzle-orm";
@@ -128,6 +131,11 @@ export interface IStorage {
   getStaffPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   markStaffTokenAsUsed(token: string): Promise<void>;
   updateStaffPassword(email: string, newPassword: string): Promise<void>;
+  
+  // Push notification operations
+  createPushSubscription(subscription: InsertPushSubscription): Promise<PushSubscription>;
+  getPushSubscriptionsByEmail(email: string): Promise<PushSubscription[]>;
+  removePushSubscription(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1223,6 +1231,33 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date()
       })
       .where(eq(staffUsers.email, email));
+  }
+
+  // Push notification operations
+  async createPushSubscription(subscriptionData: InsertPushSubscription): Promise<PushSubscription> {
+    // Remove existing subscription for the same email if exists
+    await db
+      .delete(pushSubscriptions)
+      .where(eq(pushSubscriptions.customerEmail, subscriptionData.customerEmail));
+
+    const [subscription] = await db
+      .insert(pushSubscriptions)
+      .values(subscriptionData)
+      .returning();
+    return subscription;
+  }
+
+  async getPushSubscriptionsByEmail(email: string): Promise<PushSubscription[]> {
+    return await db
+      .select()
+      .from(pushSubscriptions)
+      .where(eq(pushSubscriptions.customerEmail, email));
+  }
+
+  async removePushSubscription(id: number): Promise<void> {
+    await db
+      .delete(pushSubscriptions)
+      .where(eq(pushSubscriptions.id, id));
   }
 }
 
