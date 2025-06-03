@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, ShoppingCart, ArrowLeft, Package, MapPin, Clock, Leaf, AlertTriangle } from "lucide-react";
 import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
+import { t } from "@/lib/translations";
 
 interface Product {
   id: number;

@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { t } from "@/lib/translations";
 import { Leaf, Mail, Lock, ArrowLeft, AlertCircle } from "lucide-react";
 
 type LoginFormData = {
