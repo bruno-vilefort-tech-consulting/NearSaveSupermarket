@@ -36,6 +36,8 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   supermarketName: varchar("supermarket_name"),
   supermarketAddress: varchar("supermarket_address"),
+  latitude: numeric("latitude", { precision: 10, scale: 8 }),
+  longitude: numeric("longitude", { precision: 11, scale: 8 }),
   ecoPoints: integer("eco_points").default(0),
   totalEcoActions: integer("total_eco_actions").default(0),
   createdAt: timestamp("created_at").defaultNow(),
