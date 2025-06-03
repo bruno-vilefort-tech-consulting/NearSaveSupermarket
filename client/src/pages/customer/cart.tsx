@@ -60,7 +60,12 @@ export default function CustomerCart() {
 
   const updateQuantity = (id: number, newQuantity: number) => {
     if (newQuantity <= 0) {
-      setCartItems(cartItems.filter(item => item.id !== id));
+      const updatedItems = cartItems.filter(item => item.id !== id);
+      setCartItems(updatedItems);
+      // Se o carrinho ficar vazio, limpar também o ID do supermercado
+      if (updatedItems.length === 0) {
+        localStorage.removeItem('cartSupermarketId');
+      }
     } else {
       setCartItems(cartItems.map(item => 
         item.id === id ? { ...item, quantity: newQuantity } : item
@@ -69,12 +74,18 @@ export default function CustomerCart() {
   };
 
   const removeItem = (id: number) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+    const updatedItems = cartItems.filter(item => item.id !== id);
+    setCartItems(updatedItems);
+    // Se o carrinho ficar vazio, limpar também o ID do supermercado
+    if (updatedItems.length === 0) {
+      localStorage.removeItem('cartSupermarketId');
+    }
   };
 
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem('cart');
+    localStorage.removeItem('cartSupermarketId');
   };
 
   const calculateTotal = () => {
