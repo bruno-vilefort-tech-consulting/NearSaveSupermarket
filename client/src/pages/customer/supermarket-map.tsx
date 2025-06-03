@@ -126,10 +126,10 @@ export default function SupermarketMap() {
   };
 
   const { data: supermarkets = [] } = useQuery({
-    queryKey: ['/api/supermarkets-with-locations'],
+    queryKey: ['/api/customer/supermarkets/map'],
   });
 
-  const validSupermarkets = supermarkets.filter((s: SupermarketLocation) => 
+  const validSupermarkets = (supermarkets as SupermarketLocation[]).filter((s: SupermarketLocation) => 
     s.latitude && s.longitude && 
     !isNaN(parseFloat(s.latitude.toString())) && 
     !isNaN(parseFloat(s.longitude.toString()))
