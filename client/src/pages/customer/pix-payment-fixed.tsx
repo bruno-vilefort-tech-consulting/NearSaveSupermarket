@@ -184,59 +184,71 @@ export default function PixPaymentFixed() {
   }
 
   return (
-    <div className="min-h-screen bg-green-50 p-4">
-      <div className="max-w-md mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => setLocation('/customer/cart')}>
-            <ArrowLeft className="h-4 w-4" />
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 p-4">
+      <div className="max-w-lg mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-center mb-8 relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setLocation('/customer/cart')}
+            className="absolute left-0 top-1/2 -translate-y-1/2"
+          >
+            <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-green-800">Pagamento PIX</h1>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-green-800 mb-2">Pagamento PIX</h1>
+            <p className="text-sm text-gray-600">Finalize seu pagamento em instantes</p>
+          </div>
         </div>
 
-        {/* Status */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-600" />
-              Status do Pagamento
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <span>Status:</span>
-              <Badge variant="outline" className="text-orange-600 border-orange-600">
-                Aguardando Pagamento
-              </Badge>
+        {/* Status Card - Centralizado e destacado */}
+        <Card className="mb-8 shadow-lg border-0 bg-white">
+          <CardContent className="pt-6">
+            <div className="text-center mb-6">
+              <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                <Clock className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Aguardando Pagamento</h3>
+              <p className="text-gray-600 text-sm">Efetue o pagamento antes do tempo esgotar</p>
             </div>
-            <div className="flex items-center justify-between">
-              <span>Tempo restante:</span>
-              <span className={`font-mono ${isExpired ? 'text-red-600' : 'text-blue-600'}`}>
-                {isExpired ? 'Expirado' : formatTime(timeLeft)}
-              </span>
+            
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-lg border border-orange-200">
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-1">Tempo restante</p>
+                <div className={`text-2xl font-mono font-bold ${isExpired ? 'text-red-600' : 'text-orange-600'}`}>
+                  {isExpired ? 'EXPIRADO' : formatTime(timeLeft)}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-
-
-        {/* Código PIX */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Código PIX</CardTitle>
+        {/* Código PIX - Melhorado e centralizado */}
+        <Card className="mb-8 shadow-lg border-0 bg-white">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-xl text-gray-900">Código PIX</CardTitle>
+            <p className="text-sm text-gray-600 mt-2">
+              Copie o código e cole no seu app bancário
+            </p>
           </CardHeader>
           <CardContent>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-3">
-                Copie o código abaixo e cole no seu app de banco para fazer o pagamento PIX:
-              </p>
-              <div className="bg-gray-100 p-3 rounded mb-4 break-all text-sm font-mono border">
-                {pixData.pixPayment.pixCopyPaste}
+            <div className="space-y-4">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl border-2 border-dashed border-gray-300">
+                <div className="text-center mb-3">
+                  <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">CÓDIGO PIX</p>
+                </div>
+                <div className="bg-white p-3 rounded-lg border break-all text-sm font-mono text-center shadow-sm">
+                  {pixData.pixPayment.pixCopyPaste}
+                </div>
               </div>
+              
               <Button 
                 onClick={() => copyToClipboard(pixData.pixPayment.pixCopyPaste)}
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 py-3 text-lg font-semibold shadow-lg"
+                size="lg"
               >
-                <Copy className="h-4 w-4 mr-2" />
+                <Copy className="h-5 w-5 mr-2" />
                 Copiar Código PIX
               </Button>
             </div>
@@ -244,41 +256,59 @@ export default function PixPaymentFixed() {
         </Card>
 
         {/* Resumo do Pedido */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Resumo do Pedido</CardTitle>
+        <Card className="mb-8 shadow-lg border-0 bg-white">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-xl text-gray-900">Resumo do Pedido</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {pixData.items?.map((item: any, index: number) => (
-              <div key={index} className="flex justify-between">
-                <span>{item.productName} x{item.quantity}</span>
-                <span>R$ {(parseFloat(item.priceAtTime) * item.quantity).toFixed(2)}</span>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                {pixData.items?.map((item: any, index: number) => (
+                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                    <div className="flex-1">
+                      <span className="text-gray-900 font-medium">{item.productName}</span>
+                      <span className="text-gray-500 text-sm ml-2">x{item.quantity}</span>
+                    </div>
+                    <span className="font-semibold text-green-700">
+                      R$ {(parseFloat(item.priceAtTime) * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-            <div className="border-t pt-3 font-bold">
-              <div className="flex justify-between">
-                <span>Total</span>
-                <span>R$ {parseFloat(pixData.totalAmount).toFixed(2)}</span>
+              
+              <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold text-gray-900">Total</span>
+                  <span className="text-2xl font-bold text-green-700">
+                    R$ {parseFloat(pixData.totalAmount).toFixed(2)}
+                  </span>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Botão de verificar pagamento */}
-        <Button
-          onClick={checkPaymentStatus}
-          disabled={isCheckingPayment || isExpired}
-          className="w-full mb-4"
-        >
-          {isCheckingPayment ? (
-            <div className="flex items-center gap-2">
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-              Verificando...
-            </div>
-          ) : (
-            'Verificar Pagamento'
-          )}
-        </Button>
+        <div className="text-center mb-8">
+          <Button
+            onClick={checkPaymentStatus}
+            disabled={isCheckingPayment || isExpired}
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-3 text-lg font-semibold shadow-lg"
+            size="lg"
+          >
+            {isCheckingPayment ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                Verificando Pagamento...
+              </div>
+            ) : (
+              'Verificar Pagamento'
+            )}
+          </Button>
+          <p className="text-xs text-gray-500 mt-2">
+            O pagamento é verificado automaticamente a cada 10 segundos
+          </p>
+        </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
           <p className="text-sm text-blue-800 font-medium mb-2">
