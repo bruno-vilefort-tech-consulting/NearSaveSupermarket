@@ -138,7 +138,7 @@ export function usePushNotifications() {
 
       // Step 6: Save to backend
       const subscriptionData = {
-        email,
+        customerEmail: email,
         endpoint: subscription.endpoint,
         p256dhKey: arrayBufferToBase64(p256dhKey),
         authKey: arrayBufferToBase64(authKey),

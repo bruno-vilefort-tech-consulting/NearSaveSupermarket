@@ -1321,11 +1321,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Push Notification Routes
+  // Push Notification Routes (no auth required)
   
   // Get VAPID public key
   app.get("/api/push/vapid-public-key", (req, res) => {
-    res.json({ publicKey: getVapidPublicKey() });
+    try {
+      const publicKey = getVapidPublicKey();
+      console.log('VAPID key requested, returning:', publicKey ? 'key available' : 'no key');
+      res.json({ publicKey });
+    } catch (error) {
+      console.error('Error getting VAPID key:', error);
+      res.status(500).json({ message: 'Erro ao obter chave VAPID' });
+    }
   });
 
   // Subscribe to push notifications
