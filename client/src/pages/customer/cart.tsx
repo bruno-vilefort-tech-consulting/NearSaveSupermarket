@@ -178,6 +178,7 @@ export default function CustomerCart() {
       totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
       items: cartItems.map(item => ({
         productId: item.id,
+        productName: item.name,
         quantity: item.quantity,
         priceAtTime: item.discountPrice
       }))
