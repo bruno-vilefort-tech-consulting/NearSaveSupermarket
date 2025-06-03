@@ -333,7 +333,7 @@ export default function PixPayment() {
               <div className="border-t pt-4">
                 <h4 className="font-medium mb-2">Itens:</h4>
                 {orderData.items.map((item, index) => (
-                  <div key={index} className="flex justify-between text-sm">
+                  <div key={index} className="flex justify-between text-xs">
                     <span>{item.quantity}x {item.productName}</span>
                     <span>R$ {item.priceAtTime}</span>
                   </div>
