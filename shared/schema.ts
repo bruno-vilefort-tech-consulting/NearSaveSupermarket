@@ -166,6 +166,24 @@ export const ecoActionsRelations = relations(ecoActions, ({ one }) => ({
   order: one(orders, { fields: [ecoActions.orderId], references: [orders.id] }),
 }));
 
+// Push notification subscriptions table
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: serial("id").primaryKey(),
+  customerEmail: varchar("customer_email").notNull(),
+  endpoint: varchar("endpoint").notNull(),
+  p256dhKey: varchar("p256dh_key").notNull(),
+  authKey: varchar("auth_key").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const pushSubscriptionsRelations = relations(pushSubscriptions, ({ one }) => ({
+  customer: one(customers, {
+    fields: [pushSubscriptions.customerEmail],
+    references: [customers.email],
+  }),
+}));
+
 // Schema types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -229,6 +247,15 @@ export type InsertEcoAction = z.infer<typeof insertEcoActionSchema>;
 export type EcoAction = typeof ecoActions.$inferSelect;
 export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSchema>;
 export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+
+export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema>;
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 
 // Extended types for API responses
 export type ProductWithCreator = Omit<Product, 'createdBy'> & {
