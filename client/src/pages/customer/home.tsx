@@ -40,10 +40,6 @@ export default function CustomerHome() {
     localStorage.removeItem('customerInfo');
     localStorage.removeItem('cart');
     setCustomerInfo(null);
-    toast({
-      title: "Logout realizado",
-      description: "Você foi desconectado com sucesso",
-    });
     navigate("/");
   };
 

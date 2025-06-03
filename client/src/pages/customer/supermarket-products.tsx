@@ -47,7 +47,6 @@ export default function SupermarketProducts() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  const { toast } = useToast();
   const { t } = useLanguage();
 
   // Get supermarket name from URL params
@@ -125,11 +124,6 @@ export default function SupermarketProducts() {
     setCartCount(totalItems);
 
     const ecoPoints = calculateEcoPoints(product.expirationDate, product.category) * quantity;
-    
-    toast({
-      title: t('customer.productAdded'),
-      description: `${product.name} foi adicionado ao carrinho. Você ganhará ${ecoPoints} pontos eco!`,
-    });
   };
 
   const handleProductClick = (product: Product) => {
