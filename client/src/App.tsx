@@ -20,7 +20,7 @@ import SupermarketProducts from "@/pages/customer/supermarket-products";
 import CustomerCart from "@/pages/customer/cart";
 import CustomerOrders from "@/pages/customer/orders";
 import CustomerPaymentFixed from "@/pages/customer/payment-fixed";
-import PixPayment from "@/pages/customer/pix-payment";
+import PixPaymentFixed from "@/pages/customer/pix-payment-fixed";
 import CardPayment from "@/pages/customer/card-payment";
 import EcoRewards from "@/pages/customer/eco-rewards";
 import EcoPoints from "@/pages/customer/eco-points";
@@ -58,7 +58,7 @@ function Router() {
       <Route path="/customer/supermarket/:id" component={SupermarketProducts} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPaymentFixed} />
-      <Route path="/customer/pix-payment/:orderId" component={PixPayment} />
+      <Route path="/customer/pix-payment/:tempOrderId" component={PixPaymentFixed} />
       <Route path="/customer/card-payment" component={CardPayment} />
       <Route path="/customer/orders" component={CustomerOrders} />
       <Route path="/customer/eco-rewards" component={EcoRewards} />
