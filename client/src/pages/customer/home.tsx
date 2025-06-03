@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Leaf, LogOut, Menu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/useLanguage";
+import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 
 interface Supermarket {
   id: number;
@@ -264,6 +265,13 @@ export default function CustomerHome() {
                 </Button>
 
                 <hr className="my-4" />
+
+                {/* Push Notifications Toggle */}
+                {customerInfo?.email && (
+                  <div className="mb-4">
+                    <PushNotificationToggle customerEmail={customerInfo.email} />
+                  </div>
+                )}
 
                 <Button
                   variant="ghost"
