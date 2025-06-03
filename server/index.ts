@@ -15,7 +15,12 @@ app.use(express.static("uploaded_images"));
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    try {
+      serveStatic(app);
+    } catch (error) {
+      console.warn("Static files not available, running in development mode");
+      await setupVite(app, server);
+    }
   }
 
   // In development, Vite handles the port. In production, we handle it here.
