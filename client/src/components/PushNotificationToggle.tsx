@@ -34,8 +34,10 @@ export function PushNotificationToggle({ customerEmail }: PushNotificationToggle
       
       // Check if notifications are blocked based on permission status
       if (Notification.permission === 'denied' || error?.message?.includes('bloqueadas') || error?.message?.includes('denied')) {
+        console.log('Showing blocked help card');
         setShowBlockedHelp(true);
       } else {
+        console.log('Showing alert instead');
         alert('Erro: ' + (error?.message || 'Erro desconhecido'));
       }
     }
