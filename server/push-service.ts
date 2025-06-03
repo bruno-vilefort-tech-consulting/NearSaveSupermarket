@@ -1,10 +1,10 @@
 import webpush from 'web-push';
 import { storage } from './storage';
 
-// Configuração do web-push com novas chaves VAPID
+// Configuração do web-push com chaves VAPID
 const vapidKeys = {
-  publicKey: process.env.VAPID_PUBLIC_KEY || 'BKjEt8tk2gBhe_qd0oBVRk9Gx45ENyVGtOUivQFzAqmFwTDbEy77KubwfEbf-gsou3M7ha7z6Qge9u8l-Hr0fKM',
-  privateKey: process.env.VAPID_PRIVATE_KEY || 'RcLBvEl4h1KKOUaHEwm4QNd2zTe3-tenwNdOTtUs2tw'
+  publicKey: process.env.VAPID_PUBLIC_KEY || 'BHg9Q1w6hkG0ggsSsbDEGr2Ux8ncAKjKW-fi16Qki-zAcjapQCBTfbdB77OeR9L8zT_3gV-HrwAMg2N60Pa8u20',
+  privateKey: process.env.VAPID_PRIVATE_KEY || 's1neqTqX3BQnCvNVq-n6nGU_6oPwimK6o-9d3z50peM'
 };
 
 webpush.setVapidDetails(
