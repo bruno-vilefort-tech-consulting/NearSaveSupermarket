@@ -91,8 +91,8 @@ export default function CustomerOrders() {
               <ArrowLeft className="h-6 w-6 text-gray-600" />
             </Link>
             <div className="ml-4">
-              <h1 className="text-lg font-semibold">Meus Pedidos</h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-lg font-bold text-gray-900">Meus Pedidos</h1>
+              <p className="text-xs text-gray-500">
                 {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
               </p>
             </div>
@@ -114,8 +114,8 @@ export default function CustomerOrders() {
             <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto flex items-center justify-center mb-4">
               <Package size={32} className="text-gray-400" />
             </div>
-            <h2 className="text-xl font-semibold mb-2">Nenhum pedido encontrado</h2>
-            <p className="text-gray-600 mb-6">Você ainda não fez nenhum pedido.</p>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Nenhum pedido encontrado</h2>
+            <p className="text-sm text-gray-600 mb-6">Você ainda não fez nenhum pedido.</p>
             <Link href="/customer">
               <Button className="bg-green-600 hover:bg-green-700">
                 Fazer Primeiro Pedido

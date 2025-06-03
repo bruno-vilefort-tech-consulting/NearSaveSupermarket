@@ -221,7 +221,7 @@ export default function SupermarketProducts() {
                 {t('common.back')}
               </Button>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg font-semibold text-gray-900 truncate">{supermarketName}</h1>
+                <h1 className="text-lg font-bold text-gray-900 truncate">{supermarketName}</h1>
                 <p className="text-xs text-gray-500">{t('customer.productsOnSale')}</p>
               </div>
             </div>

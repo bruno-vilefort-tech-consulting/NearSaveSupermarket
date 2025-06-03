@@ -195,7 +195,7 @@ export default function CustomerCart() {
             <Link href="/customer">
               <ArrowLeft className="h-6 w-6 text-gray-600" />
             </Link>
-            <h1 className="ml-4 text-lg font-semibold">{t('cart.title')}</h1>
+            <h1 className="ml-4 text-lg font-bold text-gray-900">{t('cart.title')}</h1>
           </div>
         </div>
 
