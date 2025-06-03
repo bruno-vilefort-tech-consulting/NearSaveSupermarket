@@ -44,6 +44,7 @@ export interface IStorage {
   getStaffUserByEmail(email: string): Promise<StaffUser | undefined>;
   createStaffUser(staffUser: InsertStaffUser): Promise<StaffUser>;
   validateStaffUser(email: string, password: string): Promise<StaffUser | undefined>;
+  updateStaffLocation(id: number, latitude: number, longitude: number): Promise<void>;
   
   // Customer operations
   getCustomerByEmail(email: string): Promise<Customer | undefined>;
@@ -196,6 +197,17 @@ export class DatabaseStorage implements IStorage {
         eq(staffUsers.isActive, 1)
       ));
     return staffUser;
+  }
+
+  async updateStaffLocation(id: number, latitude: number, longitude: number): Promise<void> {
+    await db
+      .update(staffUsers)
+      .set({
+        latitude: latitude.toString(),
+        longitude: longitude.toString(),
+        updatedAt: new Date()
+      })
+      .where(eq(staffUsers.id, id));
   }
 
   // Customer operations
