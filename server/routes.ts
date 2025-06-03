@@ -592,8 +592,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/products/:id", isAuthenticated, upload.single("image"), async (req, res) => {
+  app.put("/api/products/:id", upload.single("image"), async (req, res) => {
     try {
+      // Get staff ID from headers (same as other staff routes)
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
+
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid product ID" });
@@ -637,8 +643,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/products/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/products/:id", async (req, res) => {
     try {
+      // Get staff ID from headers (same as other staff routes)
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
+
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid product ID" });
