@@ -465,21 +465,29 @@ export default function CustomerHome() {
         
         {locationPermission === 'denied' && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center justify-between">
+            <div className="space-y-3">
               <div className="flex items-center">
                 <MapPin className="text-blue-600 mr-2" size={20} />
-                <div>
-                  <span className="text-blue-800 font-medium">Ativar localização para supermercados próximos</span>
-                  <p className="text-sm text-blue-700">Permita acesso à localização para ver apenas supermercados dentro de 20km</p>
-                </div>
+                <span className="text-blue-800 font-medium">Ativar localização para supermercados próximos</span>
               </div>
+              <p className="text-sm text-blue-700">
+                Para ver apenas supermercados próximos (20km), você precisa:
+              </p>
+              <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
+                <li>Clicar no ícone 🔒 ou ⓘ ao lado da URL no navegador</li>
+                <li>Alterar "Localização" para "Permitir"</li>
+                <li>Recarregar a página ou clicar no botão abaixo</li>
+              </ul>
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={getUserLocation}
+                onClick={() => {
+                  console.log('Tentando reativar localização...');
+                  getUserLocation();
+                }}
                 className="border-blue-300 text-blue-700 hover:bg-blue-100"
               >
-                Ativar Localização
+                Tentar Novamente
               </Button>
             </div>
           </div>
