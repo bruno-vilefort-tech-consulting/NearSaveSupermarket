@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, ArrowLeft, Package, MapPin, Clock, Leaf } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Search, ShoppingCart, ArrowLeft, Package, MapPin, Clock, Leaf, AlertTriangle } from "lucide-react";
 import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -47,6 +48,8 @@ export default function SupermarketProducts() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [showSupermarketConflict, setShowSupermarketConflict] = useState(false);
+  const [pendingCartItem, setPendingCartItem] = useState<{ product: Product; quantity: number } | null>(null);
   const { t } = useLanguage();
 
   // Get supermarket name from URL params
@@ -64,12 +67,12 @@ export default function SupermarketProducts() {
     queryKey: [`/api/customer/supermarket/${id}/products`],
   });
 
-  const filteredProducts = products?.filter((product: Product) => {
+  const filteredProducts = (products || []).filter((product: Product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
     const hasStock = product.quantity > 0; // Ocultar produtos sem estoque
     return matchesSearch && matchesCategory && hasStock;
-  }) || [];
+  });
 
   const formatPrice = (price: string) => {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
@@ -111,19 +114,68 @@ export default function SupermarketProducts() {
 
   const addToCart = (product: Product, quantity: number) => {
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cartSupermarketId = localStorage.getItem('cartSupermarketId');
+    const currentSupermarketId = id;
+
+    // Verificar se o carrinho já tem itens de outro supermercado
+    if (cartItems.length > 0 && cartSupermarketId && cartSupermarketId !== currentSupermarketId) {
+      // Armazenar o item pendente e mostrar diálogo de confirmação
+      setPendingCartItem({ product, quantity });
+      setShowSupermarketConflict(true);
+      return;
+    }
+
+    // Adicionar item ao carrinho normalmente
     const existingItem = cartItems.find((item: any) => item.id === product.id);
 
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
-      cartItems.push({ ...product, quantity });
+      // Adicionar informações do supermercado ao produto
+      const productWithSupermarket = {
+        ...product,
+        supermarketId: currentSupermarketId,
+        supermarketName: supermarketName
+      };
+      cartItems.push({ ...productWithSupermarket, quantity });
     }
 
     localStorage.setItem('cart', JSON.stringify(cartItems));
+    localStorage.setItem('cartSupermarketId', currentSupermarketId || '');
+    
     const totalItems = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
     setCartCount(totalItems);
+  };
 
-    const ecoPoints = calculateEcoPoints(product.expirationDate, product.category) * quantity;
+  const handleClearCartAndAdd = () => {
+    if (!pendingCartItem) return;
+
+    // Limpar carrinho atual
+    localStorage.removeItem('cart');
+    localStorage.removeItem('cartSupermarketId');
+
+    // Adicionar novo item
+    const productWithSupermarket = {
+      ...pendingCartItem.product,
+      supermarketId: id,
+      supermarketName: supermarketName
+    };
+
+    const newCartItems = [{ ...productWithSupermarket, quantity: pendingCartItem.quantity }];
+    
+    localStorage.setItem('cart', JSON.stringify(newCartItems));
+    localStorage.setItem('cartSupermarketId', id || '');
+    
+    setCartCount(pendingCartItem.quantity);
+    
+    // Limpar estados
+    setPendingCartItem(null);
+    setShowSupermarketConflict(false);
+  };
+
+  const handleKeepCurrentCart = () => {
+    setPendingCartItem(null);
+    setShowSupermarketConflict(false);
   };
 
   const handleProductClick = (product: Product) => {
@@ -336,6 +388,50 @@ export default function SupermarketProducts() {
         onClose={() => setIsModalOpen(false)}
         onAddToCart={addToCart}
       />
+
+      {/* Supermarket Conflict Dialog */}
+      <Dialog open={showSupermarketConflict} onOpenChange={setShowSupermarketConflict}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Carrinho de outro supermercado
+            </DialogTitle>
+            <DialogDescription className="text-left">
+              Seu carrinho já contém itens de outro supermercado. Você só pode comprar produtos de um supermercado por vez.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-sm text-gray-600 mb-2">
+                Para adicionar este produto de <span className="font-semibold">{supermarketName}</span>, precisamos limpar seu carrinho atual.
+              </p>
+              {pendingCartItem && (
+                <p className="text-sm font-medium">
+                  Produto: {pendingCartItem.product.name} (x{pendingCartItem.quantity})
+                </p>
+              )}
+            </div>
+            
+            <div className="flex space-x-3">
+              <Button 
+                variant="outline" 
+                onClick={handleKeepCurrentCart}
+                className="flex-1"
+              >
+                Manter carrinho atual
+              </Button>
+              <Button 
+                onClick={handleClearCartAndAdd}
+                className="flex-1 bg-orange-600 hover:bg-orange-700"
+              >
+                Limpar e adicionar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

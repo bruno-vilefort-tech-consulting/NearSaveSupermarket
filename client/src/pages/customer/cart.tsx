@@ -19,6 +19,8 @@ interface CartItem {
   quantity: number;
   imageUrl?: string;
   expirationDate: string;
+  supermarketId?: string;
+  supermarketName?: string;
   createdBy?: {
     supermarketName?: string;
     supermarketAddress?: string;
