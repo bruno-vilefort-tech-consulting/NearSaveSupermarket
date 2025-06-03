@@ -70,14 +70,17 @@ export default function SupermarketMap() {
           setLocationStatus('granted');
         },
         (error) => {
+          console.log('Geolocation error:', error.code, error.message);
           setLocationStatus('denied');
         },
         {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
+          enableHighAccuracy: false, // Better for mobile battery and faster
+          timeout: 15000, // Longer timeout for mobile networks
+          maximumAge: 300000 // Accept cached position up to 5 minutes
         }
       );
+    } else {
+      setLocationStatus('unavailable');
     }
   };
 
@@ -145,6 +148,11 @@ export default function SupermarketMap() {
                     : 'Veja todos os supermercados disponíveis na região de São Paulo'
                   }
                 </p>
+                {locationStatus === 'denied' && (
+                  <p className="text-xs text-amber-600 mt-2">
+                    💡 No celular: Configurações → Site → Permitir localização
+                  </p>
+                )}
               </div>
             </div>
             {locationStatus !== 'granted' && (
