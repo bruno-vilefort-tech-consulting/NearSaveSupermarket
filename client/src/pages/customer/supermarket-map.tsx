@@ -29,7 +29,7 @@ interface SupermarketLocation {
 }
 
 export default function SupermarketMap() {
-  const { t } = useLanguage();
+  // const { t } = useLanguage();
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [selectedSupermarket, setSelectedSupermarket] = useState<SupermarketLocation | null>(null);
 
@@ -226,7 +226,7 @@ export default function SupermarketMap() {
                           <span className="text-sm">{supermarket.productCount}</span>
                         </div>
                         {supermarket.hasPromotions && (
-                          <Badge variant="destructive" size="sm">
+                          <Badge variant="destructive">
                             <Percent className="h-3 w-3 mr-1" />
                             Promoções
                           </Badge>
