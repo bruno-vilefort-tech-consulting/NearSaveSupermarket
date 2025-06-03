@@ -73,7 +73,13 @@ export function usePushNotifications() {
       }
       
       if (permission === 'denied') {
-        throw new Error('Notificações bloqueadas. Para ativar: 1) Clique no ícone ao lado da URL 2) Mude Notificações para "Permitir" 3) Recarregue a página');
+        // Mobile-specific instructions
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+          throw new Error('Notificações bloqueadas. Para ativar no mobile: Vá em Menu do navegador > Configurações > Permissões > Notificações > Ativar para este site');
+        } else {
+          throw new Error('Notificações bloqueadas. Para ativar: 1) Clique no ícone ao lado da URL 2) Mude Notificações para "Permitir" 3) Recarregue a página');
+        }
       }
       
       if (permission !== 'granted') {
@@ -90,16 +96,22 @@ export function usePushNotifications() {
       }
       console.log('VAPID key received');
 
-      // Step 3: Register service worker
+      // Step 3: Register service worker with mobile optimization
       console.log('Registering service worker...');
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/',
         updateViaCache: 'none'
       });
       
-      // Wait for service worker to be ready
-      await navigator.serviceWorker.ready;
-      console.log('Service worker ready');
+      console.log('Service worker registration state:', registration.installing ? 'installing' : registration.waiting ? 'waiting' : registration.active ? 'active' : 'unknown');
+      
+      // Wait for service worker to be ready with timeout for mobile
+      const serviceWorkerReady = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Service worker timeout')), 10000))
+      ]) as ServiceWorkerRegistration;
+      
+      console.log('Service worker ready:', serviceWorkerReady.active?.state);
 
       // Step 4: Subscribe to push notifications
       console.log('Creating push subscription...');

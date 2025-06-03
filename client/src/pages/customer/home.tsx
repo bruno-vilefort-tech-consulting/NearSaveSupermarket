@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Leaf, LogOut, Menu, X } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
+import { MobilePushDiagnostic } from "@/components/MobilePushDiagnostic";
 
 interface Supermarket {
   id: number;
@@ -409,6 +410,10 @@ export default function CustomerHome() {
           )}
         </div>
 
+        {/* Diagnóstico de Push Notifications (temporário para debug mobile) */}
+        <div className="mt-8">
+          <MobilePushDiagnostic />
+        </div>
 
       </div>
     </div>
