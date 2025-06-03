@@ -9,10 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Leaf, Mail, Lock, ArrowLeft } from "lucide-react";
+import { Leaf, Mail, Lock, ArrowLeft, AlertCircle } from "lucide-react";
 
 type LoginFormData = {
   email: string;
@@ -21,6 +22,7 @@ type LoginFormData = {
 
 export default function CustomerLogin() {
   const [, navigate] = useLocation();
+  const [errorMessage, setErrorMessage] = useState("");
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -39,34 +41,28 @@ export default function CustomerLogin() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
+      setErrorMessage(""); // Limpar erro anterior
       const response = await apiRequest("POST", "/api/customer/login", data);
       return response.json();
     },
     onSuccess: (data) => {
       localStorage.setItem('customerInfo', JSON.stringify(data));
-      toast({
-        title: t('auth.loginSuccess'),
-        description: t('landing.title'),
-      });
+      setErrorMessage(""); // Limpar qualquer erro
       navigate("/customer");
     },
     onError: (error: any) => {
-      let errorMessage = "Email ou senha incorretos. Verifique suas credenciais e tente novamente.";
+      let errorMsg = "Email ou senha incorretos. Verifique suas credenciais e tente novamente.";
       
       // Verificar se é erro de credenciais inválidas
       if (error.message && error.message.includes('401')) {
-        errorMessage = "Email ou senha incorretos. Verifique suas credenciais e tente novamente.";
+        errorMsg = "Email ou senha incorretos. Verifique suas credenciais e tente novamente.";
       } else if (error.message && error.message.includes('404')) {
-        errorMessage = "Usuário não encontrado. Verifique seu email ou registre-se.";
+        errorMsg = "Usuário não encontrado. Verifique seu email ou registre-se.";
       } else if (error.message && error.message.includes('400')) {
-        errorMessage = "Dados inválidos. Verifique os campos preenchidos.";
+        errorMsg = "Dados inválidos. Verifique os campos preenchidos.";
       }
       
-      toast({
-        title: "Erro no Login",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      setErrorMessage(errorMsg);
     },
   });
 
@@ -99,6 +95,16 @@ export default function CustomerLogin() {
           </CardHeader>
           
           <CardContent className="space-y-6">
+            {/* Error Message */}
+            {errorMessage && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {errorMessage}
+                </AlertDescription>
+              </Alert>
+            )}
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
