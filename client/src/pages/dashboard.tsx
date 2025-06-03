@@ -3,7 +3,7 @@ import { Header } from "@/components/layout/header";
 import { BottomNavigation } from "@/components/layout/bottom-navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingCart, Plus, List, Check, Calendar } from "lucide-react";
+import { Package, ShoppingCart, Plus, List, Check, Calendar, Settings } from "lucide-react";
 import { useLocation } from "wouter";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -109,6 +109,22 @@ export default function Dashboard() {
                     <div className="text-left">
                       <p className="font-medium text-gray-900">{t('dashboard.monthlyReport')}</p>
                       <p className="text-xs text-gray-600">{t('dashboard.monthlyReportDesc')}</p>
+                    </div>
+                  </div>
+                </Button>
+                
+                <Button
+                  onClick={() => navigate("/settings")}
+                  variant="outline"
+                  className="w-full flex items-center justify-between p-4 bg-orange-50 border-orange-200 rounded-xl hover:bg-orange-100 transition-colors h-auto"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
+                      <Settings className="text-white" size={20} />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-medium text-gray-900">Configurações</p>
+                      <p className="text-xs text-gray-600">Localização do supermercado</p>
                     </div>
                   </div>
                 </Button>
