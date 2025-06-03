@@ -391,39 +391,39 @@ export default function SupermarketProducts() {
 
       {/* Supermarket Conflict Dialog */}
       <Dialog open={showSupermarketConflict} onOpenChange={setShowSupermarketConflict}>
-        <DialogContent className="max-w-sm rounded-2xl shadow-2xl border-0 p-6">
-          <DialogHeader className="text-center pb-2">
-            <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-              <AlertTriangle className="h-8 w-8 text-orange-600" />
+        <DialogContent className="max-w-xs w-80 rounded-2xl shadow-2xl border-0 p-4">
+          <DialogHeader className="text-center pb-1">
+            <div className="mx-auto w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+              <AlertTriangle className="h-6 w-6 text-orange-600" />
             </div>
-            <DialogTitle className="text-lg font-semibold text-gray-900 mb-2">
+            <DialogTitle className="text-base font-semibold text-gray-900 mb-1">
               Carrinho de outro supermercado
             </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600 leading-relaxed">
-              Seu carrinho já contém itens de outro supermercado. Você só pode comprar produtos de um supermercado por vez.
+            <DialogDescription className="text-xs text-gray-600 leading-relaxed px-2">
+              Você só pode comprar de um supermercado por vez.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 pt-2">
-            <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200">
-              <p className="text-sm text-orange-800 text-center">
-                Para adicionar produtos de <span className="font-semibold text-orange-900">{supermarketName}</span>, precisamos limpar seu carrinho atual.
+          <div className="space-y-3 pt-1">
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-3 rounded-lg border border-orange-200">
+              <p className="text-xs text-orange-800 text-center">
+                Para adicionar de <span className="font-semibold text-orange-900">{supermarketName}</span>, limpe o carrinho atual.
               </p>
             </div>
             
-            <div className="flex flex-col space-y-3 pt-2">
+            <div className="flex flex-col space-y-2">
               <Button 
                 onClick={handleClearCartAndAdd}
-                className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 py-3 rounded-xl font-medium shadow-lg"
+                className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 py-2 rounded-lg text-sm font-medium shadow-lg"
               >
                 Limpar e adicionar
               </Button>
               <Button 
                 variant="outline" 
                 onClick={handleKeepCurrentCart}
-                className="w-full py-3 rounded-xl border-2 border-gray-300 hover:border-gray-400 font-medium"
+                className="w-full py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 text-sm font-medium"
               >
-                Manter carrinho atual
+                Manter carrinho
               </Button>
             </div>
           </div>
