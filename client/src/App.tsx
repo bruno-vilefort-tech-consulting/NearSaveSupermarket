@@ -84,6 +84,7 @@ function Router() {
         </>
       ) : (isStaffAuthenticated || isAuthenticated) ? (
         <>
+          <Route path="/staff" component={Dashboard} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/products" component={Products} />
           <Route path="/add-product" component={AddProduct} />
@@ -93,10 +94,11 @@ function Router() {
         </>
       ) : (
         <>
-          <Route path="/dashboard" component={Landing} />
-          <Route path="/products" component={Landing} />
-          <Route path="/add-product" component={Landing} />
-          <Route path="/orders" component={Landing} />
+          <Route path="/staff" component={StaffLogin} />
+          <Route path="/dashboard" component={StaffLogin} />
+          <Route path="/products" component={StaffLogin} />
+          <Route path="/add-product" component={StaffLogin} />
+          <Route path="/orders" component={StaffLogin} />
         </>
       )}
       <Route component={NotFound} />
