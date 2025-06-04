@@ -345,22 +345,22 @@ export default function CustomerCart() {
         )}
 
         {/* Tipo de Entrega */}
-        <Card className="bg-white">
+        <Card className="bg-white border-eco-orange-light">
           <CardContent className="p-4">
-            <h3 className="font-semibold mb-3">{t('cart.deliveryMethod')}</h3>
+            <h3 className="font-semibold mb-3 text-eco-gray-dark">{t('cart.deliveryMethod')}</h3>
             <RadioGroup value={deliveryType} onValueChange={setDeliveryType}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="pickup" id="pickup" />
-                <Label htmlFor="pickup" className="flex-1">
+                <Label htmlFor="pickup" className="flex-1 text-eco-gray-dark">
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
+                    <MapPin className="h-4 w-4 text-eco-orange" />
                     <span>{t('cart.pickupFree')}</span>
                   </div>
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="delivery" id="delivery" />
-                <Label htmlFor="delivery" className="flex-1">
+                <Label htmlFor="delivery" className="flex-1 text-eco-gray-dark">
                   <div className="flex items-center gap-2">
                     <span>🚚</span>
                     <span>{t('cart.deliveryFee')}</span>
@@ -371,12 +371,13 @@ export default function CustomerCart() {
             
             {deliveryType === "delivery" && (
               <div className="mt-3">
-                <Label htmlFor="address">{t('cart.deliveryAddress')}</Label>
+                <Label htmlFor="address" className="text-eco-gray-dark">{t('cart.deliveryAddress')}</Label>
                 <Input
                   id="address"
                   value={deliveryAddress}
                   onChange={(e) => setDeliveryAddress(e.target.value)}
                   placeholder={t('cart.deliveryAddressPlaceholder')}
+                  className="border-eco-gray-light focus:border-eco-orange focus:ring-eco-orange"
                 />
               </div>
             )}
@@ -384,27 +385,27 @@ export default function CustomerCart() {
         </Card>
 
         {/* Resumo do Pedido */}
-        <Card className="bg-white">
+        <Card className="bg-white border-eco-green-light">
           <CardContent className="p-4">
-            <h3 className="font-semibold mb-3">{t('cart.orderSummary')}</h3>
+            <h3 className="font-semibold mb-3 text-eco-gray-dark">{t('cart.orderSummary')}</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>{t('cart.subtotal')}</span>
-                <span>{formatPrice(calculateTotal().toString())}</span>
+                <span className="text-eco-gray-dark">{t('cart.subtotal')}</span>
+                <span className="text-eco-gray-dark">{formatPrice(calculateTotal().toString())}</span>
               </div>
-              <div className="flex justify-between text-green-600">
+              <div className="flex justify-between text-eco-green">
                 <span>{t('cart.savings')}</span>
                 <span>-{formatPrice(calculateSavings().toString())}</span>
               </div>
               {deliveryType === "delivery" && (
                 <div className="flex justify-between">
-                  <span>{t('cart.delivery')}</span>
-                  <span>R$ 5,00</span>
+                  <span className="text-eco-gray-dark">{t('cart.delivery')}</span>
+                  <span className="text-eco-gray-dark">R$ 5,00</span>
                 </div>
               )}
-              <div className="border-t pt-2 flex justify-between font-semibold">
-                <span>{t('cart.total')}</span>
-                <span>{formatPrice((calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toString())}</span>
+              <div className="border-t border-eco-green-light pt-2 flex justify-between font-semibold">
+                <span className="text-eco-gray-dark">{t('cart.total')}</span>
+                <span className="text-eco-gray-dark">{formatPrice((calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toString())}</span>
               </div>
             </div>
           </CardContent>
@@ -412,7 +413,7 @@ export default function CustomerCart() {
 
         {/* Botão de Finalizar */}
         <Button 
-          className="w-full bg-green-600 hover:bg-green-700 h-12"
+          className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold h-12 rounded-xl transition-colors"
           onClick={handleCheckout}
           disabled={createOrderMutation.isPending}
         >
