@@ -459,11 +459,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByStaff(staffId: number, filters?: { status?: string }): Promise<OrderWithItems[]> {
-    console.log(`🔍 CRITICAL DEBUG: Starting getOrdersByStaff for staffId: ${staffId}`);
-    
-    // CRITICAL: Check if this query is somehow triggering status updates
-    console.log(`🔍 CRITICAL DEBUG: About to query orders - checking for any side effects`);
-    
     // First, get all orders that contain products created by this staff
     let whereConditions = [
       eq(products.createdByStaff, staffId),
@@ -473,10 +468,7 @@ export class DatabaseStorage implements IStorage {
     
     if (filters?.status) {
       whereConditions.push(eq(orders.status, filters.status));
-      console.log(`Filtering by status: ${filters.status}`);
     }
-
-    console.log(`🔍 CRITICAL DEBUG: About to execute query - NO updates should happen here`);
     const staffOrders = await db
       .selectDistinct({
         id: orders.id,
@@ -504,11 +496,8 @@ export class DatabaseStorage implements IStorage {
       .where(and(...whereConditions))
       .orderBy(desc(orders.createdAt));
 
-    console.log(`Found ${staffOrders.length} orders for staff ${staffId}:`, staffOrders.map(o => ({ id: o.id, customer: o.customerName, status: o.status })));
-    
     // Filter out payment_expired orders from the results
     const filteredOrders = staffOrders.filter(order => order.status !== 'payment_expired');
-    console.log(`After filtering out payment_expired: ${filteredOrders.length} orders remaining`);
 
     // Auto-check PIX refund status for orders with processing refunds
     const ordersWithUpdatedRefunds = await Promise.all(
@@ -567,7 +556,6 @@ export class DatabaseStorage implements IStorage {
       })
     );
 
-    console.log(`Fetched ${ordersWithItems.length} orders for staff ${staffId}`);
     return ordersWithItems;
   }
 
