@@ -47,8 +47,8 @@ export default function Landing() {
             {t('landing.title')}
           </h1>
           <div className="flex justify-center">
-            <div className="bg-eco-orange px-2 py-0.5 rounded-full">
-              <span className="text-white text-xs font-medium">By Up Brasil</span>
+            <div className="bg-eco-orange px-1.5 py-0.5 rounded-full">
+              <span className="text-white text-[10px] font-medium">By Up Brasil</span>
             </div>
           </div>
         </div>

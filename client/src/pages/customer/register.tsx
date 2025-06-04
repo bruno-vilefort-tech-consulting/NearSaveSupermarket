@@ -110,25 +110,30 @@ export default function CustomerRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-eco-gray-light flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-eco-green rounded-full flex items-center justify-center">
               <Leaf className="text-white" size={32} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('landing.title')}</h1>
-          <p className="text-gray-600 mt-2">{t('customer.registerSubtitle')}</p>
+          <h1 className="text-2xl font-bold text-eco-gray-dark">{t('landing.title')}</h1>
+          <div className="flex justify-center mt-2">
+            <div className="bg-eco-orange px-2 py-0.5 rounded-full">
+              <span className="text-white text-[10px] font-medium">By Up Brasil</span>
+            </div>
+          </div>
+          <p className="text-eco-gray mt-3">{t('customer.registerSubtitle')}</p>
         </div>
 
-        <Card className="shadow-lg">
+        <Card className="shadow-lg border-eco-green-light bg-white">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl font-semibold text-gray-900">
+            <CardTitle className="text-xl font-semibold text-eco-gray-dark">
               {t('customer.register')}
             </CardTitle>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-eco-gray">
               {t('customer.registerSubtitle')}
             </p>
           </CardHeader>
@@ -141,14 +146,14 @@ export default function CustomerRegister() {
                   name="cpf"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('customer.cpf')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('customer.cpf')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <FileText className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             placeholder="000.000.000-00"
-                            className="pl-10"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                             onChange={(e) => {
                               const formatted = formatCPF(e.target.value);
                               field.onChange(formatted);
@@ -166,14 +171,14 @@ export default function CustomerRegister() {
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('customer.fullName')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('customer.fullName')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <User className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             placeholder={t('customer.fullNamePlaceholder')}
-                            className="pl-10"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                           />
                         </div>
                       </FormControl>
@@ -187,14 +192,14 @@ export default function CustomerRegister() {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('customer.phone')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('customer.phone')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Phone className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             placeholder="(11) 99999-9999"
-                            className="pl-10"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                             onChange={(e) => {
                               const formatted = formatPhone(e.target.value);
                               field.onChange(formatted);
@@ -212,15 +217,15 @@ export default function CustomerRegister() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('auth.email')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('auth.email')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             type="email"
                             placeholder={t('auth.emailPlaceholder')}
-                            className="pl-10"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                           />
                         </div>
                       </FormControl>
@@ -234,15 +239,15 @@ export default function CustomerRegister() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('auth.password')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('auth.password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             type="password"
                             placeholder={t('auth.passwordMinLength')}
-                            className="pl-10"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                           />
                         </div>
                       </FormControl>
@@ -256,15 +261,15 @@ export default function CustomerRegister() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('auth.confirmPassword')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('auth.confirmPassword')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             type="password"
                             placeholder={t('auth.confirmPassword')}
-                            className="pl-10"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                           />
                         </div>
                       </FormControl>
@@ -282,10 +287,11 @@ export default function CustomerRegister() {
                         <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
+                          className="border-eco-gray-light data-[state=checked]:bg-eco-green data-[state=checked]:border-eco-green"
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-normal">
+                        <FormLabel className="text-sm font-normal text-eco-gray-dark">
                           {t('customer.acceptTerms')}
                         </FormLabel>
                         <FormMessage />
@@ -296,7 +302,7 @@ export default function CustomerRegister() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl transition-colors"
                   disabled={registerMutation.isPending}
                 >
                   {registerMutation.isPending ? t('customer.registering') : t('auth.register')}
