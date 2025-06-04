@@ -108,6 +108,46 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
     }
   });
 
+  // Mutation para verificar pagamento PIX manualmente
+  const checkPixPaymentMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/orders/${order.id}/check-pix-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erro ao verificar pagamento');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        toast({
+          title: "Pagamento Confirmado!",
+          description: "Seu pagamento PIX foi processado com sucesso.",
+          variant: "default",
+        });
+        queryClient.invalidateQueries({ queryKey: ["/api/customer/orders"] });
+      } else {
+        toast({
+          title: "Pagamento Pendente",
+          description: "O pagamento ainda não foi processado. Tente novamente em alguns minutos.",
+          variant: "default",
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao Verificar",
+        description: "Não foi possível verificar o status do pagamento. Tente novamente.",
+        variant: "destructive",
+      });
+      console.error('Error checking PIX payment:', error);
+    }
+  });
+
   // useEffect para o countdown timer
   useEffect(() => {
     if (order.status === 'awaiting_payment' && order.pixExpirationDate) {
