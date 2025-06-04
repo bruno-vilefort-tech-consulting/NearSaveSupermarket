@@ -51,9 +51,6 @@ export default function Landing() {
               <span className="text-white text-xs font-medium">By Up Brasil</span>
             </div>
           </div>
-          <p className="text-lg text-eco-gray max-w-md mx-auto leading-relaxed">
-            Menos desperdício. Mais valor.
-          </p>
         </div>
       </div>
 
