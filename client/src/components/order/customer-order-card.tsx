@@ -321,7 +321,10 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
         </div>
 
         {/* Timeline do Pedido */}
-        <OrderTimelineCompact status={order.status} />
+        <OrderTimelineCompact 
+          currentStatus={order.status} 
+          fulfillmentMethod={order.fulfillmentMethod} 
+        />
 
         {/* Lista de Itens */}
         <div className="space-y-2">
