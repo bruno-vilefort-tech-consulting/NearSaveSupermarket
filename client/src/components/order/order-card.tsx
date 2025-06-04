@@ -216,7 +216,23 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   };
 
   const handleCancelOrder = () => {
-    updateStatusMutation.mutate("cancelled");
+    const hasPixPayment = order.externalReference && order.pixPaymentId;
+    
+    if (hasPixPayment) {
+      const confirmMessage = `Tem certeza que deseja cancelar este pedido?\n\nEste pedido possui pagamento PIX que será automaticamente estornado.\n\nValor: R$ ${parseFloat(order.totalAmount).toFixed(2)}`;
+      
+      if (window.confirm(confirmMessage)) {
+        // Primeiro processa o estorno PIX, depois cancela o pedido
+        refundMutation.mutate({ 
+          orderId: order.id, 
+          reason: 'Cancelamento de pedido com estorno automático' 
+        });
+      }
+    } else {
+      if (window.confirm('Tem certeza que deseja cancelar este pedido?')) {
+        updateStatusMutation.mutate("cancelled");
+      }
+    }
   };
 
   // Verifica se o pedido pode ser cancelado (não está cancelado nem concluído)
@@ -310,7 +326,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                   </Button>
                 )}
               </div>
-              <PixRefundButton order={order} />
+
             </div>
           )}
         </div>
