@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Settings, Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -13,11 +12,11 @@ import { useLanguage } from "@/hooks/useLanguage";
 export default function StaffLogin() {
   const [, navigate] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   });
-  const { toast } = useToast();
   const { t } = useLanguage();
 
   const loginMutation = useMutation({
@@ -29,19 +28,12 @@ export default function StaffLogin() {
       return response.json();
     },
     onSuccess: (data) => {
+      setErrorMessage("");
       localStorage.setItem('staffInfo', JSON.stringify(data));
-      toast({
-        title: t('auth.loginSuccess'),
-        description: `${t('dashboard.welcome')}, ${data.companyName}!`,
-      });
       window.location.href = "/dashboard";
     },
     onError: (error: any) => {
-      toast({
-        title: t('auth.loginError'),
-        description: error.message || t('auth.invalidCredentials'),
-        variant: "destructive"
-      });
+      setErrorMessage(error.message || "Email ou senha incorretos");
     }
   });
 
@@ -49,14 +41,11 @@ export default function StaffLogin() {
     e.preventDefault();
     
     if (!formData.email || !formData.password) {
-      toast({
-        title: t('auth.emailRequired'),
-        description: t('auth.passwordRequired'),
-        variant: "destructive"
-      });
+      setErrorMessage("Email e senha são obrigatórios");
       return;
     }
 
+    setErrorMessage("");
     loginMutation.mutate(formData);
   };
 
@@ -95,6 +84,14 @@ export default function StaffLogin() {
             </CardHeader>
             
             <CardContent className="space-y-6">
+              {/* Error Message */}
+              {errorMessage && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
+                  <AlertCircle size={16} />
+                  <span className="text-sm font-medium">{errorMessage}</span>
+                </div>
+              )}
+
               {/* Login Form */}
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
