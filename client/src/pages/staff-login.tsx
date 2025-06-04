@@ -33,7 +33,7 @@ export default function StaffLogin() {
       window.location.href = "/dashboard";
     },
     onError: (error: any) => {
-      setErrorMessage(error.message || "Email ou senha incorretos");
+      setErrorMessage("Falha no login: Email ou senha incorretos");
     }
   });
 
