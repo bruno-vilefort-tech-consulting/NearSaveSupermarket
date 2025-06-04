@@ -229,9 +229,12 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
     });
   };
 
-  // Verificar se o pedido pode ser cancelado
+  // Verificar se o pedido pode ser cancelado (até ready, antes de completed)
   const canCancel = () => {
-    return order.status === 'pending' || order.status === 'confirmed';
+    return order.status === 'pending' || 
+           order.status === 'confirmed' || 
+           order.status === 'preparing' || 
+           order.status === 'ready';
   };
 
   const getStatusColor = (status: string) => {
