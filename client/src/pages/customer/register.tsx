@@ -311,11 +311,11 @@ export default function CustomerRegister() {
             </Form>
 
             <div className="text-center mt-6">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-eco-gray">
                 {t('customer.alreadyHaveAccount')}{" "}
                 <button
                   onClick={() => navigate("/customer/login")}
-                  className="text-green-600 hover:text-green-700 font-medium"
+                  className="text-eco-blue hover:text-eco-blue-dark font-medium transition-colors"
                 >
                   {t('auth.login')}
                 </button>
@@ -328,7 +328,7 @@ export default function CustomerRegister() {
         <div className="text-center mt-6">
           <button
             onClick={() => navigate("/")}
-            className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center space-x-2 text-eco-gray hover:text-eco-gray-dark transition-colors"
           >
             <ArrowLeft size={16} />
             <span>{t('customer.backToHome')}</span>
