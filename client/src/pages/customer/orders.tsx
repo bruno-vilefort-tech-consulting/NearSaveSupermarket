@@ -91,10 +91,10 @@ export default function CustomerOrders() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando seus pedidos...</p>
+          <div className="animate-spin w-8 h-8 border-4 border-eco-green border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-eco-gray">Carregando seus pedidos...</p>
         </div>
       </div>
     );
@@ -102,7 +102,7 @@ export default function CustomerOrders() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
             <h2 className="text-lg font-semibold text-red-800 mb-2">Erro ao carregar pedidos</h2>
@@ -112,7 +112,7 @@ export default function CustomerOrders() {
             <Button 
               onClick={() => refetch()} 
               variant="outline"
-              className="border-red-300 text-red-700 hover:bg-red-50"
+              className="border-eco-orange text-eco-orange hover:bg-eco-orange-light"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Tentar novamente
@@ -124,17 +124,17 @@ export default function CustomerOrders() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-gray-light">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b border-eco-gray-light">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/customer">
-              <ArrowLeft className="h-6 w-6 text-gray-600" />
+              <ArrowLeft className="h-6 w-6 text-eco-gray" />
             </Link>
             <div className="ml-4">
-              <h1 className="text-lg font-bold text-gray-900">Meus Pedidos</h1>
-              <p className="text-xs text-gray-500">
+              <h1 className="text-lg font-bold text-eco-gray-dark">Meus Pedidos</h1>
+              <p className="text-xs text-eco-gray">
                 {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
               </p>
             </div>
@@ -143,7 +143,7 @@ export default function CustomerOrders() {
             variant="ghost"
             size="sm"
             onClick={handleRefresh}
-            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+            className="text-eco-green hover:text-eco-green-dark hover:bg-eco-green-light"
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
@@ -153,13 +153,13 @@ export default function CustomerOrders() {
       <div className="max-w-md mx-auto p-4 space-y-4">
         {orders.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto flex items-center justify-center mb-4">
-              <Package size={32} className="text-gray-400" />
+            <div className="w-16 h-16 bg-eco-gray-light rounded-full mx-auto flex items-center justify-center mb-4">
+              <Package size={32} className="text-eco-gray" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Nenhum pedido encontrado</h2>
-            <p className="text-sm text-gray-600 mb-6">Você ainda não fez nenhum pedido.</p>
+            <h2 className="text-lg font-semibold text-eco-gray-dark mb-2">Nenhum pedido encontrado</h2>
+            <p className="text-sm text-eco-gray mb-6">Você ainda não fez nenhum pedido.</p>
             <Link href="/customer">
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button className="bg-eco-green hover:bg-eco-green-dark text-white">
                 Fazer Primeiro Pedido
               </Button>
             </Link>
