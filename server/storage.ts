@@ -769,6 +769,7 @@ export class DatabaseStorage implements IStorage {
       .update(orders)
       .set({ 
         status,
+        lastManualUpdate: new Date(),
         updatedAt: new Date()
       })
       .where(eq(orders.id, id))
