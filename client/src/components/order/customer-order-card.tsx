@@ -1,7 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Clock, CheckCircle, Truck, MapPin, Phone, Mail, Calendar, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Package, Clock, CheckCircle, Truck, MapPin, Phone, Mail, Calendar, DollarSign, X } from "lucide-react";
 import { OrderTimelineCompact } from "./order-timeline-compact";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface OrderItem {
   id: number;
@@ -27,12 +32,71 @@ interface CustomerOrderCardProps {
     createdAt: string;
     supermarketName?: string;
     orderItems: OrderItem[];
+    pixPaymentId?: string;
+    refundStatus?: string;
   };
 }
 
 export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
   const formatPrice = (price: string) => {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
+  };
+
+  // Mutation para cancelar pedido
+  const cancelMutation = useMutation({
+    mutationFn: async ({ orderId, reason }: { orderId: number; reason?: string }) => {
+      const response = await apiRequest("POST", `/api/customer/orders/${orderId}/cancel`, {
+        reason: reason || "Cancelamento solicitado pelo cliente"
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        let errorMessage = "Erro ao cancelar pedido";
+        try {
+          const parsed = JSON.parse(errorData);
+          errorMessage = parsed.message || errorMessage;
+        } catch {
+          // Use default message if parsing fails
+        }
+        throw new Error(errorMessage);
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Pedido Cancelado",
+        description: data.refundProcessed 
+          ? "Pedido cancelado com sucesso. Estorno PIX processado automaticamente."
+          : "Pedido cancelado com sucesso.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/customer/orders"] });
+      setShowCancelConfirm(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao Cancelar",
+        description: error.message,
+        variant: "destructive",
+      });
+      setShowCancelConfirm(false);
+    },
+  });
+
+  const handleCancelOrder = () => {
+    cancelMutation.mutate({ 
+      orderId: order.id, 
+      reason: 'Cancelamento solicitado pelo cliente' 
+    });
+  };
+
+  // Verificar se o pedido pode ser cancelado
+  const canCancel = () => {
+    return order.status === 'pending' || order.status === 'confirmed';
   };
 
   const getStatusColor = (status: string) => {

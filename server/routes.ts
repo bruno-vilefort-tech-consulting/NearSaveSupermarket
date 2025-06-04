@@ -429,6 +429,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cancelar pedido por cliente (com estorno PIX automático)
+  app.post("/api/customer/orders/:orderId/cancel", async (req, res) => {
+    const { orderId } = req.params;
+    const { reason } = req.body;
+    
+    try {
+      console.log('🔄 [CUSTOMER CANCEL] Iniciando cancelamento do pedido:', orderId);
+      
+      if (!orderId) {
+        return res.status(400).json({ message: "ID do pedido é obrigatório" });
+      }
+
+      // Buscar pedido
+      const order = await storage.getOrder(parseInt(orderId));
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      // Verificar se o pedido pode ser cancelado
+      if (order.status === 'completed') {
+        return res.status(400).json({ 
+          message: "Não é possível cancelar um pedido já concluído" 
+        });
+      }
+
+      if (order.status === 'cancelled') {
+        return res.status(400).json({ 
+          message: "Este pedido já foi cancelado" 
+        });
+      }
+
+      // Se o pedido tem PIX payment ID e não foi estornado, processar estorno automaticamente
+      if (order.pixPaymentId && (!order.refundStatus || order.refundStatus === 'failed')) {
+        console.log('🔄 [CUSTOMER CANCEL] Processando estorno PIX automático para:', order.pixPaymentId);
+
+        try {
+          // Criar estorno via Mercado Pago
+          const refundResult = await createPixRefund({
+            paymentId: order.pixPaymentId,
+            reason: reason || 'Cancelamento solicitado pelo cliente'
+          });
+
+          if (refundResult.success) {
+            console.log('✅ [CUSTOMER CANCEL] Estorno PIX processado:', refundResult);
+
+            // Atualizar pedido com informações do estorno
+            await storage.updateOrderRefund(parseInt(orderId), {
+              pixRefundId: refundResult.refundId!,
+              refundAmount: refundResult.amount?.toString() || order.totalAmount,
+              refundStatus: 'processing',
+              refundDate: new Date(),
+              refundReason: reason || 'Cancelamento solicitado pelo cliente'
+            });
+
+            console.log('✅ [CUSTOMER CANCEL] Informações de estorno salvas');
+          } else {
+            console.warn('⚠️ [CUSTOMER CANCEL] Falha no estorno PIX, mas continuando cancelamento:', refundResult.error);
+          }
+        } catch (refundError: any) {
+          console.warn('⚠️ [CUSTOMER CANCEL] Erro no estorno PIX, mas continuando cancelamento:', refundError.message);
+        }
+      }
+
+      // SEMPRE atualizar status do pedido para cancelled
+      console.log(`🔄 [CUSTOMER CANCEL] Atualizando status do pedido ${orderId} para 'cancelled'`);
+      const updatedOrder = await storage.updateOrderStatus(parseInt(orderId), 'cancelled', 'CUSTOMER_REQUEST');
+      
+      if (!updatedOrder) {
+        throw new Error('Falha ao atualizar status do pedido');
+      }
+
+      console.log(`✅ [CUSTOMER CANCEL] Pedido ${orderId} cancelado com sucesso`);
+
+      res.json({ 
+        message: "Pedido cancelado com sucesso",
+        status: "cancelled",
+        refundProcessed: !!order.pixPaymentId
+      });
+
+    } catch (error: any) {
+      console.error('❌ [CUSTOMER CANCEL] Erro geral:', error);
+      res.status(500).json({ 
+        message: "Erro interno ao cancelar pedido", 
+        error: error.message 
+      });
+    }
+  });
+
   // Estornar pagamento PIX
   app.post("/api/pix/refund", async (req, res) => {
     const { orderId, reason } = req.body;
