@@ -317,26 +317,7 @@ export default function PixPaymentFixed() {
           </CardContent>
         </Card>
 
-        {/* QR Code (se disponível) */}
-        {pixData?.qrCodeBase64 && (
-          <Card className="bg-white border-eco-green-light">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-eco-green text-center">Escaneie o QR Code</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <div className="bg-white p-4 rounded-lg inline-block">
-                <img 
-                  src={`data:image/png;base64,${pixData.qrCodeBase64}`}
-                  alt="QR Code PIX"
-                  className="w-48 h-48 mx-auto"
-                />
-              </div>
-              <p className="text-sm text-eco-gray mt-2">
-                Use seu app do banco para escanear
-              </p>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Código Copia e Cola destacado */}
         <Card className="bg-white border-eco-blue-light">
