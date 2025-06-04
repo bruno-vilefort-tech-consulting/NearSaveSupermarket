@@ -285,11 +285,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { tempOrderId, pixPaymentId, customerData } = req.body;
     
     try {
-      console.log('🔍 Confirmando pagamento PIX:', { tempOrderId, pixPaymentId });
+      console.log('🔍 [PIX CONFIRM] Iniciando confirmação:', { tempOrderId, pixPaymentId });
+      console.log('🔍 [PIX CONFIRM] Dados do cliente recebidos:', customerData);
       
       // Verificar se o pedido já está sendo processado (proteção contra chamadas simultâneas)
       if ((global as any).processingOrders.has(tempOrderId)) {
-        console.log('⚠️ Pedido já está sendo processado:', tempOrderId);
+        console.log('⚠️ [PIX CONFIRM] Pedido já está sendo processado:', tempOrderId);
         return res.status(409).json({ message: "Pedido já está sendo processado", tempOrderId });
       }
       
@@ -338,16 +339,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('✅ Usando dados do cliente enviados pelo frontend');
       }
       
+      console.log('🔍 [PIX CONFIRM] Verificando status do pagamento no Mercado Pago...');
       // Verificar status do pagamento no Mercado Pago
       const paymentStatus = await getPaymentStatus(pixPaymentId);
+      console.log('🔍 [PIX CONFIRM] Status do pagamento:', paymentStatus);
       
       if (paymentStatus.status !== 'approved') {
+        console.log('❌ [PIX CONFIRM] Pagamento não aprovado:', paymentStatus.status);
         return res.status(400).json({ 
           message: "Pagamento não foi aprovado", 
           status: paymentStatus.status 
         });
       }
       
+      console.log('✅ [PIX CONFIRM] Pagamento aprovado, criando pedido...');
       // Criar pedido real no banco de dados
       const orderData = {
         customerName: tempOrderData.customerName,
@@ -359,14 +364,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalAmount: tempOrderData.totalAmount,
         externalReference: tempOrderId // Adicionar referência externa para evitar duplicação
       };
+      console.log('🔍 [PIX CONFIRM] Dados do pedido:', orderData);
 
       const orderItems = tempOrderData.items.map((item: any) => ({
         productId: item.productId,
         quantity: item.quantity,
         priceAtTime: item.priceAtTime
       }));
+      console.log('🔍 [PIX CONFIRM] Itens do pedido:', orderItems);
 
+      console.log('🔍 [PIX CONFIRM] Chamando storage.createOrder...');
       const order = await storage.createOrder(orderData, orderItems);
+      console.log('✅ [PIX CONFIRM] Pedido criado com sucesso:', order);
       
       // Remover dados temporários
       if ((global as any).tempOrders) {

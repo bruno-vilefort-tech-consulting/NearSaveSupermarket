@@ -52,8 +52,11 @@ export function ProductCard({ product }: ProductCardProps) {
         title: "Sucesso",
         description: "Produto excluído com sucesso",
       });
+      // Invalidar todas as variações de queries de produtos
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/products"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
       setShowDeleteDialog(false);
     },
     onError: (error) => {
