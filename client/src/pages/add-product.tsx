@@ -205,11 +205,17 @@ export default function AddProduct() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Bakery">{t('category.bakery')}</SelectItem>
-                            <SelectItem value="Dairy">{t('category.dairy')}</SelectItem>
-                            <SelectItem value="Meat & Poultry">{t('category.meat')}</SelectItem>
-                            <SelectItem value="Produce">{t('category.produce')}</SelectItem>
-                            <SelectItem value="Deli">{t('category.deli')}</SelectItem>
+                            <SelectItem value="Padaria">Padaria</SelectItem>
+                            <SelectItem value="Laticínios">Laticínios</SelectItem>
+                            <SelectItem value="Carnes e Aves">Carnes e Aves</SelectItem>
+                            <SelectItem value="Hortifruti">Hortifruti</SelectItem>
+                            <SelectItem value="Frios">Frios</SelectItem>
+                            <SelectItem value="Bebidas">Bebidas</SelectItem>
+                            <SelectItem value="Doces">Doces</SelectItem>
+                            <SelectItem value="Conservas">Conservas</SelectItem>
+                            <SelectItem value="Congelados">Congelados</SelectItem>
+                            <SelectItem value="Limpeza">Limpeza</SelectItem>
+                            <SelectItem value="Higiene">Higiene</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

@@ -336,7 +336,8 @@ export function ProductCard({ product }: ProductCardProps) {
                         <SelectItem value="Doces">Doces</SelectItem>
                         <SelectItem value="Conservas">Conservas</SelectItem>
                         <SelectItem value="Congelados">Congelados</SelectItem>
-                        <SelectItem value="Produce">Produce</SelectItem>
+                        <SelectItem value="Limpeza">Limpeza</SelectItem>
+                        <SelectItem value="Higiene">Higiene</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

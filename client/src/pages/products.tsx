@@ -10,7 +10,7 @@ import { Search } from "lucide-react";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 
-const categories = ["Todos", "Padaria", "Laticínios", "Carnes e Aves", "Hortifruti", "Frios"];
+const categories = ["Todos", "Padaria", "Laticínios", "Carnes e Aves", "Hortifruti", "Frios", "Bebidas", "Doces", "Conservas", "Congelados", "Limpeza", "Higiene"];
 
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
