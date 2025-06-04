@@ -71,26 +71,30 @@ export default function CustomerLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-eco-gray-light flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-eco-green rounded-3xl flex items-center justify-center shadow-lg shadow-eco-green/25">
               <Leaf className="text-white" size={32} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('landing.title')}</h1>
-          <p className="text-sm text-gray-600 mt-2">{t('landing.subtitle')}</p>
+          <h1 className="text-2xl font-bold text-eco-gray-dark">{t('landing.title')}</h1>
+          <div className="flex justify-center mt-2">
+            <div className="bg-eco-orange px-3 py-1 rounded-full">
+              <span className="text-white text-xs font-medium">By Up Brasil</span>
+            </div>
+          </div>
         </div>
 
-        <Card className="shadow-lg">
+        <Card className="shadow-lg border-eco-green-light bg-white">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-lg font-semibold text-gray-900">
+            <CardTitle className="text-lg font-semibold text-eco-gray-dark">
               {t('auth.login')}
             </CardTitle>
-            <p className="text-sm text-gray-600">
-              {t('nav.ecoPoints')}
+            <p className="text-sm text-eco-gray">
+              Acesse sua conta para economizar e ajudar o meio ambiente
             </p>
           </CardHeader>
           
@@ -112,15 +116,15 @@ export default function CustomerLogin() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('auth.email')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('auth.email')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             type="email"
                             placeholder={t('auth.email')}
-                            className="pl-10"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                           />
                         </div>
                       </FormControl>
@@ -134,15 +138,15 @@ export default function CustomerLogin() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('auth.password')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('auth.password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             type="password"
                             placeholder={t('auth.password')}
-                            className="pl-10"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                           />
                         </div>
                       </FormControl>
@@ -155,7 +159,7 @@ export default function CustomerLogin() {
                   <button
                     type="button"
                     onClick={() => navigate("/customer/forgot-password")}
-                    className="text-sm text-green-600 hover:text-green-700 font-medium"
+                    className="text-sm text-eco-blue hover:text-eco-blue-dark font-medium transition-colors"
                   >
                     {t('auth.forgotPassword')}
                   </button>
@@ -163,7 +167,7 @@ export default function CustomerLogin() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl transition-colors"
                   disabled={loginMutation.isPending}
                 >
                   {loginMutation.isPending ? t('common.loading') : t('auth.login')}
@@ -171,15 +175,15 @@ export default function CustomerLogin() {
               </form>
             </Form>
 
-            <Separator />
+            <Separator className="bg-eco-gray-light" />
 
             <div className="text-center space-y-4">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-eco-gray">
                 {t('auth.dontHaveAccount')}
               </p>
               <Button
                 variant="outline"
-                className="w-full border-green-600 text-green-600 hover:bg-green-50"
+                className="w-full border-eco-blue text-eco-blue hover:bg-eco-blue-light hover:text-eco-blue-dark font-semibold py-3 rounded-xl transition-colors"
                 onClick={() => navigate("/customer/register")}
               >
                 {t('customer.register')}
@@ -192,7 +196,7 @@ export default function CustomerLogin() {
         <div className="text-center mt-6">
           <button
             onClick={() => navigate("/")}
-            className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center space-x-2 text-eco-gray hover:text-eco-gray-dark transition-colors"
           >
             <ArrowLeft size={16} />
             <span>{t('common.backToHome')}</span>
