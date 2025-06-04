@@ -478,6 +478,13 @@ export class DatabaseStorage implements IStorage {
         fulfillmentMethod: orders.fulfillmentMethod,
         totalAmount: orders.totalAmount,
         notes: orders.notes,
+        externalReference: orders.externalReference,
+        pixPaymentId: orders.pixPaymentId,
+        pixRefundId: orders.pixRefundId,
+        refundAmount: orders.refundAmount,
+        refundStatus: orders.refundStatus,
+        refundDate: orders.refundDate,
+        refundReason: orders.refundReason,
         createdAt: orders.createdAt,
         updatedAt: orders.updatedAt,
       })
