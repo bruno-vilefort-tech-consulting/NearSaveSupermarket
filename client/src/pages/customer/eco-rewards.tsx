@@ -69,35 +69,35 @@ export default function EcoRewards() {
   const getActionIcon = (actionType: string) => {
     switch (actionType) {
       case 'purchase_near_expiry':
-        return <Leaf className="h-5 w-5 text-green-600" />;
+        return <Leaf className="h-5 w-5 text-eco-green" />;
       case 'large_order_discount':
-        return <Trophy className="h-5 w-5 text-yellow-600" />;
+        return <Trophy className="h-5 w-5 text-eco-orange" />;
       case 'first_time_customer':
-        return <Star className="h-5 w-5 text-purple-600" />;
+        return <Star className="h-5 w-5 text-eco-blue" />;
       default:
-        return <Award className="h-5 w-5 text-blue-600" />;
+        return <Award className="h-5 w-5 text-eco-green" />;
     }
   };
 
   const getActionColor = (actionType: string) => {
     switch (actionType) {
       case 'purchase_near_expiry':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-eco-green-light text-eco-green-dark border-eco-green';
       case 'large_order_discount':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-eco-orange-light text-eco-orange-dark border-eco-orange';
       case 'first_time_customer':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-eco-blue-light text-eco-blue-dark border-eco-blue';
       default:
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-eco-green-light text-eco-green-dark border-eco-green';
     }
   };
 
   const getRewardLevel = (points: number) => {
-    if (points >= 500) return { level: "Eco Master", color: "text-purple-600", icon: "🌟" };
-    if (points >= 200) return { level: "Eco Champion", color: "text-green-600", icon: "🏆" };
-    if (points >= 100) return { level: "Eco Warrior", color: "text-blue-600", icon: "⚡" };
-    if (points >= 50) return { level: "Eco Friend", color: "text-yellow-600", icon: "🌱" };
-    return { level: "Eco Beginner", color: "text-gray-600", icon: "🌿" };
+    if (points >= 500) return { level: "Eco Master", color: "text-eco-blue-dark", icon: "🌟" };
+    if (points >= 200) return { level: "Eco Champion", color: "text-eco-green", icon: "🏆" };
+    if (points >= 100) return { level: "Eco Warrior", color: "text-eco-blue", icon: "⚡" };
+    if (points >= 50) return { level: "Eco Friend", color: "text-eco-orange", icon: "🌱" };
+    return { level: "Eco Beginner", color: "text-eco-gray", icon: "🌿" };
   };
 
   const rewardLevel = getRewardLevel(totalPoints);

@@ -48,12 +48,12 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-eco-gray">{t('dashboard.stats.orders')}</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-eco-gray-dark">
                       {statsLoading ? "..." : stats?.pendingOrders || 0}
                     </p>
                   </div>
-                  <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <ShoppingCart className="text-amber-600" size={20} />
+                  <div className="w-10 h-10 bg-eco-orange-light rounded-lg flex items-center justify-center shadow-sm">
+                    <ShoppingCart className="text-eco-orange" size={20} />
                   </div>
                 </div>
               </CardContent>
@@ -61,22 +61,22 @@ export default function Dashboard() {
           </div>
 
           {/* Quick Actions */}
-          <Card className="shadow-sm">
+          <Card className="shadow-sm border-eco-blue-light hover:shadow-md transition-shadow">
             <CardContent className="p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">{t('dashboard.quickActions')}</h2>
+              <h2 className="font-semibold text-eco-gray-dark mb-4">{t('dashboard.quickActions')}</h2>
               <div className="space-y-3">
                 <Button
                   onClick={() => navigate("/add-product")}
                   variant="outline"
-                  className="w-full flex items-center justify-between p-4 bg-primary-50 border-primary-200 rounded-xl hover:bg-primary-100 transition-colors h-auto"
+                  className="w-full flex items-center justify-between p-4 bg-eco-green-light border-eco-green rounded-xl hover:bg-eco-green hover:text-white transition-colors h-auto"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-eco-green rounded-lg flex items-center justify-center shadow-sm">
                       <Plus className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">{t('dashboard.addProduct')}</p>
-                      <p className="text-xs text-gray-600">{t('dashboard.addProductDesc')}</p>
+                      <p className="font-medium text-eco-gray-dark">{t('dashboard.addProduct')}</p>
+                      <p className="text-xs text-eco-gray">{t('dashboard.addProductDesc')}</p>
                     </div>
                   </div>
                 </Button>
@@ -84,15 +84,15 @@ export default function Dashboard() {
                 <Button
                   onClick={() => navigate("/products")}
                   variant="outline"
-                  className="w-full flex items-center justify-between p-4 bg-gray-50 border-gray-200 rounded-xl hover:bg-gray-100 transition-colors h-auto"
+                  className="w-full flex items-center justify-between p-4 bg-eco-blue-light border-eco-blue rounded-xl hover:bg-eco-blue hover:text-white transition-colors h-auto"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-eco-blue rounded-lg flex items-center justify-center shadow-sm">
                       <List className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">{t('dashboard.manageProducts')}</p>
-                      <p className="text-xs text-gray-600">{t('dashboard.manageProductsDesc')}</p>
+                      <p className="font-medium text-eco-gray-dark">{t('dashboard.manageProducts')}</p>
+                      <p className="text-xs text-eco-gray">{t('dashboard.manageProductsDesc')}</p>
                     </div>
                   </div>
                 </Button>
@@ -100,15 +100,15 @@ export default function Dashboard() {
                 <Button
                   onClick={() => navigate("/monthly-orders")}
                   variant="outline"
-                  className="w-full flex items-center justify-between p-4 bg-green-50 border-green-200 rounded-xl hover:bg-green-100 transition-colors h-auto"
+                  className="w-full flex items-center justify-between p-4 bg-eco-green-light border-eco-green-dark rounded-xl hover:bg-eco-green-dark hover:text-white transition-colors h-auto"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-eco-green-dark rounded-lg flex items-center justify-center shadow-sm">
                       <Calendar className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">{t('dashboard.monthlyReport')}</p>
-                      <p className="text-xs text-gray-600">{t('dashboard.monthlyReportDesc')}</p>
+                      <p className="font-medium text-eco-gray-dark">{t('dashboard.monthlyReport')}</p>
+                      <p className="text-xs text-eco-gray">{t('dashboard.monthlyReportDesc')}</p>
                     </div>
                   </div>
                 </Button>
@@ -116,15 +116,15 @@ export default function Dashboard() {
                 <Button
                   onClick={() => navigate("/settings")}
                   variant="outline"
-                  className="w-full flex items-center justify-between p-4 bg-orange-50 border-orange-200 rounded-xl hover:bg-orange-100 transition-colors h-auto"
+                  className="w-full flex items-center justify-between p-4 bg-eco-orange-light border-eco-orange rounded-xl hover:bg-eco-orange hover:text-white transition-colors h-auto"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-eco-orange rounded-lg flex items-center justify-center shadow-sm">
                       <Settings className="text-white" size={20} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Configurações</p>
-                      <p className="text-xs text-gray-600">Localização do supermercado</p>
+                      <p className="font-medium text-eco-gray-dark">Configurações</p>
+                      <p className="text-xs text-eco-gray">Localização do supermercado</p>
                     </div>
                   </div>
                 </Button>
@@ -133,17 +133,17 @@ export default function Dashboard() {
           </Card>
 
           {/* Recent Activity */}
-          <Card className="shadow-sm">
+          <Card className="shadow-sm border-eco-gray-light hover:shadow-md transition-shadow">
             <CardContent className="p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">{t('dashboard.recentActivity')}</h2>
+              <h2 className="font-semibold text-eco-gray-dark mb-4">{t('dashboard.recentActivity')}</h2>
               <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <Check className="text-green-600" size={16} />
+                <div className="flex items-center space-x-3 p-3 bg-eco-green-light rounded-lg">
+                  <div className="w-8 h-8 bg-eco-green rounded-full flex items-center justify-center shadow-sm">
+                    <Check className="text-white" size={16} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{t('dashboard.systemInitialized')}</p>
-                    <p className="text-xs text-gray-500">{t('dashboard.systemReady')}</p>
+                    <p className="text-sm font-medium text-eco-gray-dark">{t('dashboard.systemInitialized')}</p>
+                    <p className="text-xs text-eco-gray">{t('dashboard.systemReady')}</p>
                   </div>
                 </div>
               </div>
