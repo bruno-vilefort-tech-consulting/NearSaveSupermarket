@@ -106,7 +106,7 @@ export const orders = pgTable("orders", {
   customerEmail: varchar("customer_email", { length: 255 }),
   customerPhone: varchar("customer_phone", { length: 50 }),
   deliveryAddress: text("delivery_address"),
-  status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, prepared, shipped, picked_up
+  status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, awaiting_payment, payment_confirmed, payment_failed, prepared, shipped, picked_up
   fulfillmentMethod: varchar("fulfillment_method", { length: 50 }).notNull(), // pickup, delivery
   totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
   lastManualStatus: varchar("last_manual_status", { length: 50 }).default("pending"),
@@ -114,6 +114,8 @@ export const orders = pgTable("orders", {
   notes: text("notes"),
   externalReference: varchar("external_reference", { length: 100 }),
   pixPaymentId: varchar("pix_payment_id", { length: 100 }),
+  pixCopyPaste: text("pix_copy_paste"),
+  pixExpirationDate: timestamp("pix_expiration_date"),
   pixRefundId: varchar("pix_refund_id", { length: 100 }),
   refundAmount: numeric("refund_amount", { precision: 10, scale: 2 }),
   refundStatus: varchar("refund_status", { length: 50 }),

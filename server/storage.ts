@@ -71,6 +71,12 @@ export interface IStorage {
   getOrdersByEmail(email: string): Promise<OrderWithItems[]>;
   getOrderByExternalReference(externalReference: string): Promise<Order | undefined>;
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
+  createOrderAwaitingPayment(order: InsertOrder, items: InsertOrderItem[], pixData: {
+    pixPaymentId: string;
+    pixCopyPaste: string;
+    pixExpirationDate: Date;
+  }): Promise<Order>;
+  updateOrderPaymentStatus(id: number, status: 'payment_confirmed' | 'payment_failed'): Promise<Order | undefined>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   
   // Statistics
@@ -730,6 +736,74 @@ export class DatabaseStorage implements IStorage {
     // Iniciar monitoramento de proteção para este pedido
     console.log(`🛡️ STARTING PROTECTION: Order ${order.id} created, initiating protection system`);
     this.startOrderProtection(order.id);
+
+    return order;
+  }
+
+  async createOrderAwaitingPayment(orderData: InsertOrder, items: InsertOrderItem[], pixData: {
+    pixPaymentId: string;
+    pixCopyPaste: string;
+    pixExpirationDate: Date;
+  }): Promise<Order> {
+    const [order] = await db
+      .insert(orders)
+      .values({
+        ...orderData,
+        status: 'awaiting_payment',
+        pixPaymentId: pixData.pixPaymentId,
+        pixCopyPaste: pixData.pixCopyPaste,
+        pixExpirationDate: pixData.pixExpirationDate,
+      })
+      .returning();
+
+    // Insert order items but don't update product quantities yet
+    const orderItemsData = items.map(item => ({
+      ...item,
+      orderId: order.id,
+    }));
+
+    await db.insert(orderItems).values(orderItemsData);
+
+    console.log(`💳 Order ${order.id} created with status awaiting_payment`);
+    return order;
+  }
+
+  async updateOrderPaymentStatus(id: number, status: 'payment_confirmed' | 'payment_failed'): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ 
+        status,
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, id))
+      .returning();
+
+    if (!order) return undefined;
+
+    if (status === 'payment_confirmed') {
+      // Update product quantities (reduce stock) only after payment confirmation
+      const orderItemsList = await db
+        .select()
+        .from(orderItems)
+        .where(eq(orderItems.orderId, id));
+
+      for (const item of orderItemsList) {
+        await db
+          .update(products)
+          .set({ 
+            quantity: sql`${products.quantity} - ${item.quantity}`,
+            updatedAt: new Date()
+          })
+          .where(eq(products.id, item.productId));
+      }
+
+      // Calculate and apply eco-friendly rewards after payment confirmation
+      await this.calculateEcoRewards(order, orderItemsList);
+
+      console.log(`✅ Order ${id} payment confirmed, stock updated`);
+    } else if (status === 'payment_failed') {
+      console.log(`❌ Order ${id} payment failed, stock not affected`);
+    }
 
     return order;
   }
