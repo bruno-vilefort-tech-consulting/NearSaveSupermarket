@@ -314,19 +314,17 @@ export default function PixPaymentFixed() {
           </CardContent>
         </Card>
 
-        {/* Timer destacado */}
-        <Card className="bg-gradient-to-r from-eco-orange-light to-eco-orange border-eco-orange shadow-lg">
-          <CardContent className="p-6 text-center">
-            <Clock className="h-8 w-8 text-white mx-auto mb-2" />
-            <h3 className="text-white font-bold text-lg mb-1">Tempo Restante</h3>
-            <div className="text-3xl font-bold text-white mb-2">
-              {timeLeft > 0 ? formatTime(timeLeft) : "00:00"}
-            </div>
-            <p className="text-white/90 text-sm">
-              Complete o pagamento antes que o tempo expire
-            </p>
-          </CardContent>
-        </Card>
+        {/* Timer destacado com melhor visibilidade */}
+        <div className="bg-orange-500 rounded-lg p-6 text-center shadow-lg">
+          <Clock className="h-8 w-8 text-white mx-auto mb-2" />
+          <h3 className="text-white font-bold text-lg mb-1">Tempo Restante</h3>
+          <div className="text-3xl font-bold text-white mb-2">
+            {timeLeft > 0 ? formatTime(timeLeft) : "00:00"}
+          </div>
+          <p className="text-white/90 text-sm">
+            Complete o pagamento antes que o tempo expire
+          </p>
+        </div>
 
 
 
