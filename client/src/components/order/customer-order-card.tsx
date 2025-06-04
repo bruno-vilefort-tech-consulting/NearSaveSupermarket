@@ -1,10 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Package, Clock, CheckCircle, Truck, MapPin, Phone, Mail, Calendar, DollarSign, X } from "lucide-react";
+import { Package, Clock, CheckCircle, Truck, MapPin, Phone, Mail, Calendar, DollarSign, X, Copy } from "lucide-react";
 import { OrderTimelineCompact } from "./order-timeline-compact";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -33,6 +33,8 @@ interface CustomerOrderCardProps {
     supermarketName?: string;
     orderItems: OrderItem[];
     pixPaymentId?: string;
+    pixCopyPaste?: string;
+    pixExpirationDate?: string;
     refundStatus?: string;
   };
 }
@@ -41,10 +43,57 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isExpired, setIsExpired] = useState(false);
 
   const formatPrice = (price: string) => {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
   };
+
+  // Função para formatar o tempo em MM:SS
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  // Função para copiar código PIX
+  const copyPixCode = async () => {
+    if (order.pixCopyPaste) {
+      try {
+        await navigator.clipboard.writeText(order.pixCopyPaste);
+        toast({
+          title: "Código copiado!",
+          description: "Código PIX copiado para a área de transferência",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro ao copiar",
+          description: "Não foi possível copiar o código PIX",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  // useEffect para o countdown timer
+  useEffect(() => {
+    if (order.status === 'awaiting_payment' && order.pixExpirationDate) {
+      const updateTimer = () => {
+        const now = new Date().getTime();
+        const expirationTime = new Date(order.pixExpirationDate!).getTime();
+        const remainingTime = Math.max(0, Math.floor((expirationTime - now) / 1000));
+        
+        setTimeLeft(remainingTime);
+        setIsExpired(remainingTime <= 0);
+      };
+
+      updateTimer(); // Atualização inicial
+      const interval = setInterval(updateTimer, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [order.status, order.pixExpirationDate]);
 
   // Mutation para cancelar pedido
   const cancelMutation = useMutation({
@@ -258,6 +307,51 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
             ))}
           </div>
         </div>
+
+        {/* Seção PIX para pedidos aguardando pagamento */}
+        {order.status === 'awaiting_payment' && order.pixCopyPaste && order.pixExpirationDate && (
+          <div className="pt-2 border-t">
+            <div className="bg-gradient-to-r from-eco-orange-light to-eco-orange rounded-lg p-4 text-white space-y-3">
+              {/* Timer PIX */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  <span className="font-semibold">Tempo para Pagamento</span>
+                </div>
+                <div className="text-xl font-bold">
+                  {timeLeft > 0 ? formatTime(timeLeft) : "EXPIRADO"}
+                </div>
+              </div>
+
+              {timeLeft > 0 ? (
+                <>
+                  {/* Código PIX */}
+                  <div>
+                    <h5 className="font-medium mb-2">Código PIX Copia e Cola</h5>
+                    <div className="bg-white/20 rounded p-2 text-xs font-mono break-all">
+                      {order.pixCopyPaste}
+                    </div>
+                  </div>
+
+                  {/* Botão Copiar */}
+                  <Button 
+                    onClick={copyPixCode}
+                    className="w-full bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                    size="sm"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copiar Código PIX
+                  </Button>
+                </>
+              ) : (
+                <div className="text-center">
+                  <p className="text-white/90">Tempo para pagamento expirou</p>
+                  <p className="text-xs text-white/70">Faça um novo pedido para continuar</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Informações de Contato */}
         <div className="pt-2 border-t">
