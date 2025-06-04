@@ -82,31 +82,31 @@ export default function EcoPoints() {
       category: "Carnes e Aves",
       multiplier: "1.3x",
       description: "Alto impacto ambiental e nutricional",
-      color: "bg-purple-100 text-purple-800"
+      color: "bg-eco-orange/10 text-eco-orange border border-eco-orange/20"
     },
     {
       category: "Laticínios",
       multiplier: "1.2x",
       description: "Produtos perecíveis com alto desperdício potencial",
-      color: "bg-blue-100 text-blue-800"
+      color: "bg-eco-blue/10 text-eco-blue border border-eco-blue/20"
     },
     {
       category: "Frios",
       multiplier: "1.2x",
       description: "Produtos refrigerados sensíveis",
-      color: "bg-cyan-100 text-cyan-800"
+      color: "bg-eco-sage/10 text-eco-sage-dark border border-eco-sage/20"
     },
     {
       category: "Padaria",
       multiplier: "1.15x",
       description: "Produtos com vida útil curta",
-      color: "bg-yellow-100 text-yellow-800"
+      color: "bg-eco-cream text-eco-gray-dark border border-eco-sage/30"
     },
     {
       category: "Hortifruti",
       multiplier: "1.1x",
       description: "Produtos frescos com deterioração rápida",
-      color: "bg-green-100 text-green-800"
+      color: "bg-eco-green/10 text-eco-green border border-eco-green/20"
     }
   ];
 

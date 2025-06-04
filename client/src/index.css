@@ -40,6 +40,12 @@
   --eco-gray: 0 0% 50%; /* Cinza neutro */
   --eco-gray-light: 0 0% 90%; /* Cinza claro */
   --eco-gray-dark: 0 0% 30%; /* Cinza escuro */
+  
+  --eco-sage: 120 20% 60%; /* Verde acinzentado */
+  --eco-sage-light: 120 15% 85%; /* Sage claro */
+  --eco-sage-dark: 120 25% 40%; /* Sage escuro */
+  
+  --eco-cream: 40 30% 95%; /* Creme suave */
 }
 
 .dark {
@@ -107,6 +113,12 @@
   .bg-eco-gray-light { background-color: hsl(var(--eco-gray-light)); }
   .bg-eco-gray-dark { background-color: hsl(var(--eco-gray-dark)); }
   
+  .bg-eco-sage { background-color: hsl(var(--eco-sage)); }
+  .bg-eco-sage-light { background-color: hsl(var(--eco-sage-light)); }
+  .bg-eco-sage-dark { background-color: hsl(var(--eco-sage-dark)); }
+  
+  .bg-eco-cream { background-color: hsl(var(--eco-cream)); }
+  
   /* Cores de texto EcoMart */
   .text-eco-green { color: hsl(var(--eco-green)); }
   .text-eco-green-dark { color: hsl(var(--eco-green-dark)); }
@@ -117,11 +129,15 @@
   .text-eco-gray { color: hsl(var(--eco-gray)); }
   .text-eco-gray-dark { color: hsl(var(--eco-gray-dark)); }
   
+  .text-eco-sage { color: hsl(var(--eco-sage)); }
+  .text-eco-sage-dark { color: hsl(var(--eco-sage-dark)); }
+  
   /* Bordas EcoMart */
   .border-eco-green { border-color: hsl(var(--eco-green)); }
   .border-eco-orange { border-color: hsl(var(--eco-orange)); }
   .border-eco-blue { border-color: hsl(var(--eco-blue)); }
   .border-eco-gray { border-color: hsl(var(--eco-gray)); }
+  .border-eco-sage { border-color: hsl(var(--eco-sage)); }
   
   /* Hover states */
   .hover\:bg-eco-green:hover { background-color: hsl(var(--eco-green)); }
