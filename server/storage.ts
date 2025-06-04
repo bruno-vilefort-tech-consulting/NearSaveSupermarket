@@ -949,15 +949,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateOrderStatus(id: number, status: string, changedBy: string = 'UNKNOWN'): Promise<Order | undefined> {
-    // ABSOLUTE SECURITY: Block ALL automatic updates
+    // ABSOLUTE SECURITY: Block ALL automatic updates except authorized ones
     console.log(`🔒 SECURITY CHECK: Order ${id} status change attempt to ${status} by ${changedBy}`);
     
-    // Only allow explicit staff updates
-    if (!changedBy.startsWith('STAFF_')) {
+    // Allow specific automatic operations
+    const allowedAutomaticOperations = [
+      'TIMER_EXPIRATION', // PIX payment expiration
+      'PIX_WEBHOOK'       // Mercado Pago webhook confirmations
+    ];
+    
+    // Only allow explicit staff updates or authorized automatic operations
+    if (!changedBy.startsWith('STAFF_') && !allowedAutomaticOperations.includes(changedBy)) {
       console.log(`🛑 SECURITY BLOCK: Unauthorized status change blocked for order ${id}`);
       console.log(`🛑 Attempted by: ${changedBy}`);
       console.log(`🛑 Target status: ${status}`);
       throw new Error(`SECURITY: Order status changes are restricted to authorized staff only. Source: ${changedBy}`);
+    }
+    
+    // Additional validation for automatic operations
+    if (changedBy === 'TIMER_EXPIRATION') {
+      if (status !== 'payment_expired') {
+        throw new Error(`SECURITY: TIMER_EXPIRATION can only set status to payment_expired`);
+      }
     }
 
     // First check current order status
