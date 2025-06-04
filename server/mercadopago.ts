@@ -291,6 +291,20 @@ function getCardBrand(cardNumber: string): string {
   return 'visa';
 }
 
+// Interfaces para cancelamento PIX
+export interface PixCancelData {
+  paymentId: string;
+  reason?: string;
+}
+
+export interface PixCancelResponse {
+  success: boolean;
+  paymentId?: string;
+  status?: string;
+  message?: string;
+  error?: string;
+}
+
 // Interfaces para estorno PIX
 export interface PixRefundData {
   paymentId: string;
@@ -305,6 +319,94 @@ export interface PixRefundResponse {
   amount?: number;
   message?: string;
   error?: string;
+}
+
+// Função para cancelar pagamento PIX
+export async function cancelPixPayment(data: PixCancelData): Promise<PixCancelResponse> {
+  try {
+    console.log('🚫 [PIX CANCEL] Iniciando cancelamento para pagamento:', data.paymentId);
+    
+    if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+      throw new Error('Token de acesso do Mercado Pago não configurado');
+    }
+
+    // Primeiro, verificar o status atual do pagamento
+    const paymentStatus = await getPaymentStatus(data.paymentId);
+    console.log('🚫 [PIX CANCEL] Status atual do pagamento:', paymentStatus);
+    
+    if (!paymentStatus) {
+      return {
+        success: false,
+        paymentId: data.paymentId,
+        error: 'Pagamento não encontrado'
+      };
+    }
+
+    // PIX só pode ser cancelado se ainda estiver pendente
+    if (paymentStatus.status === 'approved') {
+      console.log('🚫 [PIX CANCEL] Pagamento já foi aprovado, não pode ser cancelado');
+      return {
+        success: false,
+        paymentId: data.paymentId,
+        status: paymentStatus.status,
+        error: 'Pagamento já foi aprovado e não pode ser cancelado'
+      };
+    }
+
+    if (paymentStatus.status === 'cancelled') {
+      console.log('🚫 [PIX CANCEL] Pagamento já está cancelado');
+      return {
+        success: true,
+        paymentId: data.paymentId,
+        status: 'cancelled',
+        message: 'Pagamento já estava cancelado'
+      };
+    }
+
+    // Cancelar o pagamento no Mercado Pago
+    const response = await fetch(`https://api.mercadopago.com/v1/payments/${data.paymentId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`
+      },
+      body: JSON.stringify({
+        status: 'cancelled',
+        ...(data.reason && {
+          metadata: {
+            cancellation_reason: data.reason
+          }
+        })
+      })
+    });
+
+    const result = await response.json();
+    console.log('🚫 [PIX CANCEL] Resposta do Mercado Pago:', result);
+
+    if (!response.ok) {
+      console.error('❌ [PIX CANCEL] Erro na requisição:', result);
+      return {
+        success: false,
+        paymentId: data.paymentId,
+        error: result.message || 'Erro ao cancelar pagamento no Mercado Pago'
+      };
+    }
+
+    return {
+      success: true,
+      paymentId: result.id.toString(),
+      status: result.status,
+      message: 'Pagamento PIX cancelado com sucesso'
+    };
+
+  } catch (error) {
+    console.error('❌ [PIX CANCEL] Erro no cancelamento:', error);
+    return {
+      success: false,
+      paymentId: data.paymentId,
+      error: error instanceof Error ? error.message : 'Erro desconhecido ao cancelar pagamento'
+    };
+  }
 }
 
 export interface RefundStatusResponse {

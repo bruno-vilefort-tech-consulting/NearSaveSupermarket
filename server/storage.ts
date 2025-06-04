@@ -848,6 +848,46 @@ export class DatabaseStorage implements IStorage {
           if (currentOrder) {
             console.log(`📊 PROTECTION DATA: Order ${orderId} - Status: ${currentOrder.status}, LastManual: ${currentOrder.lastManualStatus}`);
             
+            // Verificar se o PIX expirou e cancelar no Mercado Pago
+            if (currentOrder.status === 'awaiting_payment' && 
+                currentOrder.pixExpirationDate && 
+                currentOrder.pixPaymentId &&
+                new Date() > new Date(currentOrder.pixExpirationDate)) {
+              
+              console.log(`⏰ PIX EXPIRED: Order ${orderId} PIX payment expired, attempting to cancel in Mercado Pago`);
+              
+              try {
+                // Importar dinamicamente para evitar dependência circular
+                const { cancelPixPayment } = await import('./mercadopago');
+                
+                const cancelResult = await cancelPixPayment({
+                  paymentId: currentOrder.pixPaymentId,
+                  reason: 'Pagamento expirado automaticamente'
+                });
+                
+                if (cancelResult.success) {
+                  console.log(`✅ PIX CANCELLED: PIX payment ${currentOrder.pixPaymentId} cancelled in Mercado Pago`);
+                  
+                  // Atualizar status do pedido para payment_expired
+                  await db
+                    .update(orders)
+                    .set({ 
+                      status: 'payment_expired',
+                      lastManualStatus: 'payment_expired',
+                      lastManualUpdate: new Date(),
+                      updatedAt: new Date()
+                    })
+                    .where(eq(orders.id, orderId));
+                    
+                  console.log(`✅ ORDER EXPIRED: Order ${orderId} status updated to payment_expired`);
+                } else {
+                  console.log(`⚠️ PIX CANCEL FAILED: Could not cancel PIX ${currentOrder.pixPaymentId}: ${cancelResult.error}`);
+                }
+              } catch (error) {
+                console.error(`❌ PIX CANCEL ERROR: Error cancelling PIX payment for order ${orderId}:`, error);
+              }
+            }
+            
             if (currentOrder.lastManualStatus && currentOrder.status !== currentOrder.lastManualStatus) {
               console.log(`🚨 PROTECTION ACTIVATED: Automatic status change detected for order ${orderId} from ${currentOrder.status} back to ${currentOrder.lastManualStatus}`);
               

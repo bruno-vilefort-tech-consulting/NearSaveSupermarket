@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
-import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, type CardPaymentData, type PixPaymentData } from "./mercadopago";
+import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, cancelPixPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
 
 // Declaração global para armazenar pedidos temporários
@@ -1587,6 +1587,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating PIX payment:", error);
       res.status(500).json({ message: "Erro ao criar pagamento PIX" });
+    }
+  });
+
+  // Cancel PIX payment when expired
+  app.post("/api/payments/pix/:paymentId/cancel", async (req, res) => {
+    try {
+      const { paymentId } = req.params;
+      const { reason } = req.body;
+      
+      if (!paymentId) {
+        return res.status(400).json({ message: "paymentId é obrigatório" });
+      }
+
+      console.log(`🚫 [PIX CANCEL API] Cancelando pagamento PIX: ${paymentId}`);
+      
+      const cancelResult = await cancelPixPayment({
+        paymentId,
+        reason: reason || "Pagamento expirado automaticamente"
+      });
+
+      if (cancelResult.success) {
+        console.log(`✅ [PIX CANCEL API] Pagamento cancelado com sucesso: ${paymentId}`);
+        res.json({
+          success: true,
+          message: "Pagamento PIX cancelado com sucesso",
+          paymentId: cancelResult.paymentId,
+          status: cancelResult.status
+        });
+      } else {
+        console.log(`❌ [PIX CANCEL API] Falha ao cancelar pagamento: ${paymentId}`, cancelResult.error);
+        res.status(400).json({
+          success: false,
+          message: cancelResult.error || "Erro ao cancelar pagamento PIX"
+        });
+      }
+    } catch (error) {
+      console.error("Error canceling PIX payment:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Erro interno ao cancelar pagamento PIX" 
+      });
     }
   });
 
