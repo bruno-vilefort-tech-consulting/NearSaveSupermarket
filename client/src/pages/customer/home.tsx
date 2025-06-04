@@ -428,25 +428,25 @@ export default function CustomerHome() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Eco Points Highlight */}
-        <Card className="mb-8 bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+        <Card className="mb-8 gradient-eco-green border-eco-green">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="bg-green-100 p-3 rounded-full">
-                  <Leaf size={24} className="text-green-600" />
+                <div className="bg-eco-green p-3 rounded-full">
+                  <Leaf size={24} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-eco-gray-dark">
                     {t('customer.ecoPointsProgram')}
                   </h3>
-                  <p className="text-sm text-gray-600">
-                    {t('customer.youHave')} <span className="font-bold text-green-600">{customerInfo?.ecoPoints || 0} {t('customer.points')}</span> {t('customer.sustainablePurchases')}
+                  <p className="text-sm text-eco-gray">
+                    {t('customer.youHave')} <span className="font-bold text-eco-green-dark">{customerInfo?.ecoPoints || 0} {t('customer.points')}</span> {t('customer.sustainablePurchases')}
                   </p>
                 </div>
               </div>
               <Button
                 onClick={() => navigate("/customer/eco-points")}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-eco-green hover:bg-eco-green-dark text-white"
               >
                 {t('customer.learnMore')}
               </Button>
@@ -456,25 +456,25 @@ export default function CustomerHome() {
 
         {/* Location Status */}
         {locationPermission === 'loading' && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="mb-6 p-4 bg-eco-blue-light border border-eco-blue rounded-lg">
             <div className="flex items-center">
-              <MapPin className="animate-pulse text-blue-600 mr-2" size={20} />
-              <span className="text-blue-800">Obtendo sua localização...</span>
+              <MapPin className="animate-pulse text-eco-blue mr-2" size={20} />
+              <span className="text-eco-blue-dark">Obtendo sua localização...</span>
             </div>
           </div>
         )}
         
         {locationPermission === 'denied' && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="mb-6 p-4 bg-eco-blue-light border border-eco-blue rounded-lg">
             <div className="space-y-3">
               <div className="flex items-center">
-                <MapPin className="text-blue-600 mr-2" size={20} />
-                <span className="text-blue-800 font-medium">Ativar localização para supermercados próximos</span>
+                <MapPin className="text-eco-blue mr-2" size={20} />
+                <span className="text-eco-blue-dark font-medium">Ativar localização para supermercados próximos</span>
               </div>
-              <p className="text-sm text-blue-700">
+              <p className="text-sm text-eco-blue-dark">
                 Para ver apenas supermercados próximos (20km), você precisa:
               </p>
-              <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
+              <ul className="text-sm text-eco-blue-dark list-disc list-inside space-y-1">
                 <li>Clicar no ícone 🔒 ou ⓘ ao lado da URL no navegador</li>
                 <li>Alterar "Localização" para "Permitir"</li>
                 <li>Recarregar a página ou clicar no botão abaixo</li>
@@ -486,7 +486,7 @@ export default function CustomerHome() {
                   console.log('Tentando reativar localização...');
                   getUserLocation();
                 }}
-                className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                className="border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white"
               >
                 Tentar Novamente
               </Button>
@@ -495,20 +495,20 @@ export default function CustomerHome() {
         )}
 
         {locationPermission === 'granted' && userLocation && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mb-6 p-4 bg-eco-green-light border border-eco-green rounded-lg">
             <div className="flex items-center">
-              <MapPin className="text-green-600 mr-2" size={20} />
-              <span className="text-green-800">Mostrando supermercados próximos (até 20km)</span>
+              <MapPin className="text-eco-green mr-2" size={20} />
+              <span className="text-eco-green-dark">Mostrando supermercados próximos (até 20km)</span>
             </div>
           </div>
         )}
 
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-bold text-eco-gray-dark mb-2">
             {t('customer.supermarketsWithOffers')}
           </h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-eco-gray">
             {locationPermission === 'granted' ? 'Supermercados próximos com as melhores ofertas' : t('customer.findBestDiscounts')}
           </p>
         </div>
@@ -516,12 +516,12 @@ export default function CustomerHome() {
         {/* Search */}
         <div className="mb-8">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
             <Input
               placeholder={t('customer.searchSupermarkets')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
             />
           </div>
         </div>
@@ -530,11 +530,11 @@ export default function CustomerHome() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredSupermarkets.length === 0 ? (
             <div className="col-span-full text-center py-12">
-              <Store size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Store size={48} className="mx-auto text-eco-gray mb-4" />
+              <h3 className="text-lg font-medium text-eco-gray-dark mb-2">
                 {t('customer.noSupermarketsFound')}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-eco-gray">
                 {searchTerm ? t('customer.tryAnotherSearch') : t('customer.noSupermarketsAvailable')}
               </p>
             </div>
@@ -542,51 +542,51 @@ export default function CustomerHome() {
             filteredSupermarkets.map((supermarket: SupermarketWithLocation) => (
               <Card
                 key={supermarket.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-green-600"
+                className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-eco-green bg-white"
                 onClick={() => handleSupermarketClick(supermarket.id, supermarket.name)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <Store className="text-green-600" size={24} />
+                      <div className="w-12 h-12 bg-eco-green-light rounded-lg flex items-center justify-center">
+                        <Store className="text-eco-green" size={24} />
                       </div>
                       <div>
-                        <CardTitle className="text-lg font-semibold text-gray-900">
+                        <CardTitle className="text-lg font-semibold text-eco-gray-dark">
                           {supermarket.name}
                         </CardTitle>
-                        <div className="flex items-center text-sm text-gray-600 mt-1">
+                        <div className="flex items-center text-sm text-eco-gray mt-1">
                           <MapPin size={14} className="mr-1" />
                           {supermarket.address}
                         </div>
                         {supermarket.distance && (
-                          <div className="flex items-center text-xs text-blue-600 mt-1 font-medium">
+                          <div className="flex items-center text-xs text-eco-blue mt-1 font-medium">
                             <MapPin size={12} className="mr-1" />
                             {supermarket.distance.toFixed(1)} km de distância
                           </div>
                         )}
                       </div>
                     </div>
-                    <ArrowRight className="text-gray-400" size={20} />
+                    <ArrowRight className="text-eco-gray" size={20} />
                   </div>
                 </CardHeader>
 
                 <CardContent className="pt-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Package className="text-green-600" size={16} />
-                      <span className="text-sm font-medium text-gray-700">
+                      <Package className="text-eco-green" size={16} />
+                      <span className="text-sm font-medium text-eco-gray-dark">
                         {supermarket.productCount} {t('customer.productsOnSale')}
                       </span>
                     </div>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    <Badge variant="secondary" className="bg-eco-green-light text-eco-green-dark border-eco-green">
                       {t('customer.available')}
                     </Badge>
                   </div>
 
                   <div className="mt-4">
                     <Button
-                      className="w-full bg-green-600 hover:bg-green-700"
+                      className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSupermarketClick(supermarket.id, supermarket.name);
