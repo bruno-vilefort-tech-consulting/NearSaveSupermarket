@@ -33,34 +33,31 @@ export function useNotificationSound() {
   }, [isReady]);
 
   const createNotificationSound = useCallback((audioContext: AudioContext) => {
-    // Create a pleasant notification sound sequence
-    const oscillator1 = audioContext.createOscillator();
-    const oscillator2 = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    // Create a bell-like notification sound
+    const playBellNote = (frequency: number, startTime: number, duration: number, volume: number) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Use sine wave for bell-like tone
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequency, startTime);
+      
+      // Create bell-like envelope (quick attack, slow decay)
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    };
     
-    // Connect oscillators to gain node to speakers
-    oscillator1.connect(gainNode);
-    oscillator2.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    // Set frequencies for a pleasant chord (C and E notes)
-    oscillator1.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
-    oscillator2.frequency.setValueAtTime(659.25, audioContext.currentTime); // E5
-    
-    // Set waveform type
-    oscillator1.type = 'sine';
-    oscillator2.type = 'sine';
-    
-    // Create volume envelope
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
-    
-    // Start and stop oscillators
-    oscillator1.start(audioContext.currentTime);
-    oscillator2.start(audioContext.currentTime);
-    oscillator1.stop(audioContext.currentTime + 0.6);
-    oscillator2.stop(audioContext.currentTime + 0.6);
+    // Play bell sequence (ding-dong pattern)
+    const now = audioContext.currentTime;
+    playBellNote(880, now, 0.8, 0.4);        // A5 - first ding
+    playBellNote(659.25, now + 0.3, 1.0, 0.3); // E5 - second dong
   }, []);
 
   const playNotification = useCallback(async () => {
