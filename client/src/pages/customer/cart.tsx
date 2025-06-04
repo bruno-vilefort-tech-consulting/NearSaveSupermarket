@@ -168,12 +168,29 @@ export default function CustomerCart() {
       return;
     }
 
+    // Verificar se há informações do cliente
+    if (!customerInfo?.fullName || !customerInfo?.email) {
+      toast({
+        title: 'Informações Necessárias',
+        description: 'Por favor, preencha suas informações pessoais primeiro.',
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      console.log('Iniciando checkout com dados:', {
+        customerInfo,
+        cartItems: cartItems.length,
+        deliveryType,
+        total: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2)
+      });
+
       // Criar pedido com status awaiting_payment
       const orderData = {
-        customerName: customerInfo?.fullName || "",
-        customerEmail: customerInfo?.email || "",
-        customerPhone: customerInfo?.phone || "",
+        customerName: customerInfo.fullName,
+        customerEmail: customerInfo.email,
+        customerPhone: customerInfo.phone || "",
         totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
         items: cartItems.map(item => ({
           productId: item.id,
@@ -183,6 +200,8 @@ export default function CustomerCart() {
         }))
       };
 
+      console.log('Enviando dados do pedido:', orderData);
+
       const response = await fetch('/api/orders/create-with-pix', {
         method: 'POST',
         headers: {
@@ -191,11 +210,16 @@ export default function CustomerCart() {
         body: JSON.stringify(orderData),
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Erro ao criar pedido');
+        const errorText = await response.text();
+        console.error('Erro na resposta:', errorText);
+        throw new Error(`Erro ao criar pedido: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log('Pedido criado com sucesso:', result);
       
       // Limpar carrinho após criar pedido
       localStorage.removeItem('cart');
@@ -216,7 +240,7 @@ export default function CustomerCart() {
       console.error('Erro ao finalizar pedido:', error);
       toast({
         title: 'Erro',
-        description: 'Erro ao finalizar pedido. Tente novamente.',
+        description: 'Erro ao finalizar pedido. Verifique sua conexão e tente novamente.',
         variant: "destructive",
       });
     }
@@ -377,6 +401,68 @@ export default function CustomerCart() {
             </CardContent>
           </Card>
         )}
+
+        {/* Informações do Cliente */}
+        <Card className="bg-white border-eco-blue-light">
+          <CardContent className="p-4">
+            <h3 className="font-semibold mb-3 text-eco-gray-dark flex items-center gap-2">
+              <User className="h-4 w-4 text-eco-blue" />
+              Suas Informações
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="fullName" className="text-eco-gray-dark">Nome Completo</Label>
+                <Input
+                  id="fullName"
+                  value={customerInfo?.fullName || ""}
+                  onChange={(e) => {
+                    const updated = { ...customerInfo, fullName: e.target.value };
+                    setCustomerInfo(updated);
+                    localStorage.setItem('customerInfo', JSON.stringify(updated));
+                  }}
+                  placeholder="Digite seu nome completo"
+                  className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email" className="text-eco-gray-dark flex items-center gap-1">
+                  <Mail className="h-3 w-3" />
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={customerInfo?.email || ""}
+                  onChange={(e) => {
+                    const updated = { ...customerInfo, email: e.target.value };
+                    setCustomerInfo(updated);
+                    localStorage.setItem('customerInfo', JSON.stringify(updated));
+                  }}
+                  placeholder="Digite seu email"
+                  className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone" className="text-eco-gray-dark flex items-center gap-1">
+                  <Phone className="h-3 w-3" />
+                  Telefone
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={customerInfo?.phone || ""}
+                  onChange={(e) => {
+                    const updated = { ...customerInfo, phone: e.target.value };
+                    setCustomerInfo(updated);
+                    localStorage.setItem('customerInfo', JSON.stringify(updated));
+                  }}
+                  placeholder="(11) 99999-9999"
+                  className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Tipo de Entrega */}
         <Card className="bg-white border-eco-orange-light">
