@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Users, Leaf, Globe, ChevronDown } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ShoppingCart, Users, Leaf, Globe, ChevronDown, Recycle, Heart, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect, useRef } from "react";
 
@@ -26,179 +27,145 @@ export default function Landing() {
     };
   }, []);
 
-  // SVG de compras sustentáveis
-  const SustainableShoppingSVG = () => (
-    <svg viewBox="0 0 400 300" className="w-full max-w-sm mx-auto">
-      {/* Fundo */}
-      <rect width="400" height="300" fill="url(#bgGradient)" />
-      
-      {/* Gradients */}
-      <defs>
-        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="hsl(160 40% 95%)" />
-          <stop offset="100%" stopColor="hsl(160 40% 85%)" />
-        </linearGradient>
-        <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="hsl(160 60% 30%)" />
-          <stop offset="100%" stopColor="hsl(160 65% 25%)" />
-        </linearGradient>
-        <linearGradient id="cartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="hsl(210 65% 40%)" />
-          <stop offset="100%" stopColor="hsl(210 70% 30%)" />
-        </linearGradient>
-        <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="hsl(25 95% 55%)" />
-          <stop offset="100%" stopColor="hsl(25 95% 45%)" />
-        </linearGradient>
-      </defs>
-      
-      {/* Terra/Base */}
-      <ellipse cx="200" cy="280" rx="180" ry="15" fill="#16a34a" opacity="0.3" />
-      
-      {/* Árvore grande */}
-      <rect x="320" y="180" width="12" height="80" fill="#92400e" />
-      <circle cx="326" cy="180" r="35" fill="url(#leafGradient)" />
-      <circle cx="340" cy="165" r="25" fill="url(#leafGradient)" opacity="0.8" />
-      <circle cx="312" cy="165" r="25" fill="url(#leafGradient)" opacity="0.8" />
-      
-      {/* Carrinho de compras */}
-      <rect x="150" y="200" width="60" height="40" rx="5" fill="url(#cartGradient)" />
-      <rect x="155" y="190" width="50" height="15" rx="3" fill="url(#cartGradient)" opacity="0.7" />
-      <circle cx="165" cy="250" r="8" fill="#374151" />
-      <circle cx="195" cy="250" r="8" fill="#374151" />
-      <rect x="145" y="185" width="8" height="25" fill="url(#cartGradient)" />
-      
-      {/* Produtos no carrinho */}
-      <rect x="160" y="195" width="12" height="15" rx="2" fill="url(#orangeGradient)" />
-      <rect x="175" y="195" width="12" height="15" rx="2" fill="url(#cartGradient)" />
-      <rect x="190" y="195" width="12" height="15" rx="2" fill="url(#leafGradient)" />
-      
-      {/* Folhas flutuando */}
-      <path d="M80 100 Q85 95 90 100 Q85 105 80 100" fill="hsl(160 60% 30%)" opacity="0.6" />
-      <path d="M120 80 Q125 75 130 80 Q125 85 120 80" fill="hsl(160 65% 25%)" opacity="0.7" />
-      <path d="M280 120 Q285 115 290 120 Q285 125 280 120" fill="hsl(160 60% 30%)" opacity="0.5" />
-      
-      {/* Plantas pequenas */}
-      <circle cx="100" cy="240" r="15" fill="url(#leafGradient)" opacity="0.6" />
-      <rect x="98" y="240" width="4" height="20" fill="hsl(25 70% 35%)" />
-      
-      <circle cx="260" cy="230" r="12" fill="url(#leafGradient)" opacity="0.7" />
-      <rect x="258" y="230" width="4" height="18" fill="hsl(25 70% 35%)" />
-      
-      {/* Sol */}
-      <circle cx="350" cy="50" r="25" fill="url(#orangeGradient)" opacity="0.9" />
-      <path d="M350 20 L350 10" stroke="hsl(25 95% 55%)" strokeWidth="2" />
-      <path d="M375 35 L383 28" stroke="hsl(25 95% 55%)" strokeWidth="2" />
-      <path d="M375 65 L383 72" stroke="hsl(25 95% 55%)" strokeWidth="2" />
-      <path d="M325 35 L317 28" stroke="hsl(25 95% 55%)" strokeWidth="2" />
-      
-      {/* Símbolo de reciclagem */}
-      <g transform="translate(50, 150)">
-        <path d="M0 0 Q-10 -10 0 -20 Q10 -10 0 0" fill="hsl(160 60% 30%)" />
-        <path d="M15 10 Q25 0 15 -10 Q5 0 15 10" fill="hsl(160 60% 30%)" />
-        <path d="M-15 10 Q-25 0 -15 -10 Q-5 0 -15 10" fill="hsl(160 60% 30%)" />
-      </g>
-    </svg>
+  const ModernHeroSection = () => (
+    <div className="relative text-center space-y-8">
+      {/* Logo e Título Principal */}
+      <div className="space-y-6">
+        <div className="flex justify-center">
+          <div className="relative">
+            <div className="w-20 h-20 bg-eco-green rounded-3xl flex items-center justify-center shadow-lg shadow-eco-green/25">
+              <Leaf className="h-10 w-10 text-white" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-eco-orange rounded-full flex items-center justify-center">
+              <Heart className="h-3 w-3 text-white" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <h1 className="text-5xl font-bold text-eco-gray-dark tracking-tight">
+            {t('landing.title')}
+          </h1>
+          <p className="text-lg text-eco-gray max-w-md mx-auto leading-relaxed">
+            Conectando supermercados e consumidores para reduzir o desperdício de alimentos
+          </p>
+        </div>
+      </div>
+
+      {/* Cards de Benefícios */}
+      <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+        <Card className="border-eco-green-light bg-eco-green-light/20 hover:bg-eco-green-light/30 transition-all duration-300">
+          <CardContent className="p-4 text-center">
+            <Recycle className="h-6 w-6 text-eco-green mx-auto mb-2" />
+            <p className="text-xs font-medium text-eco-gray-dark">Menos Desperdício</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-eco-orange-light bg-eco-orange-light/20 hover:bg-eco-orange-light/30 transition-all duration-300">
+          <CardContent className="p-4 text-center">
+            <TrendingUp className="h-6 w-6 text-eco-orange mx-auto mb-2" />
+            <p className="text-xs font-medium text-eco-gray-dark">Mais Economia</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-eco-blue-light bg-eco-blue-light/20 hover:bg-eco-blue-light/30 transition-all duration-300">
+          <CardContent className="p-4 text-center">
+            <Heart className="h-6 w-6 text-eco-blue mx-auto mb-2" />
+            <p className="text-xs font-medium text-eco-gray-dark">Mais Sustentável</p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 
   return (
-    <div className="min-h-screen gradient-eco-green flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header */}
+      <div className="flex justify-between items-center p-6">
+        <div className="text-sm text-eco-gray font-medium">
+          {t('landing.subtitle')}
+        </div>
         
         {/* Language Selector */}
-        <div className="flex justify-end">
-          <div className="relative" ref={languageMenuRef}>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-              className="h-10 px-3 bg-white/90 backdrop-blur-sm border-eco-green-light hover:bg-white shadow-sm flex items-center gap-2"
-            >
-              <Globe className="h-4 w-4 text-eco-orange" />
-              <ChevronDown className={`h-3 w-3 text-eco-orange transition-transform ${isLanguageMenuOpen ? 'rotate-180' : ''}`} />
-            </Button>
-            
-            {isLanguageMenuOpen && (
-              <div className="absolute right-0 top-12 bg-white/95 backdrop-blur-md border border-eco-green-light rounded-lg shadow-lg py-2 min-w-32 z-10">
-                <button
-                  onClick={() => {
-                    setLanguage('pt-BR');
-                    setIsLanguageMenuOpen(false);
-                  }}
-                  className="w-full px-4 py-2 text-left hover:bg-eco-green-light flex items-center gap-3 text-eco-gray-dark transition-colors"
-                >
-                  <span className="text-lg">🇧🇷</span>
-                  <span className="font-medium">Português</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setLanguage('en-US');
-                    setIsLanguageMenuOpen(false);
-                  }}
-                  className="w-full px-4 py-2 text-left hover:bg-eco-green-light flex items-center gap-3 text-eco-gray-dark transition-colors"
-                >
-                  <span className="text-lg">🇺🇸</span>
-                  <span className="font-medium">English</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Logo Principal */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center mb-4">
-            <div className="gradient-eco-orange p-4 rounded-2xl shadow-xl ring-4 ring-white/30">
-              <Leaf className="h-12 w-12 text-white" />
+        <div className="relative" ref={languageMenuRef}>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+            className="h-10 px-3 text-eco-gray hover:text-eco-orange hover:bg-eco-gray-light/20 flex items-center gap-2"
+          >
+            <Globe className="h-4 w-4" />
+            <ChevronDown className={`h-3 w-3 transition-transform ${isLanguageMenuOpen ? 'rotate-180' : ''}`} />
+          </Button>
+          
+          {isLanguageMenuOpen && (
+            <div className="absolute right-0 top-12 bg-white border border-eco-gray-light rounded-xl shadow-lg py-2 min-w-32 z-10">
+              <button
+                onClick={() => {
+                  setLanguage('pt-BR');
+                  setIsLanguageMenuOpen(false);
+                }}
+                className="w-full px-4 py-2 text-left hover:bg-eco-gray-light/20 flex items-center gap-3 text-eco-gray-dark transition-colors"
+              >
+                <span className="text-lg">🇧🇷</span>
+                <span className="font-medium">Português</span>
+              </button>
+              <button
+                onClick={() => {
+                  setLanguage('en-US');
+                  setIsLanguageMenuOpen(false);
+                }}
+                className="w-full px-4 py-2 text-left hover:bg-eco-gray-light/20 flex items-center gap-3 text-eco-gray-dark transition-colors"
+              >
+                <span className="text-lg">🇺🇸</span>
+                <span className="font-medium">English</span>
+              </button>
             </div>
-          </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-eco-green to-eco-blue bg-clip-text text-transparent">
-            {t('landing.title')}
-          </h1>
-          <p className="text-sm text-eco-gray font-medium">
-            {t('landing.subtitle')}
-          </p>
+          )}
         </div>
+      </div>
 
-        {/* Imagem Sustentável */}
-        <div className="my-8">
-          <SustainableShoppingSVG />
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-6 pb-12">
+        <div className="w-full max-w-lg">
+          <ModernHeroSection />
         </div>
+      </div>
 
-        {/* Botões de Login */}
-        <div className="space-y-4">
+      {/* Action Buttons */}
+      <div className="px-6 pb-8">
+        <div className="w-full max-w-lg mx-auto space-y-4">
           <Button 
             onClick={() => window.location.href = '/customer/login'}
-            className="w-full gradient-eco-green hover:bg-eco-green-dark text-white font-semibold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+            className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-4 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 text-lg"
             size="lg"
           >
             <div className="flex items-center justify-center space-x-3">
               <ShoppingCart className="h-6 w-6" />
-              <span className="font-bold text-lg">{t('landing.customerButton')}</span>
+              <span>{t('landing.customerButton')}</span>
             </div>
           </Button>
 
           <Button 
             onClick={handleLogin}
-            className="w-full gradient-eco-blue hover:bg-eco-blue-dark text-white font-semibold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 border-0"
+            variant="outline"
+            className="w-full border-2 border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white font-semibold py-4 rounded-2xl transition-all duration-200 text-lg"
             size="lg"
           >
             <div className="flex items-center justify-center space-x-3">
               <Users className="h-6 w-6" />
-              <span className="font-bold text-lg">{t('landing.staffButton')}</span>
+              <span>{t('landing.staffButton')}</span>
             </div>
           </Button>
         </div>
+      </div>
 
-        {/* Footer */}
-        <div className="text-center text-sm text-eco-gray space-y-2 pt-6">
-          <p className="font-medium">{t('landing.footer')}</p>
-          <div className="flex items-center justify-center space-x-1 text-xs">
-            <Leaf className="h-3 w-3 text-eco-green" />
-            <span>{t('landing.features')}</span>
-          </div>
+      {/* Footer */}
+      <div className="text-center text-xs text-eco-gray pb-6">
+        <div className="flex items-center justify-center space-x-1">
+          <Leaf className="h-3 w-3 text-eco-green" />
+          <span>Menos desperdício, mais sustentabilidade</span>
         </div>
-        
       </div>
     </div>
   );
