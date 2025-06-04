@@ -43,9 +43,14 @@ export default function Landing() {
         </div>
         
         <div className="space-y-3">
-          <h1 className="text-5xl font-bold text-eco-gray-dark tracking-tight">
-            {t('landing.title')}
-          </h1>
+          <div className="flex items-center justify-center gap-3">
+            <h1 className="text-5xl font-bold text-eco-gray-dark tracking-tight">
+              {t('landing.title')}
+            </h1>
+            <div className="bg-eco-orange px-3 py-1 rounded-full">
+              <span className="text-white text-sm font-medium">By Up Brasil</span>
+            </div>
+          </div>
           <p className="text-lg text-eco-gray max-w-md mx-auto leading-relaxed">
             Conectando supermercados e consumidores para reduzir o desperdício de alimentos
           </p>
