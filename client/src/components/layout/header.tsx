@@ -24,36 +24,34 @@ export function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+    <header className="bg-white shadow-sm border-b border-eco-gray-light sticky top-0 z-40">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-eco-green rounded-lg flex items-center justify-center shadow-sm">
             <Store className="text-white" size={20} />
           </div>
           <div>
-            <h1 className="font-semibold text-gray-900">
+            <h1 className="font-semibold text-eco-gray-dark">
               {staffUser?.companyName || "Supermercado Silva"}
             </h1>
-            <p className="text-xs text-gray-500">{t('header.staffPanel')}</p>
+            <p className="text-xs text-eco-gray">{t('header.staffPanel')}</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">
           {/* Notification Bell */}
           <div className="relative">
-            <Bell className="text-gray-600" size={20} />
+            <Bell className="text-eco-gray hover:text-eco-orange transition-colors" size={20} />
             {stats?.pendingOrders && stats.pendingOrders > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-eco-orange text-white text-xs rounded-full flex items-center justify-center shadow-sm">
                 {stats.pendingOrders}
               </span>
             )}
           </div>
           
-
-          
           {/* User Avatar */}
-          <Avatar className="w-8 h-8">
+          <Avatar className="w-8 h-8 ring-2 ring-eco-green-light">
             <AvatarImage src={user?.profileImageUrl || ""} alt="User avatar" />
-            <AvatarFallback className="bg-gray-300 text-gray-700 text-sm">
+            <AvatarFallback className="bg-eco-green-light text-eco-green-dark text-sm font-medium">
               {getInitials(user?.firstName, user?.lastName)}
             </AvatarFallback>
           </Avatar>
@@ -63,7 +61,7 @@ export function Header() {
             variant="ghost"
             size="sm"
             onClick={() => window.location.href = "/api/logout"}
-            className="text-gray-600 hover:text-gray-900"
+            className="text-eco-gray hover:text-eco-orange hover:bg-eco-orange-light transition-colors"
           >
             <LogOut size={16} />
           </Button>

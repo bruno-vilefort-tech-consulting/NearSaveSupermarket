@@ -3,54 +3,65 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 20 14.3% 4.1%;
-  --muted: 60 4.8% 95.9%;
-  --muted-foreground: 25 5.3% 44.7%;
+  --background: 0 0% 98%; /* Branco suave #FAFAFA */
+  --foreground: 0 0% 12%; /* Cinza escuro #1F1F1F */
+  --muted: 0 0% 96%; /* Cinza claro #F5F5F5 */
+  --muted-foreground: 0 0% 45%; /* Cinza médio */
   --popover: 0 0% 100%;
-  --popover-foreground: 20 14.3% 4.1%;
+  --popover-foreground: 0 0% 12%;
   --card: 0 0% 100%;
-  --card-foreground: 20 14.3% 4.1%;
-  --border: 20 5.9% 90%;
-  --input: 20 5.9% 90%;
-  --primary: 207 90% 54%; /* #3b82f6 */
-  --primary-foreground: 211 100% 99%;
-  --secondary: 60 4.8% 95.9%;
-  --secondary-foreground: 24 9.8% 10%;
-  --accent: 60 4.8% 95.9%;
-  --accent-foreground: 24 9.8% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 20 14.3% 4.1%;
+  --card-foreground: 0 0% 12%;
+  --border: 0 0% 90%; /* Cinza para bordas #E5E5E5 */
+  --input: 0 0% 95%; /* Cinza claro para inputs */
+  --primary: 160 60% 30%; /* Verde sustentável #2E7D57 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 25 95% 55%; /* Laranja vibrante #FF7F00 */
+  --secondary-foreground: 0 0% 100%;
+  --accent: 210 65% 40%; /* Azul confiável #3A5F8A */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 160 60% 30%;
   --radius: 0.5rem;
   
-  /* Custom app colors */
-  --primary-50: 239 100% 97%; /* #eff6ff */
-  --primary-500: 207 90% 54%; /* #3b82f6 */
-  --primary-600: 214 88% 52%; /* #2563eb */
-  --primary-700: 221 83% 53%; /* #1d4ed8 */
+  /* Paleta EcoMart baseada na imagem */
+  --eco-orange: 25 95% 55%; /* Laranja vibrante */
+  --eco-orange-light: 25 85% 85%; /* Laranja claro */
+  --eco-orange-dark: 25 95% 45%; /* Laranja escuro */
+  
+  --eco-blue: 210 65% 40%; /* Azul principal */
+  --eco-blue-light: 210 45% 85%; /* Azul claro */
+  --eco-blue-dark: 210 70% 30%; /* Azul escuro */
+  
+  --eco-green: 160 60% 30%; /* Verde sustentável */
+  --eco-green-light: 160 40% 85%; /* Verde claro */
+  --eco-green-dark: 160 65% 25%; /* Verde escuro */
+  
+  --eco-gray: 0 0% 50%; /* Cinza neutro */
+  --eco-gray-light: 0 0% 90%; /* Cinza claro */
+  --eco-gray-dark: 0 0% 30%; /* Cinza escuro */
 }
 
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 207 90% 54%;
-  --primary-foreground: 211 100% 99%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --ring: 240 4.9% 83.9%;
+  --background: 0 0% 8%; /* Preto suave */
+  --foreground: 0 0% 95%; /* Branco suave */
+  --muted: 0 0% 15%; /* Cinza escuro */
+  --muted-foreground: 0 0% 65%; /* Cinza claro */
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 95%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 95%;
+  --border: 0 0% 20%; /* Bordas escuras */
+  --input: 0 0% 15%; /* Inputs escuros */
+  --primary: 160 50% 40%; /* Verde mais claro no escuro */
+  --primary-foreground: 0 0% 10%;
+  --secondary: 25 90% 65%; /* Laranja ajustado */
+  --secondary-foreground: 0 0% 10%;
+  --accent: 210 55% 50%; /* Azul ajustado */
+  --accent-foreground: 0 0% 10%;
+  --destructive: 0 75% 55%;
+  --destructive-foreground: 0 0% 95%;
+  --ring: 160 50% 40%;
   --radius: 0.5rem;
 }
 
@@ -66,55 +77,86 @@
 }
 
 @layer utilities {
-  .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary-50)), hsl(214, 100%, 91%));
+  /* Gradientes EcoMart */
+  .gradient-eco-green {
+    background: linear-gradient(135deg, hsl(var(--eco-green-light)), hsl(var(--eco-green)));
   }
   
-  .text-primary-500 {
-    color: hsl(var(--primary-500));
+  .gradient-eco-orange {
+    background: linear-gradient(135deg, hsl(var(--eco-orange-light)), hsl(var(--eco-orange)));
   }
   
-  .text-primary-600 {
-    color: hsl(var(--primary-600));
+  .gradient-eco-blue {
+    background: linear-gradient(135deg, hsl(var(--eco-blue-light)), hsl(var(--eco-blue)));
   }
   
-  .bg-primary-50 {
-    background-color: hsl(var(--primary-50));
+  /* Cores de fundo EcoMart */
+  .bg-eco-green { background-color: hsl(var(--eco-green)); }
+  .bg-eco-green-light { background-color: hsl(var(--eco-green-light)); }
+  .bg-eco-green-dark { background-color: hsl(var(--eco-green-dark)); }
+  
+  .bg-eco-orange { background-color: hsl(var(--eco-orange)); }
+  .bg-eco-orange-light { background-color: hsl(var(--eco-orange-light)); }
+  .bg-eco-orange-dark { background-color: hsl(var(--eco-orange-dark)); }
+  
+  .bg-eco-blue { background-color: hsl(var(--eco-blue)); }
+  .bg-eco-blue-light { background-color: hsl(var(--eco-blue-light)); }
+  .bg-eco-blue-dark { background-color: hsl(var(--eco-blue-dark)); }
+  
+  .bg-eco-gray { background-color: hsl(var(--eco-gray)); }
+  .bg-eco-gray-light { background-color: hsl(var(--eco-gray-light)); }
+  .bg-eco-gray-dark { background-color: hsl(var(--eco-gray-dark)); }
+  
+  /* Cores de texto EcoMart */
+  .text-eco-green { color: hsl(var(--eco-green)); }
+  .text-eco-green-dark { color: hsl(var(--eco-green-dark)); }
+  .text-eco-orange { color: hsl(var(--eco-orange)); }
+  .text-eco-orange-dark { color: hsl(var(--eco-orange-dark)); }
+  .text-eco-blue { color: hsl(var(--eco-blue)); }
+  .text-eco-blue-dark { color: hsl(var(--eco-blue-dark)); }
+  .text-eco-gray { color: hsl(var(--eco-gray)); }
+  .text-eco-gray-dark { color: hsl(var(--eco-gray-dark)); }
+  
+  /* Bordas EcoMart */
+  .border-eco-green { border-color: hsl(var(--eco-green)); }
+  .border-eco-orange { border-color: hsl(var(--eco-orange)); }
+  .border-eco-blue { border-color: hsl(var(--eco-blue)); }
+  .border-eco-gray { border-color: hsl(var(--eco-gray)); }
+  
+  /* Hover states */
+  .hover\:bg-eco-green:hover { background-color: hsl(var(--eco-green)); }
+  .hover\:bg-eco-green-dark:hover { background-color: hsl(var(--eco-green-dark)); }
+  .hover\:bg-eco-orange:hover { background-color: hsl(var(--eco-orange)); }
+  .hover\:bg-eco-orange-dark:hover { background-color: hsl(var(--eco-orange-dark)); }
+  .hover\:bg-eco-blue:hover { background-color: hsl(var(--eco-blue)); }
+  .hover\:bg-eco-blue-dark:hover { background-color: hsl(var(--eco-blue-dark)); }
+  
+  .hover\:text-eco-green:hover { color: hsl(var(--eco-green)); }
+  .hover\:text-eco-orange:hover { color: hsl(var(--eco-orange)); }
+  .hover\:text-eco-blue:hover { color: hsl(var(--eco-blue)); }
+  
+  /* Focus states */
+  .focus\:ring-eco-green:focus {
+    --tw-ring-color: hsl(var(--eco-green));
   }
   
-  .bg-primary-600 {
-    background-color: hsl(var(--primary-600));
+  .focus\:ring-eco-orange:focus {
+    --tw-ring-color: hsl(var(--eco-orange));
   }
   
-  .bg-primary-700 {
-    background-color: hsl(var(--primary-700));
+  .focus\:ring-eco-blue:focus {
+    --tw-ring-color: hsl(var(--eco-blue));
   }
   
-  .border-primary-200 {
-    border-color: hsl(214, 85%, 84%);
+  .focus\:border-eco-green:focus {
+    border-color: hsl(var(--eco-green));
   }
   
-  .border-primary-500 {
-    border-color: hsl(var(--primary-500));
+  .focus\:border-eco-orange:focus {
+    border-color: hsl(var(--eco-orange));
   }
   
-  .hover\:bg-primary-100:hover {
-    background-color: hsl(214, 95%, 93%);
-  }
-  
-  .hover\:bg-primary-700:hover {
-    background-color: hsl(var(--primary-700));
-  }
-  
-  .focus\:ring-primary-200:focus {
-    --tw-ring-color: hsl(214, 85%, 84%);
-  }
-  
-  .focus\:ring-primary-500:focus {
-    --tw-ring-color: hsl(var(--primary-500));
-  }
-  
-  .focus\:border-primary-500:focus {
-    border-color: hsl(var(--primary-500));
+  .focus\:border-eco-blue:focus {
+    border-color: hsl(var(--eco-blue));
   }
 }
