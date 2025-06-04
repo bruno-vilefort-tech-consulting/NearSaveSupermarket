@@ -288,6 +288,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('🔍 [PIX CONFIRM] Iniciando confirmação:', { tempOrderId, pixPaymentId });
       console.log('🔍 [PIX CONFIRM] Dados do cliente recebidos:', customerData);
       
+      // Inicializar cache de processamento se não existir
+      if (!(global as any).processingOrders) {
+        (global as any).processingOrders = new Set();
+      }
+      
       // Verificar se o pedido já está sendo processado (proteção contra chamadas simultâneas)
       if ((global as any).processingOrders.has(tempOrderId)) {
         console.log('⚠️ [PIX CONFIRM] Pedido já está sendo processado:', tempOrderId);
@@ -299,104 +304,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       try {
         // Verificar se já existe um pedido para este PIX (proteção contra duplicação)
+        console.log('🔍 [PIX CONFIRM] Verificando pedido existente...');
         const existingOrder = await storage.getOrderByExternalReference(tempOrderId);
         if (existingOrder) {
           console.log('⚠️ Pedido já existe para este PIX:', existingOrder.id);
           return res.json({ order: existingOrder, paymentStatus: { status: 'approved' } });
         }
       
-      // Buscar dados temporários do pedido
-      let tempOrderData;
-      if ((global as any).tempOrders && (global as any).tempOrders.has(tempOrderId)) {
-        tempOrderData = (global as any).tempOrders.get(tempOrderId);
-        console.log('✅ Dados encontrados na memória do servidor');
-      } else {
-        // Se os dados não estão na memória (servidor reiniciou), usar dados do frontend
-        console.log('⚠️ Dados temporários não encontrados na memória, usando dados do frontend...');
-        
-        if (!customerData) {
-          return res.status(400).json({ message: "Dados do pedido não encontrados e nenhum dado foi enviado pelo frontend" });
+        // Validar dados obrigatórios
+        if (!pixPaymentId || !tempOrderId) {
+          throw new Error('PIX Payment ID e Temp Order ID são obrigatórios');
+        }
+
+        // Buscar dados temporários do pedido
+        let tempOrderData;
+        if ((global as any).tempOrders && (global as any).tempOrders.has(tempOrderId)) {
+          tempOrderData = (global as any).tempOrders.get(tempOrderId);
+          console.log('✅ Dados encontrados na memória do servidor');
+        } else {
+          // Se os dados não estão na memória (servidor reiniciou), usar dados do frontend
+          console.log('⚠️ Dados temporários não encontrados na memória, usando dados do frontend...');
+          
+          if (!customerData || !customerData.customerName || !customerData.customerEmail || !customerData.items) {
+            console.error('❌ Dados do cliente incompletos:', customerData);
+            throw new Error('Dados do pedido incompletos. Campos obrigatórios: customerName, customerEmail, items');
+          }
+          
+          // Usar dados do cliente enviados pelo frontend
+          tempOrderData = {
+            tempOrderId,
+            customerName: customerData.customerName,
+            customerEmail: customerData.customerEmail,
+            customerPhone: customerData.customerPhone || '',
+            totalAmount: customerData.totalAmount,
+            items: customerData.items,
+            pixPaymentId: pixPaymentId,
+            createdAt: new Date().toISOString()
+          };
+          
+          console.log('✅ Usando dados do cliente enviados pelo frontend');
         }
         
-        // Verificar se o pagamento existe no Mercado Pago
-        const paymentInfo = await getPaymentStatus(pixPaymentId);
-        if (!paymentInfo) {
-          return res.status(404).json({ message: "Pagamento PIX não encontrado" });
+        console.log('🔍 [PIX CONFIRM] Verificando status do pagamento no Mercado Pago...');
+        // Verificar status do pagamento no Mercado Pago
+        const paymentStatus = await getPaymentStatus(pixPaymentId);
+        console.log('🔍 [PIX CONFIRM] Status do pagamento:', paymentStatus);
+        
+        if (!paymentStatus || paymentStatus.status !== 'approved') {
+          console.log('❌ [PIX CONFIRM] Pagamento não aprovado:', paymentStatus?.status || 'STATUS_NOT_FOUND');
+          throw new Error(`Pagamento não aprovado. Status: ${paymentStatus?.status || 'UNKNOWN'}`);
         }
         
-        // Usar dados do cliente enviados pelo frontend
-        tempOrderData = {
-          tempOrderId,
-          customerName: customerData.customerName,
-          customerEmail: customerData.customerEmail,
-          customerPhone: customerData.customerPhone,
-          totalAmount: customerData.totalAmount,
-          items: customerData.items,
-          pixPaymentId: pixPaymentId,
-          createdAt: new Date().toISOString()
+        console.log('✅ [PIX CONFIRM] Pagamento aprovado, criando pedido...');
+        
+        // Validar itens do pedido
+        if (!tempOrderData.items || !Array.isArray(tempOrderData.items) || tempOrderData.items.length === 0) {
+          throw new Error('Nenhum item encontrado no pedido');
+        }
+
+        // Criar pedido real no banco de dados
+        const orderData = {
+          customerName: tempOrderData.customerName,
+          customerEmail: tempOrderData.customerEmail,
+          customerPhone: tempOrderData.customerPhone,
+          status: "pending",
+          fulfillmentMethod: "pickup",
+          deliveryAddress: null,
+          totalAmount: tempOrderData.totalAmount.toString(),
+          externalReference: tempOrderId
         };
-        
-        console.log('✅ Usando dados do cliente enviados pelo frontend');
-      }
-      
-      console.log('🔍 [PIX CONFIRM] Verificando status do pagamento no Mercado Pago...');
-      // Verificar status do pagamento no Mercado Pago
-      const paymentStatus = await getPaymentStatus(pixPaymentId);
-      console.log('🔍 [PIX CONFIRM] Status do pagamento:', paymentStatus);
-      
-      if (paymentStatus.status !== 'approved') {
-        console.log('❌ [PIX CONFIRM] Pagamento não aprovado:', paymentStatus.status);
-        return res.status(400).json({ 
-          message: "Pagamento não foi aprovado", 
-          status: paymentStatus.status 
+        console.log('🔍 [PIX CONFIRM] Dados do pedido:', orderData);
+
+        const orderItems = tempOrderData.items.map((item: any) => {
+          if (!item.productId || !item.quantity || !item.priceAtTime) {
+            throw new Error(`Item inválido no pedido: ${JSON.stringify(item)}`);
+          }
+          return {
+            productId: parseInt(item.productId),
+            quantity: parseInt(item.quantity),
+            priceAtTime: item.priceAtTime.toString()
+          };
         });
-      }
-      
-      console.log('✅ [PIX CONFIRM] Pagamento aprovado, criando pedido...');
-      // Criar pedido real no banco de dados
-      const orderData = {
-        customerName: tempOrderData.customerName,
-        customerEmail: tempOrderData.customerEmail,
-        customerPhone: tempOrderData.customerPhone,
-        status: "pending",
-        fulfillmentMethod: "pickup",
-        deliveryAddress: null,
-        totalAmount: tempOrderData.totalAmount,
-        externalReference: tempOrderId // Adicionar referência externa para evitar duplicação
-      };
-      console.log('🔍 [PIX CONFIRM] Dados do pedido:', orderData);
+        console.log('🔍 [PIX CONFIRM] Itens do pedido:', orderItems);
 
-      const orderItems = tempOrderData.items.map((item: any) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        priceAtTime: item.priceAtTime
-      }));
-      console.log('🔍 [PIX CONFIRM] Itens do pedido:', orderItems);
-
-      console.log('🔍 [PIX CONFIRM] Chamando storage.createOrder...');
-      const order = await storage.createOrder(orderData, orderItems);
-      console.log('✅ [PIX CONFIRM] Pedido criado com sucesso:', order);
-      
-      // Remover dados temporários
-      if ((global as any).tempOrders) {
-        (global as any).tempOrders.delete(tempOrderId);
-      }
-      
+        console.log('🔍 [PIX CONFIRM] Chamando storage.createOrder...');
+        const order = await storage.createOrder(orderData, orderItems);
+        console.log('✅ [PIX CONFIRM] Pedido criado com sucesso:', order);
+        
+        // Remover dados temporários
+        if ((global as any).tempOrders) {
+          (global as any).tempOrders.delete(tempOrderId);
+        }
+        
         console.log('✅ Pedido confirmado e criado:', order.id);
         res.json({ order, paymentStatus });
         
       } catch (orderError: any) {
         console.error('❌ Erro ao confirmar pagamento PIX:', orderError);
-        res.status(500).json({ message: "Erro ao confirmar pagamento PIX", error: orderError.message });
+        console.error('❌ Stack trace:', orderError.stack);
+        res.status(500).json({ 
+          message: "Erro ao confirmar pagamento PIX", 
+          error: orderError.message,
+          tempOrderId: tempOrderId
+        });
       } finally {
         // Remover do cache de processamento
-        (global as any).processingOrders.delete(tempOrderId);
+        if ((global as any).processingOrders) {
+          (global as any).processingOrders.delete(tempOrderId);
+        }
       }
     } catch (error: any) {
       console.error('❌ Erro geral ao processar PIX:', error);
+      console.error('❌ Stack trace:', error.stack);
       // Remover do cache de processamento em caso de erro
-      (global as any).processingOrders.delete(tempOrderId);
-      res.status(500).json({ message: "Erro ao processar pagamento PIX", error: error.message });
+      if ((global as any).processingOrders) {
+        (global as any).processingOrders.delete(tempOrderId);
+      }
+      res.status(500).json({ 
+        message: "Erro ao processar pagamento PIX", 
+        error: error.message,
+        tempOrderId: tempOrderId
+      });
     }
   });
 
