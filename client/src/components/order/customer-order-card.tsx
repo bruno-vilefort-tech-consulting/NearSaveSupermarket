@@ -76,6 +76,24 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
     }
   };
 
+  // Mutation para expirar pagamento automaticamente
+  const expirePaymentMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", `/api/orders/${order.id}/expire-payment`);
+      if (!response.ok) {
+        throw new Error("Erro ao expirar pagamento");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      console.log(`Payment expired for order ${order.id}`);
+      queryClient.invalidateQueries({ queryKey: ["/api/customer/orders"] });
+    },
+    onError: (error: Error) => {
+      console.error('Error expiring payment:', error);
+    }
+  });
+
   // useEffect para o countdown timer
   useEffect(() => {
     if (order.status === 'awaiting_payment' && order.pixExpirationDate) {
@@ -148,24 +166,6 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
     });
   };
 
-  // Mutation para expirar pagamento automaticamente
-  const expirePaymentMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", `/api/orders/${order.id}/expire-payment`);
-      if (!response.ok) {
-        throw new Error("Erro ao expirar pagamento");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      console.log(`Payment expired for order ${order.id}`);
-      queryClient.invalidateQueries({ queryKey: ["/api/customer/orders"] });
-    },
-    onError: (error: Error) => {
-      console.error('Error expiring payment:', error);
-    }
-  });
-
   // Verificar se o pedido pode ser cancelado
   const canCancel = () => {
     return order.status === 'pending' || order.status === 'confirmed';
@@ -193,15 +193,23 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
       case 'pending': return 'Pendente';
       case 'confirmed': return 'Confirmado';
       case 'preparing': return 'Preparando';
-      case 'ready': return 'Pronto';
+      case 'ready': return 'Pronto para Retirada';
       case 'shipped': return 'Enviado';
       case 'completed': return 'Concluído';
       case 'cancelled': return 'Cancelado';
       case 'awaiting_payment': return 'Aguardando Pagamento';
       case 'payment_confirmed': return 'Pagamento Confirmado';
       case 'payment_failed': return 'Pagamento Falhou';
-      case 'payment_expired': return 'Pagamento não confirmado';
+      case 'payment_expired': return 'Pagamento Expirado';
       default: return status;
+    }
+  };
+
+  const getFulfillmentText = (method: string) => {
+    switch (method) {
+      case 'pickup': return 'Retirada no Local';
+      case 'delivery': return 'Entrega';
+      default: return method;
     }
   };
 
@@ -213,118 +221,64 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
       case 'ready': return <CheckCircle className="h-4 w-4" />;
       case 'shipped': return <Truck className="h-4 w-4" />;
       case 'completed': return <CheckCircle className="h-4 w-4" />;
-      case 'cancelled': return <Clock className="h-4 w-4" />;
+      case 'cancelled': return <X className="h-4 w-4" />;
+      case 'awaiting_payment': return <Clock className="h-4 w-4" />;
+      case 'payment_confirmed': return <CheckCircle className="h-4 w-4" />;
+      case 'payment_failed': return <X className="h-4 w-4" />;
+      case 'payment_expired': return <X className="h-4 w-4" />;
       default: return <Package className="h-4 w-4" />;
     }
   };
 
   return (
-    <Card className="bg-white shadow-sm">
+    <Card className="w-full shadow-md hover:shadow-lg transition-shadow duration-200">
       <CardContent className="p-4 space-y-4">
         {/* Header do Pedido */}
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">Pedido #{order.id}</h3>
-            {order.supermarketName && (
-              <p className="text-sm text-blue-600 font-medium">
-                📍 {order.supermarketName}
-              </p>
-            )}
-            <div className="flex items-center text-sm text-gray-600 mt-1">
-              <Calendar className="h-3 w-3 mr-1" />
-              {new Date(order.createdAt).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </div>
-          </div>
-          <Badge className={`${getStatusColor(order.status)} border-0`}>
-            <div className="flex items-center gap-1">
-              {getStatusIcon(order.status)}
-              {getStatusText(order.status)}
-            </div>
-          </Badge>
-        </div>
-
-        {/* Timeline do Pedido */}
-        <div className="bg-gray-50 rounded-lg p-3">
-          <h4 className="text-sm font-medium mb-2">Status do Pedido</h4>
-          <OrderTimelineCompact 
-            currentStatus={order.status}
-            fulfillmentMethod={order.fulfillmentMethod}
-            showLabels={false}
-          />
-        </div>
-
-        {/* Informações do Pedido */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">Valor Total:</span>
-            <div className="flex items-center gap-1">
-              <DollarSign className="h-3 w-3 text-green-600" />
-              <span className="font-semibold text-green-600">
-                {formatPrice(order.totalAmount)}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">Forma de Retirada:</span>
-            <div className="flex items-center gap-1">
-              {order.fulfillmentMethod === 'delivery' ? (
-                <>
-                  <Truck className="h-3 w-3" />
-                  <span>Entrega</span>
-                </>
-              ) : (
-                <>
-                  <MapPin className="h-3 w-3" />
-                  <span>Retirada</span>
-                </>
+          <div className="flex items-center gap-3">
+            <Package className="h-6 w-6 text-eco-green" />
+            <div>
+              <h3 className="font-semibold text-lg">Pedido #{order.id}</h3>
+              {order.supermarketName && (
+                <p className="text-sm text-gray-600">{order.supermarketName}</p>
               )}
             </div>
           </div>
-
-          {order.deliveryAddress && (
-            <div className="text-sm">
-              <span className="text-gray-600">Endereço: </span>
-              <span>{order.deliveryAddress}</span>
+          <div className="text-right">
+            <div className="text-lg font-bold text-eco-green">{formatPrice(order.totalAmount)}</div>
+            <div className="text-xs text-gray-500">
+              {new Date(order.createdAt).toLocaleDateString('pt-BR')}
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Itens do Pedido */}
-        <div>
-          <h4 className="text-sm font-medium mb-2">
-            Itens ({order.orderItems.length})
-          </h4>
-          <div className="space-y-2">
+        {/* Status e Método de Entrega */}
+        <div className="flex items-center justify-between">
+          <Badge className={`${getStatusColor(order.status)} flex items-center gap-1`}>
+            {getStatusIcon(order.status)}
+            {getStatusText(order.status)}
+          </Badge>
+          <div className="flex items-center gap-1 text-sm text-gray-600">
+            <MapPin className="h-3 w-3" />
+            {getFulfillmentText(order.fulfillmentMethod)}
+          </div>
+        </div>
+
+        {/* Timeline do Pedido */}
+        <OrderTimelineCompact status={order.status} />
+
+        {/* Lista de Itens */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium">Itens do Pedido</h4>
+          <div className="space-y-1">
             {order.orderItems.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                {item.product.imageUrl ? (
-                  <img 
-                    src={item.product.imageUrl} 
-                    alt={item.product.name}
-                    className="w-10 h-10 object-cover rounded-lg"
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <Package className="h-4 w-4 text-gray-400" />
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {item.product.name}
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    Qtd: {item.quantity} × {formatPrice(item.priceAtTime)}
-                  </p>
+              <div key={item.id} className="flex justify-between items-center text-sm py-1">
+                <div className="flex-1">
+                  <span className="font-medium">{item.product.name}</span>
+                  <span className="text-gray-500 ml-2">x{item.quantity}</span>
                 </div>
-                <div className="text-sm font-semibold">
-                  {formatPrice((parseFloat(item.priceAtTime) * item.quantity).toString())}
+                <div className="text-right">
+                  <span className="font-medium">{formatPrice((parseFloat(item.priceAtTime) * item.quantity).toString())}</span>
                 </div>
               </div>
             ))}
