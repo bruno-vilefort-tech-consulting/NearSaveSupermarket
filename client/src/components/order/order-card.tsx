@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Select, 
   SelectContent, 
@@ -9,11 +10,12 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Truck, Clock, Package } from "lucide-react";
+import { Truck, Clock, Package, CreditCard, AlertTriangle, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { PixRefundButton } from "./pix-refund-button";
+import { useState } from "react";
 
 interface OrderCardProps {
   order: {
@@ -80,6 +82,7 @@ const getNextStatus = (currentStatus: string, fulfillmentMethod: string) => {
 export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const updateStatusMutation = useMutation({
     mutationFn: async (newStatus: string) => {
@@ -216,23 +219,23 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   };
 
   const handleCancelOrder = () => {
+    setShowCancelDialog(true);
+  };
+
+  const confirmCancelOrder = () => {
     const hasPixPayment = order.externalReference && order.pixPaymentId;
     
     if (hasPixPayment) {
-      const confirmMessage = `Tem certeza que deseja cancelar este pedido?\n\nEste pedido possui pagamento PIX que será automaticamente estornado.\n\nValor: R$ ${parseFloat(order.totalAmount).toFixed(2)}`;
-      
-      if (window.confirm(confirmMessage)) {
-        // Primeiro processa o estorno PIX, depois cancela o pedido
-        refundMutation.mutate({ 
-          orderId: order.id, 
-          reason: 'Cancelamento de pedido com estorno automático' 
-        });
-      }
+      // Primeiro processa o estorno PIX, depois cancela o pedido
+      refundMutation.mutate({ 
+        orderId: order.id, 
+        reason: 'Cancelamento de pedido com estorno automático' 
+      });
     } else {
-      if (window.confirm('Tem certeza que deseja cancelar este pedido?')) {
-        updateStatusMutation.mutate("cancelled");
-      }
+      updateStatusMutation.mutate("cancelled");
     }
+    
+    setShowCancelDialog(false);
   };
 
   // Verifica se o pedido pode ser cancelado (não está cancelado nem concluído)
@@ -331,6 +334,81 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
           )}
         </div>
       </CardContent>
+
+      {/* Modal de Confirmação de Cancelamento */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Cancelar Pedido
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Tem certeza que deseja cancelar o pedido #{order.id}?
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+              <div className="flex justify-between">
+                <span className="font-medium">Cliente:</span>
+                <span>{order.customerName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Valor Total:</span>
+                <span className="font-semibold text-green-600">
+                  R$ {parseFloat(order.totalAmount).toFixed(2)}
+                </span>
+              </div>
+              
+              {order.externalReference && order.pixPaymentId && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
+                    <CreditCard className="h-4 w-4" />
+                    Pagamento PIX Detectado
+                  </div>
+                  <p className="text-sm text-blue-600">
+                    Este pedido possui pagamento PIX que será <strong>automaticamente estornado</strong> após o cancelamento.
+                  </p>
+                  <div className="flex items-center gap-1 mt-2 text-xs text-blue-500">
+                    <RefreshCw className="h-3 w-3" />
+                    O estorno será processado pelo Mercado Pago
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <p className="text-sm text-gray-600 mt-4">
+              Esta ação não pode ser desfeita. O pedido será marcado como cancelado.
+            </p>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowCancelDialog(false)}
+              className="flex-1"
+            >
+              Manter Pedido
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmCancelOrder}
+              disabled={updateStatusMutation.isPending || refundMutation.isPending}
+              className="flex-1"
+            >
+              {(updateStatusMutation.isPending || refundMutation.isPending) ? (
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Processando...
+                </div>
+              ) : (
+                "Sim, Cancelar"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
