@@ -77,6 +77,9 @@ export function OrderTimeline({ currentStatus, fulfillmentMethod, createdAt }: O
   const currentStepIndex = steps.findIndex(step => step.id === currentStatus);
 
   const getStepStatus = (stepIndex: number) => {
+    // For cancelled orders, show the cancelled step as current
+    if (currentStatus === "cancelled") return "current";
+    
     if (stepIndex < currentStepIndex) return "completed";
     if (stepIndex === currentStepIndex) return "current";
     return "pending";
@@ -119,14 +122,16 @@ export function OrderTimeline({ currentStatus, fulfillmentMethod, createdAt }: O
                 {/* Ícone do step */}
                 <div 
                   className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                    status === "completed" 
+                    currentStatus === "cancelled"
+                      ? "bg-red-500 border-red-500 text-white"
+                      : status === "completed" 
                       ? "bg-green-500 border-green-500 text-white" 
                       : status === "current"
                       ? "bg-blue-500 border-blue-500 text-white animate-pulse"
                       : "bg-gray-100 border-gray-300 text-gray-400"
                   }`}
                 >
-                  {status === "completed" ? (
+                  {status === "completed" && currentStatus !== "cancelled" ? (
                     <Check className="w-4 h-4" />
                   ) : (
                     step.icon
