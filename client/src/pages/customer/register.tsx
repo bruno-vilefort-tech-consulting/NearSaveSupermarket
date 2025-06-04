@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Leaf, User, Mail, Lock, Phone, FileText, ArrowLeft } from "lucide-react";
+import { Leaf, User, Mail, Lock, Phone, FileText, ArrowLeft, Check, X } from "lucide-react";
 
 type RegisterFormData = {
   cpf: string;
@@ -28,18 +28,56 @@ export default function CustomerRegister() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [cpfValid, setCpfValid] = useState<boolean | null>(null);
+  const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
+
+  // Função para validar CPF
+  const validateCPF = (cpf: string): boolean => {
+    // Remove caracteres não numéricos
+    const cleanCPF = cpf.replace(/[^\d]/g, '');
+    
+    // Verifica se tem 11 dígitos
+    if (cleanCPF.length !== 11) return false;
+    
+    // Verifica se não são todos números iguais
+    if (/^(\d)\1{10}$/.test(cleanCPF)) return false;
+    
+    // Valida primeiro dígito verificador
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(cleanCPF[i]) * (10 - i);
+    }
+    let digit1 = 11 - (sum % 11);
+    if (digit1 >= 10) digit1 = 0;
+    
+    // Valida segundo dígito verificador
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(cleanCPF[i]) * (11 - i);
+    }
+    let digit2 = 11 - (sum % 11);
+    if (digit2 >= 10) digit2 = 0;
+    
+    return parseInt(cleanCPF[9]) === digit1 && parseInt(cleanCPF[10]) === digit2;
+  };
 
   const registerSchema = z.object({
     cpf: z.string()
-      .min(11, t('validation.cpfMinLength'))
-      .max(14, t('validation.cpfInvalid'))
-      .regex(/^[0-9.-]+$/, t('validation.cpfFormat')),
+      .min(1, 'CPF é obrigatório')
+      .refine((cpf) => {
+        const cleanCPF = cpf.replace(/[^\d]/g, '');
+        return cleanCPF.length === 11;
+      }, 'CPF deve ter 11 dígitos')
+      .refine(validateCPF, 'CPF inválido'),
     fullName: z.string()
       .min(2, t('validation.nameMinLength'))
       .max(100, t('validation.nameTooLong')),
     phone: z.string()
-      .min(10, t('validation.phoneMinLength'))
-      .max(15, t('validation.phoneInvalid')),
+      .min(1, 'Telefone é obrigatório')
+      .refine((phone) => {
+        const cleanPhone = phone.replace(/[^\d]/g, '');
+        return cleanPhone.length === 11;
+      }, 'Telefone deve ter 11 dígitos (DDD + 9 dígitos)'),
     email: z.string().email(t('validation.emailInvalid')),
     password: z.string()
       .min(6, t('validation.passwordMinLength'))
@@ -93,20 +131,30 @@ export default function CustomerRegister() {
   };
 
   const formatCPF = (value: string) => {
-    return value
-      .replace(/\D/g, '')
+    const cleanValue = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos
+    const limitedValue = cleanValue.slice(0, 11);
+    
+    return limitedValue
       .replace(/(\d{3})(\d)/, '$1.$2')
       .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-      .replace(/(-\d{2})\d+?$/, '$1');
+      .replace(/(\d{3})(\d{1,2})/, '$1-$2');
   };
 
   const formatPhone = (value: string) => {
-    return value
-      .replace(/\D/g, '')
-      .replace(/(\d{2})(\d)/, '($1) $2')
-      .replace(/(\d{4,5})(\d{4})/, '$1-$2')
-      .replace(/(-\d{4})\d+?$/, '$1');
+    const cleanValue = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos
+    const limitedValue = cleanValue.slice(0, 11);
+    
+    if (limitedValue.length <= 2) {
+      return `(${limitedValue}`;
+    } else if (limitedValue.length <= 7) {
+      return `(${limitedValue.slice(0, 2)}) ${limitedValue.slice(2)}`;
+    } else {
+      return `(${limitedValue.slice(0, 2)}) ${limitedValue.slice(2, 7)}-${limitedValue.slice(7)}`;
+    }
   };
 
   return (
@@ -153,12 +201,34 @@ export default function CustomerRegister() {
                           <Input
                             {...field}
                             placeholder="000.000.000-00"
-                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
+                            className={`pl-10 pr-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green ${
+                              cpfValid === true ? 'border-eco-green' : 
+                              cpfValid === false ? 'border-red-500' : ''
+                            }`}
                             onChange={(e) => {
                               const formatted = formatCPF(e.target.value);
                               field.onChange(formatted);
+                              
+                              // Validação em tempo real
+                              const cleanCPF = formatted.replace(/[^\d]/g, '');
+                              if (cleanCPF.length === 11) {
+                                setCpfValid(validateCPF(formatted));
+                              } else if (cleanCPF.length === 0) {
+                                setCpfValid(null);
+                              } else {
+                                setCpfValid(false);
+                              }
                             }}
                           />
+                          {cpfValid !== null && (
+                            <div className="absolute right-3 top-3">
+                              {cpfValid ? (
+                                <Check className="h-4 w-4 text-eco-green" />
+                              ) : (
+                                <X className="h-4 w-4 text-red-500" />
+                              )}
+                            </div>
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -199,12 +269,34 @@ export default function CustomerRegister() {
                           <Input
                             {...field}
                             placeholder="(11) 99999-9999"
-                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
+                            className={`pl-10 pr-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green ${
+                              phoneValid === true ? 'border-eco-green' : 
+                              phoneValid === false ? 'border-red-500' : ''
+                            }`}
                             onChange={(e) => {
                               const formatted = formatPhone(e.target.value);
                               field.onChange(formatted);
+                              
+                              // Validação em tempo real
+                              const cleanPhone = formatted.replace(/[^\d]/g, '');
+                              if (cleanPhone.length === 11) {
+                                setPhoneValid(true);
+                              } else if (cleanPhone.length === 0) {
+                                setPhoneValid(null);
+                              } else {
+                                setPhoneValid(false);
+                              }
                             }}
                           />
+                          {phoneValid !== null && (
+                            <div className="absolute right-3 top-3">
+                              {phoneValid ? (
+                                <Check className="h-4 w-4 text-eco-green" />
+                              ) : (
+                                <X className="h-4 w-4 text-red-500" />
+                              )}
+                            </div>
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />
