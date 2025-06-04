@@ -533,7 +533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      if (order.status === 'cancelled') {
+      if (order.status === 'cancelled-customer' || order.status === 'cancelled-staff') {
         return res.status(400).json({ 
           message: "Este pedido já foi cancelado" 
         });
@@ -574,9 +574,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Even if refund was already processed, we still need to update order status to cancelled
       }
 
-      // SEMPRE atualizar status do pedido para cancelled
-      console.log(`🔄 [CUSTOMER CANCEL] Atualizando status do pedido ${orderId} para 'cancelled'`);
-      const updatedOrder = await storage.updateOrderStatus(parseInt(orderId), 'cancelled', 'CUSTOMER_REQUEST');
+      // SEMPRE atualizar status do pedido para cancelled-customer
+      console.log(`🔄 [CUSTOMER CANCEL] Atualizando status do pedido ${orderId} para 'cancelled-customer'`);
+      const updatedOrder = await storage.updateOrderStatus(parseInt(orderId), 'cancelled-customer', 'CUSTOMER_REQUEST');
       
       if (!updatedOrder) {
         throw new Error('Falha ao atualizar status do pedido');
@@ -586,12 +586,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ 
         message: "Pedido cancelado com sucesso",
-        status: "cancelled",
+        status: "cancelled-customer",
         refundProcessed: !!order.pixPaymentId
       });
 
     } catch (error: any) {
       console.error('❌ [CUSTOMER CANCEL] Erro geral:', error);
+      res.status(500).json({ 
+        message: "Erro interno ao cancelar pedido", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Cancelar pedido por staff (supermercado) - sem estorno PIX automático
+  app.post("/api/staff/orders/:orderId/cancel", async (req, res) => {
+    const { orderId } = req.params;
+    const { reason } = req.body;
+    
+    try {
+      console.log('🔄 [STAFF CANCEL] Iniciando cancelamento do pedido:', orderId);
+      
+      if (!orderId) {
+        return res.status(400).json({ message: "ID do pedido é obrigatório" });
+      }
+
+      // Buscar pedido
+      const order = await storage.getOrder(parseInt(orderId));
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      // Verificar se o pedido pode ser cancelado
+      if (order.status === 'completed') {
+        return res.status(400).json({ 
+          message: "Não é possível cancelar um pedido já concluído" 
+        });
+      }
+
+      if (order.status === 'cancelled-customer' || order.status === 'cancelled-staff') {
+        return res.status(400).json({ 
+          message: "Este pedido já foi cancelado" 
+        });
+      }
+
+      // Atualizar status do pedido para cancelled-staff
+      console.log(`🔄 [STAFF CANCEL] Atualizando status do pedido ${orderId} para 'cancelled-staff'`);
+      const updatedOrder = await storage.updateOrderStatus(parseInt(orderId), 'cancelled-staff', 'STAFF_REQUEST');
+      
+      if (!updatedOrder) {
+        throw new Error('Falha ao atualizar status do pedido');
+      }
+
+      console.log(`✅ [STAFF CANCEL] Pedido ${orderId} cancelado pelo staff com sucesso`);
+
+      res.json({ 
+        message: "Pedido cancelado com sucesso",
+        status: "cancelled-staff",
+        refundProcessed: false // Staff cancellation doesn't automatically process refunds
+      });
+
+    } catch (error: any) {
+      console.error('❌ [STAFF CANCEL] Erro geral:', error);
       res.status(500).json({ 
         message: "Erro interno ao cancelar pedido", 
         error: error.message 

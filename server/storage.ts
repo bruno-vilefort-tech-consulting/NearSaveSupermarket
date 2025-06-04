@@ -967,7 +967,8 @@ export class DatabaseStorage implements IStorage {
       'TIMER_EXPIRATION', // PIX payment expiration
       'PIX_WEBHOOK',      // Mercado Pago webhook confirmations
       'PIX_MANUAL_CHECK', // Manual PIX payment verification
-      'CUSTOMER_REQUEST'  // Customer cancellation requests
+      'CUSTOMER_REQUEST', // Customer cancellation requests
+      'STAFF_REQUEST'     // Staff cancellation requests
     ];
     
     // Only allow explicit staff updates or authorized automatic operations
