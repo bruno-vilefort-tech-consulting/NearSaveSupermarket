@@ -272,21 +272,21 @@ export default function PixPaymentFixed() {
 
   if (!pixData) {
     return (
-      <div className="min-h-screen bg-green-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-eco-green border-t-transparent rounded-full" />
       </div>
     );
   }
 
   if (paymentStatus === 'approved') {
     return (
-      <div className="min-h-screen bg-green-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-eco-green-light">
           <CardContent className="text-center py-8">
-            <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-green-800 mb-2">Pagamento Aprovado!</h2>
-            <p className="text-gray-600 mb-4">Seu pedido foi confirmado e enviado ao supermercado.</p>
-            <p className="text-sm text-gray-500">Redirecionando para seus pedidos...</p>
+            <CheckCircle className="h-16 w-16 text-eco-green mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-eco-green mb-2">Pagamento Aprovado!</h2>
+            <p className="text-eco-gray-dark mb-4">Seu pedido foi confirmado e enviado ao supermercado.</p>
+            <p className="text-sm text-eco-gray">Redirecionando para seus pedidos...</p>
           </CardContent>
         </Card>
       </div>
@@ -294,7 +294,7 @@ export default function PixPaymentFixed() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 p-4">
+    <div className="min-h-screen bg-eco-gray-light p-4">
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center justify-center mb-8 relative">
@@ -302,31 +302,31 @@ export default function PixPaymentFixed() {
             variant="ghost" 
             size="icon" 
             onClick={() => setLocation('/customer/cart')}
-            className="absolute left-0 top-1/2 -translate-y-1/2"
+            className="absolute left-0 top-1/2 -translate-y-1/2 text-eco-gray hover:text-eco-gray-dark"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-green-800 mb-2">Pagamento PIX</h1>
-            <p className="text-sm text-gray-600">Finalize seu pagamento em instantes</p>
+            <h1 className="text-3xl font-bold text-eco-gray-dark mb-2">Pagamento PIX</h1>
+            <p className="text-sm text-eco-gray">Finalize seu pagamento em instantes</p>
           </div>
         </div>
 
         {/* Status Card - Centralizado e destacado */}
-        <Card className="mb-8 shadow-lg border-0 bg-white">
+        <Card className="mb-8 shadow-lg border border-eco-orange-light bg-white">
           <CardContent className="pt-6">
             <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                <Clock className="h-8 w-8 text-orange-600" />
+              <div className="mx-auto w-16 h-16 bg-eco-orange-light rounded-full flex items-center justify-center mb-4">
+                <Clock className="h-8 w-8 text-eco-orange" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Aguardando Pagamento</h3>
-              <p className="text-gray-600 text-sm">Efetue o pagamento antes do tempo esgotar</p>
+              <h3 className="text-xl font-semibold text-eco-gray-dark mb-2">Aguardando Pagamento</h3>
+              <p className="text-eco-gray text-sm">Efetue o pagamento antes do tempo esgotar</p>
             </div>
             
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-lg border border-orange-200">
+            <div className="bg-eco-orange-light p-4 rounded-lg border border-eco-orange">
               <div className="text-center">
-                <p className="text-sm text-gray-600 mb-1">Tempo restante</p>
-                <div className={`text-2xl font-mono font-bold ${isExpired ? 'text-red-600' : 'text-orange-600'}`}>
+                <p className="text-sm text-eco-gray mb-1">Tempo restante</p>
+                <div className={`text-2xl font-mono font-bold ${isExpired ? 'text-red-600' : 'text-eco-orange'}`}>
                   {isExpired ? 'EXPIRADO' : formatTime(timeLeft)}
                 </div>
               </div>
@@ -335,18 +335,18 @@ export default function PixPaymentFixed() {
         </Card>
 
         {/* Código PIX - Melhorado e centralizado */}
-        <Card className="mb-8 shadow-lg border-0 bg-white">
+        <Card className="mb-8 shadow-lg border border-eco-blue-light bg-white">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl text-gray-900">Código PIX</CardTitle>
-            <p className="text-sm text-gray-600 mt-2">
+            <CardTitle className="text-xl text-eco-gray-dark">Código PIX</CardTitle>
+            <p className="text-sm text-eco-gray mt-2">
               Copie o código e cole no seu app bancário
             </p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl border-2 border-dashed border-gray-300">
+              <div className="bg-eco-blue-light p-4 rounded-xl border-2 border-dashed border-eco-blue">
                 <div className="text-center mb-3">
-                  <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">CÓDIGO PIX</p>
+                  <p className="text-xs uppercase tracking-wide text-eco-blue font-semibold">CÓDIGO PIX</p>
                 </div>
                 <div className="bg-white p-3 rounded-lg border break-all text-sm font-mono text-center shadow-sm">
                   {pixData.pixPayment.pixCopyPaste}
@@ -355,7 +355,7 @@ export default function PixPaymentFixed() {
               
               <Button 
                 onClick={() => copyToClipboard(pixData.pixPayment.pixCopyPaste)}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 py-3 text-lg font-semibold shadow-lg"
+                className="w-full bg-eco-green hover:bg-eco-green/90 py-3 text-lg font-semibold shadow-lg rounded-xl"
                 size="lg"
               >
                 <Copy className="h-5 w-5 mr-2" />
@@ -372,7 +372,7 @@ export default function PixPaymentFixed() {
           <Button
             onClick={checkPaymentStatus}
             disabled={isCheckingPayment || isExpired}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-3 text-lg font-semibold shadow-lg"
+            className="w-full bg-eco-blue hover:bg-eco-blue/90 py-3 text-lg font-semibold shadow-lg rounded-xl"
             size="lg"
           >
             {isCheckingPayment ? (
@@ -384,16 +384,16 @@ export default function PixPaymentFixed() {
               'Verificar Pagamento'
             )}
           </Button>
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-eco-gray mt-2">
             O pagamento é verificado automaticamente a cada 10 segundos
           </p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-          <p className="text-sm text-blue-800 font-medium mb-2">
+        <div className="bg-eco-blue-light border border-eco-blue rounded-lg p-4 text-center">
+          <p className="text-sm text-eco-blue font-medium mb-2">
             🔍 Verificação Automática Ativa
           </p>
-          <p className="text-xs text-blue-600">
+          <p className="text-xs text-eco-blue">
             Após efetuar o pagamento PIX, aguarde. O sistema verificará automaticamente a cada 10 segundos. 
             Quando o pagamento for identificado, você será redirecionado automaticamente.
           </p>
