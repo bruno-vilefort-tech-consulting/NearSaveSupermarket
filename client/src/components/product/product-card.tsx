@@ -195,11 +195,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <>
-      <Card className="shadow-sm overflow-hidden">
+      <Card className="shadow-sm overflow-hidden border-eco-green-light hover:shadow-md transition-shadow bg-white">
         <CardContent className="p-4">
           <div className="flex space-x-4">
             {/* Product Image */}
-            <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+            <div className="w-20 h-20 rounded-xl overflow-hidden bg-eco-gray-light flex-shrink-0 ring-1 ring-eco-green-light">
               {product.imageUrl ? (
                 <img 
                   src={product.imageUrl} 
@@ -207,8 +207,8 @@ export function ProductCard({ product }: ProductCardProps) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Package className="text-gray-400" size={24} />
+                <div className="w-full h-full flex items-center justify-center bg-eco-green-light">
+                  <Package className="text-eco-green" size={24} />
                 </div>
               )}
             </div>
@@ -216,21 +216,21 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+                  <h3 className="font-semibold text-eco-gray-dark truncate">{product.name}</h3>
                   {product.description && (
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">{product.description}</p>
+                    <p className="text-sm text-eco-gray mt-1 line-clamp-2">{product.description}</p>
                   )}
                   
                   <div className="flex items-center space-x-4 mt-3">
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-primary-600">
+                      <span className="text-lg font-bold text-eco-green">
                         R$ {parseFloat(product.discountPrice).toFixed(2).replace('.', ',')}
                       </span>
-                      <span className="text-sm text-gray-500 line-through">
+                      <span className="text-sm text-eco-gray line-through">
                         R$ {parseFloat(product.originalPrice).toFixed(2).replace('.', ',')}
                       </span>
                     </div>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    <Badge variant="secondary" className="bg-eco-orange-light text-eco-orange-dark font-medium">
                       {calculateDiscountPercentage()}% OFF
                     </Badge>
                   </div>
@@ -238,7 +238,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-2 text-gray-400 hover:text-gray-600">
+                    <Button variant="ghost" size="sm" className="p-2 text-eco-gray hover:text-eco-orange transition-colors">
                       <MoreVertical size={16} />
                     </Button>
                   </DropdownMenuTrigger>

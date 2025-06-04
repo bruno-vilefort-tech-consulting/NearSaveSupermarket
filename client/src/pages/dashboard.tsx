@@ -19,7 +19,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-gray-light">
       <Header />
       
       <main className="pb-20">
@@ -27,27 +27,27 @@ export default function Dashboard() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-4">
-            <Card className="shadow-sm">
+            <Card className="shadow-sm border-eco-green-light hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">{t('dashboard.stats.products')}</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-sm text-eco-gray">{t('dashboard.stats.products')}</p>
+                    <p className="text-2xl font-bold text-eco-gray-dark">
                       {statsLoading ? "..." : stats?.activeProducts || 0}
                     </p>
                   </div>
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Package className="text-blue-600" size={20} />
+                  <div className="w-10 h-10 bg-eco-green-light rounded-lg flex items-center justify-center shadow-sm">
+                    <Package className="text-eco-green" size={20} />
                   </div>
                 </div>
               </CardContent>
             </Card>
             
-            <Card className="shadow-sm">
+            <Card className="shadow-sm border-eco-orange-light hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">{t('dashboard.stats.orders')}</p>
+                    <p className="text-sm text-eco-gray">{t('dashboard.stats.orders')}</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {statsLoading ? "..." : stats?.pendingOrders || 0}
                     </p>
