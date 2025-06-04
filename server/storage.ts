@@ -992,9 +992,18 @@ export class DatabaseStorage implements IStorage {
       throw new Error(`Order ${id} not found`);
     }
 
-    // Prevent status changes on cancelled orders
-    if (currentOrder.status === 'cancelled') {
-      console.log(`🛑 CANCELLED ORDER: Cannot update status of cancelled order ${id}`);
+    // Prevent status changes on cancelled orders (except cancellation type refinement)
+    const isCancellationTypeRefinement = 
+      currentOrder.status === 'cancelled' && 
+      (status === 'cancelled-customer' || status === 'cancelled-staff');
+    
+    const isAlreadyCancelled = 
+      currentOrder.status === 'cancelled' || 
+      currentOrder.status === 'cancelled-customer' || 
+      currentOrder.status === 'cancelled-staff';
+    
+    if (isAlreadyCancelled && !isCancellationTypeRefinement) {
+      console.log(`🛑 CANCELLED ORDER: Cannot update status of cancelled order ${id} from ${currentOrder.status} to ${status}`);
       throw new Error(`Cannot update status of cancelled order ${id}. Cancelled orders are final.`);
     }
 
