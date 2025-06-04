@@ -269,6 +269,52 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
             )}
           </div>
         </div>
+
+        {/* Botão de Cancelamento */}
+        {canCancel() && (
+          <div className="pt-2 border-t">
+            {!showCancelConfirm ? (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowCancelConfirm(true)}
+                className="w-full text-red-600 border-red-200 hover:bg-red-50"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Cancelar Pedido
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600 text-center">
+                  {order.pixPaymentId ? 
+                    "Deseja cancelar este pedido? O estorno PIX será processado automaticamente." :
+                    "Tem certeza que deseja cancelar este pedido?"
+                  }
+                </p>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowCancelConfirm(false)}
+                    disabled={cancelMutation.isPending}
+                    className="flex-1"
+                  >
+                    Voltar
+                  </Button>
+                  <Button 
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleCancelOrder}
+                    disabled={cancelMutation.isPending}
+                    className="flex-1"
+                  >
+                    {cancelMutation.isPending ? "Cancelando..." : "Confirmar"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
