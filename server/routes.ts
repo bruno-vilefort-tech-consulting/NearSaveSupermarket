@@ -254,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         externalReference: orderId,
       };
 
-      const pixExpirationDate = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
+      const pixExpirationDate = new Date(Date.now() + 60 * 1000); // 60 segundos para teste
       
       const order = await storage.createOrderAwaitingPayment(orderData, items, {
         pixPaymentId: pixPayment.id,
