@@ -39,23 +39,8 @@ const monitoringProxy = new Proxy(originalDb, {
         const updateProxy = originalMethod.call(target, table);
         
         if (table === schema.orders) {
-          console.log(`🚨 CRITICAL: Drizzle orders update detected!`);
-          console.log(`🚨 Stack trace:`, new Error().stack);
-          
-          return new Proxy(updateProxy, {
-            get(updateTarget, updateProp) {
-              if (updateProp === 'set') {
-                return function(values: any) {
-                  if (values.status) {
-                    console.log(`🚨 CRITICAL: Order status being updated to: ${values.status}`);
-                    console.log(`🚨 Call stack:`, new Error().stack);
-                  }
-                  return updateTarget[updateProp].call(updateTarget, values);
-                };
-              }
-              return updateTarget[updateProp];
-            }
-          });
+          // Simplified monitoring without interference
+          console.log(`🔄 Orders update detected`);
         }
         
         return updateProxy;
