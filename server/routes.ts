@@ -329,6 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Verificar status no Mercado Pago
       const paymentStatus = await getPaymentStatus(order.pixPaymentId);
+      console.log(`🔍 Payment status check for order ${orderId}: MP status=${paymentStatus.status}, Order status=${order.status}`);
       
       if (paymentStatus.status === 'approved') {
         if (order.status === 'awaiting_payment') {
@@ -338,6 +339,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             status: 'confirmed', 
             message: 'Pagamento confirmado com sucesso',
             order: updatedOrder
+          });
+        } else {
+          // Para qualquer outro status quando pagamento foi aprovado, considerar confirmado
+          console.log(`✅ Payment already processed for order ${orderId}, returning confirmed status`);
+          return res.json({ 
+            status: 'confirmed', 
+            message: 'Pagamento confirmado - pedido em processamento',
+            order: order
           });
         }
       }
