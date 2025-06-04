@@ -14,7 +14,7 @@ export function OrderTimelineCompact({
   // Handle cancelled statuses - don't show timeline for cancelled orders
   if (currentStatus === 'cancelled-customer' || currentStatus === 'cancelled-staff' || currentStatus === 'cancelled') {
     return (
-      <div className="flex items-center space-x-2 text-sm text-red-500">
+      <div className="flex items-center space-x-2 text-sm text-red-600">
         <span>
           {currentStatus === 'cancelled-customer' && '❌ Cancelado pelo Cliente'}
           {currentStatus === 'cancelled-staff' && '❌ Cancelado pelo Supermercado'}
@@ -57,10 +57,10 @@ export function OrderTimelineCompact({
               className={`
                 flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all duration-300
                 ${isCompleted 
-                  ? "bg-green-500 border-green-500 text-white" 
+                  ? "bg-eco-green border-eco-green text-white" 
                   : isCurrent
-                  ? "bg-blue-500 border-blue-500 text-white animate-pulse"
-                  : "bg-gray-100 border-gray-300 text-gray-400"
+                  ? "bg-eco-blue border-eco-blue text-white animate-pulse"
+                  : "bg-eco-gray-light border-eco-gray text-eco-gray"
                 }
               `}
             >
@@ -76,7 +76,7 @@ export function OrderTimelineCompact({
               <div 
                 className={`
                   w-8 h-0.5 transition-all duration-500
-                  ${isCompleted ? "bg-green-500" : "bg-gray-200"}
+                  ${isCompleted ? "bg-eco-green" : "bg-eco-gray-light"}
                 `}
               />
             )}

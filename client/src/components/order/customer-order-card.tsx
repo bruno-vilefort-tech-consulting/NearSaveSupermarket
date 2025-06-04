@@ -239,18 +239,18 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
-      case 'preparing': return 'bg-orange-100 text-orange-800';
-      case 'ready': return 'bg-green-100 text-green-800';
-      case 'shipped': return 'bg-purple-100 text-purple-800';
-      case 'completed': return 'bg-emerald-100 text-emerald-800';
+      case 'pending': return 'bg-eco-orange-light text-eco-orange-dark';
+      case 'confirmed': return 'bg-eco-blue-light text-eco-blue-dark';
+      case 'preparing': return 'bg-eco-orange-light text-eco-orange-dark';
+      case 'ready': return 'bg-eco-green-light text-eco-green-dark';
+      case 'shipped': return 'bg-eco-blue-light text-eco-blue-dark';
+      case 'completed': return 'bg-eco-green-light text-eco-green-dark';
       case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'awaiting_payment': return 'bg-orange-100 text-orange-800';
-      case 'payment_confirmed': return 'bg-green-100 text-green-800';
+      case 'awaiting_payment': return 'bg-eco-orange-light text-eco-orange-dark';
+      case 'payment_confirmed': return 'bg-eco-green-light text-eco-green-dark';
       case 'payment_failed': return 'bg-red-100 text-red-800';
-      case 'payment_expired': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'payment_expired': return 'bg-eco-gray-light text-eco-gray-dark';
+      default: return 'bg-eco-gray-light text-eco-gray-dark';
     }
   };
 
@@ -297,22 +297,22 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
   };
 
   return (
-    <Card className="w-full shadow-md hover:shadow-lg transition-shadow duration-200">
+    <Card className="w-full shadow-md hover:shadow-lg transition-shadow duration-200 bg-white border-eco-gray-light">
       <CardContent className="p-4 space-y-4">
         {/* Header do Pedido */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Package className="h-6 w-6 text-eco-green" />
             <div>
-              <h3 className="font-semibold text-lg">Pedido #{order.id}</h3>
+              <h3 className="font-semibold text-lg text-eco-gray-dark">Pedido #{order.id}</h3>
               {order.supermarketName && (
-                <p className="text-sm text-gray-600">{order.supermarketName}</p>
+                <p className="text-sm text-eco-gray">{order.supermarketName}</p>
               )}
             </div>
           </div>
           <div className="text-right">
             <div className="text-lg font-bold text-eco-green">{formatPrice(order.totalAmount)}</div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-eco-gray">
               {new Date(order.createdAt).toLocaleDateString('pt-BR')}
             </div>
           </div>
@@ -324,8 +324,8 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
             {getStatusIcon(order.status)}
             {getStatusText(order.status)}
           </Badge>
-          <div className="flex items-center gap-1 text-sm text-gray-600">
-            <MapPin className="h-3 w-3" />
+          <div className="flex items-center gap-1 text-sm text-eco-gray">
+            <MapPin className="h-3 w-3 text-eco-gray" />
             {getFulfillmentText(order.fulfillmentMethod)}
           </div>
         </div>
@@ -338,16 +338,16 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
 
         {/* Lista de Itens */}
         <div className="space-y-2">
-          <h4 className="text-sm font-medium">Itens do Pedido</h4>
+          <h4 className="text-sm font-medium text-eco-gray-dark">Itens do Pedido</h4>
           <div className="space-y-1">
             {order.orderItems.map((item) => (
               <div key={item.id} className="flex justify-between items-center text-sm py-1">
                 <div className="flex-1">
-                  <span className="font-medium">{item.product.name}</span>
-                  <span className="text-gray-500 ml-2">x{item.quantity}</span>
+                  <span className="font-medium text-eco-gray-dark">{item.product.name}</span>
+                  <span className="text-eco-gray ml-2">x{item.quantity}</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-medium">{formatPrice((parseFloat(item.priceAtTime) * item.quantity).toString())}</span>
+                  <span className="font-medium text-eco-green">{formatPrice((parseFloat(item.priceAtTime) * item.quantity).toString())}</span>
                 </div>
               </div>
             ))}
@@ -356,8 +356,8 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
 
         {/* Seção PIX para pedidos aguardando pagamento */}
         {order.status === 'awaiting_payment' && order.pixCopyPaste && order.pixExpirationDate && (
-          <div className="pt-2 border-t">
-            <div className="bg-orange-500 rounded-lg p-4 text-white space-y-3">
+          <div className="pt-2 border-t border-eco-gray-light">
+            <div className="bg-eco-orange rounded-lg p-4 text-white space-y-3">
               {/* Timer PIX */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -400,19 +400,19 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
         )}
 
         {/* Informações de Contato */}
-        <div className="pt-2 border-t">
-          <h4 className="text-sm font-medium mb-2">Dados de Contato</h4>
+        <div className="pt-2 border-t border-eco-gray-light">
+          <h4 className="text-sm font-medium mb-2 text-eco-gray-dark">Dados de Contato</h4>
           <div className="space-y-1 text-sm">
             {order.customerPhone && (
               <div className="flex items-center gap-2">
-                <Phone className="h-3 w-3 text-gray-400" />
-                <span>{order.customerPhone}</span>
+                <Phone className="h-3 w-3 text-eco-gray" />
+                <span className="text-eco-gray-dark">{order.customerPhone}</span>
               </div>
             )}
             {order.customerEmail && (
               <div className="flex items-center gap-2">
-                <Mail className="h-3 w-3 text-gray-400" />
-                <span>{order.customerEmail}</span>
+                <Mail className="h-3 w-3 text-eco-gray" />
+                <span className="text-eco-gray-dark">{order.customerEmail}</span>
               </div>
             )}
           </div>
@@ -420,7 +420,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
 
         {/* Botão de Cancelamento */}
         {canCancel() && (
-          <div className="pt-2 border-t">
+          <div className="pt-2 border-t border-eco-gray-light">
             {!showCancelConfirm ? (
               <Button 
                 variant="outline" 
@@ -433,7 +433,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
               </Button>
             ) : (
               <div className="space-y-2">
-                <p className="text-sm text-gray-600 text-center">
+                <p className="text-sm text-eco-gray text-center">
                   {order.pixPaymentId ? 
                     "Deseja cancelar este pedido? O estorno PIX será processado automaticamente." :
                     "Tem certeza que deseja cancelar este pedido?"
@@ -445,7 +445,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
                     size="sm"
                     onClick={() => setShowCancelConfirm(false)}
                     disabled={cancelMutation.isPending}
-                    className="flex-1"
+                    className="flex-1 border-eco-gray-light text-eco-gray-dark hover:bg-eco-gray-light"
                   >
                     Voltar
                   </Button>
