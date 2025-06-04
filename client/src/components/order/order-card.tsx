@@ -390,10 +390,10 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
             <Button 
               variant="destructive" 
               onClick={confirmCancelOrder}
-              disabled={updateStatusMutation.isPending || refundMutation.isPending}
+              disabled={updateStatusMutation.isPending || cancelOrderMutation.isPending}
               className="flex-1"
             >
-              {(updateStatusMutation.isPending || refundMutation.isPending) ? (
+              {(updateStatusMutation.isPending || cancelOrderMutation.isPending) ? (
                 <div className="flex items-center gap-2">
                   <RefreshCw className="h-4 w-4 animate-spin" />
                   Processando...
