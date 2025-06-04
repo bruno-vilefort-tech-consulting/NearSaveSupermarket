@@ -138,7 +138,6 @@ export default function PixPaymentFixed() {
         
       } else if (result.pixCopyPaste) {
         // Carregar dados do PIX do servidor
-        console.log('🔧 Setting PIX data from server:', { pixCopyPaste: result.pixCopyPaste.substring(0, 50) + '...', expirationDate: result.expirationDate });
         setPixData({
           pixCopyPaste: result.pixCopyPaste,
           id: orderId
@@ -148,7 +147,6 @@ export default function PixPaymentFixed() {
           const expirationTime = new Date(result.expirationDate).getTime();
           const now = new Date().getTime();
           const remainingTime = Math.max(0, Math.floor((expirationTime - now) / 1000));
-          console.log('⏰ Timer calculation:', { expirationTime, now, remainingTime });
           setTimeLeft(remainingTime);
           setIsExpired(remainingTime <= 0);
         }
@@ -196,14 +194,7 @@ export default function PixPaymentFixed() {
     setLocation('/customer/orders');
   };
 
-  // Debug log para verificar estado atual
-  console.log('🔍 PIX Payment page state:', { 
-    pixData: !!pixData, 
-    isExpired, 
-    paymentStatus, 
-    timeLeft,
-    orderId
-  });
+
 
   // Tela de carregamento enquanto busca dados
   if (!pixData && !isExpired && paymentStatus === 'awaiting_payment') {
