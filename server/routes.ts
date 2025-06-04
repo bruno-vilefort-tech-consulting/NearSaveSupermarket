@@ -224,19 +224,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Gerar PIX sem criar pedido
-  app.post("/api/pix/generate", async (req, res) => {
+  // Criar pedido com status awaiting_payment e gerar PIX
+  app.post("/api/orders/create-with-pix", async (req, res) => {
     try {
       const { customerName, customerEmail, customerPhone, totalAmount, items } = req.body;
-      console.log('📝 Gerando PIX sem criar pedido:', { customerName, customerEmail, totalAmount });
+      console.log('💳 Criando pedido com PIX:', { customerName, customerEmail, totalAmount });
       
-      // Gerar ID temporário único para o PIX
-      const tempOrderId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       const pixData: PixPaymentData = {
         amount: parseFloat(totalAmount),
-        description: `Pedido ${tempOrderId}`,
-        orderId: tempOrderId,
+        description: `Pedido EcoMart #${orderId}`,
+        orderId,
         customerEmail,
         customerName,
         customerPhone
@@ -244,34 +243,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const pixPayment = await createPixPayment(pixData);
       
-      // Salvar dados temporários do pedido para criação posterior
-      const tempOrderData = {
-        tempOrderId,
+      // Criar pedido com status awaiting_payment
+      const orderData = {
         customerName,
         customerEmail,
         customerPhone,
-        totalAmount,
-        items,
-        pixPaymentId: pixPayment.id,
-        createdAt: new Date().toISOString()
+        deliveryAddress: null,
+        fulfillmentMethod: 'pickup' as const,
+        totalAmount: totalAmount.toString(),
+        externalReference: orderId,
       };
+
+      const pixExpirationDate = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
       
-      // Em um sistema real, isso seria salvo em cache/Redis
-      // Por enquanto vamos usar uma variável global temporária
-      if (!global.tempOrders) {
-        global.tempOrders = new Map();
-      }
-      global.tempOrders.set(tempOrderId, tempOrderData);
+      const order = await storage.createOrderAwaitingPayment(orderData, items, {
+        pixPaymentId: pixPayment.id,
+        pixCopyPaste: pixPayment.pixCopyPaste,
+        pixExpirationDate
+      });
       
-      console.log('✅ PIX gerado com sucesso:', pixPayment.id);
+      console.log('✅ Pedido criado com sucesso:', order.id);
       res.json({
-        tempOrderId,
+        orderId: order.id,
         pixPayment,
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString() // 30 minutos
+        expirationDate: pixExpirationDate.toISOString()
       });
     } catch (error) {
-      console.error('❌ Erro ao gerar PIX:', error);
-      res.status(500).json({ message: "Erro ao gerar PIX" });
+      console.error('❌ Erro ao criar pedido:', error);
+      res.status(500).json({ message: "Erro ao criar pedido" });
+    }
+  });
+
+  // Verificar status do pagamento PIX e atualizar pedido
+  app.get("/api/orders/:orderId/payment-status", async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      
+      const order = await storage.getOrder(parseInt(orderId));
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      if (!order.pixPaymentId) {
+        return res.status(400).json({ message: "Pedido não possui PIX associado" });
+      }
+
+      // Verificar se o PIX expirou
+      if (order.pixExpirationDate && new Date() > new Date(order.pixExpirationDate)) {
+        if (order.status === 'awaiting_payment') {
+          await storage.updateOrderPaymentStatus(parseInt(orderId), 'payment_failed');
+          return res.json({ 
+            status: 'expired', 
+            message: 'Tempo de pagamento expirado',
+            order: { ...order, status: 'payment_failed' }
+          });
+        }
+      }
+
+      // Verificar status no Mercado Pago
+      const paymentStatus = await getPaymentStatus(order.pixPaymentId);
+      
+      if (paymentStatus.status === 'approved') {
+        if (order.status === 'awaiting_payment') {
+          const updatedOrder = await storage.updateOrderPaymentStatus(parseInt(orderId), 'payment_confirmed');
+          console.log(`✅ Pagamento confirmado para pedido ${orderId}`);
+          return res.json({ 
+            status: 'confirmed', 
+            message: 'Pagamento confirmado com sucesso',
+            order: updatedOrder
+          });
+        }
+      }
+
+      res.json({ 
+        status: order.status, 
+        paymentStatus: paymentStatus.status,
+        expirationDate: order.pixExpirationDate,
+        pixCopyPaste: order.pixCopyPaste
+      });
+    } catch (error) {
+      console.error('❌ Erro ao verificar status:', error);
+      res.status(500).json({ message: "Erro ao verificar status do pagamento" });
     }
   });
 

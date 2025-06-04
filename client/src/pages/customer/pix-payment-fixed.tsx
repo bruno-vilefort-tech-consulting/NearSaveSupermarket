@@ -1,403 +1,354 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useRoute } from 'wouter';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
+import { useLocation, useRoute, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
 import { Copy, CheckCircle, Clock, X, ArrowLeft } from 'lucide-react';
 
 export default function PixPaymentFixed() {
   const [, setLocation] = useLocation();
-  const [match, params] = useRoute('/customer/pix-payment/:tempOrderId');
+  const [match, params] = useRoute('/customer/pix-payment/:orderId');
+  const [orderData, setOrderData] = useState<any>(null);
   const [pixData, setPixData] = useState<any>(null);
-  const [paymentStatus, setPaymentStatus] = useState<string>('pending');
+  const [paymentStatus, setPaymentStatus] = useState<string>('awaiting_payment');
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutos em segundos
   const [isExpired, setIsExpired] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [orderCompleted, setOrderCompleted] = useState(false);
   const { toast } = useToast();
 
-  const tempOrderId = params?.tempOrderId;
+  const orderId = params?.orderId;
 
   useEffect(() => {
-    if (!tempOrderId) {
+    if (!orderId) {
       setLocation('/customer/home');
-      return;
-    }
-
-    // Verificar se o pedido já foi completado
-    const completedOrders = JSON.parse(localStorage.getItem('completedOrders') || '[]');
-    if (completedOrders.includes(tempOrderId)) {
-      console.log('Order already completed:', tempOrderId);
-      setOrderCompleted(true);
-      setPaymentStatus('approved');
-      toast({
-        title: "Pedido Já Processado",
-        description: "Este pedido já foi confirmado anteriormente.",
-      });
-      setTimeout(() => {
-        setLocation('/customer/orders');
-      }, 2000);
       return;
     }
 
     // Carregar dados do PIX do localStorage
-    const savedPixData = localStorage.getItem('pixData');
+    const savedPixData = localStorage.getItem('pixPaymentData');
     if (savedPixData) {
       const data = JSON.parse(savedPixData);
-      if (data.tempOrderId === tempOrderId) {
-        setPixData(data);
+      if (data.orderId === parseInt(orderId)) {
+        setPixData(data.pixPayment);
+        setOrderData(data.customerData);
+        
+        // Calcular tempo restante baseado na data de expiração
+        const expirationTime = new Date(data.expirationDate).getTime();
+        const now = new Date().getTime();
+        const remainingTime = Math.max(0, Math.floor((expirationTime - now) / 1000));
+        
+        setTimeLeft(remainingTime);
+        setIsExpired(remainingTime <= 0);
+        
         console.log('PIX data loaded:', data);
       } else {
-        setLocation('/customer/home');
+        // Se não tem dados do PIX no localStorage, buscar do servidor
+        checkOrderStatus();
       }
     } else {
-      setLocation('/customer/home');
+      // Se não tem dados do PIX no localStorage, buscar do servidor
+      checkOrderStatus();
     }
-  }, [tempOrderId, setLocation, toast]);
+  }, [orderId, setLocation]);
 
-  // Timer para expiração do PIX e verificação automática
+  // Timer para expiração do PIX
   useEffect(() => {
-    if (!pixData) return;
+    if (!pixData || isExpired || paymentStatus === 'payment_confirmed') return;
 
     const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
+      setTimeLeft(prev => {
+        const newTime = prev - 1;
+        if (newTime <= 0) {
           setIsExpired(true);
           toast({
             title: "PIX Expirado",
-            description: "O tempo para pagamento expirou. Tente novamente.",
+            description: "O código PIX expirou. Volte ao carrinho para gerar um novo.",
             variant: "destructive",
           });
           setTimeout(() => {
-            setLocation('/customer/cart');
+            setLocation('/customer/home');
           }, 3000);
           return 0;
         }
-        return prev - 1;
+        return newTime;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [pixData, toast, setLocation]);
+  }, [pixData, isExpired, paymentStatus, toast, setLocation]);
 
   // Verificação automática do pagamento a cada 10 segundos
   useEffect(() => {
-    if (!pixData?.pixPayment?.id || isExpired || paymentStatus === 'approved') return;
+    if (!orderId || isExpired || paymentStatus === 'payment_confirmed') return;
 
     const checkInterval = setInterval(() => {
-      checkPaymentStatus();
+      checkOrderStatus();
     }, 10000); // 10 segundos
 
     return () => clearInterval(checkInterval);
-  }, [pixData, isExpired, paymentStatus]);
+  }, [orderId, isExpired, paymentStatus]);
 
-  // Verificar status do pagamento
-  const checkPaymentStatus = async () => {
-    if (!pixData?.pixPayment?.id || isProcessingPayment || paymentStatus === 'approved' || orderCompleted) return;
+  // Verificar status do pedido e pagamento
+  const checkOrderStatus = async () => {
+    if (!orderId || isCheckingPayment || paymentStatus === 'payment_confirmed') return;
 
-    console.log('🔍 Checking payment status for:', pixData.pixPayment.id);
+    console.log('🔍 Checking order status for:', orderId);
     setIsCheckingPayment(true);
     
     try {
-      const response = await apiRequest("GET", `/api/payments/pix/status/${pixData.pixPayment.id}`);
+      const response = await fetch(`/api/orders/${orderId}/payment-status`);
       
       if (!response.ok) {
-        console.warn(`⚠️ Payment status check failed: HTTP ${response.status}`);
-        return; // Continue verificando em vez de abortar
+        throw new Error('Erro ao verificar status');
       }
-      
-      const status = await response.json();
-      console.log('✅ Payment status received:', status);
-      
-      if (status.status === 'approved' && !isProcessingPayment && !orderCompleted) {
-        console.log('💳 Payment approved! Starting confirmation process...');
-        setIsProcessingPayment(true);
+
+      const result = await response.json();
+      console.log('Order status response:', result);
+
+      if (result.status === 'confirmed') {
+        // Pagamento confirmado
+        setPaymentStatus('payment_confirmed');
         
-        try {
-          console.log('📤 Sending confirmation request with data:', {
-            tempOrderId: pixData.tempOrderId,
-            pixPaymentId: pixData.pixPayment.id,
-            customerEmail: pixData.customerEmail
-          });
-          
-          const confirmResponse = await apiRequest("POST", "/api/pix/confirm", {
-            tempOrderId: pixData.tempOrderId,
-            pixPaymentId: pixData.pixPayment.id,
-            customerData: {
-              customerName: pixData.customerName,
-              customerEmail: pixData.customerEmail,
-              customerPhone: pixData.customerPhone,
-              totalAmount: pixData.totalAmount,
-              items: pixData.items
-            }
-          });
-          
-          if (!confirmResponse.ok) {
-            const errorText = await confirmResponse.text();
-            console.error('❌ Confirmation failed:', confirmResponse.status, errorText);
-            throw new Error(`Confirmation failed: ${confirmResponse.status} - ${errorText}`);
-          }
-          
-          const result = await confirmResponse.json();
-          console.log('✅ Order confirmation successful:', result);
-          
-          // Marcar pedido como completado no localStorage
-          const completedOrders = JSON.parse(localStorage.getItem('completedOrders') || '[]');
-          if (!completedOrders.includes(pixData.tempOrderId)) {
-            completedOrders.push(pixData.tempOrderId);
-            localStorage.setItem('completedOrders', JSON.stringify(completedOrders));
-          }
-          
-          setPaymentStatus('approved');
-          setOrderCompleted(true);
-          
-          toast({
-            title: "Pagamento Identificado!",
-            description: `Seu pedido #${result.order?.id || 'N/A'} foi confirmado e enviado ao supermercado`,
-          });
-          
-          console.log('🧹 Cleaning up localStorage...');
-          // Limpar dados temporários
-          localStorage.removeItem('pixData');
-          localStorage.removeItem('orderData');
-          localStorage.removeItem('cart');
-          
-          // Redirecionar para pedidos após 2 segundos
-          console.log('🔄 Redirecting to orders page...');
-          setTimeout(() => {
-            try {
-              setLocation('/customer/orders');
-            } catch (navError) {
-              console.error('❌ Navigation error:', navError);
-              window.location.href = '/customer/orders';
-            }
-          }, 2000);
-          
-        } catch (confirmError) {
-          console.error('❌ Error during confirmation:', confirmError);
-          setIsProcessingPayment(false);
-          
-          try {
-            // Se o erro for de pedido já existente, redirecionar para pedidos
-            const errorMessage = confirmError instanceof Error ? confirmError.message : String(confirmError);
-            if (errorMessage.includes('já existe') || errorMessage.includes('already exists')) {
-              console.log('✅ Order already exists, redirecting to orders...');
-              setTimeout(() => {
-                try {
-                  setLocation('/customer/orders');
-                } catch (navError) {
-                  console.error('❌ Navigation error:', navError);
-                  window.location.href = '/customer/orders';
-                }
-              }, 1500);
-              toast({
-                title: "Pedido Já Processado",
-                description: "Seu pedido já foi confirmado anteriormente",
-              });
-            } else {
-              // Para outros erros, tentar redirecionar também mas mostrar erro
-              toast({
-                title: "Erro ao Confirmar Pagamento",
-                description: errorMessage || "Erro desconhecido ao confirmar pagamento",
-                variant: "destructive",
-              });
-              
-              // Redirecionar após 3 segundos mesmo com erro
-              setTimeout(() => {
-                try {
-                  setLocation('/customer/orders');
-                } catch (navError) {
-                  console.error('❌ Navigation error:', navError);
-                  window.location.href = '/customer/orders';
-                }
-              }, 3000);
-            }
-          } catch (handlingError) {
-            console.error('❌ Error handling confirmation error:', handlingError);
-            // Fallback: forçar redirecionamento
-            window.location.href = '/customer/orders';
-          }
-        }
-      } else if (status.status === 'rejected' || status.status === 'cancelled') {
-        console.log('❌ Payment rejected/cancelled:', status.status);
-        setPaymentStatus('rejected');
-      } else {
-        console.log('⏳ Payment still pending:', status.status);
-        setPaymentStatus(status.status);
-      }
-    } catch (statusError) {
-      console.error('❌ Error checking payment status:', statusError);
-      
-      // Se for erro de rede, apenas log sem mostrar toast repetitivo
-      if (statusError instanceof TypeError && statusError.message.includes('fetch')) {
-        console.log('🔄 Network error, will retry on next interval...');
-      } else {
-        // Outros erros mostrar toast
+        // Limpar dados temporários do PIX
+        localStorage.removeItem('pixPaymentData');
+        
         toast({
-          title: "Erro de Conexão",
-          description: "Erro ao verificar status do pagamento. Tentando novamente...",
+          title: "Pagamento Confirmado!",
+          description: "Seu pedido foi processado com sucesso.",
+        });
+
+        // Redirecionar para a página de pedidos após 2 segundos
+        setTimeout(() => {
+          setLocation('/customer/orders');
+        }, 2000);
+        
+      } else if (result.status === 'expired') {
+        // PIX expirado
+        setPaymentStatus('payment_failed');
+        setIsExpired(true);
+        console.log('❌ PIX expired');
+        toast({
+          title: "PIX Expirado",
+          description: "O código PIX expirou. Volte ao carrinho para gerar um novo.",
           variant: "destructive",
         });
+        
+      } else if (result.pixCopyPaste && !pixData) {
+        // Carregar dados do PIX do servidor se não estiverem no localStorage
+        setPixData({
+          pixCopyPaste: result.pixCopyPaste,
+          id: orderId
+        });
+        
+        if (result.expirationDate) {
+          const expirationTime = new Date(result.expirationDate).getTime();
+          const now = new Date().getTime();
+          const remainingTime = Math.max(0, Math.floor((expirationTime - now) / 1000));
+          setTimeLeft(remainingTime);
+          setIsExpired(remainingTime <= 0);
+        }
       }
+    } catch (error) {
+      console.error('Erro ao verificar status do pedido:', error);
     } finally {
       setIsCheckingPayment(false);
     }
   };
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
+  const handleCopyPix = () => {
+    if (pixData?.pixCopyPaste) {
+      navigator.clipboard.writeText(pixData.pixCopyPaste);
       toast({
-        title: "Copiado!",
-        description: "Código PIX copiado para a área de transferência",
-      });
-    } catch (error) {
-      console.error('Error copying to clipboard:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível copiar o código",
-        variant: "destructive",
+        title: "PIX Copiado!",
+        description: "O código PIX foi copiado para a área de transferência.",
       });
     }
   };
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (!pixData) {
+  const handleGoBack = () => {
+    // Limpar dados do PIX ao voltar
+    localStorage.removeItem('pixPaymentData');
+    setLocation('/customer/home');
+  };
+
+  // Tela de carregamento enquanto busca dados
+  if (!pixData && !isExpired) {
     return (
       <div className="min-h-screen bg-eco-gray-light flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-eco-green border-t-transparent rounded-full" />
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-eco-blue mx-auto mb-4"></div>
+          <p className="text-eco-gray">Carregando dados do pagamento...</p>
+        </div>
       </div>
     );
   }
 
-  if (paymentStatus === 'approved') {
+  // Status de pagamento confirmado
+  if (paymentStatus === 'payment_confirmed') {
     return (
-      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center p-4">
-        <Card className="w-full max-w-md border-eco-green-light">
-          <CardContent className="text-center py-8">
-            <CheckCircle className="h-16 w-16 text-eco-green mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-eco-green mb-2">Pagamento Aprovado!</h2>
-            <p className="text-eco-gray-dark mb-4">Seu pedido foi confirmado e enviado ao supermercado.</p>
-            <p className="text-sm text-eco-gray">Redirecionando para seus pedidos...</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-eco-gray-light">
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-md mx-auto px-4 py-4 flex items-center">
+            <Link href="/customer/orders">
+              <ArrowLeft className="h-6 w-6 text-eco-gray" />
+            </Link>
+            <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">Pagamento Confirmado</h1>
+          </div>
+        </div>
+
+        <div className="max-w-md mx-auto p-4">
+          <Card className="border-eco-green bg-green-50">
+            <CardContent className="text-center py-8">
+              <CheckCircle className="h-16 w-16 text-eco-green mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-eco-gray-dark mb-2">Pagamento Confirmado!</h2>
+              <p className="text-eco-gray">Seu pedido foi processado com sucesso.</p>
+              <p className="text-sm text-eco-gray mt-2">Redirecionando para seus pedidos...</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // PIX expirado
+  if (isExpired) {
+    return (
+      <div className="min-h-screen bg-eco-gray-light">
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-md mx-auto px-4 py-4 flex items-center">
+            <button onClick={handleGoBack} className="p-1">
+              <ArrowLeft className="h-6 w-6 text-eco-gray" />
+            </button>
+            <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">PIX Expirado</h1>
+          </div>
+        </div>
+
+        <div className="max-w-md mx-auto p-4">
+          <Card className="border-red-300 bg-red-50">
+            <CardContent className="text-center py-8">
+              <X className="h-16 w-16 text-red-500 mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-eco-gray-dark mb-2">PIX Expirado</h2>
+              <p className="text-eco-gray mb-4">O tempo para pagamento expirou.</p>
+              <Button 
+                onClick={handleGoBack}
+                className="bg-eco-green hover:bg-eco-green/90 text-white"
+              >
+                Voltar ao Início
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-eco-gray-light p-4">
-      <div className="max-w-lg mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-center mb-8 relative">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setLocation('/customer/cart')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 text-eco-gray hover:text-eco-gray-dark"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-eco-gray-dark mb-2">Pagamento PIX</h1>
-            <p className="text-sm text-eco-gray">Finalize seu pagamento em instantes</p>
-          </div>
+    <div className="min-h-screen bg-eco-gray-light">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center">
+          <button onClick={handleGoBack} className="p-1">
+            <ArrowLeft className="h-6 w-6 text-eco-gray" />
+          </button>
+          <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">Pagamento PIX</h1>
         </div>
+      </div>
 
-        {/* Status Card - Centralizado e destacado */}
-        <Card className="mb-8 shadow-lg border border-eco-orange-light bg-white">
-          <CardContent className="pt-6">
-            <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-eco-orange-light rounded-full flex items-center justify-center mb-4">
-                <Clock className="h-8 w-8 text-eco-orange" />
-              </div>
-              <h3 className="text-xl font-semibold text-eco-gray-dark mb-2">Aguardando Pagamento</h3>
-              <p className="text-eco-gray text-sm">Efetue o pagamento antes do tempo esgotar</p>
+      <div className="max-w-md mx-auto p-4 space-y-4">
+        {/* Timer */}
+        <Card className="border-eco-orange bg-orange-50">
+          <CardContent className="flex items-center justify-center py-4">
+            <Clock className="h-5 w-5 text-eco-orange mr-2" />
+            <span className="text-lg font-bold text-eco-orange">
+              Tempo restante: {formatTime(timeLeft)}
+            </span>
+          </CardContent>
+        </Card>
+
+        {/* Instruções */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-eco-blue">Como pagar com PIX</CardTitle>
+            <CardDescription>
+              Siga os passos abaixo para finalizar seu pagamento
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-start space-x-3">
+              <div className="w-6 h-6 bg-eco-blue text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+              <p className="text-sm text-eco-gray-dark">Abra o app do seu banco</p>
             </div>
-            
-            <div className="bg-eco-orange-light p-4 rounded-lg border border-eco-orange">
-              <div className="text-center">
-                <p className="text-sm text-eco-gray mb-1">Tempo restante</p>
-                <div className={`text-2xl font-mono font-bold ${isExpired ? 'text-red-600' : 'text-eco-orange'}`}>
-                  {isExpired ? 'EXPIRADO' : formatTime(timeLeft)}
-                </div>
-              </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-6 h-6 bg-eco-blue text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+              <p className="text-sm text-eco-gray-dark">Escolha a opção PIX</p>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-6 h-6 bg-eco-blue text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+              <p className="text-sm text-eco-gray-dark">Cole o código PIX abaixo</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Código PIX - Melhorado e centralizado */}
-        <Card className="mb-8 shadow-lg border border-eco-blue-light bg-white">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl text-eco-gray-dark">Código PIX</CardTitle>
-            <p className="text-sm text-eco-gray mt-2">
-              Copie o código e cole no seu app bancário
-            </p>
+        {/* Código PIX */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-eco-green">Código PIX</CardTitle>
+            <CardDescription>
+              Pedido #{orderId} - {orderData?.customerName}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="bg-eco-blue-light p-4 rounded-xl border-2 border-dashed border-eco-blue">
-                <div className="text-center mb-3">
-                  <p className="text-xs uppercase tracking-wide text-eco-blue font-semibold">CÓDIGO PIX</p>
-                </div>
-                <div className="bg-white p-3 rounded-lg border break-all text-sm font-mono text-center shadow-sm">
-                  {pixData.pixPayment.pixCopyPaste}
-                </div>
+            <div className="bg-eco-gray-light p-3 rounded-lg mb-4">
+              <p className="text-xs text-eco-gray break-all font-mono">
+                {pixData?.pixCopyPaste}
+              </p>
+            </div>
+            <Button 
+              onClick={handleCopyPix}
+              className="w-full bg-eco-green hover:bg-eco-green/90 text-white"
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Copiar Código PIX
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Status */}
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-eco-gray">Status do pagamento:</span>
+              <div className="flex items-center">
+                {isCheckingPayment && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-eco-blue mr-2"></div>
+                )}
+                <span className="text-sm font-medium text-eco-orange">
+                  {paymentStatus === 'awaiting_payment' ? 'Aguardando pagamento' : paymentStatus}
+                </span>
               </div>
-              
-              <Button 
-                onClick={() => copyToClipboard(pixData.pixPayment.pixCopyPaste)}
-                className="w-full bg-eco-green hover:bg-eco-green/90 py-3 text-lg font-semibold shadow-lg rounded-xl"
-                size="lg"
-              >
-                <Copy className="h-5 w-5 mr-2" />
-                Copiar Código PIX
-              </Button>
             </div>
           </CardContent>
         </Card>
 
-
-
-        {/* Botão de verificar pagamento */}
-        <div className="text-center mb-8">
-          <Button
-            onClick={checkPaymentStatus}
-            disabled={isCheckingPayment || isExpired}
-            className="w-full bg-eco-blue hover:bg-eco-blue/90 py-3 text-lg font-semibold shadow-lg rounded-xl"
-            size="lg"
-          >
-            {isCheckingPayment ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                Verificando Pagamento...
+        {/* Valor */}
+        {orderData?.totalAmount && (
+          <Card>
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-eco-gray">Valor total:</span>
+                <span className="text-lg font-bold text-eco-green">
+                  R$ {parseFloat(orderData.totalAmount).toFixed(2)}
+                </span>
               </div>
-            ) : (
-              'Verificar Pagamento'
-            )}
-          </Button>
-          <p className="text-xs text-eco-gray mt-2">
-            O pagamento é verificado automaticamente a cada 10 segundos
-          </p>
-        </div>
-
-        <div className="bg-eco-blue-light border border-eco-blue rounded-lg p-4 text-center">
-          <p className="text-sm text-eco-blue font-medium mb-2">
-            🔍 Verificação Automática Ativa
-          </p>
-          <p className="text-xs text-eco-blue">
-            Após efetuar o pagamento PIX, aguarde. O sistema verificará automaticamente a cada 10 segundos. 
-            Quando o pagamento for identificado, você será redirecionado automaticamente.
-          </p>
-        </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

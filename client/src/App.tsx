@@ -62,7 +62,7 @@ function Router() {
       <Route path="/customer/supermarket-map" component={SupermarketMap} />
       <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/customer/payment" component={CustomerPaymentFixed} />
-      <Route path="/customer/pix-payment/:tempOrderId" component={PixPaymentFixed} />
+      <Route path="/customer/pix-payment/:orderId" component={PixPaymentFixed} />
       <Route path="/customer/card-payment" component={CardPayment} />
       <Route path="/customer/orders" component={CustomerOrders} />
       <Route path="/customer/eco-rewards" component={EcoRewards} />

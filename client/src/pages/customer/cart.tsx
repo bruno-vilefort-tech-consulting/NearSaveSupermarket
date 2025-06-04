@@ -158,7 +158,7 @@ export default function CustomerCart() {
     },
   });
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (deliveryType === "delivery" && !deliveryAddress.trim()) {
       toast({
         title: t('cart.addressRequired'),
@@ -168,24 +168,58 @@ export default function CustomerCart() {
       return;
     }
 
-    // Salvar dados do pedido
-    localStorage.setItem('orderData', JSON.stringify({
-      customerName: customerInfo?.fullName || "",
-      customerEmail: customerInfo?.email || "",
-      customerPhone: customerInfo?.phone || "",
-      fulfillmentMethod: deliveryType === "delivery" ? "delivery" : "pickup",
-      deliveryAddress: deliveryType === "delivery" ? deliveryAddress : null,
-      totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
-      items: cartItems.map(item => ({
-        productId: item.id,
-        productName: item.name,
-        quantity: item.quantity,
-        priceAtTime: item.discountPrice
-      }))
-    }));
+    try {
+      // Criar pedido com status awaiting_payment
+      const orderData = {
+        customerName: customerInfo?.fullName || "",
+        customerEmail: customerInfo?.email || "",
+        customerPhone: customerInfo?.phone || "",
+        totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
+        items: cartItems.map(item => ({
+          productId: item.id,
+          productName: item.name,
+          quantity: item.quantity,
+          priceAtTime: item.discountPrice
+        }))
+      };
 
-    // Redirecionar para a tela de pagamento
-    navigate("/customer/payment");
+      const response = await fetch('/api/orders/create-with-pix', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao criar pedido');
+      }
+
+      const result = await response.json();
+      
+      // Limpar carrinho após criar pedido
+      localStorage.removeItem('cart');
+      setCartItems([]);
+      
+      // Salvar dados do pagamento PIX
+      localStorage.setItem('pixPaymentData', JSON.stringify({
+        orderId: result.orderId,
+        pixPayment: result.pixPayment,
+        expirationDate: result.expirationDate,
+        customerData: orderData
+      }));
+
+      // Redirecionar para tela de pagamento PIX
+      navigate(`/customer/pix-payment/${result.orderId}`);
+      
+    } catch (error) {
+      console.error('Erro ao finalizar pedido:', error);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao finalizar pedido. Tente novamente.',
+        variant: "destructive",
+      });
+    }
   };
 
   if (cartItems.length === 0) {
