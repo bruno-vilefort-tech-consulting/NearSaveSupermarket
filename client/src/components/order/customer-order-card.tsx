@@ -299,7 +299,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
         {/* Seção PIX para pedidos aguardando pagamento */}
         {order.status === 'awaiting_payment' && order.pixCopyPaste && order.pixExpirationDate && (
           <div className="pt-2 border-t">
-            <div className="bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg p-4 text-white space-y-3">
+            <div className="bg-orange-500 rounded-lg p-4 text-white space-y-3">
               {/* Timer PIX */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
