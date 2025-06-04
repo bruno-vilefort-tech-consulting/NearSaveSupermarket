@@ -462,8 +462,9 @@ export class DatabaseStorage implements IStorage {
     // First, get all orders that contain products created by this staff
     let whereConditions = [
       eq(products.createdByStaff, staffId),
-      // Exclude orders with expired payments from staff interface
-      not(eq(orders.status, 'payment_expired'))
+      // Exclude orders with expired payments and awaiting payment from staff interface
+      not(eq(orders.status, 'payment_expired')),
+      not(eq(orders.status, 'awaiting_payment'))
     ];
     
     if (filters?.status) {
@@ -496,8 +497,10 @@ export class DatabaseStorage implements IStorage {
       .where(and(...whereConditions))
       .orderBy(desc(orders.createdAt));
 
-    // Filter out payment_expired orders from the results
-    const filteredOrders = staffOrders.filter(order => order.status !== 'payment_expired');
+    // Filter out payment_expired and awaiting_payment orders from the results
+    const filteredOrders = staffOrders.filter(order => 
+      order.status !== 'payment_expired' && order.status !== 'awaiting_payment'
+    );
 
     // Auto-check PIX refund status for orders with processing refunds
     const ordersWithUpdatedRefunds = await Promise.all(
