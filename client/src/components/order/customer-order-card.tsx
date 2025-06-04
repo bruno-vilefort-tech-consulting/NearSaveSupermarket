@@ -46,6 +46,16 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
   const [timeLeft, setTimeLeft] = useState(0);
   const [isExpired, setIsExpired] = useState(false);
 
+  // Debug: Log order data to understand PIX section visibility
+  console.log('Order debug:', {
+    id: order.id,
+    status: order.status,
+    hasPixCopyPaste: !!order.pixCopyPaste,
+    hasPixExpirationDate: !!order.pixExpirationDate,
+    pixCopyPaste: order.pixCopyPaste?.substring(0, 50) + '...',
+    pixExpirationDate: order.pixExpirationDate
+  });
+
   const formatPrice = (price: string) => {
     return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
   };
@@ -81,7 +91,8 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
     mutationFn: async () => {
       const response = await apiRequest("POST", `/api/orders/${order.id}/expire-payment`);
       if (!response.ok) {
-        throw new Error("Erro ao expirar pagamento");
+        const errorText = await response.text();
+        throw new Error(`Erro ao expirar pagamento: ${errorText}`);
       }
       return response.json();
     },
