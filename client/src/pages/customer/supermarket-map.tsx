@@ -96,8 +96,9 @@ export default function SupermarketMap() {
   );
 
   const createIcon = (hasPromotions: boolean, productCount: number) => {
-    const baseColor = hasPromotions ? '#dc2626' : '#059669';
-    const promotionDot = hasPromotions ? '<div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: #fbbf24; border-radius: 50%; border: 1px solid white;"></div>' : '';
+    // EcoMart color palette - Orange for supermarket markers
+    const baseColor = '#FF7F00'; // eco-orange
+    const promotionDot = hasPromotions ? '<div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: #2E7D57; border-radius: 50%; border: 1px solid white;"></div>' : '';
     
     return L.divIcon({
       html: `
@@ -148,15 +149,15 @@ export default function SupermarketMap() {
   const mapZoom = userLocation ? 13 : 10;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-gray-light">
       {/* Header with back button */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <div className="bg-white shadow-sm border-b border-eco-green-light sticky top-0 z-50">
         <div className="flex items-center justify-between px-4 py-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setLocation('/customer/home')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-2 text-eco-gray hover:text-eco-gray-dark hover:bg-eco-gray-light"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar
@@ -169,7 +170,7 @@ export default function SupermarketMap() {
             size="sm"
             onClick={requestLocation}
             disabled={locationStatus === 'loading'}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
           >
             <Navigation className="h-4 w-4" />
             {locationStatus === 'loading' ? 'Localizando...' : 'Minha Localização'}
@@ -198,8 +199,8 @@ export default function SupermarketMap() {
               <Popup>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <MapPin className="h-4 w-4 text-blue-600" />
-                    <span className="font-medium">Sua Localização</span>
+                    <MapPin className="h-4 w-4 text-eco-blue" />
+                    <span className="font-medium text-eco-gray-dark">Sua Localização</span>
                   </div>
                 </div>
               </Popup>
@@ -218,16 +219,16 @@ export default function SupermarketMap() {
             >
               <Popup>
                 <div className="text-center min-w-[200px] p-2">
-                  <h3 className="font-bold text-lg mb-2 text-gray-900">{supermarket.name}</h3>
-                  <p className="text-sm text-gray-600 mb-3">{supermarket.address}</p>
+                  <h3 className="font-bold text-lg mb-2 text-eco-gray-dark">{supermarket.name}</h3>
+                  <p className="text-sm text-eco-gray mb-3">{supermarket.address}</p>
                   
                   <div className="flex items-center justify-center gap-2 mb-4">
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge variant="secondary" className="flex items-center gap-1 bg-eco-green-light text-eco-green-dark border-eco-green">
                       <Package className="h-3 w-3" />
                       {supermarket.productCount} produtos
                     </Badge>
                     {supermarket.hasPromotions && (
-                      <Badge variant="destructive" className="flex items-center gap-1">
+                      <Badge variant="destructive" className="flex items-center gap-1 bg-eco-orange text-white border-eco-orange">
                         <Percent className="h-3 w-3" />
                         Promoções
                       </Badge>
@@ -236,7 +237,7 @@ export default function SupermarketMap() {
 
                   <Button
                     onClick={() => setLocation(`/customer/supermarket/${supermarket.id}/products`)}
-                    className="w-full bg-green-600 hover:bg-green-700"
+                    className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold rounded-xl transition-colors"
                     size="sm"
                   >
                     Ver Produtos
@@ -250,8 +251,8 @@ export default function SupermarketMap() {
         {/* Floating location status indicator */}
         {locationStatus === 'denied' && (
           <div className="absolute bottom-4 left-4 right-4 z-50">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 shadow-lg">
-              <p className="text-sm text-yellow-800 text-center">
+            <div className="bg-eco-orange-light border border-eco-orange rounded-lg p-3 shadow-lg">
+              <p className="text-sm text-eco-orange-dark text-center">
                 Permita o acesso à localização para uma melhor experiência
               </p>
             </div>
