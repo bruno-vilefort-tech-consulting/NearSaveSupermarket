@@ -94,9 +94,9 @@ export function PixRefundButton({ order }: PixRefundButtonProps) {
   if (order.refundStatus === 'processing' || order.refundStatus === 'refunded') {
     return (
       <div className="flex items-center gap-2">
-        <Badge variant="outline" className="text-blue-600 border-blue-200">
+        <Badge variant="outline" className="text-green-600 border-green-200">
           <RefreshCw size={12} className="mr-1" />
-          {order.refundStatus === 'processing' ? 'Estornando...' : 'Estornado'}
+          {order.refundStatus === 'processing' ? 'Estorno Processado' : 'Estornado'}
         </Badge>
         {order.refundAmount && (
           <span className="text-xs text-gray-500">
