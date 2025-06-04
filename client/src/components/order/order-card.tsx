@@ -254,9 +254,6 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
 
   const getNextStatusLabel = () => {
     const nextStatus = getNextStatus(order.status, order.fulfillmentMethod);
-    if (order.id === 172) {
-      console.log(`🔍 FOCUS Order ${order.id}: status=${order.status}, fulfillmentMethod=${order.fulfillmentMethod}, nextStatus=${nextStatus}, canEditStatus=${canEditStatus}`);
-    }
     if (!nextStatus) return null;
     
     switch (nextStatus) {
@@ -394,16 +391,12 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                 
                 {(() => {
                   const label = getNextStatusLabel();
-                  if (order.id === 172) {
-                    console.log(`🔍 FOCUS Order ${order.id} Button render: label="${label}", canEditStatus=${canEditStatus}`);
-                  }
                   return label && (
                     <Button 
                       size="sm"
                       onClick={handleStatusUpdate}
                       disabled={updateStatusMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700 text-white font-medium border-2 border-green-800"
-                      style={{ minWidth: '120px', visibility: 'visible', display: 'block', zIndex: 999 }}
+                      className="bg-primary-600 hover:bg-primary-700"
                     >
                       {updateStatusMutation.isPending ? "Updating..." : label}
                     </Button>

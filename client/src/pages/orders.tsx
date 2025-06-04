@@ -158,12 +158,9 @@ export default function Orders() {
                 <p className="text-gray-500">Carregando pedidos...</p>
               </div>
             ) : orders && orders.length > 0 ? (
-              orders.map((order: any) => {
-                if (order.id === 172) {
-                  console.log(`🔍 FOCUS Rendering Order ${order.id}:`, order);
-                }
-                return <OrderCard key={order.id} order={order} canEditStatus={true} />;
-              })
+              orders.map((order: any) => (
+                <OrderCard key={order.id} order={order} canEditStatus={true} />
+              ))
             ) : (
               <Card className="shadow-sm">
                 <CardContent className="p-8 text-center">
