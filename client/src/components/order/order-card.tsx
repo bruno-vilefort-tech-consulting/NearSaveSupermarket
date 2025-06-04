@@ -65,8 +65,8 @@ const statusConfig = {
 };
 
 const getNextStatus = (currentStatus: string, fulfillmentMethod: string) => {
-  // Se o pedido foi cancelado, não permite mais mudanças
-  if (currentStatus === "cancelled") {
+  // Se o pedido foi cancelado de qualquer forma, não permite mais mudanças
+  if (currentStatus === "cancelled" || currentStatus === "cancelled-customer" || currentStatus === "cancelled-staff") {
     return null;
   }
 
@@ -113,8 +113,8 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Order status updated successfully",
+        title: "Sucesso",
+        description: "Status do pedido atualizado com sucesso",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/staff/orders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -122,8 +122,8 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     onError: (error) => {
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          title: "Não autorizado",
+          description: "Você foi desconectado. Fazendo login novamente...",
           variant: "destructive",
         });
         setTimeout(() => {
@@ -132,8 +132,8 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
         return;
       }
       toast({
-        title: "Error",
-        description: "Failed to update order status. Please try again.",
+        title: "Erro",
+        description: "Falha ao atualizar status do pedido. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -172,8 +172,8 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          title: "Não autorizado",
+          description: "Você foi desconectado. Fazendo login novamente...",
           variant: "destructive",
         });
         setTimeout(() => {
@@ -283,8 +283,8 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   };
 
   const confirmCancelOrder = () => {
-    // Cancelar apenas o pedido, sem estorno PIX
-    updateStatusMutation.mutate("cancelled");
+    // Cancelar pedido via API do staff (cancelled-staff)
+    updateStatusMutation.mutate("cancelled-staff");
     setShowCancelDialog(false);
   };
 
@@ -300,7 +300,10 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
 
   // Verifica se o pedido pode ser cancelado (não está cancelado nem concluído)
   const canCancelOrder = () => {
-    return order.status !== "cancelled" && order.status !== "completed";
+    return order.status !== "cancelled" && 
+           order.status !== "cancelled-customer" && 
+           order.status !== "cancelled-staff" && 
+           order.status !== "completed";
   };
 
   const currentStatus = statusConfig[order.status as keyof typeof statusConfig];
@@ -379,8 +382,8 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                   </Button>
                 )}
                 
-                {/* Botão separado para Estorno PIX */}
-                {order.externalReference && order.pixPaymentId && !order.pixRefundId && order.status !== "cancelled" && order.status !== "completed" && (
+                {/* Botão separado para Estorno PIX - apenas para cancelamentos pelo cliente */}
+                {order.externalReference && order.pixPaymentId && !order.pixRefundId && order.status === "cancelled-customer" && (
                   <Button 
                     size="sm"
                     variant="outline"
@@ -412,7 +415,11 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                   <CreditCard className="h-3 w-3" />
                   {order.pixRefundId ? 
                     `PIX Estornado (${order.refundStatus})` : 
-                    "PIX Pago - Estorno disponível"
+                    order.status === "cancelled-customer" ? 
+                      "PIX Pago - Estorno disponível" :
+                      order.status === "cancelled-staff" ?
+                        "PIX Pago - Cancelado pelo estabelecimento" :
+                        "PIX Pago"
                   }
                 </div>
               )}
