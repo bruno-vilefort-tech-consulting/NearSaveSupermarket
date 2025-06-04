@@ -108,6 +108,10 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
       case 'shipped': return 'bg-purple-100 text-purple-800';
       case 'completed': return 'bg-emerald-100 text-emerald-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
+      case 'awaiting_payment': return 'bg-orange-100 text-orange-800';
+      case 'payment_confirmed': return 'bg-green-100 text-green-800';
+      case 'payment_failed': return 'bg-red-100 text-red-800';
+      case 'payment_expired': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -121,6 +125,10 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
       case 'shipped': return 'Enviado';
       case 'completed': return 'Concluído';
       case 'cancelled': return 'Cancelado';
+      case 'awaiting_payment': return 'Aguardando Pagamento';
+      case 'payment_confirmed': return 'Pagamento Confirmado';
+      case 'payment_failed': return 'Pagamento Falhou';
+      case 'payment_expired': return 'Pagamento não confirmado';
       default: return status;
     }
   };
