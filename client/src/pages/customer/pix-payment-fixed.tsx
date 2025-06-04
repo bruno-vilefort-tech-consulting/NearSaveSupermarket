@@ -178,11 +178,25 @@ export default function PixPaymentFixed() {
         } catch (confirmError) {
           console.error('❌ Error during confirmation:', confirmError);
           setIsProcessingPayment(false);
-          toast({
-            title: "Erro ao Confirmar Pagamento",
-            description: confirmError instanceof Error ? confirmError.message : "Erro desconhecido ao confirmar pagamento",
-            variant: "destructive",
-          });
+          
+          // Se o erro for de pedido já existente, redirecionar para pedidos
+          const errorMessage = confirmError instanceof Error ? confirmError.message : String(confirmError);
+          if (errorMessage.includes('já existe') || errorMessage.includes('already exists')) {
+            console.log('✅ Order already exists, redirecting to orders...');
+            setTimeout(() => {
+              setLocation('/customer/orders');
+            }, 1500);
+            toast({
+              title: "Pedido Já Processado",
+              description: "Seu pedido já foi confirmado anteriormente",
+            });
+          } else {
+            toast({
+              title: "Erro ao Confirmar Pagamento",
+              description: errorMessage || "Erro desconhecido ao confirmar pagamento",
+              variant: "destructive",
+            });
+          }
         }
       } else if (status.status === 'rejected' || status.status === 'cancelled') {
         console.log('❌ Payment rejected/cancelled:', status.status);
@@ -193,11 +207,18 @@ export default function PixPaymentFixed() {
       }
     } catch (statusError) {
       console.error('❌ Error checking payment status:', statusError);
-      toast({
-        title: "Erro de Conexão",
-        description: "Erro ao verificar status do pagamento. Tentando novamente...",
-        variant: "destructive",
-      });
+      
+      // Se for erro de rede, apenas log sem mostrar toast repetitivo
+      if (statusError instanceof TypeError && statusError.message.includes('fetch')) {
+        console.log('🔄 Network error, will retry on next interval...');
+      } else {
+        // Outros erros mostrar toast
+        toast({
+          title: "Erro de Conexão",
+          description: "Erro ao verificar status do pagamento. Tentando novamente...",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsCheckingPayment(false);
     }
