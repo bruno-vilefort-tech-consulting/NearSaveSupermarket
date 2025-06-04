@@ -194,33 +194,33 @@ export default function CustomerHome() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('customer.loadingSupermarkets')}</p>
+          <div className="animate-spin w-8 h-8 border-4 border-eco-green border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-eco-gray">{t('customer.loadingSupermarkets')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-gray-light">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b border-eco-green-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-eco-green rounded-full flex items-center justify-center">
                 <Leaf className="text-white" size={20} />
               </div>
-              <h1 className="text-lg font-bold text-gray-900">{t('landing.title')}</h1>
+              <h1 className="text-lg font-bold text-eco-gray-dark">{t('landing.title')}</h1>
             </div>
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center space-x-4">
               <div className="hidden xl:block">
-                <p className="text-sm text-gray-600">
-                  {t('dashboard.welcome')}, <span className="font-medium">{customerInfo?.fullName}</span>
+                <p className="text-sm text-eco-gray">
+                  {t('dashboard.welcome')}, <span className="font-medium text-eco-gray-dark">{customerInfo?.fullName}</span>
                 </p>
               </div>
 
@@ -228,7 +228,7 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/eco-points")}
-                className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                className="bg-eco-green-light border-eco-green text-eco-green-dark hover:bg-eco-green hover:text-white"
               >
                 <Leaf size={16} className="mr-1" />
                 {customerInfo?.ecoPoints || 0} pts
@@ -238,6 +238,7 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/orders")}
+                className="border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white"
               >
                 <Package size={16} className="mr-1" />
                 {t('nav.myOrders')}
@@ -247,7 +248,7 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/supermarket-map")}
-                className="relative"
+                className="border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
               >
                 <MapPin size={16} className="mr-2" />
                 Mapa
@@ -257,12 +258,12 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/cart")}
-                className="relative"
+                className="relative border-eco-gray text-eco-gray-dark hover:bg-eco-gray hover:text-white"
               >
                 <ShoppingCart size={16} className="mr-2" />
                 {t('customer.cart')}
                 {cartCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-eco-orange text-white">
                     {cartCount}
                   </Badge>
                 )}
@@ -272,7 +273,7 @@ export default function CustomerHome() {
                 variant="ghost"
                 size="sm"
                 onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-eco-gray hover:text-eco-gray-dark hover:bg-eco-gray-light"
               >
                 <LogOut size={16} className="mr-1" />
                 {t('customer.logout')}
@@ -285,7 +286,7 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/supermarket-map")}
-                className="relative"
+                className="border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
               >
                 <MapPin size={16} />
               </Button>
@@ -294,11 +295,11 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/cart")}
-                className="relative"
+                className="relative border-eco-gray text-eco-gray-dark hover:bg-eco-gray hover:text-white"
               >
                 <ShoppingCart size={16} />
                 {cartCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-eco-orange text-white">
                     {cartCount}
                   </Badge>
                 )}
@@ -308,7 +309,7 @@ export default function CustomerHome() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2"
+                className="p-2 text-eco-gray-dark hover:bg-eco-gray-light"
               >
                 {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </Button>
@@ -323,24 +324,24 @@ export default function CustomerHome() {
           <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-xl transform transition-transform duration-300">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">{t('customer.menu')}</h2>
+                <h2 className="text-lg font-semibold text-eco-gray-dark">{t('customer.menu')}</h2>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2"
+                  className="p-2 text-eco-gray hover:bg-eco-gray-light"
                 >
                   <X size={20} />
                 </Button>
               </div>
 
               {/* User Info */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">{t('customer.hello')},</p>
-                <p className="font-medium text-gray-900">{customerInfo?.fullName}</p>
+              <div className="mb-6 p-4 bg-eco-green-light rounded-lg border border-eco-green">
+                <p className="text-sm text-eco-gray mb-1">{t('customer.hello')},</p>
+                <p className="font-medium text-eco-gray-dark">{customerInfo?.fullName}</p>
                 <div className="flex items-center mt-2">
-                  <Leaf size={16} className="text-green-600 mr-1" />
-                  <span className="text-sm font-medium text-green-700">
+                  <Leaf size={16} className="text-eco-green mr-1" />
+                  <span className="text-sm font-medium text-eco-green-dark">
                     {customerInfo?.ecoPoints || 0} {t('customer.ecoPointsFooter')}
                   </span>
                 </div>
@@ -350,46 +351,46 @@ export default function CustomerHome() {
               <div className="space-y-3">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-left h-12"
+                  className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-green-light"
                   onClick={() => {
                     navigate("/customer/eco-points");
                     setIsMobileMenuOpen(false);
                   }}
                 >
-                  <Leaf size={20} className="mr-3 text-green-600" />
+                  <Leaf size={20} className="mr-3 text-eco-green" />
                   <div>
                     <div className="font-medium">{t('customer.ecoPointsFooter')}</div>
-                    <div className="text-xs text-gray-500">{customerInfo?.ecoPoints || 0} {t('customer.pointsAvailable')}</div>
+                    <div className="text-xs text-eco-gray">{customerInfo?.ecoPoints || 0} {t('customer.pointsAvailable')}</div>
                   </div>
                 </Button>
 
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-left h-12"
+                  className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-blue-light"
                   onClick={() => {
                     navigate("/customer/orders");
                     setIsMobileMenuOpen(false);
                   }}
                 >
-                  <Package size={20} className="mr-3 text-blue-600" />
+                  <Package size={20} className="mr-3 text-eco-blue" />
                   <div>
                     <div className="font-medium">{t('nav.myOrders')}</div>
-                    <div className="text-xs text-gray-500">{t('customer.purchaseHistory')}</div>
+                    <div className="text-xs text-eco-gray">{t('customer.purchaseHistory')}</div>
                   </div>
                 </Button>
 
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-left h-12"
+                  className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-orange-light"
                   onClick={() => {
                     navigate("/customer/cart");
                     setIsMobileMenuOpen(false);
                   }}
                 >
-                  <ShoppingCart size={20} className="mr-3 text-orange-600" />
+                  <ShoppingCart size={20} className="mr-3 text-eco-orange" />
                   <div>
                     <div className="font-medium">{t('customer.cart')}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-eco-gray">
                       {cartCount > 0 ? `${cartCount} ${t('customer.items')}` : t('customer.empty')}
                     </div>
                   </div>
@@ -415,7 +416,7 @@ export default function CustomerHome() {
                   <LogOut size={20} className="mr-3" />
                   <div>
                     <div className="font-medium">{t('customer.logout')}</div>
-                    <div className="text-xs text-gray-500">{t('customer.logoutAction')}</div>
+                    <div className="text-xs text-eco-gray">{t('customer.logoutAction')}</div>
                   </div>
                 </Button>
               </div>
