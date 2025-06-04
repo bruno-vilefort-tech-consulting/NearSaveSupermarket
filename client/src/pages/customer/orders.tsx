@@ -40,26 +40,45 @@ export default function CustomerOrders() {
     }
   }, []);
 
-  const { data: orders = [], isLoading, refetch } = useQuery({
+  const { data: orders = [], isLoading, error, refetch } = useQuery({
     queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
     enabled: !!(customerInfo?.email || customerInfo?.phone),
     refetchInterval: 3000, // Auto-refresh every 3 seconds for real-time updates
+    retry: 3,
+    retryDelay: 1000,
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (customerInfo?.email) params.append('email', customerInfo.email);
-      if (customerInfo?.phone) params.append('phone', customerInfo.phone);
-      
-      console.log('🔍 Buscando pedidos com:', {
-        email: customerInfo?.email,
-        phone: customerInfo?.phone,
-        fullCustomerInfo: customerInfo
-      });
-      
-      const response = await fetch(`/api/customer/orders?${params}`);
-      if (!response.ok) throw new Error('Falha ao carregar pedidos');
-      const data = await response.json();
-      console.log('📦 Pedidos encontrados:', data.length, 'pedidos:', data);
-      return data;
+      try {
+        const params = new URLSearchParams();
+        if (customerInfo?.email) params.append('email', customerInfo.email);
+        if (customerInfo?.phone) params.append('phone', customerInfo.phone);
+        
+        console.log('🔍 Buscando pedidos com:', {
+          email: customerInfo?.email,
+          phone: customerInfo?.phone,
+          fullCustomerInfo: customerInfo
+        });
+        
+        const response = await fetch(`/api/customer/orders?${params}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Erro na API:', response.status, errorText);
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('📦 Pedidos encontrados:', data.length, 'pedidos:', data);
+        
+        // Validar estrutura dos dados
+        if (!Array.isArray(data)) {
+          console.error('Dados inválidos recebidos:', data);
+          throw new Error('Formato de dados inválido recebido do servidor');
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Erro completo ao buscar pedidos:', error);
+        throw error;
+      }
     }
   });
 

@@ -545,8 +545,25 @@ export class DatabaseStorage implements IStorage {
           .innerJoin(products, eq(orderItems.productId, products.id))
           .where(eq(orderItems.orderId, order.id));
 
+        // Get supermarket info from the first product's staff
+        let supermarketName = '';
+        if (items.length > 0 && items[0].product.createdByStaff) {
+          const staff = await db
+            .select({
+              companyName: staffUsers.companyName,
+            })
+            .from(staffUsers)
+            .where(eq(staffUsers.id, items[0].product.createdByStaff))
+            .limit(1);
+          
+          if (staff.length > 0) {
+            supermarketName = staff[0].companyName;
+          }
+        }
+
         return {
           ...order,
+          supermarketName,
           orderItems: items,
         };
       })
