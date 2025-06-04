@@ -254,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         externalReference: orderId,
       };
 
-      const pixExpirationDate = new Date(Date.now() + 60 * 1000); // 60 segundos para teste
+      const pixExpirationDate = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
       
       const order = await storage.createOrderAwaitingPayment(orderData, items, {
         pixPaymentId: pixPayment.id,
@@ -1587,6 +1587,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating PIX payment:", error);
       res.status(500).json({ message: "Erro ao criar pagamento PIX" });
+    }
+  });
+
+  // Cancel all pending PIX payments (admin route)
+  app.post("/api/admin/cancel-all-pending-pix", async (req, res) => {
+    try {
+      console.log('🔧 [ADMIN] Iniciando cancelamento de todos os PIX pendentes...');
+      
+      // Buscar todos os pedidos com PIX pendente
+      const pendingPixOrders = await storage.db
+        .select()
+        .from(storage.orders)
+        .where(
+          and(
+            eq(storage.orders.status, 'awaiting_payment'),
+            isNotNull(storage.orders.pixPaymentId)
+          )
+        );
+
+      console.log(`🔧 [ADMIN] Encontrados ${pendingPixOrders.length} PIX pendentes para cancelamento`);
+
+      const results = [];
+      
+      for (const order of pendingPixOrders) {
+        if (order.pixPaymentId) {
+          try {
+            console.log(`🔧 [ADMIN] Cancelando PIX ${order.pixPaymentId} do pedido ${order.id}`);
+            
+            const cancelResult = await cancelPixPayment({
+              paymentId: order.pixPaymentId,
+              reason: 'Cancelamento administrativo em lote'
+            });
+            
+            if (cancelResult.success) {
+              console.log(`✅ [ADMIN] PIX ${order.pixPaymentId} cancelado com sucesso`);
+              
+              // Atualizar status do pedido
+              await storage.updateOrderStatus(order.id, 'payment_expired', 'ADMIN_BULK_CANCEL');
+              
+              results.push({
+                orderId: order.id,
+                pixPaymentId: order.pixPaymentId,
+                success: true,
+                message: 'PIX cancelado com sucesso'
+              });
+            } else {
+              console.log(`⚠️ [ADMIN] Falha ao cancelar PIX ${order.pixPaymentId}: ${cancelResult.error}`);
+              results.push({
+                orderId: order.id,
+                pixPaymentId: order.pixPaymentId,
+                success: false,
+                error: cancelResult.error
+              });
+            }
+          } catch (error) {
+            console.error(`❌ [ADMIN] Erro ao cancelar PIX ${order.pixPaymentId}:`, error);
+            results.push({
+              orderId: order.id,
+              pixPaymentId: order.pixPaymentId,
+              success: false,
+              error: error instanceof Error ? error.message : 'Erro desconhecido'
+            });
+          }
+        }
+      }
+
+      const successCount = results.filter(r => r.success).length;
+      const failureCount = results.filter(r => !r.success).length;
+      
+      console.log(`🔧 [ADMIN] Cancelamento concluído: ${successCount} sucessos, ${failureCount} falhas`);
+      
+      res.json({
+        success: true,
+        message: `Processamento concluído: ${successCount} PIX cancelados, ${failureCount} falhas`,
+        totalProcessed: results.length,
+        successCount,
+        failureCount,
+        results
+      });
+    } catch (error) {
+      console.error('❌ [ADMIN] Erro no cancelamento em lote:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Erro interno no cancelamento em lote" 
+      });
     }
   });
 
