@@ -54,7 +54,7 @@ export default function Landing() {
 
       {/* Ilustração do Carrinho */}
       <div className="flex justify-center">
-        <svg viewBox="0 0 300 200" className="w-64 h-auto">
+        <svg viewBox="0 0 300 200" className="w-[32rem] h-auto">
           {/* Definições de gradientes */}
           <defs>
             <linearGradient id="cartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
