@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Leaf, Mail, Lock, ArrowLeft, AlertCircle } from "lucide-react";
+import { Leaf, Mail, Lock, ArrowLeft, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 type LoginFormData = {
   email: string;
@@ -23,6 +23,7 @@ type LoginFormData = {
 export default function CustomerLogin() {
   const [, navigate] = useLocation();
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
 
