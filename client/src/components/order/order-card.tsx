@@ -13,6 +13,7 @@ import { Truck, Clock, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { PixRefundButton } from "./pix-refund-button";
 
 interface OrderCardProps {
   order: {
@@ -286,27 +287,30 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
           </div>
           
           {canEditStatus && (
-            <div className="flex gap-2">
-              {canCancelOrder() && (
-                <Button 
-                  size="sm"
-                  variant="destructive"
-                  onClick={handleCancelOrder}
-                  disabled={updateStatusMutation.isPending}
-                >
-                  {updateStatusMutation.isPending ? "Cancelando..." : "Cancelar"}
-                </Button>
-              )}
-              {getNextStatusLabel() && (
-                <Button 
-                  size="sm"
-                  onClick={handleStatusUpdate}
-                  disabled={updateStatusMutation.isPending}
-                  className="bg-primary-600 hover:bg-primary-700"
-                >
-                  {updateStatusMutation.isPending ? "Updating..." : getNextStatusLabel()}
-                </Button>
-              )}
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                {canCancelOrder() && (
+                  <Button 
+                    size="sm"
+                    variant="destructive"
+                    onClick={handleCancelOrder}
+                    disabled={updateStatusMutation.isPending}
+                  >
+                    {updateStatusMutation.isPending ? "Cancelando..." : "Cancelar"}
+                  </Button>
+                )}
+                {getNextStatusLabel() && (
+                  <Button 
+                    size="sm"
+                    onClick={handleStatusUpdate}
+                    disabled={updateStatusMutation.isPending}
+                    className="bg-primary-600 hover:bg-primary-700"
+                  >
+                    {updateStatusMutation.isPending ? "Updating..." : getNextStatusLabel()}
+                  </Button>
+                )}
+              </div>
+              <PixRefundButton order={order} />
             </div>
           )}
         </div>
