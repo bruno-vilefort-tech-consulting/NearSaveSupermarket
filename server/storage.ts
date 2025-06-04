@@ -763,7 +763,10 @@ export class DatabaseStorage implements IStorage {
 
     await db.insert(orderItems).values(orderItemsData);
 
-    console.log(`💳 Order ${order.id} created with status awaiting_payment`);
+    // Iniciar monitoramento de proteção para este pedido PIX também
+    console.log(`💳 Order ${order.id} created with status awaiting_payment, initiating PIX protection system`);
+    this.startOrderProtection(order.id);
+    
     return order;
   }
 
