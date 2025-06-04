@@ -569,6 +569,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (refundError: any) {
           console.warn('⚠️ [CUSTOMER CANCEL] Erro no estorno PIX, mas continuando cancelamento:', refundError.message);
         }
+      } else if (order.pixPaymentId && order.refundStatus) {
+        console.log('✅ [CUSTOMER CANCEL] Estorno PIX já processado anteriormente:', order.refundStatus);
       }
 
       // SEMPRE atualizar status do pedido para cancelled
