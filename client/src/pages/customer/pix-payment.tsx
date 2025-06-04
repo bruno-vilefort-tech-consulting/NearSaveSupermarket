@@ -164,7 +164,7 @@ export default function PixPayment() {
           
           // Redirect to orders page immediately
           setTimeout(() => {
-            window.location.href = '/customer/orders';
+            setLocation('/customer/orders');
           }, 1500);
           
           return; // Para a execução desta função
