@@ -389,19 +389,16 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
 
 
                 
-                {(() => {
-                  const label = getNextStatusLabel();
-                  return label && (
-                    <Button 
-                      size="sm"
-                      onClick={handleStatusUpdate}
-                      disabled={updateStatusMutation.isPending}
-                      className="bg-primary-600 hover:bg-primary-700"
-                    >
-                      {updateStatusMutation.isPending ? "Updating..." : label}
-                    </Button>
-                  );
-                })()}
+                {canEditStatus && getNextStatusLabel() && (
+                  <Button 
+                    size="sm"
+                    onClick={handleStatusUpdate}
+                    disabled={updateStatusMutation.isPending}
+                    className="bg-green-600 hover:bg-green-700 text-white font-medium"
+                  >
+                    {updateStatusMutation.isPending ? "Atualizando..." : getNextStatusLabel()}
+                  </Button>
+                )}
               </div>
 
               {/* Indicador de PIX */}
