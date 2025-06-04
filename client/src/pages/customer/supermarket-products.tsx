@@ -195,19 +195,19 @@ export default function SupermarketProducts() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('products.loading')}</p>
+          <div className="animate-spin w-8 h-8 border-4 border-eco-green border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-eco-gray">{t('products.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-gray-light">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b border-eco-green-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -215,14 +215,14 @@ export default function SupermarketProducts() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/customer")}
-                className="text-gray-600 hover:text-gray-900 flex-shrink-0"
+                className="text-eco-gray hover:text-eco-gray-dark hover:bg-eco-gray-light flex-shrink-0"
               >
                 <ArrowLeft size={16} className="mr-1" />
                 {t('common.back')}
               </Button>
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg font-bold text-gray-900 truncate">{supermarketName}</h1>
-                <p className="text-xs text-gray-500">{t('customer.productsOnSale')}</p>
+                <h1 className="text-lg font-bold text-eco-gray-dark truncate">{supermarketName}</h1>
+                <p className="text-xs text-eco-gray">{t('customer.productsOnSale')}</p>
               </div>
             </div>
 
@@ -230,12 +230,12 @@ export default function SupermarketProducts() {
               variant="outline"
               size="sm"
               onClick={() => navigate("/customer/cart")}
-              className="relative flex-shrink-0 ml-3"
+              className="relative flex-shrink-0 ml-3 border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
             >
               <ShoppingCart size={16} className="mr-1" />
               <span className="hidden sm:inline">{t('customer.cart')}</span>
               {cartCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-eco-orange text-white">
                   {cartCount}
                 </Badge>
               )}
@@ -249,12 +249,12 @@ export default function SupermarketProducts() {
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
             <Input
               placeholder={t('products.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
             />
           </div>
 
@@ -266,7 +266,7 @@ export default function SupermarketProducts() {
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category ? "bg-green-600 hover:bg-green-700" : ""}
+                className={selectedCategory === category ? "bg-eco-green hover:bg-eco-green-dark text-white" : "border-eco-gray text-eco-gray-dark hover:bg-eco-gray-light"}
               >
                 {getCategoryName(category, t)}
               </Button>
@@ -278,11 +278,11 @@ export default function SupermarketProducts() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.length === 0 ? (
             <div className="col-span-full text-center py-12">
-              <Package size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Package size={48} className="mx-auto text-eco-gray mb-4" />
+              <h3 className="text-lg font-medium text-eco-gray-dark mb-2">
                 {t('products.noProductsFound')}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-eco-gray">
                 {searchTerm || selectedCategory !== "Todos" 
                   ? t('products.adjustFilters')
                   : t('products.noProductsAvailable')}
@@ -297,12 +297,12 @@ export default function SupermarketProducts() {
               return (
                 <Card
                   key={product.id}
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  className="hover:shadow-lg transition-shadow cursor-pointer bg-white border-eco-green-light"
                   onClick={() => handleProductClick(product)}
                 >
                   <CardHeader className="pb-3">
                     {product.imageUrl && (
-                      <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 overflow-hidden">
+                      <div className="w-full h-32 bg-eco-gray-light rounded-lg mb-3 overflow-hidden">
                         <img
                           src={product.imageUrl}
                           alt={product.name}
@@ -312,28 +312,32 @@ export default function SupermarketProducts() {
                     )}
                     <div className="space-y-2">
                       <div className="flex justify-between items-start">
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs bg-eco-blue-light text-eco-blue-dark border-eco-blue">
                           {product.category}
                         </Badge>
                         <div className="flex gap-1">
                           <Badge 
                             variant={daysUntilExpiry <= 2 ? "destructive" : daysUntilExpiry <= 5 ? "default" : "secondary"}
-                            className="text-xs"
+                            className={`text-xs ${
+                              daysUntilExpiry <= 2 ? "bg-red-500 text-white" : 
+                              daysUntilExpiry <= 5 ? "bg-eco-orange text-white" : 
+                              "bg-eco-gray-light text-eco-gray-dark"
+                            }`}
                           >
                             <Clock size={12} className="mr-1" />
                             {daysUntilExpiry}d
                           </Badge>
-                          <Badge className="bg-green-100 text-green-800 text-xs">
+                          <Badge className="bg-eco-green-light text-eco-green-dark border-eco-green text-xs">
                             <Leaf size={12} className="mr-1" />
                             +{ecoPoints} pts
                           </Badge>
                         </div>
                       </div>
-                      <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2">
+                      <CardTitle className="text-lg font-semibold text-eco-gray-dark line-clamp-2">
                         {product.name}
                       </CardTitle>
                       {product.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2">
+                        <p className="text-sm text-eco-gray line-clamp-2">
                           {product.description}
                         </p>
                       )}
@@ -345,25 +349,25 @@ export default function SupermarketProducts() {
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="flex items-center space-x-2">
-                            <span className="text-lg font-bold text-green-600">
+                            <span className="text-lg font-bold text-eco-green">
                               {formatPrice(product.discountPrice)}
                             </span>
-                            <Badge variant="destructive" className="text-xs">
+                            <Badge variant="destructive" className="text-xs bg-eco-orange text-white border-eco-orange">
                               -{discountPercentage}%
                             </Badge>
                           </div>
-                          <div className="text-sm text-gray-500 line-through">
+                          <div className="text-sm text-eco-gray line-through">
                             {formatPrice(product.originalPrice)}
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-600">{t('products.stock')}</p>
-                          <p className="font-semibold">{product.quantity}</p>
+                          <p className="text-sm text-eco-gray">{t('products.stock')}</p>
+                          <p className="font-semibold text-eco-gray-dark">{product.quantity}</p>
                         </div>
                       </div>
 
                       <Button
-                        className="w-full bg-green-600 hover:bg-green-700"
+                        className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleProductClick(product);
@@ -393,35 +397,35 @@ export default function SupermarketProducts() {
       <Dialog open={showSupermarketConflict} onOpenChange={setShowSupermarketConflict}>
         <DialogContent className="max-w-xs w-80 rounded-2xl shadow-2xl border-0 p-4">
           <DialogHeader className="text-center pb-1">
-            <div className="mx-auto w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
-              <AlertTriangle className="h-6 w-6 text-orange-600" />
+            <div className="mx-auto w-12 h-12 bg-eco-orange-light rounded-full flex items-center justify-center mb-3">
+              <AlertTriangle className="h-6 w-6 text-eco-orange" />
             </div>
-            <DialogTitle className="text-base font-semibold text-gray-900 mb-1">
+            <DialogTitle className="text-base font-semibold text-eco-gray-dark mb-1">
               Carrinho de outro supermercado
             </DialogTitle>
-            <DialogDescription className="text-xs text-gray-600 leading-relaxed px-2">
+            <DialogDescription className="text-xs text-eco-gray leading-relaxed px-2">
               Você só pode comprar de um supermercado por vez.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-3 pt-1">
-            <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-3 rounded-lg border border-orange-200">
-              <p className="text-xs text-orange-800 text-center">
-                Para adicionar de <span className="font-semibold text-orange-900">{supermarketName}</span>, limpe o carrinho atual.
+            <div className="bg-eco-orange-light p-3 rounded-lg border border-eco-orange">
+              <p className="text-xs text-eco-orange-dark text-center">
+                Para adicionar de <span className="font-semibold text-eco-gray-dark">{supermarketName}</span>, limpe o carrinho atual.
               </p>
             </div>
             
             <div className="flex flex-col space-y-2">
               <Button 
                 onClick={handleClearCartAndAdd}
-                className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 py-2 rounded-lg text-sm font-medium shadow-lg"
+                className="w-full bg-eco-orange hover:bg-eco-orange-dark text-white py-2 rounded-lg text-sm font-medium shadow-lg transition-colors"
               >
                 Limpar e adicionar
               </Button>
               <Button 
                 variant="outline" 
                 onClick={handleKeepCurrentCart}
-                className="w-full py-2 rounded-lg border-2 border-gray-300 hover:border-gray-400 text-sm font-medium"
+                className="w-full py-2 rounded-lg border-2 border-eco-gray-light hover:border-eco-gray text-eco-gray-dark text-sm font-medium"
               >
                 Manter carrinho
               </Button>
