@@ -89,15 +89,18 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
   // Mutation para expirar pagamento automaticamente
   const expirePaymentMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", `/api/orders/${order.id}/expire-payment`);
+      const response = await fetch(`/api/orders/${order.id}/expire-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erro ao expirar pagamento: ${errorText}`);
+        throw new Error('Erro ao expirar pagamento');
       }
+      
       return response.json();
     },
     onSuccess: () => {
-      console.log(`Payment expired for order ${order.id}`);
       queryClient.invalidateQueries({ queryKey: ["/api/customer/orders"] });
     },
     onError: (error: Error) => {
@@ -114,10 +117,10 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
         const remainingTime = Math.max(0, Math.floor((expirationTime - now) / 1000));
         
         setTimeLeft(remainingTime);
-        setIsExpired(remainingTime <= 0);
         
-        // Se o tempo expirou, chamar a API para atualizar o status
+        // Se o tempo expirou e ainda não foi marcado como expirado
         if (remainingTime <= 0 && !isExpired) {
+          setIsExpired(true);
           expirePaymentMutation.mutate();
         }
       };
@@ -127,7 +130,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
 
       return () => clearInterval(interval);
     }
-  }, [order.status, order.pixExpirationDate, isExpired, expirePaymentMutation]);
+  }, [order.status, order.pixExpirationDate, isExpired]);
 
   // Mutation para cancelar pedido
   const cancelMutation = useMutation({
