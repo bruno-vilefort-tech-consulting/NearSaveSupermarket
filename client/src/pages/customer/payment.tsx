@@ -197,14 +197,14 @@ export default function CustomerPayment() {
 
   if (paymentSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center">
         <div className="max-w-md mx-auto p-4">
-          <Card className="text-center">
+          <Card className="text-center border-eco-green-light">
             <CardContent className="p-8">
-              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">{t('payment.paymentSuccess')}</h2>
-              <p className="text-gray-600 mb-4">{t('payment.orderCreated')}</p>
-              <p className="text-sm text-gray-500">Redirecionando...</p>
+              <CheckCircle className="h-16 w-16 text-eco-green mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">{t('payment.paymentSuccess')}</h2>
+              <p className="text-eco-gray mb-4">{t('payment.orderCreated')}</p>
+              <p className="text-sm text-eco-gray">Redirecionando...</p>
             </CardContent>
           </Card>
         </div>
@@ -213,16 +213,16 @@ export default function CustomerPayment() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-gray-light">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center">
           <Link href="/customer/cart">
-            <ArrowLeft className="h-6 w-6 text-gray-600" />
+            <ArrowLeft className="h-6 w-6 text-eco-gray" />
           </Link>
           <div className="ml-4">
-            <h1 className="text-lg font-semibold">{t('payment.title')}</h1>
-            <p className="text-sm text-green-600 font-medium">Supermercado Silva</p>
-            <p className="text-xs text-gray-500">Rua das Flores, 123 - Centro</p>
+            <h1 className="text-lg font-semibold text-eco-gray-dark">{t('payment.title')}</h1>
+            <p className="text-sm text-eco-green font-medium">Supermercado Silva</p>
+            <p className="text-xs text-eco-gray">Rua das Flores, 123 - Centro</p>
           </div>
         </div>
       </div>
@@ -230,41 +230,41 @@ export default function CustomerPayment() {
       <div className="max-w-md mx-auto p-4 space-y-4">
         {/* Resumo do pedido */}
         {orderData && (
-          <Card>
+          <Card className="border-eco-green-light">
             <CardHeader>
-              <CardTitle className="text-lg">{t('payment.orderSummary')}</CardTitle>
+              <CardTitle className="text-lg text-eco-gray-dark">{t('payment.orderSummary')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex justify-between text-sm mb-2">
-                <span>{t('payment.subtotal')}</span>
-                <span>R$ {(parseFloat(orderData.totalAmount) - (orderData.fulfillmentMethod === "delivery" ? 5 : 0)).toFixed(2).replace('.', ',')}</span>
+                <span className="text-eco-gray-dark">{t('payment.subtotal')}</span>
+                <span className="text-eco-gray-dark">R$ {(parseFloat(orderData.totalAmount) - (orderData.fulfillmentMethod === "delivery" ? 5 : 0)).toFixed(2).replace('.', ',')}</span>
               </div>
               {orderData.fulfillmentMethod === "delivery" && (
                 <div className="flex justify-between text-sm mb-2">
-                  <span>Taxa de entrega</span>
-                  <span>R$ 5,00</span>
+                  <span className="text-eco-gray-dark">Taxa de entrega</span>
+                  <span className="text-eco-gray-dark">R$ 5,00</span>
                 </div>
               )}
-              <div className="border-t pt-2 flex justify-between font-semibold">
-                <span>{t('payment.total')}</span>
-                <span className="text-green-600">R$ {parseFloat(orderData.totalAmount).toFixed(2).replace('.', ',')}</span>
+              <div className="border-t border-eco-green-light pt-2 flex justify-between font-semibold">
+                <span className="text-eco-gray-dark">{t('payment.total')}</span>
+                <span className="text-eco-green">R$ {parseFloat(orderData.totalAmount).toFixed(2).replace('.', ',')}</span>
               </div>
             </CardContent>
           </Card>
         )}
 
         {/* Método de pagamento */}
-        <Card>
+        <Card className="border-eco-blue-light">
           <CardHeader>
-            <CardTitle className="text-lg">{t('payment.paymentMethod')}</CardTitle>
+            <CardTitle className="text-lg text-eco-gray-dark">{t('payment.paymentMethod')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
+            <div className="p-4 border-2 border-eco-blue rounded-lg bg-eco-blue-light">
               <div className="flex items-center">
-                <Smartphone className="h-6 w-6 text-blue-600 mr-3" />
+                <Smartphone className="h-6 w-6 text-eco-blue mr-3" />
                 <div>
-                  <p className="font-medium text-blue-900">{t('payment.pix')}</p>
-                  <p className="text-sm text-blue-700">{t('payment.pixDescription')}</p>
+                  <p className="font-medium text-eco-blue-dark">{t('payment.pix')}</p>
+                  <p className="text-sm text-eco-blue">{t('payment.pixDescription')}</p>
                 </div>
               </div>
             </div>
@@ -279,7 +279,7 @@ export default function CustomerPayment() {
         <Button
           onClick={handlePayment}
           disabled={isProcessing}
-          className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg"
+          className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold h-12 text-lg rounded-xl transition-colors"
         >
           {isProcessing ? (
             <div className="flex items-center">
@@ -291,7 +291,7 @@ export default function CustomerPayment() {
           )}
         </Button>
 
-        <p className="text-xs text-gray-500 text-center">
+        <p className="text-xs text-eco-gray text-center">
           Ao finalizar o pagamento, você concorda com nossos termos de uso.
         </p>
       </div>
