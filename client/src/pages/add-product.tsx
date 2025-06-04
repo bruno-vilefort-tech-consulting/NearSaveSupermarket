@@ -314,7 +314,7 @@ export default function AddProduct() {
                       type="button" 
                       variant="outline"
                       className="flex-1"
-                      onClick={() => navigate("/")}
+                      onClick={() => navigate("/dashboard")}
                     >
                       {t('common.cancel')}
                     </Button>
