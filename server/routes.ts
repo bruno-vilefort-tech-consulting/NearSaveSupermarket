@@ -1675,6 +1675,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check and update PIX payment status manually
+  app.post("/api/orders/:id/check-pix-payment", async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "ID do pedido inválido" });
+      }
+
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      if (!order.pixPaymentId) {
+        return res.status(400).json({ message: "Pedido não possui PIX associado" });
+      }
+
+      if (order.status !== 'awaiting_payment') {
+        return res.status(400).json({ message: "Pedido não está aguardando pagamento" });
+      }
+
+      // Check payment status with Mercado Pago
+      const paymentStatus = await getPaymentStatus(order.pixPaymentId);
+      console.log(`Checking PIX payment ${order.pixPaymentId} for order ${orderId}:`, paymentStatus);
+
+      if (paymentStatus.status === 'approved') {
+        // Payment was approved, update order status
+        const updatedOrder = await storage.updateOrderStatus(orderId, 'payment_confirmed', 'PIX_MANUAL_CHECK');
+        console.log(`Order ${orderId} marked as paid via manual PIX check`);
+        
+        res.json({ 
+          success: true, 
+          message: "Pagamento confirmado", 
+          order: updatedOrder,
+          paymentStatus 
+        });
+      } else {
+        res.json({ 
+          success: false, 
+          message: "Pagamento ainda pendente", 
+          paymentStatus 
+        });
+      }
+    } catch (error) {
+      console.error("Error checking PIX payment:", error);
+      res.status(500).json({ message: "Erro ao verificar status do pagamento" });
+    }
+  });
+
   // Get staff user info
   app.get('/api/staff/user', async (req, res) => {
     try {
