@@ -274,6 +274,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Marcar pagamento PIX como expirado manualmente
+  app.patch("/api/orders/:orderId/expire-payment", async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      
+      const order = await storage.getOrder(parseInt(orderId));
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      if (order.status !== 'awaiting_payment') {
+        return res.status(400).json({ message: "Pedido não está aguardando pagamento" });
+      }
+
+      await storage.updateOrderStatus(parseInt(orderId), 'payment_expired');
+      
+      res.json({ 
+        message: "Pagamento marcado como expirado",
+        orderId: parseInt(orderId),
+        status: "payment_expired"
+      });
+    } catch (error) {
+      console.error('Erro ao marcar pagamento como expirado:', error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   // Verificar status do pagamento PIX e atualizar pedido
   app.get("/api/orders/:orderId/payment-status", async (req, res) => {
     try {
@@ -291,11 +318,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Verificar se o PIX expirou
       if (order.pixExpirationDate && new Date() > new Date(order.pixExpirationDate)) {
         if (order.status === 'awaiting_payment') {
-          await storage.updateOrderPaymentStatus(parseInt(orderId), 'payment_failed');
+          await storage.updateOrderStatus(parseInt(orderId), 'payment_expired');
           return res.json({ 
             status: 'expired', 
             message: 'Tempo de pagamento expirado',
-            order: { ...order, status: 'payment_failed' }
+            order: { ...order, status: 'payment_expired' }
           });
         }
       }

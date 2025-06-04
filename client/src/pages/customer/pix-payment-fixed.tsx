@@ -3,7 +3,7 @@ import { useLocation, useRoute, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, CheckCircle, Clock, X, ArrowLeft } from 'lucide-react';
+import { Copy, CheckCircle, Clock, X, ArrowLeft, ExternalLink } from 'lucide-react';
 
 export default function PixPaymentFixed() {
   const [, setLocation] = useLocation();
@@ -20,7 +20,7 @@ export default function PixPaymentFixed() {
 
   useEffect(() => {
     if (!orderId) {
-      setLocation('/customer/home');
+      setLocation('/customer/orders');
       return;
     }
 
@@ -42,58 +42,66 @@ export default function PixPaymentFixed() {
         
         console.log('PIX data loaded:', data);
       } else {
-        // Se não tem dados do PIX no localStorage, buscar do servidor
         checkOrderStatus();
       }
     } else {
-      // Se não tem dados do PIX no localStorage, buscar do servidor
       checkOrderStatus();
     }
-  }, [orderId, setLocation]);
+  }, [orderId]);
 
-  // Timer para expiração do PIX
+  // Timer countdown
   useEffect(() => {
-    if (!pixData || isExpired || paymentStatus === 'payment_confirmed') return;
+    if (timeLeft > 0 && !isExpired && paymentStatus === 'awaiting_payment') {
+      const timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (timeLeft === 0 && !isExpired && paymentStatus === 'awaiting_payment') {
+      // Tempo expirou - marcar como expirado e atualizar status
+      setIsExpired(true);
+      markPaymentAsExpired();
+    }
+  }, [timeLeft, isExpired, paymentStatus]);
 
-    const interval = setInterval(() => {
-      setTimeLeft(prev => {
-        const newTime = prev - 1;
-        if (newTime <= 0) {
-          setIsExpired(true);
-          toast({
-            title: "PIX Expirado",
-            description: "O código PIX expirou. Volte ao carrinho para gerar um novo.",
-            variant: "destructive",
-          });
-          setTimeout(() => {
-            setLocation('/customer/home');
-          }, 3000);
-          return 0;
-        }
-        return newTime;
+  // Verificação automática do status do pagamento
+  useEffect(() => {
+    if (paymentStatus === 'awaiting_payment' && !isExpired) {
+      const interval = setInterval(() => {
+        checkOrderStatus();
+      }, 10000); // Verificar a cada 10 segundos
+
+      return () => clearInterval(interval);
+    }
+  }, [paymentStatus, isExpired, orderId]);
+
+  const markPaymentAsExpired = async () => {
+    try {
+      // Chamar API para marcar o pagamento como expirado
+      const response = await fetch(`/api/orders/${orderId}/expire-payment`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, [pixData, isExpired, paymentStatus, toast, setLocation]);
+      if (response.ok) {
+        setPaymentStatus('payment_expired');
+        toast({
+          title: "PIX Expirado",
+          description: "O tempo para pagamento expirou. Status atualizado para 'Pagamento não confirmado'.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao marcar pagamento como expirado:', error);
+    }
+  };
 
-  // Verificação automática do pagamento a cada 10 segundos
-  useEffect(() => {
-    if (!orderId || isExpired || paymentStatus === 'payment_confirmed') return;
-
-    const checkInterval = setInterval(() => {
-      checkOrderStatus();
-    }, 10000); // 10 segundos
-
-    return () => clearInterval(checkInterval);
-  }, [orderId, isExpired, paymentStatus]);
-
-  // Verificar status do pedido e pagamento
   const checkOrderStatus = async () => {
-    if (!orderId || isCheckingPayment || paymentStatus === 'payment_confirmed') return;
-
-    console.log('🔍 Checking order status for:', orderId);
+    if (!orderId || isCheckingPayment) return;
+    
     setIsCheckingPayment(true);
+    console.log('🔍 Checking order status for:', orderId);
     
     try {
       const response = await fetch(`/api/orders/${orderId}/payment-status`);
@@ -105,7 +113,7 @@ export default function PixPaymentFixed() {
       const result = await response.json();
       console.log('Order status response:', result);
 
-      if (result.status === 'confirmed') {
+      if (result.status === 'confirmed' || result.status === 'payment_confirmed') {
         // Pagamento confirmado
         setPaymentStatus('payment_confirmed');
         
@@ -122,16 +130,11 @@ export default function PixPaymentFixed() {
           setLocation('/customer/orders');
         }, 2000);
         
-      } else if (result.status === 'expired') {
+      } else if (result.status === 'expired' || result.status === 'payment_expired') {
         // PIX expirado
-        setPaymentStatus('payment_failed');
+        setPaymentStatus('payment_expired');
         setIsExpired(true);
         console.log('❌ PIX expired');
-        toast({
-          title: "PIX Expirado",
-          description: "O código PIX expirou. Volte ao carrinho para gerar um novo.",
-          variant: "destructive",
-        });
         
       } else if (result.pixCopyPaste && !pixData) {
         // Carregar dados do PIX do servidor se não estiverem no localStorage
@@ -171,10 +174,24 @@ export default function PixPaymentFixed() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const getStatusInPortuguese = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      'awaiting_payment': 'Aguardando Pagamento',
+      'payment_confirmed': 'Pagamento Confirmado',
+      'payment_failed': 'Pagamento Falhou',
+      'payment_expired': 'Pagamento não confirmado',
+      'pending': 'Pendente',
+      'completed': 'Concluído',
+      'shipped': 'Enviado',
+      'picked_up': 'Retirado'
+    };
+    return statusMap[status] || status;
+  };
+
   const handleGoBack = () => {
-    // Limpar dados do PIX ao voltar
+    // Limpar dados do PIX ao voltar e ir para pedidos
     localStorage.removeItem('pixPaymentData');
-    setLocation('/customer/home');
+    setLocation('/customer/orders');
   };
 
   // Tela de carregamento enquanto busca dados
@@ -195,20 +212,24 @@ export default function PixPaymentFixed() {
       <div className="min-h-screen bg-eco-gray-light">
         <div className="bg-white shadow-sm border-b">
           <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-            <Link href="/customer/orders">
+            <button onClick={handleGoBack}>
               <ArrowLeft className="h-6 w-6 text-eco-gray" />
-            </Link>
+            </button>
             <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">Pagamento Confirmado</h1>
           </div>
         </div>
 
         <div className="max-w-md mx-auto p-4">
-          <Card className="border-eco-green bg-green-50">
-            <CardContent className="text-center py-8">
+          <Card className="bg-white border-eco-green-light">
+            <CardContent className="p-6 text-center">
               <CheckCircle className="h-16 w-16 text-eco-green mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-eco-gray-dark mb-2">Pagamento Confirmado!</h2>
-              <p className="text-eco-gray">Seu pedido foi processado com sucesso.</p>
-              <p className="text-sm text-eco-gray mt-2">Redirecionando para seus pedidos...</p>
+              <h2 className="text-xl font-bold text-eco-green mb-2">Pagamento Confirmado!</h2>
+              <p className="text-eco-gray-dark mb-4">
+                Seu pedido #{orderId} foi processado com sucesso.
+              </p>
+              <p className="text-sm text-eco-gray">
+                Redirecionando para seus pedidos...
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -216,13 +237,13 @@ export default function PixPaymentFixed() {
     );
   }
 
-  // PIX expirado
-  if (isExpired) {
+  // Status de pagamento expirado
+  if (isExpired || paymentStatus === 'payment_expired') {
     return (
       <div className="min-h-screen bg-eco-gray-light">
         <div className="bg-white shadow-sm border-b">
           <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-            <button onClick={handleGoBack} className="p-1">
+            <button onClick={handleGoBack}>
               <ArrowLeft className="h-6 w-6 text-eco-gray" />
             </button>
             <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">PIX Expirado</h1>
@@ -230,16 +251,21 @@ export default function PixPaymentFixed() {
         </div>
 
         <div className="max-w-md mx-auto p-4">
-          <Card className="border-red-300 bg-red-50">
-            <CardContent className="text-center py-8">
-              <X className="h-16 w-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-xl font-bold text-eco-gray-dark mb-2">PIX Expirado</h2>
-              <p className="text-eco-gray mb-4">O tempo para pagamento expirou.</p>
+          <Card className="bg-white border-eco-orange-light">
+            <CardContent className="p-6 text-center">
+              <X className="h-16 w-16 text-eco-orange mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-eco-orange mb-2">Pagamento não confirmado</h2>
+              <p className="text-eco-gray-dark mb-4">
+                O tempo para pagamento do pedido #{orderId} expirou.
+              </p>
+              <p className="text-sm text-eco-gray mb-6">
+                Status: {getStatusInPortuguese(paymentStatus)}
+              </p>
               <Button 
                 onClick={handleGoBack}
-                className="bg-eco-green hover:bg-eco-green/90 text-white"
+                className="w-full bg-eco-blue hover:bg-eco-blue-dark text-white"
               >
-                Voltar ao Início
+                Ver Meus Pedidos
               </Button>
             </CardContent>
           </Card>
@@ -253,7 +279,7 @@ export default function PixPaymentFixed() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-          <button onClick={handleGoBack} className="p-1">
+          <button onClick={handleGoBack}>
             <ArrowLeft className="h-6 w-6 text-eco-gray" />
           </button>
           <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">Pagamento PIX</h1>
@@ -261,94 +287,124 @@ export default function PixPaymentFixed() {
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-4">
-        {/* Timer */}
-        <Card className="border-eco-orange bg-orange-50">
-          <CardContent className="flex items-center justify-center py-4">
-            <Clock className="h-5 w-5 text-eco-orange mr-2" />
-            <span className="text-lg font-bold text-eco-orange">
-              Tempo restante: {formatTime(timeLeft)}
-            </span>
-          </CardContent>
-        </Card>
-
-        {/* Instruções */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-eco-blue">Como pagar com PIX</CardTitle>
-            <CardDescription>
-              Siga os passos abaixo para finalizar seu pagamento
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-eco-blue text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
-              <p className="text-sm text-eco-gray-dark">Abra o app do seu banco</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-eco-blue text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
-              <p className="text-sm text-eco-gray-dark">Escolha a opção PIX</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-eco-blue text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
-              <p className="text-sm text-eco-gray-dark">Cole o código PIX abaixo</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Código PIX */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-eco-green">Código PIX</CardTitle>
-            <CardDescription>
-              Pedido #{orderId} - {orderData?.customerName}
-            </CardDescription>
+        
+        {/* Status do Pedido */}
+        <Card className="bg-white border-eco-blue-light">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-eco-blue text-sm">Status do Pedido #{orderId}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-eco-gray-light p-3 rounded-lg mb-4">
-              <p className="text-xs text-eco-gray break-all font-mono">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-eco-orange rounded-full animate-pulse"></div>
+              <span className="font-medium text-eco-gray-dark">
+                {getStatusInPortuguese(paymentStatus)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Timer destacado */}
+        <Card className="bg-gradient-to-r from-eco-orange-light to-eco-orange border-eco-orange">
+          <CardContent className="p-6 text-center">
+            <Clock className="h-8 w-8 text-white mx-auto mb-2" />
+            <h3 className="text-white font-bold text-lg mb-1">Tempo Restante</h3>
+            <div className="text-3xl font-bold text-white mb-2">
+              {formatTime(timeLeft)}
+            </div>
+            <p className="text-white/90 text-sm">
+              Complete o pagamento antes que o tempo expire
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* QR Code (se disponível) */}
+        {pixData?.qrCodeBase64 && (
+          <Card className="bg-white border-eco-green-light">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-eco-green text-center">Escaneie o QR Code</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="bg-white p-4 rounded-lg inline-block">
+                <img 
+                  src={`data:image/png;base64,${pixData.qrCodeBase64}`}
+                  alt="QR Code PIX"
+                  className="w-48 h-48 mx-auto"
+                />
+              </div>
+              <p className="text-sm text-eco-gray mt-2">
+                Use seu app do banco para escanear
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Código Copia e Cola destacado */}
+        <Card className="bg-white border-eco-blue-light">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-eco-blue flex items-center gap-2">
+              <ExternalLink className="h-4 w-4" />
+              Código Copia e Cola PIX
+            </CardTitle>
+            <CardDescription>
+              Copie o código abaixo e cole no seu app bancário
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-eco-gray-light p-4 rounded-lg border-2 border-dashed border-eco-blue-light">
+              <p className="text-xs font-mono text-eco-gray-dark break-all leading-relaxed">
                 {pixData?.pixCopyPaste}
               </p>
             </div>
+            
             <Button 
               onClick={handleCopyPix}
-              className="w-full bg-eco-green hover:bg-eco-green/90 text-white"
+              className="w-full bg-eco-blue hover:bg-eco-blue-dark text-white font-semibold h-12 rounded-xl transition-colors flex items-center gap-2"
             >
-              <Copy className="h-4 w-4 mr-2" />
+              <Copy className="h-4 w-4" />
               Copiar Código PIX
             </Button>
-          </CardContent>
-        </Card>
 
-        {/* Status */}
-        <Card>
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-eco-gray">Status do pagamento:</span>
-              <div className="flex items-center">
-                {isCheckingPayment && (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-eco-blue mr-2"></div>
-                )}
-                <span className="text-sm font-medium text-eco-orange">
-                  {paymentStatus === 'awaiting_payment' ? 'Aguardando pagamento' : paymentStatus}
-                </span>
-              </div>
+            <div className="flex items-center gap-2 text-sm text-eco-gray">
+              <ExternalLink className="h-3 w-3" />
+              <span>Cole este código no seu aplicativo bancário</span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Valor */}
-        {orderData?.totalAmount && (
-          <Card>
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-eco-gray">Valor total:</span>
-                <span className="text-lg font-bold text-eco-green">
-                  R$ {parseFloat(orderData.totalAmount).toFixed(2)}
+        {/* Informações do Pedido */}
+        {orderData && (
+          <Card className="bg-white border-eco-green-light">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-eco-green">Informações do Pedido</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-eco-gray">Cliente:</span>
+                <span className="text-eco-gray-dark font-medium">{orderData.customerName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-eco-gray">Total:</span>
+                <span className="text-eco-green font-bold">
+                  R$ {parseFloat(orderData.totalAmount).toFixed(2).replace('.', ',')}
                 </span>
               </div>
             </CardContent>
           </Card>
         )}
+
+        {/* Status de verificação */}
+        {isCheckingPayment && (
+          <Card className="bg-eco-blue-light border-eco-blue">
+            <CardContent className="p-4 text-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-eco-blue mx-auto mb-2"></div>
+              <p className="text-eco-blue text-sm">Verificando status do pagamento...</p>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="text-center text-xs text-eco-gray mt-6">
+          <p>O pagamento será confirmado automaticamente após a transação PIX</p>
+        </div>
       </div>
     </div>
   );
