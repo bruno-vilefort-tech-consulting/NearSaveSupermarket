@@ -130,13 +130,8 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
           variant: "default",
         });
         queryClient.invalidateQueries({ queryKey: ["/api/customer/orders"] });
-      } else {
-        toast({
-          title: "Pagamento Pendente",
-          description: "O pagamento ainda não foi processado. Tente novamente em alguns minutos.",
-          variant: "default",
-        });
       }
+      // Não mostrar toast para pagamentos pendentes quando executado automaticamente
     },
     onError: (error: Error) => {
       toast({
@@ -148,7 +143,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
     }
   });
 
-  // useEffect para o countdown timer
+  // useEffect para o countdown timer e monitoramento automático de pagamento
   useEffect(() => {
     if (order.status === 'awaiting_payment' && order.pixExpirationDate) {
       const updateTimer = () => {
@@ -171,6 +166,18 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
       return () => clearInterval(interval);
     }
   }, [order.status, order.pixExpirationDate, isExpired]);
+
+  // useEffect para monitoramento automático de pagamento PIX
+  useEffect(() => {
+    if (order.status === 'awaiting_payment' && order.pixPaymentId && !isExpired) {
+      // Verificar status do pagamento a cada 10 segundos
+      const checkPaymentInterval = setInterval(() => {
+        checkPixPaymentMutation.mutate();
+      }, 10000);
+
+      return () => clearInterval(checkPaymentInterval);
+    }
+  }, [order.status, order.pixPaymentId, isExpired]);
 
   // Mutation para cancelar pedido
   const cancelMutation = useMutation({
