@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Package, TrendingUp, Receipt } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Package, TrendingUp, Receipt, ArrowLeft } from "lucide-react";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 interface MonthlyOrderData {
   month: string;
@@ -21,6 +23,7 @@ export default function MonthlyOrders() {
   const { staffUser, isStaffAuthenticated, isLoading: authLoading } = useStaffAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [, navigate] = useLocation();
 
   // Function to translate month names from Portuguese to current language
   const translateMonth = (portugueseMonth: string): string => {
@@ -153,9 +156,19 @@ export default function MonthlyOrders() {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Calendar className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">{t('monthly.title')}</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Calendar className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">{t('monthly.title')}</h1>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/dashboard')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar
+        </Button>
       </div>
 
       {/* Summary Cards */}
