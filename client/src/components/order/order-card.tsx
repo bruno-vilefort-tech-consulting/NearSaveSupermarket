@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { PixRefundButton } from "./pix-refund-button";
+import { CancelOrderModal } from "./cancel-order-modal";
 import { useState } from "react";
 
 interface OrderCardProps {
