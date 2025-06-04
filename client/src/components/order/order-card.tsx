@@ -57,6 +57,11 @@ const statusConfig = {
   shipped: { label: "Em Entrega", color: "bg-indigo-100 text-indigo-800" },
   completed: { label: "Concluído", color: "bg-green-100 text-green-800" },
   cancelled: { label: "Cancelado", color: "bg-red-100 text-red-800" },
+  "cancelled-customer": { label: "Cancelado pelo Cliente", color: "bg-red-100 text-red-800" },
+  "cancelled-staff": { label: "Cancelado pelo Estabelecimento", color: "bg-red-100 text-red-800" },
+  awaiting_payment: { label: "Aguardando Pagamento", color: "bg-gray-100 text-gray-800" },
+  payment_expired: { label: "Pagamento Expirado", color: "bg-red-100 text-red-800" },
+  payment_failed: { label: "Pagamento Falhou", color: "bg-red-100 text-red-800" },
 };
 
 const getNextStatus = (currentStatus: string, fulfillmentMethod: string) => {

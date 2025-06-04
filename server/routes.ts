@@ -1759,6 +1759,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const paymentStatus = await getPaymentStatus(order.pixPaymentId);
       console.log(`Checking PIX payment ${order.pixPaymentId} for order ${orderId}:`, paymentStatus);
 
+      // Handle API errors gracefully
+      if (paymentStatus.status === 'error') {
+        console.log(`PIX API error for order ${orderId}, returning pending status`);
+        return res.json({ 
+          success: false, 
+          message: "Erro temporário na verificação do pagamento", 
+          paymentStatus: { status: 'pending' }
+        });
+      }
+
       if (paymentStatus.status === 'approved') {
         // Payment was approved, update order status to pending to start normal processing flow
         const updatedOrder = await storage.updateOrderStatus(orderId, 'pending', 'PIX_MANUAL_CHECK');

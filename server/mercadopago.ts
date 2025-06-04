@@ -78,16 +78,33 @@ export async function createPixPayment(data: PixPaymentData): Promise<PixPayment
 
 export async function getPaymentStatus(paymentId: string) {
   try {
+    console.log(`Checking payment status for ID: ${paymentId}`);
     const result = await payment.get({ id: paymentId });
-    return {
-      id: result.id!.toString(),
-      status: result.status!,
-      statusDetail: result.status_detail!,
-      externalReference: result.external_reference!
+    
+    const response = {
+      id: result.id?.toString() || paymentId,
+      status: result.status || 'unknown',
+      statusDetail: result.status_detail || 'unknown',
+      externalReference: result.external_reference || ''
     };
-  } catch (error) {
-    console.error('Error getting payment status:', error);
-    throw new Error('Failed to get payment status');
+    
+    console.log(`Payment status response:`, response);
+    return response;
+  } catch (error: any) {
+    console.error('Error getting payment status:', {
+      paymentId,
+      error: error.message,
+      stack: error.stack
+    });
+    
+    // Return a safe fallback instead of throwing
+    return {
+      id: paymentId,
+      status: 'error',
+      statusDetail: 'api_error',
+      externalReference: '',
+      error: error.message
+    };
   }
 }
 
