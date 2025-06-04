@@ -506,10 +506,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         refundReason: reason || 'Cancelamento de pedido'
       });
 
-      // Atualizar status do pedido para cancelled se ainda não foi
-      if (order.status !== 'cancelled') {
-        await storage.updateOrderStatus(orderId, 'cancelled', 'REFUND_SYSTEM');
-      }
+      // SEMPRE atualizar status do pedido para cancelled após estorno PIX bem-sucedido
+      console.log(`🔄 [PIX REFUND] Atualizando status do pedido ${orderId} para 'cancelled'`);
+      await storage.updateOrderStatus(orderId, 'cancelled', 'REFUND_SYSTEM');
+      console.log(`✅ [PIX REFUND] Status do pedido ${orderId} atualizado para 'cancelled'`);
 
       console.log('✅ [PIX REFUND] Pedido atualizado com informações de estorno');
 
