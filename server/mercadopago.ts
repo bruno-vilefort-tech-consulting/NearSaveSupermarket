@@ -273,3 +273,91 @@ function getCardBrand(cardNumber: string): string {
   // Default para visa se não conseguir identificar
   return 'visa';
 }
+
+// Interfaces para estorno PIX
+export interface PixRefundData {
+  paymentId: string;
+  amount?: number; // Opcional - se não fornecido, estorna o valor total
+  reason?: string;
+}
+
+export interface PixRefundResponse {
+  success: boolean;
+  refundId?: string;
+  status?: string;
+  amount?: number;
+  message?: string;
+  error?: string;
+}
+
+// Função para criar estorno PIX
+export async function createPixRefund(data: PixRefundData): Promise<PixRefundResponse> {
+  try {
+    console.log('🔄 [PIX REFUND] Iniciando estorno para pagamento:', data.paymentId);
+    
+    if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+      throw new Error('Token de acesso do Mercado Pago não configurado');
+    }
+
+    // Primeiro, verificar se o pagamento existe e está elegível para estorno
+    const paymentStatus = await getPaymentStatus(data.paymentId);
+    if (!paymentStatus || paymentStatus.status !== 'approved') {
+      return {
+        success: false,
+        error: `Pagamento não está elegível para estorno. Status: ${paymentStatus?.status || 'NOT_FOUND'}`
+      };
+    }
+
+    // Dados do estorno
+    const refundData: any = {};
+    
+    if (data.amount) {
+      refundData.amount = data.amount;
+    }
+    
+    if (data.reason) {
+      refundData.metadata = {
+        reason: data.reason
+      };
+    }
+
+    console.log('🔄 [PIX REFUND] Dados do estorno:', refundData);
+
+    // Fazer requisição de estorno para o Mercado Pago
+    const response = await fetch(`https://api.mercadopago.com/v1/payments/${data.paymentId}/refunds`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+        'X-Idempotency-Key': `refund_${data.paymentId}_${Date.now()}`
+      },
+      body: JSON.stringify(refundData)
+    });
+
+    const result = await response.json();
+    console.log('🔄 [PIX REFUND] Resposta do Mercado Pago:', result);
+
+    if (!response.ok) {
+      console.error('❌ [PIX REFUND] Erro na requisição:', result);
+      return {
+        success: false,
+        error: result.message || 'Erro ao processar estorno no Mercado Pago'
+      };
+    }
+
+    return {
+      success: true,
+      refundId: result.id,
+      status: result.status,
+      amount: result.amount,
+      message: 'Estorno processado com sucesso'
+    };
+
+  } catch (error: any) {
+    console.error('❌ [PIX REFUND] Erro ao criar estorno:', error);
+    return {
+      success: false,
+      error: error.message || 'Erro interno ao processar estorno'
+    };
+  }
+}

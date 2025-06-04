@@ -428,6 +428,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Estornar pagamento PIX
+  app.post("/api/pix/refund", async (req, res) => {
+    const { orderId, reason } = req.body;
+    
+    try {
+      console.log('🔄 [PIX REFUND] Iniciando estorno para pedido:', orderId);
+      
+      if (!orderId) {
+        return res.status(400).json({ message: "ID do pedido é obrigatório" });
+      }
+
+      // Buscar pedido com informações de pagamento PIX
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      // Verificar se o pedido está elegível para estorno (não pode estar completed)
+      if (order.status === 'completed') {
+        return res.status(400).json({ 
+          message: "Não é possível estornar um pedido já concluído" 
+        });
+      }
+
+      // Verificar se já foi estornado
+      if (order.refundStatus === 'refunded' || order.refundStatus === 'processing') {
+        return res.status(400).json({ 
+          message: "Este pedido já foi estornado ou está sendo processado" 
+        });
+      }
+
+      // Buscar o PIX payment ID baseado na referência externa
+      if (!order.externalReference) {
+        return res.status(400).json({ 
+          message: "Pedido não possui referência de pagamento PIX" 
+        });
+      }
+
+      // Buscar informações do pagamento PIX usando a referência externa
+      let pixPaymentId = order.pixPaymentId;
+      
+      // Se não temos o PIX payment ID salvo, tentar extrair da external reference
+      if (!pixPaymentId) {
+        // Aqui podemos implementar lógica para buscar o payment ID
+        // Por enquanto, retornar erro
+        return res.status(400).json({ 
+          message: "ID do pagamento PIX não encontrado para este pedido" 
+        });
+      }
+
+      console.log('🔄 [PIX REFUND] Processando estorno para PIX:', pixPaymentId);
+
+      // Criar estorno via Mercado Pago
+      const refundResult = await createPixRefund({
+        paymentId: pixPaymentId,
+        reason: reason || 'Cancelamento de pedido'
+      });
+
+      if (!refundResult.success) {
+        console.error('❌ [PIX REFUND] Falha no estorno:', refundResult.error);
+        return res.status(500).json({ 
+          message: "Erro ao processar estorno", 
+          error: refundResult.error 
+        });
+      }
+
+      console.log('✅ [PIX REFUND] Estorno processado:', refundResult);
+
+      // Atualizar pedido com informações do estorno
+      await storage.updateOrderRefund(orderId, {
+        pixRefundId: refundResult.refundId!,
+        refundAmount: refundResult.amount?.toString() || order.totalAmount,
+        refundStatus: 'processing',
+        refundDate: new Date(),
+        refundReason: reason || 'Cancelamento de pedido'
+      });
+
+      // Atualizar status do pedido para cancelled se ainda não foi
+      if (order.status !== 'cancelled') {
+        await storage.updateOrderStatus(orderId, 'cancelled', 'REFUND_SYSTEM');
+      }
+
+      console.log('✅ [PIX REFUND] Pedido atualizado com informações de estorno');
+
+      res.json({ 
+        message: "Estorno processado com sucesso",
+        refundId: refundResult.refundId,
+        status: refundResult.status,
+        amount: refundResult.amount
+      });
+
+    } catch (error: any) {
+      console.error('❌ [PIX REFUND] Erro geral:', error);
+      res.status(500).json({ 
+        message: "Erro interno ao processar estorno", 
+        error: error.message 
+      });
+    }
+  });
+
   // Verificar status do pagamento PIX
   app.get("/api/payments/pix/status/:paymentId", async (req, res) => {
     try {

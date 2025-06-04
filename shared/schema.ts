@@ -113,6 +113,12 @@ export const orders = pgTable("orders", {
   lastManualUpdate: timestamp("last_manual_update").defaultNow(),
   notes: text("notes"),
   externalReference: varchar("external_reference", { length: 100 }),
+  pixPaymentId: varchar("pix_payment_id", { length: 100 }),
+  pixRefundId: varchar("pix_refund_id", { length: 100 }),
+  refundAmount: numeric("refund_amount", { precision: 10, scale: 2 }),
+  refundStatus: varchar("refund_status", { length: 50 }),
+  refundDate: timestamp("refund_date"),
+  refundReason: text("refund_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
