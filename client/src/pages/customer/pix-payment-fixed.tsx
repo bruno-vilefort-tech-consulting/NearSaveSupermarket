@@ -98,18 +98,30 @@ export default function PixPaymentFixed() {
   const checkPaymentStatus = async () => {
     if (!pixData?.pixPayment?.id || isProcessingPayment || paymentStatus === 'approved' || orderCompleted) return;
 
+    console.log('🔍 Checking payment status for:', pixData.pixPayment.id);
     setIsCheckingPayment(true);
+    
     try {
       const response = await apiRequest("GET", `/api/payments/pix/status/${pixData.pixPayment.id}`);
-      const status = await response.json();
       
-      console.log('Payment status:', status);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const status = await response.json();
+      console.log('✅ Payment status received:', status);
       
       if (status.status === 'approved' && !isProcessingPayment && !orderCompleted) {
-        // Marcar como processando para evitar duplicação
+        console.log('💳 Payment approved! Starting confirmation process...');
         setIsProcessingPayment(true);
         
         try {
+          console.log('📤 Sending confirmation request with data:', {
+            tempOrderId: pixData.tempOrderId,
+            pixPaymentId: pixData.pixPayment.id,
+            customerEmail: pixData.customerEmail
+          });
+          
           const confirmResponse = await apiRequest("POST", "/api/pix/confirm", {
             tempOrderId: pixData.tempOrderId,
             pixPaymentId: pixData.pixPayment.id,
@@ -122,8 +134,14 @@ export default function PixPaymentFixed() {
             }
           });
           
+          if (!confirmResponse.ok) {
+            const errorText = await confirmResponse.text();
+            console.error('❌ Confirmation failed:', confirmResponse.status, errorText);
+            throw new Error(`Confirmation failed: ${confirmResponse.status} - ${errorText}`);
+          }
+          
           const result = await confirmResponse.json();
-          console.log('Order created:', result);
+          console.log('✅ Order confirmation successful:', result);
           
           // Marcar pedido como completado no localStorage
           const completedOrders = JSON.parse(localStorage.getItem('completedOrders') || '[]');
@@ -137,35 +155,49 @@ export default function PixPaymentFixed() {
           
           toast({
             title: "Pagamento Identificado!",
-            description: `Seu pedido #${result.order.id} foi confirmado e enviado ao supermercado`,
+            description: `Seu pedido #${result.order?.id || 'N/A'} foi confirmado e enviado ao supermercado`,
           });
           
+          console.log('🧹 Cleaning up localStorage...');
           // Limpar dados temporários
           localStorage.removeItem('pixData');
           localStorage.removeItem('orderData');
           localStorage.removeItem('cart');
           
           // Redirecionar para pedidos após 2 segundos
+          console.log('🔄 Redirecting to orders page...');
           setTimeout(() => {
-            setLocation('/customer/orders');
+            try {
+              setLocation('/customer/orders');
+            } catch (navError) {
+              console.error('❌ Navigation error:', navError);
+              window.location.href = '/customer/orders';
+            }
           }, 2000);
           
-        } catch (error) {
-          console.error('Error confirming payment:', error);
-          setIsProcessingPayment(false); // Reset em caso de erro
+        } catch (confirmError) {
+          console.error('❌ Error during confirmation:', confirmError);
+          setIsProcessingPayment(false);
           toast({
-            title: "Erro",
-            description: "Erro ao confirmar pagamento. Tente novamente.",
+            title: "Erro ao Confirmar Pagamento",
+            description: confirmError instanceof Error ? confirmError.message : "Erro desconhecido ao confirmar pagamento",
             variant: "destructive",
           });
         }
       } else if (status.status === 'rejected' || status.status === 'cancelled') {
+        console.log('❌ Payment rejected/cancelled:', status.status);
         setPaymentStatus('rejected');
       } else {
+        console.log('⏳ Payment still pending:', status.status);
         setPaymentStatus(status.status);
       }
-    } catch (error) {
-      console.error('Error checking payment status:', error);
+    } catch (statusError) {
+      console.error('❌ Error checking payment status:', statusError);
+      toast({
+        title: "Erro de Conexão",
+        description: "Erro ao verificar status do pagamento. Tentando novamente...",
+        variant: "destructive",
+      });
     } finally {
       setIsCheckingPayment(false);
     }
