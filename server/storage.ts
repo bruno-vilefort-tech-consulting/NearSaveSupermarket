@@ -30,7 +30,7 @@ import {
   pushSubscriptions,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql, or, not } from "drizzle-orm";
+import { eq, desc, and, sql, or, not, isNotNull } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 // Interface for storage operations
@@ -834,6 +834,68 @@ export class DatabaseStorage implements IStorage {
   }
 
   private protectionMap = new Map<number, NodeJS.Timeout>();
+
+  // Verificar pedidos PIX expirados na inicialização
+  async checkExpiredPixOrders(): Promise<void> {
+    try {
+      console.log('🔍 [STARTUP] Verificando pedidos PIX expirados...');
+      
+      const expiredOrders = await db
+        .select()
+        .from(orders)
+        .where(
+          and(
+            eq(orders.status, 'awaiting_payment'),
+            isNotNull(orders.pixPaymentId),
+            isNotNull(orders.pixExpirationDate),
+            sql`${orders.pixExpirationDate} < NOW()`
+          )
+        );
+
+      console.log(`🔍 [STARTUP] Encontrados ${expiredOrders.length} pedidos PIX expirados`);
+
+      for (const order of expiredOrders) {
+        if (order.pixPaymentId) {
+          console.log(`⏰ [STARTUP] Processando pedido expirado ${order.id} com PIX ${order.pixPaymentId}`);
+          
+          try {
+            // Importar dinamicamente para evitar dependência circular
+            const { cancelPixPayment } = await import('./mercadopago');
+            
+            const cancelResult = await cancelPixPayment({
+              paymentId: order.pixPaymentId,
+              reason: 'Pagamento expirado - cancelamento na inicialização'
+            });
+            
+            if (cancelResult.success) {
+              console.log(`✅ [STARTUP] PIX ${order.pixPaymentId} cancelado no Mercado Pago`);
+            } else {
+              console.log(`⚠️ [STARTUP] Falha ao cancelar PIX ${order.pixPaymentId}: ${cancelResult.error}`);
+            }
+          } catch (error) {
+            console.error(`❌ [STARTUP] Erro ao cancelar PIX para pedido ${order.id}:`, error);
+          }
+
+          // Atualizar status do pedido para payment_expired
+          await db
+            .update(orders)
+            .set({ 
+              status: 'payment_expired',
+              lastManualStatus: 'payment_expired',
+              lastManualUpdate: new Date(),
+              updatedAt: new Date()
+            })
+            .where(eq(orders.id, order.id));
+            
+          console.log(`✅ [STARTUP] Pedido ${order.id} marcado como payment_expired`);
+        }
+      }
+
+      console.log('✅ [STARTUP] Verificação de pedidos PIX expirados concluída');
+    } catch (error) {
+      console.error('❌ [STARTUP] Erro na verificação de pedidos PIX expirados:', error);
+    }
+  }
 
   private async startOrderProtection(orderId: number): Promise<void> {
     console.log(`🛡️ PROTECTION INITIATED: Starting protection for order ${orderId}`);
