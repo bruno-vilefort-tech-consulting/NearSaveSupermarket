@@ -100,6 +100,29 @@ export default function CustomerOrders() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-red-800 mb-2">Erro ao carregar pedidos</h2>
+            <p className="text-red-600 mb-4">
+              {error instanceof Error ? error.message : 'Ocorreu um erro inesperado'}
+            </p>
+            <Button 
+              onClick={() => refetch()} 
+              variant="outline"
+              className="border-red-300 text-red-700 hover:bg-red-50"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Tentar novamente
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
