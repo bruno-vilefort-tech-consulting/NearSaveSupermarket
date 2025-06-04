@@ -402,7 +402,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
               </div>
 
               {/* Indicador de PIX */}
-              {order.externalReference && order.pixPaymentId && (
+              {order.externalReference && order.pixPaymentId && order.status !== "completed" && (
                 <div className="text-xs text-blue-600 flex items-center gap-1">
                   <CreditCard className="h-3 w-3" />
                   {order.pixRefundId ? 
