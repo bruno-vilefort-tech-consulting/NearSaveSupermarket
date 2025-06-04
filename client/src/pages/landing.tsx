@@ -52,14 +52,14 @@ export default function Landing() {
             </div>
           </div>
           <p className="text-lg text-eco-gray max-w-md mx-auto leading-relaxed">
-            Conectando supermercados e consumidores para reduzir o desperdício de alimentos
+            Menos desperdício. Mais valor.
           </p>
         </div>
       </div>
 
       {/* Ilustração do Carrinho */}
       <div className="flex justify-center">
-        <svg viewBox="0 0 300 200" className="w-[32rem] h-auto">
+        <svg viewBox="0 0 300 200" className="w-[40rem] h-auto">
           {/* Definições de gradientes */}
           <defs>
             <linearGradient id="cartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -117,10 +117,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="flex justify-between items-center p-6">
-        <div className="text-sm text-eco-gray font-medium">
-          {t('landing.subtitle')}
-        </div>
+      <div className="flex justify-end items-center p-6">
         
         {/* Language Selector */}
         <div className="relative" ref={languageMenuRef}>
