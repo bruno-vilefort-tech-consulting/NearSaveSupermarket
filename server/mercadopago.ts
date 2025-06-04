@@ -290,6 +290,67 @@ export interface PixRefundResponse {
   error?: string;
 }
 
+export interface RefundStatusResponse {
+  success: boolean;
+  refundId: string;
+  status: string;
+  amount?: number;
+  message?: string;
+  error?: string;
+}
+
+// Função para verificar status de estorno PIX
+export async function checkRefundStatus(refundId: string): Promise<RefundStatusResponse> {
+  try {
+    console.log('🔍 [PIX REFUND STATUS] Verificando status do estorno:', refundId);
+    
+    if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
+      throw new Error('Token de acesso do Mercado Pago não configurado');
+    }
+
+    const response = await fetch(`https://api.mercadopago.com/v1/refunds/${refundId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error('❌ [PIX REFUND STATUS] Erro ao consultar:', result);
+      return {
+        success: false,
+        refundId,
+        status: 'error',
+        message: result.message || 'Erro ao consultar status do estorno',
+        error: result.cause?.[0]?.description || 'Erro desconhecido'
+      };
+    }
+
+    console.log('✅ [PIX REFUND STATUS] Status obtido:', result);
+
+    return {
+      success: true,
+      refundId: result.id.toString(),
+      status: result.status,
+      amount: result.amount,
+      message: 'Status consultado com sucesso'
+    };
+
+  } catch (error) {
+    console.error('❌ [PIX REFUND STATUS] Erro na consulta:', error);
+    return {
+      success: false,
+      refundId,
+      status: 'error',
+      message: 'Erro interno ao consultar status do estorno',
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    };
+  }
+}
+
 // Função para criar estorno PIX
 export async function createPixRefund(data: PixRefundData): Promise<PixRefundResponse> {
   try {

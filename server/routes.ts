@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
-import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, type CardPaymentData, type PixPaymentData } from "./mercadopago";
+import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
 
 // Declaração global para armazenar pedidos temporários
@@ -1601,6 +1601,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error updating staff location:", error);
       res.status(500).json({ message: "Erro ao atualizar localização" });
+    }
+  });
+
+  // PIX Refund Status Check endpoint
+  app.post('/api/orders/:id/check-refund-status', async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const order = await storage.getOrder(orderId);
+      
+      if (!order) {
+        return res.status(404).json({ error: 'Pedido não encontrado' });
+      }
+
+      if (!order.pixRefundId) {
+        return res.status(400).json({ error: 'Nenhum estorno PIX encontrado para este pedido' });
+      }
+
+      console.log('🔍 Verificando status do estorno PIX:', order.pixRefundId);
+      
+      const statusResponse = await checkRefundStatus(order.pixRefundId);
+      
+      if (!statusResponse.success) {
+        return res.status(500).json({ 
+          error: statusResponse.message || 'Erro ao verificar status do estorno' 
+        });
+      }
+
+      // Atualiza o status no banco de dados se mudou
+      if (statusResponse.status !== order.refundStatus) {
+        console.log(`📝 Atualizando status do estorno de ${order.refundStatus} para ${statusResponse.status}`);
+        
+        await storage.updateOrderRefund(orderId, {
+          pixRefundId: order.pixRefundId,
+          refundAmount: order.refundAmount || statusResponse.amount?.toString() || '0',
+          refundStatus: statusResponse.status,
+          refundDate: order.refundDate || new Date(),
+          refundReason: order.refundReason || 'Verificação automática de status'
+        });
+      }
+
+      res.json({
+        success: true,
+        refundId: statusResponse.refundId,
+        status: statusResponse.status,
+        amount: statusResponse.amount,
+        message: 'Status verificado com sucesso'
+      });
+
+    } catch (error) {
+      console.error('❌ Erro ao verificar status do estorno:', error);
+      res.status(500).json({ 
+        error: 'Erro interno ao verificar status do estorno' 
+      });
     }
   });
 
