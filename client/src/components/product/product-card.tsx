@@ -1,8 +1,28 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -24,6 +44,16 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
+const editProductSchema = z.object({
+  name: z.string().min(1, "Nome do produto é obrigatório"),
+  description: z.string().optional(),
+  category: z.string().min(1, "Categoria é obrigatória"),
+  originalPrice: z.string().min(1, "Preço original é obrigatório"),
+  discountPrice: z.string().min(1, "Preço com desconto é obrigatório"),
+  quantity: z.string().min(1, "Quantidade é obrigatória"),
+  expirationDate: z.string().min(1, "Data de validade é obrigatória"),
+});
+
 interface ProductCardProps {
   product: {
     id: number;
@@ -42,6 +72,66 @@ export function ProductCard({ product }: ProductCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const form = useForm<z.infer<typeof editProductSchema>>({
+    resolver: zodResolver(editProductSchema),
+    defaultValues: {
+      name: product.name,
+      description: product.description || "",
+      category: product.category,
+      originalPrice: product.originalPrice,
+      discountPrice: product.discountPrice,
+      quantity: product.quantity.toString(),
+      expirationDate: product.expirationDate.split('T')[0], // Format for date input
+    },
+  });
+
+  const editProductMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof editProductSchema>) => {
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('description', data.description || '');
+      formData.append('category', data.category);
+      formData.append('originalPrice', data.originalPrice);
+      formData.append('discountPrice', data.discountPrice);
+      formData.append('quantity', data.quantity);
+      formData.append('expirationDate', data.expirationDate);
+
+      const response = await apiRequest("PUT", `/api/products/${product.id}`, formData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Sucesso",
+        description: "Produto atualizado com sucesso",
+      });
+      // Invalidar todas as variações de queries de produtos
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
+      setShowEditDialog(false);
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Não autorizado",
+          description: "Você foi desconectado. Fazendo login novamente...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Erro",
+        description: "Falha ao atualizar produto. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const deleteProductMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -99,6 +189,10 @@ export function ProductCard({ product }: ProductCardProps) {
     deleteProductMutation.mutate(product.id);
   };
 
+  const handleEdit = (data: z.infer<typeof editProductSchema>) => {
+    editProductMutation.mutate(data);
+  };
+
   return (
     <>
       <Card className="shadow-sm overflow-hidden">
@@ -149,7 +243,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                       <Edit size={16} className="mr-2" />
                       Editar Produto
                     </DropdownMenuItem>
