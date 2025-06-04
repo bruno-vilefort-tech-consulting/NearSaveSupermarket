@@ -30,7 +30,7 @@ import {
   pushSubscriptions,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql, or } from "drizzle-orm";
+import { eq, desc, and, sql, or, not } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 // Interface for storage operations
@@ -465,7 +465,11 @@ export class DatabaseStorage implements IStorage {
     console.log(`🔍 CRITICAL DEBUG: About to query orders - checking for any side effects`);
     
     // First, get all orders that contain products created by this staff
-    let whereConditions = [eq(products.createdByStaff, staffId)];
+    let whereConditions = [
+      eq(products.createdByStaff, staffId),
+      // Exclude orders with expired payments from staff interface
+      not(eq(orders.status, 'payment_expired'))
+    ];
     
     if (filters?.status) {
       whereConditions.push(eq(orders.status, filters.status));
@@ -500,11 +504,15 @@ export class DatabaseStorage implements IStorage {
       .where(and(...whereConditions))
       .orderBy(desc(orders.createdAt));
 
-    console.log(`Found ${staffOrders.length} orders for staff ${staffId}:`, staffOrders.map(o => ({ id: o.id, customer: o.customerName })));
+    console.log(`Found ${staffOrders.length} orders for staff ${staffId}:`, staffOrders.map(o => ({ id: o.id, customer: o.customerName, status: o.status })));
+    
+    // Filter out payment_expired orders from the results
+    const filteredOrders = staffOrders.filter(order => order.status !== 'payment_expired');
+    console.log(`After filtering out payment_expired: ${filteredOrders.length} orders remaining`);
 
     // Auto-check PIX refund status for orders with processing refunds
     const ordersWithUpdatedRefunds = await Promise.all(
-      staffOrders.map(async (order) => {
+      filteredOrders.map(async (order) => {
         if (order.pixRefundId && order.refundStatus === 'processing' && order.pixPaymentId) {
           try {
             console.log(`🔄 Auto-checking refund status for order ${order.id}`);
