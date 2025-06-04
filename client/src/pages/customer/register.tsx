@@ -30,6 +30,13 @@ export default function CustomerRegister() {
   const { t } = useLanguage();
   const [cpfValid, setCpfValid] = useState<boolean | null>(null);
   const [phoneValid, setPhoneValid] = useState<boolean | null>(null);
+  const [emailValid, setEmailValid] = useState<boolean | null>(null);
+
+  // Função para validar email
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
 
   // Função para validar CPF
   const validateCPF = (cpf: string): boolean => {
@@ -78,7 +85,12 @@ export default function CustomerRegister() {
         const cleanPhone = phone.replace(/[^\d]/g, '');
         return cleanPhone.length === 11;
       }, 'Telefone deve ter 11 dígitos (DDD + 9 dígitos)'),
-    email: z.string().email(t('validation.emailInvalid')),
+    email: z.string()
+      .min(1, 'Email é obrigatório')
+      .email('Formato de email inválido')
+      .refine((email) => {
+        return validateEmail(email);
+      }, 'Email deve ser válido'),
     password: z.string()
       .min(6, t('validation.passwordMinLength'))
       .max(100, t('validation.passwordTooLong')),
@@ -316,9 +328,33 @@ export default function CustomerRegister() {
                           <Input
                             {...field}
                             type="email"
-                            placeholder={t('auth.emailPlaceholder')}
-                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
+                            placeholder="exemplo@email.com"
+                            className={`pl-10 pr-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green ${
+                              emailValid === true ? 'border-eco-green' : 
+                              emailValid === false ? 'border-red-500' : ''
+                            }`}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              
+                              // Validação em tempo real
+                              if (e.target.value.length === 0) {
+                                setEmailValid(null);
+                              } else if (e.target.value.length >= 5) {
+                                setEmailValid(validateEmail(e.target.value));
+                              } else {
+                                setEmailValid(false);
+                              }
+                            }}
                           />
+                          {emailValid !== null && (
+                            <div className="absolute right-3 top-3">
+                              {emailValid ? (
+                                <Check className="h-4 w-4 text-eco-green" />
+                              ) : (
+                                <X className="h-4 w-4 text-red-500" />
+                              )}
+                            </div>
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />
