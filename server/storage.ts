@@ -835,7 +835,6 @@ export class DatabaseStorage implements IStorage {
 
   private protectionMap = new Map<number, NodeJS.Timeout>();
 
-  // Verificar pedidos PIX expirados na inicialização
   async checkExpiredPixOrders(): Promise<void> {
     try {
       console.log('🔍 [STARTUP] Verificando pedidos PIX expirados...');
