@@ -1619,7 +1619,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log('🔍 Verificando status do estorno PIX:', order.pixRefundId);
+      console.log('🔍 PIX Payment ID:', order.pixPaymentId);
       
+      // Try to get refund status through payment endpoint
       const statusResponse = await checkRefundStatus(order.pixRefundId);
       
       if (!statusResponse.success) {
