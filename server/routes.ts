@@ -371,7 +371,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fulfillmentMethod: "pickup",
           deliveryAddress: null,
           totalAmount: tempOrderData.totalAmount.toString(),
-          externalReference: tempOrderId
+          externalReference: tempOrderId,
+          pixPaymentId: pixPaymentId  // Incluir o pixPaymentId para permitir estornos futuros
         };
         console.log('🔍 [PIX CONFIRM] Dados do pedido:', orderData);
 
