@@ -133,17 +133,16 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     },
   });
 
-  // Mutation para estorno PIX
-  const refundMutation = useMutation({
+  // Mutation para cancelar pedido (com estorno PIX automático)
+  const cancelOrderMutation = useMutation({
     mutationFn: async ({ orderId, reason }: { orderId: number; reason?: string }) => {
-      const response = await apiRequest("POST", "/api/pix/refund", {
-        orderId,
-        reason: reason || "Cancelamento de pedido"
+      const response = await apiRequest("POST", `/api/customer/orders/${orderId}/cancel`, {
+        reason: reason || "Cancelamento solicitado pelo estabelecimento"
       });
       
       if (!response.ok) {
         const errorData = await response.text();
-        let errorMessage = "Erro ao processar estorno";
+        let errorMessage = "Erro ao cancelar pedido";
         try {
           const parsed = JSON.parse(errorData);
           errorMessage = parsed.message || errorMessage;
@@ -157,11 +156,13 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     },
     onSuccess: (data) => {
       toast({
-        title: "Estorno Processado",
-        description: `Estorno PIX processado com sucesso. ID: ${data.refundId}`,
+        title: "Pedido Cancelado",
+        description: data.refundProcessed 
+          ? "Pedido cancelado com sucesso. Estorno PIX processado automaticamente."
+          : "Pedido cancelado com sucesso.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/staff/orders"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
@@ -176,7 +177,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
         return;
       }
       toast({
-        title: "Erro no Estorno",
+        title: "Erro ao Cancelar",
         description: error.message,
         variant: "destructive",
       });
@@ -224,17 +225,11 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   };
 
   const confirmCancelOrder = () => {
-    const hasPixPayment = order.externalReference && order.pixPaymentId;
-    
-    if (hasPixPayment) {
-      // Primeiro processa o estorno PIX, depois cancela o pedido
-      refundMutation.mutate({ 
-        orderId: order.id, 
-        reason: 'Cancelamento de pedido com estorno automático' 
-      });
-    } else {
-      updateStatusMutation.mutate("cancelled");
-    }
+    // Usar a nova rota robusta que processa estorno PIX automaticamente
+    cancelOrderMutation.mutate({ 
+      orderId: order.id, 
+      reason: 'Cancelamento solicitado pelo estabelecimento' 
+    });
     
     setShowCancelDialog(false);
   };
