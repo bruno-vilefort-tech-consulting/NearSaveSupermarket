@@ -143,10 +143,17 @@ export default function CustomerLogin() {
                           <Lock className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder={t('auth.password')}
-                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
+                            className="pl-10 pr-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                           />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-3 h-4 w-4 text-eco-gray hover:text-eco-gray-dark transition-colors"
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
                         </div>
                       </FormControl>
                       <FormMessage />

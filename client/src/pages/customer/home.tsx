@@ -144,6 +144,33 @@ export default function CustomerHome() {
     queryKey: ["/api/customer/supermarkets-with-locations"],
   });
 
+  // Query para buscar pedidos do cliente
+  const { data: orders } = useQuery({
+    queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
+    enabled: !!(customerInfo?.email || customerInfo?.phone),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (customerInfo?.email) params.append('email', customerInfo.email);
+      if (customerInfo?.phone) params.append('phone', customerInfo.phone);
+      
+      const response = await fetch(`/api/customer/orders?${params}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    },
+  });
+
+  // Calcular quantidade de pedidos em processamento
+  const processingOrdersCount = React.useMemo(() => {
+    if (!orders || !Array.isArray(orders)) return 0;
+    return orders.filter((order: any) => 
+      order.status === 'pending' || 
+      order.status === 'processing' || 
+      order.status === 'awaiting_payment'
+    ).length;
+  }, [orders]);
+
   // Filtrar supermercados por proximidade (20km) e termo de busca
   const filteredSupermarkets = React.useMemo(() => {
     if (!supermarkets || !Array.isArray(supermarkets)) return [];
@@ -238,10 +265,15 @@ export default function CustomerHome() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/customer/orders")}
-                className="border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white"
+                className="relative border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white"
               >
                 <Package size={16} className="mr-1" />
                 {t('nav.myOrders')}
+                {processingOrdersCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-eco-orange text-white">
+                    {processingOrdersCount}
+                  </Badge>
+                )}
               </Button>
 
               <Button
@@ -366,17 +398,22 @@ export default function CustomerHome() {
 
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-blue-light"
+                  className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-blue-light relative"
                   onClick={() => {
                     navigate("/customer/orders");
                     setIsMobileMenuOpen(false);
                   }}
                 >
                   <Package size={20} className="mr-3 text-eco-blue" />
-                  <div>
+                  <div className="flex-1">
                     <div className="font-medium">{t('nav.myOrders')}</div>
                     <div className="text-xs text-eco-gray">{t('customer.purchaseHistory')}</div>
                   </div>
+                  {processingOrdersCount > 0 && (
+                    <Badge className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-eco-orange text-white ml-2">
+                      {processingOrdersCount}
+                    </Badge>
+                  )}
                 </Button>
 
                 <Button
