@@ -1701,13 +1701,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Checking PIX payment ${order.pixPaymentId} for order ${orderId}:`, paymentStatus);
 
       if (paymentStatus.status === 'approved') {
-        // Payment was approved, update order status
-        const updatedOrder = await storage.updateOrderStatus(orderId, 'payment_confirmed', 'PIX_MANUAL_CHECK');
-        console.log(`Order ${orderId} marked as paid via manual PIX check`);
+        // Payment was approved, update order status to pending to start normal processing flow
+        const updatedOrder = await storage.updateOrderStatus(orderId, 'pending', 'PIX_MANUAL_CHECK');
+        console.log(`Order ${orderId} payment confirmed via manual PIX check, status set to pending for processing`);
         
         res.json({ 
           success: true, 
-          message: "Pagamento confirmado", 
+          message: "Pagamento confirmado - pedido enviado para processamento", 
           order: updatedOrder,
           paymentStatus 
         });
