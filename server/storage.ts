@@ -768,39 +768,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateOrderPaymentStatus(id: number, status: 'payment_confirmed' | 'payment_failed'): Promise<Order | undefined> {
-    const [order] = await db
-      .update(orders)
-      .set({ 
-        status,
-        lastManualUpdate: new Date(),
-        updatedAt: new Date()
-      })
-      .where(eq(orders.id, id))
-      .returning();
-
-    if (!order) return undefined;
-
     if (status === 'payment_confirmed') {
-      // Update product quantities (reduce stock) only after payment confirmation
-      const orderItemsList = await db
-        .select()
-        .from(orderItems)
-        .where(eq(orderItems.orderId, id));
-
-      for (const item of orderItemsList) {
-        await db
-          .update(products)
-          .set({ 
-            quantity: sql`${products.quantity} - ${item.quantity}`,
-            updatedAt: new Date()
-          })
-          .where(eq(products.id, item.productId));
-      }
-
-      // Calculate and apply eco-friendly rewards after payment confirmation
-      await this.calculateEcoRewards(order, orderItemsList);
-
-      // Automatically advance to pending status after payment confirmation
+      // Directly update to pending status to avoid double updates
       const [updatedOrder] = await db
         .update(orders)
         .set({ 
@@ -812,13 +781,53 @@ export class DatabaseStorage implements IStorage {
         .where(eq(orders.id, id))
         .returning();
 
-      console.log(`✅ Order ${id} payment confirmed, stock updated, status advanced to pending`);
+      if (!updatedOrder) return undefined;
+
+      // Process stock updates and rewards asynchronously to avoid blocking
+      setImmediate(async () => {
+        try {
+          // Update product quantities (reduce stock)
+          const orderItemsList = await db
+            .select()
+            .from(orderItems)
+            .where(eq(orderItems.orderId, id));
+
+          for (const item of orderItemsList) {
+            await db
+              .update(products)
+              .set({ 
+                quantity: sql`${products.quantity} - ${item.quantity}`,
+                updatedAt: new Date()
+              })
+              .where(eq(products.id, item.productId));
+          }
+
+          // Calculate and apply eco-friendly rewards
+          await this.calculateEcoRewards(updatedOrder, orderItemsList);
+          
+          console.log(`✅ Order ${id} payment confirmed, stock updated, status advanced to pending`);
+        } catch (error) {
+          console.error(`❌ Error processing order ${id} post-payment:`, error);
+        }
+      });
+
       return updatedOrder;
     } else if (status === 'payment_failed') {
+      const [order] = await db
+        .update(orders)
+        .set({ 
+          status,
+          lastManualUpdate: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(orders.id, id))
+        .returning();
+
       console.log(`❌ Order ${id} payment failed, stock not affected`);
+      return order;
     }
 
-    return order;
+    return undefined;
   }
 
   private protectionMap = new Map<number, NodeJS.Timeout>();
