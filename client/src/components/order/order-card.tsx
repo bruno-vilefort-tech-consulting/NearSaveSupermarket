@@ -375,7 +375,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                 )}
                 
                 {/* Botão separado para Estorno PIX */}
-                {order.externalReference && order.pixPaymentId && !order.pixRefundId && order.status !== "cancelled" && (
+                {order.externalReference && order.pixPaymentId && !order.pixRefundId && order.status !== "cancelled" && order.status !== "completed" && (
                   <Button 
                     size="sm"
                     variant="outline"
