@@ -114,17 +114,17 @@ export default function EcoPoints() {
     {
       title: "Redução do Desperdício",
       description: "Ajude a combater o desperdício alimentar comprando produtos próximos ao vencimento",
-      icon: <Recycle size={24} className="text-green-600" />
+      icon: <Recycle size={24} className="text-eco-green" />
     },
     {
       title: "Economia Financeira",
       description: "Produtos com desconto significativo para seu orçamento",
-      icon: <TrendingUp size={24} className="text-blue-600" />
+      icon: <TrendingUp size={24} className="text-eco-blue" />
     },
     {
       title: "Impacto Ambiental",
       description: "Contribua para um planeta mais sustentável com suas escolhas",
-      icon: <Leaf size={24} className="text-green-600" />
+      icon: <Leaf size={24} className="text-eco-green" />
     }
   ];
 
