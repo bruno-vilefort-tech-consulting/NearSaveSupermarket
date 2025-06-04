@@ -3,10 +3,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Leaf } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useEffect, useState } from "react";
 
 export default function TermsAndConditions() {
   const [, navigate] = useLocation();
   const { t } = useLanguage();
+  const [previousPage, setPreviousPage] = useState("/customer/register");
+
+  useEffect(() => {
+    // Detecta de onde o usuário veio baseado no referrer
+    const referrer = document.referrer;
+    if (referrer.includes("/customer/register")) {
+      setPreviousPage("/customer/register");
+    } else if (referrer.includes("/customer/login")) {
+      setPreviousPage("/customer/login");
+    } else if (referrer.includes("/")) {
+      setPreviousPage("/");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-eco-gray-light p-4">
@@ -19,7 +33,7 @@ export default function TermsAndConditions() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-eco-gray-dark">EcoMart</h1>
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-center mt-2">
             <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
           </div>
         </div>
@@ -155,7 +169,7 @@ export default function TermsAndConditions() {
         {/* Botão Voltar */}
         <div className="text-center mt-6">
           <Button
-            onClick={() => window.history.back()}
+            onClick={() => navigate(previousPage)}
             variant="outline"
             className="inline-flex items-center space-x-2 border-eco-gray text-eco-gray hover:bg-eco-gray-light"
           >

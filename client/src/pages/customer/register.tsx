@@ -180,7 +180,7 @@ export default function CustomerRegister() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-eco-gray-dark">{t('landing.title')}</h1>
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-center mt-2">
             <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
           </div>
           <p className="text-eco-gray mt-3">{t('customer.registerSubtitle')}</p>

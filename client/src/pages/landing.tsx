@@ -46,7 +46,7 @@ export default function Landing() {
           <h1 className="text-5xl font-bold text-eco-gray-dark tracking-tight">
             {t('landing.title')}
           </h1>
-          <div className="flex justify-end">
+          <div className="flex justify-center">
             <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
           </div>
         </div>
