@@ -420,7 +420,14 @@ export default function CustomerRegister() {
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <FormLabel className="text-sm font-normal text-eco-gray-dark">
-                          {t('customer.acceptTerms')}
+                          Aceito os{" "}
+                          <button
+                            type="button"
+                            onClick={() => window.open("/terms-and-conditions", "_blank")}
+                            className="text-eco-blue hover:text-eco-blue-dark font-medium underline"
+                          >
+                            Termos e Condições
+                          </button>
                         </FormLabel>
                         <FormMessage />
                       </div>

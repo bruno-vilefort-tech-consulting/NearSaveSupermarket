@@ -34,6 +34,7 @@ import StaffForgotPassword from "@/pages/staff-forgot-password";
 import StaffResetPassword from "@/pages/staff-reset-password";
 import StaffSettings from "@/pages/staff-settings";
 import Terms from "@/pages/terms";
+import TermsAndConditions from "@/pages/terms-and-conditions";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -69,6 +70,7 @@ function Router() {
       
       {/* Terms and Conditions - Public access */}
       <Route path="/terms" component={Terms} />
+      <Route path="/terms-and-conditions" component={TermsAndConditions} />
       
       {/* Staff App Routes - Allow access if either authenticated */}
       {isStaffLoading ? (
