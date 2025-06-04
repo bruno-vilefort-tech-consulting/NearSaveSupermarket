@@ -1639,6 +1639,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PIX Payment Expiration Route
+  app.post("/api/orders/:id/expire-payment", async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "ID do pedido inválido" });
+      }
+
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      if (order.status !== 'awaiting_payment') {
+        return res.status(400).json({ message: "Pedido não está aguardando pagamento" });
+      }
+
+      // Update order status to payment_expired
+      const updatedOrder = await storage.updateOrderStatus(orderId, 'payment_expired', 'TIMER_EXPIRATION');
+      
+      if (!updatedOrder) {
+        return res.status(500).json({ message: "Erro ao atualizar status do pedido" });
+      }
+
+      console.log(`Order ${orderId} payment expired automatically`);
+      res.json({ 
+        success: true, 
+        message: "Pagamento expirado", 
+        order: updatedOrder 
+      });
+    } catch (error) {
+      console.error("Error expiring payment:", error);
+      res.status(500).json({ message: "Erro ao expirar pagamento" });
+    }
+  });
+
   // Get staff user info
   app.get('/api/staff/user', async (req, res) => {
     try {
