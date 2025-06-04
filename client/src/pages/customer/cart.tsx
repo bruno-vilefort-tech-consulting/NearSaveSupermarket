@@ -178,72 +178,29 @@ export default function CustomerCart() {
       return;
     }
 
-    try {
-      console.log('Iniciando checkout com dados:', {
-        customerInfo,
-        cartItems: cartItems.length,
-        deliveryType,
-        total: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2)
-      });
+    // Salvar dados do pedido para a tela de revisão
+    const orderData = {
+      customerName: customerInfo.fullName,
+      customerEmail: customerInfo.email,
+      customerPhone: customerInfo.phone || "",
+      deliveryType,
+      deliveryAddress: deliveryType === "delivery" ? deliveryAddress : null,
+      totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
+      items: cartItems.map(item => ({
+        productId: item.id,
+        productName: item.name,
+        quantity: item.quantity,
+        priceAtTime: item.discountPrice,
+        imageUrl: item.imageUrl,
+        expirationDate: item.expirationDate,
+        supermarketName: item.createdBy?.supermarketName || item.supermarketName
+      }))
+    };
 
-      // Criar pedido com status awaiting_payment
-      const orderData = {
-        customerName: customerInfo.fullName,
-        customerEmail: customerInfo.email,
-        customerPhone: customerInfo.phone || "",
-        totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
-        items: cartItems.map(item => ({
-          productId: item.id,
-          productName: item.name,
-          quantity: item.quantity,
-          priceAtTime: item.discountPrice
-        }))
-      };
-
-      console.log('Enviando dados do pedido:', orderData);
-
-      const response = await fetch('/api/orders/create-with-pix', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Erro na resposta:', errorText);
-        throw new Error(`Erro ao criar pedido: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log('Pedido criado com sucesso:', result);
-      
-      // Limpar carrinho após criar pedido
-      localStorage.removeItem('cart');
-      setCartItems([]);
-      
-      // Salvar dados do pagamento PIX
-      localStorage.setItem('pixPaymentData', JSON.stringify({
-        orderId: result.orderId,
-        pixPayment: result.pixPayment,
-        expirationDate: result.expirationDate,
-        customerData: orderData
-      }));
-
-      // Redirecionar para tela de pagamento PIX
-      navigate(`/customer/pix-payment/${result.orderId}`);
-      
-    } catch (error) {
-      console.error('Erro ao finalizar pedido:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao finalizar pedido. Verifique sua conexão e tente novamente.',
-        variant: "destructive",
-      });
-    }
+    localStorage.setItem('orderReview', JSON.stringify(orderData));
+    
+    // Redirecionar para tela de revisão do pedido
+    navigate('/customer/order-review');
   };
 
   if (cartItems.length === 0) {
