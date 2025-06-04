@@ -56,24 +56,29 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-eco-gray-light flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center space-x-2 text-2xl font-bold text-green-600">
-            <Leaf size={32} />
-            <span>EcoMart</span>
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-eco-green rounded-full flex items-center justify-center">
+              <Leaf className="text-white" size={32} />
+            </div>
           </div>
-          <p className="text-gray-600 mt-2">{t('auth.recoverySubtitle')}</p>
+          <h1 className="text-2xl font-bold text-eco-gray-dark">EcoMart</h1>
+          <div className="flex justify-center mt-2">
+            <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
+          </div>
+          <p className="text-eco-gray mt-3">{t('auth.recoverySubtitle')}</p>
         </div>
 
         {/* Formulário */}
-        <Card className="shadow-lg">
+        <Card className="shadow-lg border-eco-green-light bg-white">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl font-semibold text-gray-900">
+            <CardTitle className="text-xl font-semibold text-eco-gray-dark">
               {t('auth.forgotPasswordTitle')}
             </CardTitle>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-eco-gray">
               {t('auth.forgotPasswordDescription')}
             </p>
           </CardHeader>
@@ -86,15 +91,15 @@ export default function ForgotPassword() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('auth.email')}</FormLabel>
+                      <FormLabel className="text-eco-gray-dark">{t('auth.email')}</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-eco-gray" />
                           <Input
                             {...field}
                             type="email"
-                            placeholder={t('auth.emailPlaceholder')}
-                            className="pl-10"
+                            placeholder="exemplo@email.com"
+                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
                           />
                         </div>
                       </FormControl>
@@ -105,7 +110,7 @@ export default function ForgotPassword() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl transition-colors"
                   disabled={forgotPasswordMutation.isPending}
                 >
                   {forgotPasswordMutation.isPending ? t('auth.sending') : t('auth.sendInstructions')}
@@ -116,7 +121,7 @@ export default function ForgotPassword() {
             <div className="text-center mt-6">
               <button
                 onClick={() => navigate("/customer/login")}
-                className="text-green-600 hover:text-green-700 font-medium"
+                className="text-eco-blue hover:text-eco-blue-dark font-medium transition-colors"
               >
                 {t('auth.backToLogin')}
               </button>
@@ -128,7 +133,7 @@ export default function ForgotPassword() {
         <div className="text-center mt-6">
           <button
             onClick={() => navigate("/")}
-            className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center space-x-2 text-eco-gray hover:text-eco-gray-dark transition-colors"
           >
             <ArrowLeft size={16} />
             <span>{t('common.backToHome')}</span>

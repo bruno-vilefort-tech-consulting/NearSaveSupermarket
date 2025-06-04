@@ -460,11 +460,11 @@ export default function CustomerRegister() {
         {/* Voltar */}
         <div className="text-center mt-6">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/customer/login")}
             className="inline-flex items-center space-x-2 text-eco-gray hover:text-eco-gray-dark transition-colors"
           >
             <ArrowLeft size={16} />
-            <span>{t('customer.backToHome')}</span>
+            <span>Voltar para Login</span>
           </button>
         </div>
       </div>
