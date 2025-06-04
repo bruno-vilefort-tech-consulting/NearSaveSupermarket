@@ -78,6 +78,10 @@ export default function Orders() {
         // Play a test sound to confirm it's working
         setTimeout(() => playNotification(), 100);
       }
+    } else {
+      // If sound is already enabled, play test sound
+      console.log('🔊 Testing notification sound...');
+      playNotification();
     }
   };
 
