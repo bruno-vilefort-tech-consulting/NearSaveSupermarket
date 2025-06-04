@@ -557,7 +557,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.updateOrderRefund(parseInt(orderId), {
               pixRefundId: refundResult.refundId!,
               refundAmount: refundResult.amount?.toString() || order.totalAmount,
-              refundStatus: 'processing',
+              refundStatus: refundResult.status || 'approved',
               refundDate: new Date(),
               refundReason: reason || 'Cancelamento solicitado pelo cliente'
             });
@@ -571,6 +571,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } else if (order.pixPaymentId && order.refundStatus) {
         console.log('✅ [CUSTOMER CANCEL] Estorno PIX já processado anteriormente:', order.refundStatus);
+        // Even if refund was already processed, we still need to update order status to cancelled
       }
 
       // SEMPRE atualizar status do pedido para cancelled
