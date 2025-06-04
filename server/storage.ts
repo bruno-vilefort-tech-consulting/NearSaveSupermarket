@@ -797,7 +797,20 @@ export class DatabaseStorage implements IStorage {
       // Calculate and apply eco-friendly rewards after payment confirmation
       await this.calculateEcoRewards(order, orderItemsList);
 
-      console.log(`✅ Order ${id} payment confirmed, stock updated`);
+      // Automatically advance to pending status after payment confirmation
+      const [updatedOrder] = await db
+        .update(orders)
+        .set({ 
+          status: 'pending',
+          lastManualStatus: 'pending',
+          lastManualUpdate: new Date(),
+          updatedAt: new Date()
+        })
+        .where(eq(orders.id, id))
+        .returning();
+
+      console.log(`✅ Order ${id} payment confirmed, stock updated, status advanced to pending`);
+      return updatedOrder;
     } else if (status === 'payment_failed') {
       console.log(`❌ Order ${id} payment failed, stock not affected`);
     }
