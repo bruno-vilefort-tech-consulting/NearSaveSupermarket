@@ -105,7 +105,8 @@ export default function PixPaymentFixed() {
       const response = await apiRequest("GET", `/api/payments/pix/status/${pixData.pixPayment.id}`);
       
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        console.warn(`⚠️ Payment status check failed: HTTP ${response.status}`);
+        return; // Continue verificando em vez de abortar
       }
       
       const status = await response.json();
@@ -179,23 +180,45 @@ export default function PixPaymentFixed() {
           console.error('❌ Error during confirmation:', confirmError);
           setIsProcessingPayment(false);
           
-          // Se o erro for de pedido já existente, redirecionar para pedidos
-          const errorMessage = confirmError instanceof Error ? confirmError.message : String(confirmError);
-          if (errorMessage.includes('já existe') || errorMessage.includes('already exists')) {
-            console.log('✅ Order already exists, redirecting to orders...');
-            setTimeout(() => {
-              setLocation('/customer/orders');
-            }, 1500);
-            toast({
-              title: "Pedido Já Processado",
-              description: "Seu pedido já foi confirmado anteriormente",
-            });
-          } else {
-            toast({
-              title: "Erro ao Confirmar Pagamento",
-              description: errorMessage || "Erro desconhecido ao confirmar pagamento",
-              variant: "destructive",
-            });
+          try {
+            // Se o erro for de pedido já existente, redirecionar para pedidos
+            const errorMessage = confirmError instanceof Error ? confirmError.message : String(confirmError);
+            if (errorMessage.includes('já existe') || errorMessage.includes('already exists')) {
+              console.log('✅ Order already exists, redirecting to orders...');
+              setTimeout(() => {
+                try {
+                  setLocation('/customer/orders');
+                } catch (navError) {
+                  console.error('❌ Navigation error:', navError);
+                  window.location.href = '/customer/orders';
+                }
+              }, 1500);
+              toast({
+                title: "Pedido Já Processado",
+                description: "Seu pedido já foi confirmado anteriormente",
+              });
+            } else {
+              // Para outros erros, tentar redirecionar também mas mostrar erro
+              toast({
+                title: "Erro ao Confirmar Pagamento",
+                description: errorMessage || "Erro desconhecido ao confirmar pagamento",
+                variant: "destructive",
+              });
+              
+              // Redirecionar após 3 segundos mesmo com erro
+              setTimeout(() => {
+                try {
+                  setLocation('/customer/orders');
+                } catch (navError) {
+                  console.error('❌ Navigation error:', navError);
+                  window.location.href = '/customer/orders';
+                }
+              }, 3000);
+            }
+          } catch (handlingError) {
+            console.error('❌ Error handling confirmation error:', handlingError);
+            // Fallback: forçar redirecionamento
+            window.location.href = '/customer/orders';
           }
         }
       } else if (status.status === 'rejected' || status.status === 'cancelled') {
