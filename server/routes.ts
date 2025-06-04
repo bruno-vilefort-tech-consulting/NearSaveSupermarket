@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
-import { createPixPayment, getPaymentStatus, createCardPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
+import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
 
 // Declaração global para armazenar pedidos temporários

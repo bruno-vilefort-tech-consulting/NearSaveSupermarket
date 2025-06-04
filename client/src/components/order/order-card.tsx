@@ -25,6 +25,11 @@ interface OrderCardProps {
     fulfillmentMethod: string;
     totalAmount: string;
     createdAt: string;
+    externalReference?: string;
+    pixPaymentId?: string;
+    refundStatus?: string;
+    refundAmount?: string;
+    refundDate?: string;
     orderItems: Array<{
       id: number;
       quantity: number;
@@ -118,6 +123,56 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
       toast({
         title: "Error",
         description: "Failed to update order status. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation para estorno PIX
+  const refundMutation = useMutation({
+    mutationFn: async ({ orderId, reason }: { orderId: number; reason?: string }) => {
+      const response = await apiRequest("POST", "/api/pix/refund", {
+        orderId,
+        reason: reason || "Cancelamento de pedido"
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        let errorMessage = "Erro ao processar estorno";
+        try {
+          const parsed = JSON.parse(errorData);
+          errorMessage = parsed.message || errorMessage;
+        } catch {
+          // Use default message if parsing fails
+        }
+        throw new Error(errorMessage);
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Estorno Processado",
+        description: `Estorno PIX processado com sucesso. ID: ${data.refundId}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Erro no Estorno",
+        description: error.message,
         variant: "destructive",
       });
     },

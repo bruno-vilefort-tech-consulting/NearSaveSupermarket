@@ -138,6 +138,15 @@ export interface IStorage {
   createPushSubscription(subscription: InsertPushSubscription): Promise<PushSubscription>;
   getPushSubscriptionsByEmail(email: string): Promise<PushSubscription[]>;
   removePushSubscription(id: number): Promise<void>;
+  
+  // PIX refund operations
+  updateOrderRefund(orderId: number, refundData: {
+    pixRefundId: string;
+    refundAmount: string;
+    refundStatus: string;
+    refundDate: Date;
+    refundReason: string;
+  }): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1302,6 +1311,28 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(pushSubscriptions)
       .where(eq(pushSubscriptions.id, id));
+  }
+
+  async updateOrderRefund(orderId: number, refundData: {
+    pixRefundId: string;
+    refundAmount: string;
+    refundStatus: string;
+    refundDate: Date;
+    refundReason: string;
+  }): Promise<void> {
+    await db
+      .update(orders)
+      .set({
+        pixRefundId: refundData.pixRefundId,
+        refundAmount: refundData.refundAmount,
+        refundStatus: refundData.refundStatus,
+        refundDate: refundData.refundDate,
+        refundReason: refundData.refundReason,
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, orderId));
+    
+    console.log(`✅ [REFUND] Pedido ${orderId} atualizado com dados de estorno:`, refundData);
   }
 }
 
