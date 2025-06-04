@@ -496,8 +496,42 @@ export class DatabaseStorage implements IStorage {
 
     console.log(`Found ${staffOrders.length} orders for staff ${staffId}:`, staffOrders.map(o => ({ id: o.id, customer: o.customerName })));
 
-    const ordersWithItems = await Promise.all(
+    // Auto-check PIX refund status for orders with processing refunds
+    const ordersWithUpdatedRefunds = await Promise.all(
       staffOrders.map(async (order) => {
+        if (order.pixRefundId && order.refundStatus === 'processing' && order.pixPaymentId) {
+          try {
+            console.log(`🔄 Auto-checking refund status for order ${order.id}`);
+            const { checkRefundStatus } = await import('./mercadopago.js');
+            const statusResponse = await checkRefundStatus(order.pixPaymentId);
+            
+            if (statusResponse.success && statusResponse.status !== 'processing') {
+              console.log(`📝 Auto-updating refund status from processing to ${statusResponse.status}`);
+              await this.updateOrderRefund(order.id, {
+                pixRefundId: statusResponse.refundId,
+                refundAmount: statusResponse.amount?.toString() || order.refundAmount || '0',
+                refundStatus: statusResponse.status,
+                refundDate: new Date(),
+                refundReason: order.refundReason || 'Verificação automática de status'
+              });
+              
+              // Return updated order data
+              return {
+                ...order,
+                refundStatus: statusResponse.status,
+                refundAmount: statusResponse.amount?.toString() || order.refundAmount
+              };
+            }
+          } catch (error) {
+            console.log(`⚠️ Auto-check failed for order ${order.id}:`, error);
+          }
+        }
+        return order;
+      })
+    );
+
+    const ordersWithItems = await Promise.all(
+      ordersWithUpdatedRefunds.map(async (order) => {
         const items = await db
           .select({
             id: orderItems.id,
@@ -519,6 +553,7 @@ export class DatabaseStorage implements IStorage {
       })
     );
 
+    console.log(`Fetched ${ordersWithItems.length} orders for staff ${staffId}`);
     return ordersWithItems;
   }
 

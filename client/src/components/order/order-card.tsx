@@ -183,41 +183,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     },
   });
 
-  // Mutation para verificar status do estorno PIX
-  const checkStatusMutation = useMutation({
-    mutationFn: async (orderId: number) => {
-      const response = await apiRequest("POST", `/api/orders/${orderId}/check-refund-status`, {});
-      
-      if (!response.ok) {
-        const errorData = await response.text();
-        let errorMessage = "Erro ao verificar status do estorno";
-        try {
-          const parsed = JSON.parse(errorData);
-          errorMessage = parsed.error || parsed.message || errorMessage;
-        } catch {
-          // Use default message if parsing fails
-        }
-        throw new Error(errorMessage);
-      }
-      
-      return response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Status Verificado",
-        description: `Status do estorno: ${data.status}. Valor: R$ ${data.amount?.toFixed(2) || '0.00'}`,
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/staff/orders"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro na Verificação",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+
 
   // Mutation para cancelar pedido (sem estorno PIX)
   const cancelOrderMutation = useMutation({
@@ -324,9 +290,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     });
   };
 
-  const handleCheckRefundStatus = () => {
-    checkStatusMutation.mutate(order.id);
-  };
+
 
   // Verifica se o pedido pode ser cancelado (não está cancelado nem concluído)
   const canCancelOrder = () => {
@@ -422,18 +386,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                   </Button>
                 )}
 
-                {/* Botão para verificar status do estorno */}
-                {order.pixRefundId && order.refundStatus === "processing" && (
-                  <Button 
-                    size="sm"
-                    variant="outline"
-                    onClick={handleCheckRefundStatus}
-                    disabled={checkStatusMutation.isPending}
-                    className="border-green-300 text-green-600 hover:bg-green-50"
-                  >
-                    {checkStatusMutation.isPending ? "Verificando..." : "Verificar Status"}
-                  </Button>
-                )}
+
                 
                 {getNextStatusLabel() && (
                   <Button 
