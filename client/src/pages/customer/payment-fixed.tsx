@@ -69,14 +69,14 @@ export default function CustomerPaymentFixed() {
 
   if (!orderData) {
     return (
-      <div className="min-h-screen bg-green-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-eco-gray-light flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-eco-green border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-4">
+    <div className="min-h-screen bg-eco-gray-light p-4">
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center justify-center mb-8 relative">
@@ -84,43 +84,43 @@ export default function CustomerPaymentFixed() {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="absolute left-0 top-1/2 -translate-y-1/2"
+              className="absolute left-0 top-1/2 -translate-y-1/2 text-eco-gray hover:text-eco-gray-dark"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
           <div className="text-center">
-            <h1 className="text-lg font-bold text-gray-900 mb-2">Finalizar Pedido</h1>
-            <p className="text-xs text-gray-600">Confirme seu pedido e pague com PIX</p>
+            <h1 className="text-lg font-bold text-eco-gray-dark mb-2">Finalizar Pedido</h1>
+            <p className="text-xs text-eco-gray">Confirme seu pedido e pague com PIX</p>
           </div>
         </div>
 
         {/* Resumo do Pedido */}
-        <Card className="mb-8 shadow-lg border-0 bg-white">
+        <Card className="mb-8 shadow-lg border border-eco-green-light bg-white">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-lg font-bold text-gray-900">Resumo do Pedido</CardTitle>
+            <CardTitle className="text-lg font-bold text-eco-gray-dark">Resumo do Pedido</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-eco-gray-light p-4 rounded-lg">
                 {orderData.items?.map((item: any, index: number) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
+                  <div key={index} className="flex justify-between items-center py-2 border-b border-eco-gray-light last:border-b-0">
                     <div className="flex-1 min-w-0">
-                      <div className="text-gray-900 font-medium text-sm truncate">
+                      <div className="text-eco-gray-dark font-medium text-sm truncate">
                         {item.quantity}x {item.productName}
                       </div>
                     </div>
-                    <span className="font-semibold text-green-700 text-sm ml-2 flex-shrink-0">
+                    <span className="font-semibold text-eco-green text-sm ml-2 flex-shrink-0">
                       R$ {(parseFloat(item.priceAtTime) * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}
               </div>
               
-              <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+              <div className="bg-gradient-to-r from-eco-green-light to-eco-green-light p-4 rounded-lg border border-eco-green">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-gray-900">Total</span>
-                  <span className="text-lg font-bold text-green-700">
+                  <span className="text-sm font-semibold text-eco-gray-dark">Total</span>
+                  <span className="text-lg font-bold text-eco-green">
                     R$ {parseFloat(orderData.totalAmount).toFixed(2)}
                   </span>
                 </div>
@@ -130,23 +130,23 @@ export default function CustomerPaymentFixed() {
         </Card>
 
         {/* PIX Payment Card */}
-        <Card className="mb-8 shadow-lg border-0 bg-white">
+        <Card className="mb-8 shadow-lg border border-eco-blue-light bg-white">
           <CardHeader className="text-center pb-4">
-            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <Smartphone className="h-8 w-8 text-blue-600" />
+            <div className="mx-auto w-16 h-16 bg-eco-blue-light rounded-full flex items-center justify-center mb-4">
+              <Smartphone className="h-8 w-8 text-eco-blue" />
             </div>
-            <CardTitle className="text-lg font-bold text-gray-900 mb-2">Pagamento PIX</CardTitle>
-            <p className="text-xs text-gray-600">
+            <CardTitle className="text-lg font-bold text-eco-gray-dark mb-2">Pagamento PIX</CardTitle>
+            <p className="text-xs text-eco-gray">
               Pagamento instantâneo e seguro
             </p>
           </CardHeader>
           <CardContent>
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+            <div className="bg-eco-blue-light p-4 rounded-lg border border-eco-blue">
               <div className="flex items-center gap-3 mb-3">
-                <Lock className="h-5 w-5 text-blue-600" />
-                <span className="font-medium text-blue-900">Transação Segura</span>
+                <Lock className="h-5 w-5 text-eco-blue" />
+                <span className="font-medium text-eco-blue">Transação Segura</span>
               </div>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-eco-blue">
                 Após confirmar, você receberá o código PIX para pagamento instantâneo no seu aplicativo bancário.
               </p>
             </div>
@@ -154,23 +154,23 @@ export default function CustomerPaymentFixed() {
         </Card>
 
         {/* Dados do Cliente */}
-        <Card className="mb-8 shadow-lg border-0 bg-white">
+        <Card className="mb-8 shadow-lg border border-eco-gray-light bg-white">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="text-lg font-bold text-gray-900">Dados do Cliente</CardTitle>
+            <CardTitle className="text-lg font-bold text-eco-gray-dark">Dados do Cliente</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+            <div className="bg-eco-gray-light p-4 rounded-lg space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600">Nome:</span>
-                <span className="font-medium text-gray-900">{orderData.customerName}</span>
+                <span className="text-eco-gray">Nome:</span>
+                <span className="font-medium text-eco-gray-dark">{orderData.customerName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Email:</span>
-                <span className="font-medium text-gray-900">{orderData.customerEmail}</span>
+                <span className="text-eco-gray">Email:</span>
+                <span className="font-medium text-eco-gray-dark">{orderData.customerEmail}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Telefone:</span>
-                <span className="font-medium text-gray-900">{orderData.customerPhone}</span>
+                <span className="text-eco-gray">Telefone:</span>
+                <span className="font-medium text-eco-gray-dark">{orderData.customerPhone}</span>
               </div>
             </div>
           </CardContent>
@@ -181,7 +181,7 @@ export default function CustomerPaymentFixed() {
           <Button
             onClick={handlePayment}
             disabled={isProcessing}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-4 text-sm font-semibold shadow-lg"
+            className="w-full bg-eco-green hover:bg-eco-green/90 py-4 text-sm font-semibold shadow-lg rounded-xl"
             size="lg"
           >
             {isProcessing ? (
@@ -194,7 +194,7 @@ export default function CustomerPaymentFixed() {
             )}
           </Button>
           
-          <p className="text-xs text-gray-500 mt-3">
+          <p className="text-xs text-eco-gray mt-3">
             Você será redirecionado para a tela de pagamento PIX após confirmar
           </p>
         </div>
