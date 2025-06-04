@@ -190,27 +190,27 @@ export default function CustomerCart() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-eco-gray-light">
         <div className="bg-white shadow-sm border-b">
           <div className="max-w-md mx-auto px-4 py-4 flex items-center">
             <Link href="/customer">
-              <ArrowLeft className="h-6 w-6 text-gray-600" />
+              <ArrowLeft className="h-6 w-6 text-eco-gray" />
             </Link>
-            <h1 className="ml-4 text-lg font-bold text-gray-900">{t('cart.title')}</h1>
+            <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">{t('cart.title')}</h1>
           </div>
         </div>
 
         <div className="max-w-md mx-auto p-4 pt-8">
           <div className="text-center">
             <div className="mb-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto flex items-center justify-center">
+              <div className="w-16 h-16 bg-eco-orange-light rounded-full mx-auto flex items-center justify-center">
                 <span className="text-2xl">🛒</span>
               </div>
             </div>
-            <h2 className="text-xl font-semibold mb-2">{t('cart.empty')}</h2>
-            <p className="text-gray-600 mb-6">{t('cart.emptyDescription')}</p>
+            <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">{t('cart.empty')}</h2>
+            <p className="text-eco-gray mb-6">{t('cart.emptyDescription')}</p>
             <Link href="/customer">
-              <Button className="w-full bg-green-600 hover:bg-green-700">
+              <Button className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors">
                 {t('cart.continueShopping')}
               </Button>
             </Link>
@@ -223,15 +223,15 @@ export default function CustomerCart() {
   const supermarkets = getSupermarckets();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-gray-light">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center">
           <Link href="/customer">
-            <ArrowLeft className="h-6 w-6 text-gray-600" />
+            <ArrowLeft className="h-6 w-6 text-eco-gray" />
           </Link>
           <div className="ml-4">
-            <h1 className="text-lg font-semibold">{t('cart.title')} ({cartItems.length})</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-lg font-semibold text-eco-gray-dark">{t('cart.title')} ({cartItems.length})</h1>
+            <p className="text-sm text-eco-gray">
               {supermarkets.length === 1 
                 ? `${supermarkets[0].name}` 
                 : `${supermarkets.length} ${t('cart.supermarkets')}`
@@ -246,9 +246,9 @@ export default function CustomerCart() {
         {supermarkets.map((supermarket, index) => (
           <div key={index} className="space-y-3">
             {/* Header do Supermercado */}
-            <div className="bg-green-50 p-3 rounded-lg border-l-4 border-green-600">
-              <h3 className="font-semibold text-green-800">{supermarket.name}</h3>
-              <div className="flex items-center text-sm text-green-600 mt-1">
+            <div className="bg-eco-green-light p-3 rounded-lg border-l-4 border-eco-green">
+              <h3 className="font-semibold text-eco-green-dark">{supermarket.name}</h3>
+              <div className="flex items-center text-sm text-eco-green mt-1">
                 <MapPin size={12} className="mr-1" />
                 {supermarket.address}
               </div>
@@ -256,7 +256,7 @@ export default function CustomerCart() {
 
             {/* Itens do Supermercado */}
             {supermarket.items.map((item: CartItem) => (
-              <Card key={item.id} className="bg-white">
+              <Card key={item.id} className="bg-white border-eco-green-light">
                 <CardContent className="p-4">
                   <div className="flex gap-3">
                     {item.imageUrl && (
@@ -267,19 +267,19 @@ export default function CustomerCart() {
                       />
                     )}
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm">{item.name}</h4>
+                      <h4 className="font-medium text-sm text-eco-gray-dark">{item.name}</h4>
                       <div className="flex items-center gap-2 mt-1">
-                        <Clock className="h-3 w-3 text-orange-500" />
-                        <span className="text-xs text-orange-600">
+                        <Clock className="h-3 w-3 text-eco-orange" />
+                        <span className="text-xs text-eco-orange">
                           {t('cart.validUntil')} {new Date(item.expirationDate).toLocaleDateString('pt-BR')}
                         </span>
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         <div>
-                          <span className="text-sm font-semibold text-green-600">
+                          <span className="text-sm font-semibold text-eco-green">
                             {formatPrice(item.discountPrice)}
                           </span>
-                          <span className="text-xs text-gray-500 line-through ml-2">
+                          <span className="text-xs text-eco-gray line-through ml-2">
                             {formatPrice(item.originalPrice)}
                           </span>
                         </div>
@@ -287,18 +287,18 @@ export default function CustomerCart() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 w-8 p-0"
+                            className="h-8 w-8 p-0 border-eco-green hover:bg-eco-green hover:text-white"
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="text-sm font-medium w-8 text-center">
+                          <span className="text-sm font-medium w-8 text-center text-eco-gray-dark">
                             {item.quantity}
                           </span>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 w-8 p-0"
+                            className="h-8 w-8 p-0 border-eco-green hover:bg-eco-green hover:text-white"
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           >
                             <Plus className="h-3 w-3" />
@@ -306,7 +306,7 @@ export default function CustomerCart() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 border-red-300 hover:border-red-500"
                             onClick={() => removeItem(item.id)}
                           >
                             <Trash2 className="h-3 w-3" />
@@ -323,21 +323,21 @@ export default function CustomerCart() {
 
         {/* Informações do Cliente */}
         {customerInfo && (
-          <Card className="bg-white">
+          <Card className="bg-white border-eco-blue-light">
             <CardContent className="p-4">
-              <h3 className="font-semibold mb-3">{t('cart.customerData')}</h3>
+              <h3 className="font-semibold mb-3 text-eco-gray-dark">{t('cart.customerData')}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-400" />
-                  <span>{customerInfo.fullName}</span>
+                  <User className="h-4 w-4 text-eco-blue" />
+                  <span className="text-eco-gray-dark">{customerInfo.fullName}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span>{customerInfo.phone}</span>
+                  <Phone className="h-4 w-4 text-eco-blue" />
+                  <span className="text-eco-gray-dark">{customerInfo.phone}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <span>{customerInfo.email}</span>
+                  <Mail className="h-4 w-4 text-eco-blue" />
+                  <span className="text-eco-gray-dark">{customerInfo.email}</span>
                 </div>
               </div>
             </CardContent>
