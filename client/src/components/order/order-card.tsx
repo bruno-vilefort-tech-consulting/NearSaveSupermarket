@@ -133,7 +133,57 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     },
   });
 
-  // Mutation para cancelar pedido (com estorno PIX automático)
+  // Mutation para estorno PIX separado
+  const pixRefundMutation = useMutation({
+    mutationFn: async ({ orderId, reason }: { orderId: number; reason?: string }) => {
+      const response = await apiRequest("POST", "/api/pix/refund", {
+        orderId,
+        reason: reason || "Estorno solicitado pelo estabelecimento"
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        let errorMessage = "Erro ao processar estorno PIX";
+        try {
+          const parsed = JSON.parse(errorData);
+          errorMessage = parsed.message || errorMessage;
+        } catch {
+          // Use default message if parsing fails
+        }
+        throw new Error(errorMessage);
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Estorno PIX Processado",
+        description: `Estorno PIX realizado com sucesso. ID: ${data.refundId}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/orders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Erro no Estorno PIX",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation para cancelar pedido (sem estorno PIX)
   const cancelOrderMutation = useMutation({
     mutationFn: async ({ orderId, reason }: { orderId: number; reason?: string }) => {
       const response = await apiRequest("POST", `/api/customer/orders/${orderId}/cancel`, {
@@ -225,13 +275,17 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   };
 
   const confirmCancelOrder = () => {
-    // Usar a nova rota robusta que processa estorno PIX automaticamente
-    cancelOrderMutation.mutate({ 
-      orderId: order.id, 
-      reason: 'Cancelamento solicitado pelo estabelecimento' 
-    });
-    
+    // Cancelar apenas o pedido, sem estorno PIX
+    updateStatusMutation.mutate("cancelled");
     setShowCancelDialog(false);
+  };
+
+  const handlePixRefund = () => {
+    // Processar estorno PIX separadamente
+    pixRefundMutation.mutate({ 
+      orderId: order.id, 
+      reason: 'Estorno solicitado pelo estabelecimento' 
+    });
   };
 
   // Verifica se o pedido pode ser cancelado (não está cancelado nem concluído)
@@ -303,7 +357,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
           
           {canEditStatus && (
             <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {canCancelOrder() && (
                   <Button 
                     size="sm"
@@ -314,6 +368,20 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                     {updateStatusMutation.isPending ? "Cancelando..." : "Cancelar"}
                   </Button>
                 )}
+                
+                {/* Botão separado para Estorno PIX */}
+                {order.externalReference && order.pixPaymentId && !order.pixRefundId && order.status !== "cancelled" && (
+                  <Button 
+                    size="sm"
+                    variant="outline"
+                    onClick={handlePixRefund}
+                    disabled={pixRefundMutation.isPending}
+                    className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                  >
+                    {pixRefundMutation.isPending ? "Processando..." : "Estorno PIX"}
+                  </Button>
+                )}
+                
                 {getNextStatusLabel() && (
                   <Button 
                     size="sm"
@@ -326,6 +394,16 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                 )}
               </div>
 
+              {/* Indicador de PIX */}
+              {order.externalReference && order.pixPaymentId && (
+                <div className="text-xs text-blue-600 flex items-center gap-1">
+                  <CreditCard className="h-3 w-3" />
+                  {order.pixRefundId ? 
+                    `PIX Estornado (${order.refundStatus})` : 
+                    "PIX Pago - Estorno disponível"
+                  }
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -358,17 +436,17 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
               </div>
               
               {order.externalReference && order.pixPaymentId && (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
+                <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-orange-700 font-medium mb-2">
                     <CreditCard className="h-4 w-4" />
                     Pagamento PIX Detectado
                   </div>
-                  <p className="text-sm text-blue-600">
-                    Este pedido possui pagamento PIX que será <strong>automaticamente estornado</strong> após o cancelamento.
+                  <p className="text-sm text-orange-600">
+                    Este pedido possui pagamento PIX. Use o botão <strong>"Estorno PIX"</strong> separadamente se necessário processar o estorno.
                   </p>
-                  <div className="flex items-center gap-1 mt-2 text-xs text-blue-500">
-                    <RefreshCw className="h-3 w-3" />
-                    O estorno será processado pelo Mercado Pago
+                  <div className="flex items-center gap-1 mt-2 text-xs text-orange-500">
+                    <AlertTriangle className="h-3 w-3" />
+                    Cancelamento não inclui estorno automático
                   </div>
                 </div>
               )}
