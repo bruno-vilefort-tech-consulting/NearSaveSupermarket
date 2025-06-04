@@ -1621,8 +1621,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('🔍 Verificando status do estorno PIX:', order.pixRefundId);
       console.log('🔍 PIX Payment ID:', order.pixPaymentId);
       
-      // Try to get refund status through payment endpoint
-      const statusResponse = await checkRefundStatus(order.pixRefundId);
+      // Get refund status using payment ID instead of refund ID
+      if (!order.pixPaymentId) {
+        return res.status(400).json({ error: 'ID do pagamento PIX não encontrado' });
+      }
+      
+      const statusResponse = await checkRefundStatus(order.pixPaymentId);
       
       if (!statusResponse.success) {
         return res.status(500).json({ 

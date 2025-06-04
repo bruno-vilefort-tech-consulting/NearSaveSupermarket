@@ -300,15 +300,16 @@ export interface RefundStatusResponse {
 }
 
 // Função para verificar status de estorno PIX
-export async function checkRefundStatus(refundId: string): Promise<RefundStatusResponse> {
+export async function checkRefundStatus(paymentId: string): Promise<RefundStatusResponse> {
   try {
-    console.log('🔍 [PIX REFUND STATUS] Verificando status do estorno:', refundId);
+    console.log('🔍 [PIX REFUND STATUS] Verificando status do pagamento:', paymentId);
     
     if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
       throw new Error('Token de acesso do Mercado Pago não configurado');
     }
 
-    const response = await fetch(`https://api.mercadopago.com/v1/refunds/${refundId}`, {
+    // Try to get payment details which should include refund information
+    const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
@@ -319,31 +320,56 @@ export async function checkRefundStatus(refundId: string): Promise<RefundStatusR
     const result = await response.json();
 
     if (!response.ok) {
-      console.error('❌ [PIX REFUND STATUS] Erro ao consultar:', result);
+      console.error('❌ [PIX REFUND STATUS] Erro ao consultar API:', result);
       return {
         success: false,
-        refundId,
+        refundId: paymentId,
         status: 'error',
-        message: result.message || 'Erro ao consultar status do estorno',
-        error: result.cause?.[0]?.description || 'Erro desconhecido'
+        message: result.message || 'Erro ao consultar status do estorno na API do Mercado Pago',
+        error: result.error || 'API_ERROR'
       };
     }
 
-    console.log('✅ [PIX REFUND STATUS] Status obtido:', result);
+    if (!result || Object.keys(result).length === 0) {
+      console.log('⚠️ [PIX REFUND STATUS] Resposta vazia da API');
+      return {
+        success: false,
+        refundId: paymentId,
+        status: 'error',
+        message: 'Resposta vazia da API do Mercado Pago',
+        error: 'EMPTY_RESPONSE'
+      };
+    }
 
-    return {
-      success: true,
-      refundId: result.id.toString(),
-      status: result.status,
-      amount: result.amount,
-      message: 'Status consultado com sucesso'
-    };
+    console.log('✅ [PIX REFUND STATUS] Payment data obtido:', result);
+
+    // Check if payment has refunds
+    if (result.refunds && result.refunds.length > 0) {
+      const latestRefund = result.refunds[result.refunds.length - 1];
+      console.log('✅ [PIX REFUND STATUS] Refund encontrado:', latestRefund);
+      
+      return {
+        success: true,
+        refundId: latestRefund.id.toString(),
+        status: latestRefund.status,
+        amount: latestRefund.amount,
+        message: 'Status do estorno consultado com sucesso'
+      };
+    } else {
+      console.log('⚠️ [PIX REFUND STATUS] Nenhum estorno encontrado no pagamento');
+      return {
+        success: false,
+        refundId: paymentId,
+        status: 'not_found',
+        message: 'Nenhum estorno encontrado para este pagamento'
+      };
+    }
 
   } catch (error) {
     console.error('❌ [PIX REFUND STATUS] Erro na consulta:', error);
     return {
       success: false,
-      refundId,
+      refundId: paymentId,
       status: 'error',
       message: 'Erro interno ao consultar status do estorno',
       error: error instanceof Error ? error.message : 'Erro desconhecido'
