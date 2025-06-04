@@ -966,7 +966,8 @@ export class DatabaseStorage implements IStorage {
     const allowedAutomaticOperations = [
       'TIMER_EXPIRATION', // PIX payment expiration
       'PIX_WEBHOOK',      // Mercado Pago webhook confirmations
-      'PIX_MANUAL_CHECK'  // Manual PIX payment verification
+      'PIX_MANUAL_CHECK', // Manual PIX payment verification
+      'CUSTOMER_REQUEST'  // Customer cancellation requests
     ];
     
     // Only allow explicit staff updates or authorized automatic operations
