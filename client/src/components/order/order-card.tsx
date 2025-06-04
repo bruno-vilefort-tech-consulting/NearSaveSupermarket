@@ -253,6 +253,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
 
   const getNextStatusLabel = () => {
     const nextStatus = getNextStatus(order.status, order.fulfillmentMethod);
+    console.log(`🔍 DEBUG Order ${order.id}: status=${order.status}, fulfillmentMethod=${order.fulfillmentMethod}, nextStatus=${nextStatus}, canEditStatus=${canEditStatus}`);
     if (!nextStatus) return null;
     
     switch (nextStatus) {
