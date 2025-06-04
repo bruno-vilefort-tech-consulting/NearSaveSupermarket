@@ -1,4 +1,4 @@
-import { Check, Clock, Package, Truck, CheckCircle } from "lucide-react";
+import { Check, Clock, Package, Truck, CheckCircle, XCircle } from "lucide-react";
 
 interface OrderTimelineProps {
   currentStatus: string;
@@ -15,6 +15,18 @@ interface TimelineStep {
 
 export function OrderTimeline({ currentStatus, fulfillmentMethod, createdAt }: OrderTimelineProps) {
   const getTimelineSteps = (): TimelineStep[] => {
+    // Se o pedido foi cancelado, mostra apenas o status de cancelado
+    if (currentStatus === "cancelled") {
+      return [
+        {
+          id: "cancelled",
+          label: "Pedido Cancelado",
+          icon: <XCircle className="w-4 h-4" />,
+          description: "O pedido foi cancelado pelo supermercado"
+        }
+      ];
+    }
+
     const baseSteps = [
       {
         id: "pending",

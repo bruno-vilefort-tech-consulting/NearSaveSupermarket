@@ -817,9 +817,27 @@ export class DatabaseStorage implements IStorage {
       console.log(`🛑 Target status: ${status}`);
       throw new Error(`SECURITY: Order status changes are restricted to authorized staff only. Source: ${changedBy}`);
     }
+
+    // First check current order status
+    const [currentOrder] = await db.select().from(orders).where(eq(orders.id, id));
+    if (!currentOrder) {
+      throw new Error(`Order ${id} not found`);
+    }
+
+    // Prevent status changes on cancelled orders
+    if (currentOrder.status === 'cancelled') {
+      console.log(`🛑 CANCELLED ORDER: Cannot update status of cancelled order ${id}`);
+      throw new Error(`Cannot update status of cancelled order ${id}. Cancelled orders are final.`);
+    }
+
+    // Prevent status changes on completed orders (except to cancelled)
+    if (currentOrder.status === 'completed' && status !== 'cancelled') {
+      console.log(`🛑 COMPLETED ORDER: Cannot update status of completed order ${id} to ${status}`);
+      throw new Error(`Cannot update status of completed order ${id}. Only cancellation is allowed for completed orders.`);
+    }
     
     // Log authorized update
-    console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} to ${status}`);
+    console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} from ${currentOrder.status} to ${status}`);
     
     try {
       // Fazer a atualização e salvar como último status manual

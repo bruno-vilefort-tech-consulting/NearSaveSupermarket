@@ -50,6 +50,11 @@ const statusConfig = {
 };
 
 const getNextStatus = (currentStatus: string, fulfillmentMethod: string) => {
+  // Se o pedido foi cancelado, não permite mais mudanças
+  if (currentStatus === "cancelled") {
+    return null;
+  }
+
   switch (currentStatus) {
     case "pending":
       return "confirmed";
@@ -154,6 +159,15 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     }
   };
 
+  const handleCancelOrder = () => {
+    updateStatusMutation.mutate("cancelled");
+  };
+
+  // Verifica se o pedido pode ser cancelado (não está cancelado nem concluído)
+  const canCancelOrder = () => {
+    return order.status !== "cancelled" && order.status !== "completed";
+  };
+
   const currentStatus = statusConfig[order.status as keyof typeof statusConfig];
 
   return (
@@ -216,15 +230,29 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
             </span>
           </div>
           
-          {canEditStatus && getNextStatusLabel() && (
-            <Button 
-              size="sm"
-              onClick={handleStatusUpdate}
-              disabled={updateStatusMutation.isPending}
-              className="bg-primary-600 hover:bg-primary-700"
-            >
-              {updateStatusMutation.isPending ? "Updating..." : getNextStatusLabel()}
-            </Button>
+          {canEditStatus && (
+            <div className="flex gap-2">
+              {canCancelOrder() && (
+                <Button 
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleCancelOrder}
+                  disabled={updateStatusMutation.isPending}
+                >
+                  {updateStatusMutation.isPending ? "Cancelando..." : "Cancelar"}
+                </Button>
+              )}
+              {getNextStatusLabel() && (
+                <Button 
+                  size="sm"
+                  onClick={handleStatusUpdate}
+                  disabled={updateStatusMutation.isPending}
+                  className="bg-primary-600 hover:bg-primary-700"
+                >
+                  {updateStatusMutation.isPending ? "Updating..." : getNextStatusLabel()}
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </CardContent>
