@@ -85,7 +85,9 @@ export async function getPaymentStatus(paymentId: string) {
       id: result.id?.toString() || paymentId,
       status: result.status || 'unknown',
       statusDetail: result.status_detail || 'unknown',
-      externalReference: result.external_reference || ''
+      externalReference: result.external_reference || '',
+      transactionAmount: result.transaction_amount || 0,
+      amount: result.transaction_amount || 0
     };
     
     console.log(`Payment status response:`, response);
@@ -103,6 +105,8 @@ export async function getPaymentStatus(paymentId: string) {
       status: 'error',
       statusDetail: 'api_error',
       externalReference: '',
+      transactionAmount: 0,
+      amount: 0,
       error: error.message
     };
   }
@@ -521,7 +525,7 @@ export async function getRefundableAmount(paymentId: string): Promise<{ totalAmo
       .filter((refund: any) => refund.status === 'approved')
       .reduce((total: number, refund: any) => total + (refund.amount || 0), 0);
 
-    const totalAmount = parseFloat((paymentStatus as any).transactionAmount || (paymentStatus as any).amount || '0');
+    const totalAmount = parseFloat(paymentStatus.transactionAmount?.toString() || paymentStatus.amount?.toString() || '0');
     const availableAmount = totalAmount - refundedAmount;
 
     console.log(`💰 [REFUND CALC] Pagamento ${paymentId}: Total R$ ${totalAmount}, Estornado R$ ${refundedAmount}, Disponível R$ ${availableAmount}`);
