@@ -283,8 +283,11 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   };
 
   const confirmCancelOrder = () => {
-    // Cancelar pedido via API do staff (cancelled-staff)
-    updateStatusMutation.mutate("cancelled-staff");
+    // Usar a nova mutation de cancelamento que inclui estorno PIX automático
+    cancelOrderMutation.mutate({ 
+      orderId: order.id, 
+      reason: "Cancelamento solicitado pelo estabelecimento" 
+    });
     setShowCancelDialog(false);
   };
 
