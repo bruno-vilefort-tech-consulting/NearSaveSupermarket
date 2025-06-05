@@ -221,13 +221,15 @@ export default function CustomerHome() {
     },
   });
 
-  // Calcular quantidade de pedidos não concluídos (todos os status exceto 'completed', 'cancelled-customer', 'cancelled-staff')
+  // Calcular quantidade de pedidos não concluídos (todos os status exceto finalizados/cancelados/expirados)
   const processingOrdersCount = React.useMemo(() => {
     if (!orders || !Array.isArray(orders)) return 0;
     return orders.filter((order: any) => 
       order.status !== 'completed' && 
       order.status !== 'cancelled-customer' && 
-      order.status !== 'cancelled-staff'
+      order.status !== 'cancelled-staff' &&
+      order.status !== 'payment_expired' &&
+      order.status !== 'payment_failed'
     ).length;
   }, [orders]);
 
