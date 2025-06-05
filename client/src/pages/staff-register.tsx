@@ -292,8 +292,8 @@ export default function StaffRegister() {
 
           {/* Footer */}
           <div className="text-center mt-8">
-            <p className="text-xs text-gray-500">
-              {t('staff.agreementText')}
+            <p className="text-xs text-eco-gray">
+              Ao se cadastrar, você concorda com nossos termos de uso
             </p>
           </div>
         </div>
