@@ -86,28 +86,28 @@ export default function Orders() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-blue-light">
       <Header />
       
       <main className="pb-20">
         <div className="p-4 space-y-4">
           {/* Notification Sound Control */}
-          <Card className="shadow-sm">
+          <Card className="shadow-sm border-eco-blue-light">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-eco-blue-light rounded-full flex items-center justify-center">
                     {isEnabled ? (
-                      <Volume2 className="h-5 w-5 text-blue-600" />
+                      <Volume2 className="h-5 w-5 text-eco-blue" />
                     ) : (
-                      <VolumeX className="h-5 w-5 text-gray-500" />
+                      <VolumeX className="h-5 w-5 text-eco-gray" />
                     )}
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-eco-blue-dark">
                       {isEnabled ? "Som ativo" : "Som desativado"}
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-eco-gray">
                       {isEnabled 
                         ? "Você será notificado quando novos pedidos chegarem"
                         : "Clique para ativar notificações sonoras"
@@ -120,7 +120,7 @@ export default function Orders() {
                   disabled={!isReady}
                   variant={isEnabled ? "outline" : "default"}
                   size="sm"
-                  className={isEnabled ? "text-blue-600 border-blue-600 hover:bg-blue-50" : ""}
+                  className={isEnabled ? "text-eco-blue border-eco-blue hover:bg-eco-blue-light" : "bg-eco-blue hover:bg-eco-blue-dark text-white"}
                 >
                   {!isReady ? "Carregando..." : isEnabled ? "Testar Som" : "Ativar Som"}
                 </Button>
@@ -129,7 +129,7 @@ export default function Orders() {
           </Card>
 
           {/* Status Filter */}
-          <Card className="shadow-sm">
+          <Card className="shadow-sm border-eco-blue-light">
             <CardContent className="p-4">
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {statusFilters.map((filter) => (
@@ -140,8 +140,8 @@ export default function Orders() {
                     onClick={() => setSelectedStatus(filter.value)}
                     className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-full ${
                       selectedStatus === filter.value
-                        ? "bg-primary-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-eco-blue text-white hover:bg-eco-blue-dark"
+                        : "bg-white text-eco-blue border-eco-blue hover:bg-eco-blue-light"
                     }`}
                   >
                     {filter.label}
@@ -155,17 +155,17 @@ export default function Orders() {
           <div className="space-y-3">
             {isLoading ? (
               <div className="text-center py-8">
-                <p className="text-gray-500">Carregando pedidos...</p>
+                <p className="text-eco-gray">Carregando pedidos...</p>
               </div>
             ) : orders && orders.length > 0 ? (
               orders.map((order: any) => (
                 <OrderCard key={order.id} order={order} canEditStatus={true} />
               ))
             ) : (
-              <Card className="shadow-sm">
+              <Card className="shadow-sm border-eco-blue-light">
                 <CardContent className="p-8 text-center">
-                  <p className="text-gray-500">Nenhum pedido encontrado</p>
-                  <p className="text-sm text-gray-400 mt-1">
+                  <p className="text-eco-gray">Nenhum pedido encontrado</p>
+                  <p className="text-sm text-eco-gray mt-1">
                     {selectedStatus 
                       ? `Nenhum pedido com status "${selectedStatus}"`
                       : "Nenhum pedido foi feito ainda"

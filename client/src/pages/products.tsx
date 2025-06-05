@@ -29,22 +29,22 @@ export default function Products() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-blue-light">
       <Header />
       
       <main className="pb-20">
         <div className="p-4 space-y-4">
           {/* Search and Filter */}
-          <Card className="shadow-sm">
+          <Card className="shadow-sm border-eco-blue-light">
             <CardContent className="p-4">
               <div className="space-y-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+                  <Search className="absolute left-3 top-3 text-eco-gray" size={20} />
                   <Input
-                    placeholder={t('products.searchPlaceholder')}
+                    placeholder="Buscar produtos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="pl-10 pr-4 py-3 border border-eco-blue-light rounded-xl focus:ring-2 focus:ring-eco-blue focus:border-eco-blue"
                   />
                 </div>
                 
@@ -57,8 +57,8 @@ export default function Products() {
                       onClick={() => setSelectedCategory(category)}
                       className={`px-4 py-2 text-sm font-medium whitespace-nowrap rounded-full ${
                         selectedCategory === category
-                          ? "bg-primary-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-eco-blue text-white hover:bg-eco-blue-dark"
+                          : "bg-white text-eco-blue border-eco-blue hover:bg-eco-blue-light"
                       }`}
                     >
                       {category}
@@ -73,17 +73,17 @@ export default function Products() {
           <div className="space-y-3">
             {isLoading ? (
               <div className="text-center py-8">
-                <p className="text-gray-500">Carregando produtos...</p>
+                <p className="text-eco-gray">Carregando produtos...</p>
               </div>
             ) : filteredProducts && filteredProducts.length > 0 ? (
               filteredProducts.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))
             ) : (
-              <Card className="shadow-sm">
+              <Card className="shadow-sm border-eco-blue-light">
                 <CardContent className="p-8 text-center">
-                  <p className="text-gray-500">Nenhum produto encontrado</p>
-                  <p className="text-sm text-gray-400 mt-1">
+                  <p className="text-eco-gray">Nenhum produto encontrado</p>
+                  <p className="text-sm text-eco-gray mt-1">
                     Tente ajustar sua busca ou critérios de filtro
                   </p>
                 </CardContent>
