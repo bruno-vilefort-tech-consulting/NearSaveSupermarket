@@ -37,6 +37,10 @@ interface CustomerOrderCardProps {
     pixCopyPaste?: string;
     pixExpirationDate?: string;
     refundStatus?: string;
+    refundAmount?: string;
+    refundDate?: string;
+    refundReason?: string;
+    pixRefundId?: string;
   };
 }
 
@@ -430,6 +434,85 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
             )}
           </div>
         </div>
+
+        {/* Seção de Estorno Parcial PIX */}
+        {order.refundAmount && order.refundStatus && order.refundDate && (
+          <div className="pt-2 border-t border-eco-gray-light">
+            <div className="bg-eco-blue-light rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-eco-blue" />
+                <h5 className="font-semibold text-eco-blue">Estorno Parcial PIX</h5>
+              </div>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-eco-gray">Valor estornado:</span>
+                  <span className="font-medium text-eco-green">{formatPrice(order.refundAmount)}</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-eco-gray">Status:</span>
+                  <Badge className={`text-xs ${
+                    order.refundStatus === 'approved' ? 'bg-eco-green text-white' :
+                    order.refundStatus === 'pending' ? 'bg-eco-orange text-white' :
+                    'bg-red-500 text-white'
+                  }`}>
+                    {order.refundStatus === 'approved' ? 'Aprovado' :
+                     order.refundStatus === 'pending' ? 'Processando' :
+                     'Rejeitado'}
+                  </Badge>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-eco-gray">Data do estorno:</span>
+                  <span className="font-medium text-eco-gray-dark">
+                    {new Date(order.refundDate).toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: '2-digit', 
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+                
+                {order.refundReason && (
+                  <div className="flex justify-between">
+                    <span className="text-eco-gray">Motivo:</span>
+                    <span className="font-medium text-eco-gray-dark text-right max-w-[60%]">
+                      {order.refundReason}
+                    </span>
+                  </div>
+                )}
+                
+                {order.pixRefundId && (
+                  <div className="flex justify-between">
+                    <span className="text-eco-gray">ID do estorno:</span>
+                    <span className="font-mono text-xs text-eco-gray-dark">
+                      {order.pixRefundId}
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              {order.refundStatus === 'approved' && (
+                <div className="bg-eco-green/10 border border-eco-green/20 rounded p-2">
+                  <p className="text-xs text-eco-green font-medium">
+                    ✓ Estorno processado com sucesso. O valor será creditado em sua conta em até 1 dia útil.
+                  </p>
+                </div>
+              )}
+              
+              {order.refundStatus === 'pending' && (
+                <div className="bg-eco-orange/10 border border-eco-orange/20 rounded p-2">
+                  <p className="text-xs text-eco-orange font-medium">
+                    ⏳ Estorno em processamento. Aguarde a confirmação do Mercado Pago.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Botão de Cancelamento */}
         {canCancel() && (
