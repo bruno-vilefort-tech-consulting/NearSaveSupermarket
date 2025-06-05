@@ -191,10 +191,10 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
 
 
 
-  // Mutation para cancelar pedido (sem estorno PIX)
+  // Mutation para cancelar pedido pelo staff (com estorno PIX automático)
   const cancelOrderMutation = useMutation({
     mutationFn: async ({ orderId, reason }: { orderId: number; reason?: string }) => {
-      const response = await apiRequest("POST", `/api/customer/orders/${orderId}/cancel`, {
+      const response = await apiRequest("POST", `/api/staff/orders/${orderId}/cancel`, {
         reason: reason || "Cancelamento solicitado pelo estabelecimento"
       });
       

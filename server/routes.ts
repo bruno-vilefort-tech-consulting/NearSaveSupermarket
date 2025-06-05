@@ -608,7 +608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Cancelar pedido por staff (supermercado) - sem estorno PIX automático
+  // Cancelar pedido por staff (supermercado) - com estorno PIX automático
   app.post("/api/staff/orders/:orderId/cancel", async (req, res) => {
     const { orderId } = req.params;
     const { reason } = req.body;
@@ -639,6 +639,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      let refundProcessed = false;
+      let refundInfo = null;
+
+      // Se o pedido tem PIX associado e foi pago, processar estorno automático
+      if (order.pixPaymentId && (order.status === 'pending' || order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready' || order.status === 'shipped')) {
+        try {
+          console.log(`💰 [STAFF CANCEL] Processando estorno PIX para pedido ${orderId}, PIX ID: ${order.pixPaymentId}`);
+          
+          const refundData = {
+            paymentId: order.pixPaymentId,
+            reason: reason || "Cancelamento solicitado pelo estabelecimento"
+          };
+
+          const refundResponse = await createPixRefund(refundData);
+          
+          if (refundResponse.success) {
+            console.log(`✅ [STAFF CANCEL] Estorno PIX processado com sucesso para pedido ${orderId}:`, refundResponse);
+            
+            // Atualizar dados do estorno no pedido
+            await storage.updateOrderRefund(parseInt(orderId), {
+              pixRefundId: refundResponse.refundId || 'STAFF_REFUND_' + Date.now(),
+              refundAmount: refundResponse.amount?.toString() || order.totalAmount,
+              refundStatus: refundResponse.status || 'approved',
+              refundDate: new Date(),
+              refundReason: reason || "Cancelamento solicitado pelo estabelecimento"
+            });
+
+            refundProcessed = true;
+            refundInfo = {
+              refundId: refundResponse.refundId,
+              amount: refundResponse.amount,
+              status: refundResponse.status
+            };
+
+            console.log(`💰 [STAFF CANCEL] Dados do estorno salvos no pedido ${orderId}`);
+            
+            // Enviar notificação push sobre estorno (se o cliente tiver subscrito)
+            try {
+              if (order.customerEmail) {
+                await sendPushNotification(order.customerEmail, {
+                  title: 'Estorno PIX Processado',
+                  body: `Seu estorno de R$ ${(refundResponse.amount || parseFloat(order.totalAmount)).toFixed(2)} foi processado pelo estabelecimento.`,
+                  url: '/customer/orders'
+                });
+              }
+            } catch (notifError) {
+              console.log('⚠️ [STAFF CANCEL] Erro ao enviar notificação de estorno:', notifError);
+            }
+          } else {
+            console.log(`⚠️ [STAFF CANCEL] Falha no estorno PIX para pedido ${orderId}:`, refundResponse.message);
+          }
+        } catch (refundError) {
+          console.error(`❌ [STAFF CANCEL] Erro no processo de estorno PIX para pedido ${orderId}:`, refundError);
+          // Continua com o cancelamento mesmo se o estorno falhar
+        }
+      }
+
       // Atualizar status do pedido para cancelled-staff
       console.log(`🔄 [STAFF CANCEL] Atualizando status do pedido ${orderId} para 'cancelled-staff'`);
       const updatedOrder = await storage.updateOrderStatus(parseInt(orderId), 'cancelled-staff', 'STAFF_REQUEST');
@@ -649,10 +706,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`✅ [STAFF CANCEL] Pedido ${orderId} cancelado pelo staff com sucesso`);
 
+      // Enviar notificação push sobre cancelamento
+      try {
+        if (order.customerEmail) {
+          await sendPushNotification(order.customerEmail, {
+            title: 'Pedido Cancelado pelo Estabelecimento',
+            body: refundProcessed ? 
+              `Seu pedido foi cancelado e o estorno PIX foi processado automaticamente.` :
+              `Seu pedido foi cancelado pelo estabelecimento.`,
+            url: '/customer/orders'
+          });
+        }
+      } catch (notifError) {
+        console.log('⚠️ [STAFF CANCEL] Erro ao enviar notificação de cancelamento:', notifError);
+      }
+
       res.json({ 
-        message: "Pedido cancelado com sucesso",
+        message: refundProcessed ? 
+          "Pedido cancelado com sucesso e estorno PIX processado automaticamente" :
+          "Pedido cancelado com sucesso",
         status: "cancelled-staff",
-        refundProcessed: false // Staff cancellation doesn't automatically process refunds
+        refundProcessed,
+        refundInfo
       });
 
     } catch (error: any) {
