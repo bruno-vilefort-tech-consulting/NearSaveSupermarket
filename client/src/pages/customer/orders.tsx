@@ -153,8 +153,8 @@ export default function CustomerOrders() {
       <div className="max-w-md mx-auto p-4 space-y-4">
         {orders.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-eco-gray-light rounded-full mx-auto flex items-center justify-center mb-4">
-              <Package size={32} className="text-eco-gray" />
+            <div className="w-16 h-16 bg-eco-green-light rounded-full mx-auto flex items-center justify-center mb-4">
+              <Package size={32} className="text-eco-green" />
             </div>
             <h2 className="text-lg font-semibold text-eco-gray-dark mb-2">Nenhum pedido encontrado</h2>
             <p className="text-sm text-eco-gray mb-6">Você ainda não fez nenhum pedido.</p>
