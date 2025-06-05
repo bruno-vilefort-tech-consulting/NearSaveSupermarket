@@ -191,7 +191,6 @@ export default function Landing() {
       {/* Footer */}
       <div className="text-center text-xs text-eco-gray pb-6">
         <div className="flex items-center justify-center space-x-1">
-          <Leaf className="h-3 w-3 text-eco-green" />
           <span>Menos desperdício, mais sustentabilidade</span>
         </div>
       </div>

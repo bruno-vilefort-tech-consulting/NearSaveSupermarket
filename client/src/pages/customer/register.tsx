@@ -174,11 +174,6 @@ export default function CustomerRegister() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-eco-green rounded-full flex items-center justify-center">
-              <Leaf className="text-white" size={32} />
-            </div>
-          </div>
           <h1 className="text-2xl font-bold text-eco-gray-dark">{t('landing.title')}</h1>
           <div className="flex justify-center mt-2">
             <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>

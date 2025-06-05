@@ -27,11 +27,6 @@ export default function TermsAndConditions() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-eco-green rounded-full flex items-center justify-center">
-              <Leaf className="text-white" size={32} />
-            </div>
-          </div>
           <h1 className="text-2xl font-bold text-eco-gray-dark">SaveUp</h1>
           <div className="flex justify-center mt-2">
             <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
