@@ -30,50 +30,50 @@ export default function EcoPoints() {
       condition: "Vence hoje",
       points: 100,
       description: "Produto vence no mesmo dia - máximo impacto na redução de desperdício",
-      color: "bg-red-100 text-red-800",
-      icon: <Clock size={16} className="text-red-600" />
+      color: "bg-eco-orange-light text-eco-orange-dark",
+      icon: <Clock size={16} className="text-eco-orange" />
     },
     {
       condition: "Vence amanhã",
       points: 80,
       description: "Produto vence em 1 dia - alta prioridade",
-      color: "bg-red-100 text-red-800",
-      icon: <Clock size={16} className="text-red-600" />
+      color: "bg-eco-orange-light text-eco-orange-dark",
+      icon: <Clock size={16} className="text-eco-orange" />
     },
     {
       condition: "Vence em 2-3 dias",
       points: 60,
       description: "Produto próximo ao vencimento - contribuição significativa",
-      color: "bg-orange-100 text-orange-800",
-      icon: <Clock size={16} className="text-orange-600" />
+      color: "bg-eco-orange-light text-eco-orange-dark",
+      icon: <Clock size={16} className="text-eco-orange" />
     },
     {
       condition: "Vence em 4-7 dias",
       points: 40,
       description: "Produto com vencimento em 1 semana - boa contribuição",
-      color: "bg-yellow-100 text-yellow-800",
-      icon: <Clock size={16} className="text-yellow-600" />
+      color: "bg-eco-blue-light text-eco-blue-dark",
+      icon: <Clock size={16} className="text-eco-blue" />
     },
     {
       condition: "Vence em 8-14 dias",
       points: 25,
       description: "Produto com vencimento em 2 semanas - contribuição básica",
-      color: "bg-blue-100 text-blue-800",
-      icon: <Clock size={16} className="text-blue-600" />
+      color: "bg-eco-green-light text-eco-green-dark",
+      icon: <Clock size={16} className="text-eco-green" />
     },
     {
       condition: "Vence em 15-30 dias",
       points: 15,
       description: "Produto com vencimento até 1 mês - contribuição mínima",
-      color: "bg-green-100 text-green-800",
-      icon: <Clock size={16} className="text-green-600" />
+      color: "bg-eco-sage-light text-eco-sage-dark",
+      icon: <Clock size={16} className="text-eco-sage" />
     },
     {
       condition: "Mais de 30 dias",
       points: 10,
       description: "Produto com vencimento distante - pontuação padrão",
-      color: "bg-gray-100 text-gray-800",
-      icon: <Clock size={16} className="text-gray-600" />
+      color: "bg-eco-gray-light text-eco-gray-dark",
+      icon: <Clock size={16} className="text-eco-gray" />
     }
   ];
 
@@ -129,9 +129,9 @@ export default function EcoPoints() {
   ];
 
   return (
-    <div className="min-h-screen bg-eco-cream">
+    <div className="min-h-screen bg-eco-gray-light">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-eco-sage/20">
+      <div className="bg-white shadow-sm border-b border-eco-green-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -139,7 +139,7 @@ export default function EcoPoints() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/customer")}
-                className="text-eco-gray hover:text-eco-gray-dark"
+                className="text-eco-green hover:text-eco-green-dark hover:bg-eco-green-light"
               >
                 <ArrowLeft size={16} className="mr-2" />
                 Voltar
@@ -250,10 +250,10 @@ export default function EcoPoints() {
         </Card>
 
         {/* Benefits */}
-        <Card className="mb-8 border-eco-sage/20">
+        <Card className="mb-8 border-eco-green-light">
           <CardHeader>
             <CardTitle className="flex items-center text-eco-gray-dark">
-              <Gift size={24} className="mr-2 text-eco-orange" />
+              <Gift size={24} className="mr-2 text-eco-green" />
               Benefícios do Programa
             </CardTitle>
           </CardHeader>
@@ -262,7 +262,7 @@ export default function EcoPoints() {
               {benefits.map((benefit, index) => (
                 <div key={index} className="text-center">
                   <div className="flex justify-center mb-4">
-                    <div className="bg-eco-cream p-3 rounded-full border border-eco-sage/20">
+                    <div className="bg-eco-green-light p-3 rounded-full border border-eco-green">
                       {benefit.icon}
                     </div>
                   </div>
@@ -275,10 +275,10 @@ export default function EcoPoints() {
         </Card>
 
         {/* Tips */}
-        <Card className="border-eco-sage/20">
+        <Card className="border-eco-green-light">
           <CardHeader>
             <CardTitle className="flex items-center text-eco-gray-dark">
-              <TrendingUp size={24} className="mr-2 text-eco-orange" />
+              <TrendingUp size={24} className="mr-2 text-eco-green" />
               Dicas para Maximizar seus Pontos
             </CardTitle>
           </CardHeader>
