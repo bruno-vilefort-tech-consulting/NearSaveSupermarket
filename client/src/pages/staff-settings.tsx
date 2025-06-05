@@ -93,7 +93,7 @@ export default function StaffSettings() {
             <div>
               <h1 className="text-3xl font-bold text-eco-gray-dark">Configurações</h1>
               <div className="flex justify-center mt-1">
-                <span className="text-eco-orange text-[10px] font-bold">EcoMart Staff</span>
+                <span className="text-eco-orange text-[10px] font-bold">SaveUp Staff</span>
               </div>
             </div>
           </div>

@@ -101,7 +101,7 @@ export default function StaffRegister() {
               <Settings className="text-white" size={32} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-eco-gray-dark">EcoMart Staff</h1>
+              <h1 className="text-3xl font-bold text-eco-gray-dark">SaveUp Staff</h1>
               <div className="flex justify-center mt-1">
                 <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
               </div>

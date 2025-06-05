@@ -1682,7 +1682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email
       const emailSent = await sendEmail({
         to: customer.email,
-        from: 'suporte@ecomart.vc',
+        from: 'suporte@saveup.vc',
         subject: emailContent.subject,
         text: emailContent.text,
         html: emailContent.html
@@ -1776,7 +1776,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email
       const emailSent = await sendEmail({
         to: email,
-        from: 'suporte@ecomart.vc',
+        from: 'suporte@saveup.vc',
         subject: emailContent.subject,
         text: emailContent.text,
         html: emailContent.html
