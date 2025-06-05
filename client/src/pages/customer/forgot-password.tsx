@@ -65,7 +65,7 @@ export default function ForgotPassword() {
               <Leaf className="text-white" size={32} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-eco-gray-dark">EcoMart</h1>
+          <h1 className="text-2xl font-bold text-eco-gray-dark">SaveUp</h1>
           <div className="flex justify-center mt-2">
             <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
           </div>

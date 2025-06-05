@@ -32,7 +32,7 @@ export default function TermsAndConditions() {
               <Leaf className="text-white" size={32} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-eco-gray-dark">EcoMart</h1>
+          <h1 className="text-2xl font-bold text-eco-gray-dark">SaveUp</h1>
           <div className="flex justify-center mt-2">
             <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
           </div>
@@ -52,7 +52,7 @@ export default function TermsAndConditions() {
             <section>
               <h2 className="text-xl font-semibold text-eco-gray-dark mb-3">1. Aceitação dos Termos</h2>
               <p className="text-eco-gray leading-relaxed">
-                Ao acessar e usar o EcoMart, você concorda em cumprir e estar vinculado a estes Termos e Condições de Uso. 
+                Ao acessar e usar o SaveUp, você concorda em cumprir e estar vinculado a estes Termos e Condições de Uso. 
                 Se você não concordar com qualquer parte destes termos, não deve usar nosso serviço.
               </p>
             </section>
@@ -60,7 +60,7 @@ export default function TermsAndConditions() {
             <section>
               <h2 className="text-xl font-semibold text-eco-gray-dark mb-3">2. Descrição do Serviço</h2>
               <p className="text-eco-gray leading-relaxed">
-                O EcoMart é uma plataforma digital que conecta supermercados e consumidores para a venda de produtos próximos 
+                O SaveUp é uma plataforma digital que conecta supermercados e consumidores para a venda de produtos próximos 
                 ao vencimento com desconto, promovendo sustentabilidade e redução do desperdício de alimentos.
               </p>
             </section>
@@ -136,7 +136,7 @@ export default function TermsAndConditions() {
             <section>
               <h2 className="text-xl font-semibold text-eco-gray-dark mb-3">9. Limitação de Responsabilidade</h2>
               <p className="text-eco-gray leading-relaxed">
-                O EcoMart atua como intermediário entre supermercados e consumidores. Não nos responsabilizamos por 
+                O SaveUp atua como intermediário entre supermercados e consumidores. Não nos responsabilizamos por 
                 problemas relacionados à qualidade dos produtos além dos prazos informados pelos estabelecimentos parceiros.
               </p>
             </section>
