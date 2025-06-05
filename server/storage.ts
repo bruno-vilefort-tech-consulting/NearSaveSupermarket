@@ -582,6 +582,7 @@ export class DatabaseStorage implements IStorage {
             productId: orderItems.productId,
             quantity: orderItems.quantity,
             priceAtTime: orderItems.priceAtTime,
+            confirmationStatus: orderItems.confirmationStatus,
             createdAt: orderItems.createdAt,
             product: products,
           })
@@ -646,6 +647,7 @@ export class DatabaseStorage implements IStorage {
             productId: orderItems.productId,
             quantity: orderItems.quantity,
             priceAtTime: orderItems.priceAtTime,
+            confirmationStatus: orderItems.confirmationStatus,
             createdAt: orderItems.createdAt,
             product: products,
           })
