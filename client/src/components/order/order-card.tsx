@@ -301,6 +301,18 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     });
   };
 
+  const canConfirmOrder = () => {
+    // Pedido pode ser confirmado se estiver com status "pending" ou "awaiting_payment" 
+    // e tiver pagamento PIX aprovado
+    return (order.status === "pending" || order.status === "awaiting_payment") && 
+           order.externalReference && 
+           order.pixPaymentId;
+  };
+
+  const handleConfirmOrder = () => {
+    navigate(`/orders/${order.id}/confirm`);
+  };
+
 
 
   // Verifica se o pedido pode ser cancelado (não está cancelado nem concluído)
@@ -376,6 +388,17 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
           {canEditStatus && (
             <div className="flex flex-col gap-2">
               <div className="flex gap-2 flex-wrap">
+                {canConfirmOrder() && (
+                  <Button 
+                    size="sm"
+                    onClick={handleConfirmOrder}
+                    className="bg-eco-blue hover:bg-eco-blue-dark text-white font-medium"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Confirmar Pedido
+                  </Button>
+                )}
+
                 {canCancelOrder() && (
                   <Button 
                     size="sm"
@@ -399,10 +422,8 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                     {pixRefundMutation.isPending ? "Processando..." : "Estorno PIX"}
                   </Button>
                 )}
-
-
                 
-                {canEditStatus && getNextStatusLabel() && (
+                {canEditStatus && getNextStatusLabel() && !canConfirmOrder() && (
                   <Button 
                     size="sm"
                     onClick={handleStatusUpdate}

@@ -1178,6 +1178,178 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get specific order for staff
+  app.get("/api/staff/orders/:id", async (req, res) => {
+    try {
+      const staffId = req.headers['x-staff-id'];
+      
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff authentication required" });
+      }
+
+      const orderId = parseInt(req.params.id);
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      res.json(order);
+    } catch (error) {
+      console.error("Error fetching order:", error);
+      res.status(500).json({ message: "Failed to fetch order" });
+    }
+  });
+
+  // Confirm order with partial items (and automatic PIX refund if needed)
+  app.post("/api/staff/orders/:id/confirm", async (req, res) => {
+    try {
+      const staffId = req.headers['x-staff-id'];
+      
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff authentication required" });
+      }
+
+      const orderId = parseInt(req.params.id);
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+
+      const { confirmedItems, refundAmount } = req.body;
+
+      if (!confirmedItems || !Array.isArray(confirmedItems)) {
+        return res.status(400).json({ message: "Confirmed items list is required" });
+      }
+
+      console.log(`🔄 [ORDER CONFIRM] Staff ${staffId} confirmando pedido ${orderId}`);
+      console.log(`🔄 [ORDER CONFIRM] Itens confirmados:`, confirmedItems);
+      
+      // Buscar o pedido para verificar status e informações de PIX
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Verificar se o pedido pode ser confirmado
+      if (order.status !== "pending" && order.status !== "awaiting_payment") {
+        return res.status(400).json({ message: "Order cannot be confirmed in current status" });
+      }
+
+      let refundProcessed = false;
+      let refundDetails = null;
+
+      // Se há itens não confirmados e valor de estorno, processar estorno PIX
+      if (refundAmount && refundAmount > 0 && order.pixPaymentId) {
+        console.log(`💰 [ORDER CONFIRM] Processando estorno PIX de R$ ${refundAmount}`);
+        
+        try {
+          const refundResult = await createPixRefund({
+            paymentId: order.pixPaymentId,
+            amount: refundAmount,
+            reason: "Confirmação parcial do pedido - itens indisponíveis"
+          });
+
+          if (refundResult.success) {
+            console.log(`✅ [ORDER CONFIRM] Estorno PIX processado com sucesso:`, refundResult);
+            refundProcessed = true;
+            refundDetails = refundResult;
+
+            // Atualizar informações de estorno no pedido
+            await storage.updateOrderRefund(orderId, {
+              pixRefundId: refundResult.refundId || '',
+              refundAmount: refundAmount.toString(),
+              refundStatus: refundResult.status || 'pending',
+              refundDate: new Date(),
+              refundReason: "Confirmação parcial - itens indisponíveis"
+            });
+          } else {
+            console.error(`❌ [ORDER CONFIRM] Falha no estorno PIX:`, refundResult.error);
+            return res.status(400).json({ 
+              message: "Erro ao processar estorno PIX", 
+              error: refundResult.error 
+            });
+          }
+        } catch (error) {
+          console.error(`❌ [ORDER CONFIRM] Erro no estorno PIX:`, error);
+          return res.status(500).json({ 
+            message: "Erro interno ao processar estorno PIX" 
+          });
+        }
+      }
+
+      // Atualizar status do pedido para "confirmed"
+      const updatedOrder = await storage.updateOrderStatus(orderId, "confirmed", `Staff ${staffId}`);
+      
+      if (!updatedOrder) {
+        return res.status(500).json({ message: "Failed to update order status" });
+      }
+
+      console.log(`✅ [ORDER CONFIRM] Pedido ${orderId} confirmado com sucesso`);
+
+      // Enviar notificação push para o cliente sobre a confirmação
+      try {
+        const pushSubscriptions = await storage.getPushSubscriptionsByEmail(order.customerEmail);
+        
+        if (pushSubscriptions.length > 0) {
+          const title = refundProcessed 
+            ? "Pedido Confirmado Parcialmente" 
+            : "Pedido Confirmado";
+          
+          const body = refundProcessed
+            ? `Seu pedido #${orderId} foi confirmado parcialmente. Estorno de R$ ${refundAmount.toFixed(2)} sendo processado.`
+            : `Seu pedido #${orderId} foi confirmado e está sendo preparado.`;
+
+          for (const subscription of pushSubscriptions) {
+            await sendPushNotification(
+              {
+                endpoint: subscription.endpoint,
+                keys: {
+                  p256dh: subscription.p256dhKey,
+                  auth: subscription.authKey
+                }
+              },
+              {
+                title,
+                body,
+                icon: '/icon-192x192.png',
+                badge: '/icon-192x192.png',
+                url: `/customer/orders`,
+                data: { orderId, type: 'order_confirmed' }
+              }
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao enviar notificação push:", error);
+        // Não falhar a confirmação por erro de notificação
+      }
+
+      const response: any = {
+        success: true,
+        message: refundProcessed 
+          ? "Pedido confirmado parcialmente com estorno processado" 
+          : "Pedido confirmado com sucesso",
+        order: updatedOrder,
+        refundProcessed,
+      };
+
+      if (refundProcessed && refundDetails) {
+        response.refundAmount = refundAmount;
+        response.refundId = refundDetails.refundId;
+        response.refundStatus = refundDetails.status;
+      }
+
+      res.json(response);
+
+    } catch (error) {
+      console.error("Error confirming order:", error);
+      res.status(500).json({ message: "Failed to confirm order" });
+    }
+  });
+
   // Legacy route for backward compatibility (keeping for Replit auth users)
   app.get("/api/orders", isAuthenticated, async (req, res) => {
     try {
