@@ -768,7 +768,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.tryAgain': 'Tentar novamente',
 
     // Landing Page
-    'landing.title': 'EcoMart',
+    'landing.title': 'SaveUp',
     'landing.subtitle': 'By Up Brasil',
     'landing.customerButton': 'Cliente - Consumidor',
     'landing.staffButton': 'Staff do Supermercado',
@@ -1206,7 +1206,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'common.tryAgain': 'Try Again',
 
     // Landing Page
-    'landing.title': 'EcoMart',
+    'landing.title': 'SaveUp',
     'landing.subtitle': 'By Up Brasil',
     'landing.customerButton': 'Customer - Consumer',
     'landing.staffButton': 'Supermarket Staff',
