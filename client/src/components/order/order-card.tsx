@@ -40,7 +40,6 @@ interface OrderCardProps {
       id: number;
       quantity: number;
       priceAtTime: string;
-      confirmationStatus?: string;
       product: {
         id: number;
         name: string;

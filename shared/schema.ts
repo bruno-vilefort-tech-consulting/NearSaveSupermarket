@@ -131,7 +131,6 @@ export const orderItems = pgTable("order_items", {
   productId: integer("product_id").notNull().references(() => products.id),
   quantity: integer("quantity").notNull(),
   priceAtTime: numeric("price_at_time", { precision: 10, scale: 2 }).notNull(),
-  confirmationStatus: varchar("confirmation_status", { length: 20 }).default("pending"), // pending, confirmed, removed
   createdAt: timestamp("created_at").defaultNow(),
 });
 
