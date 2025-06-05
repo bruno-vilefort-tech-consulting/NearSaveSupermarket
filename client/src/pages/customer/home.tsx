@@ -661,8 +661,8 @@ export default function CustomerHome() {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-eco-green-light rounded-lg flex items-center justify-center">
-                        <Store className="text-eco-green" size={24} />
+                      <div className="w-12 h-12 bg-eco-blue-light rounded-lg flex items-center justify-center">
+                        <Store className="text-eco-blue" size={24} />
                       </div>
                       <div>
                         <CardTitle className="text-lg font-semibold text-eco-gray-dark">
@@ -699,7 +699,7 @@ export default function CustomerHome() {
 
                   <div className="mt-4">
                     <Button
-                      className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors"
+                      className="w-full bg-eco-orange hover:bg-eco-orange-dark text-white font-semibold py-2 rounded-xl transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSupermarketClick(supermarket.id, supermarket.name);
