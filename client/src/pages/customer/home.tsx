@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Leaf, LogOut, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Award, LogOut, Menu, X } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { MobilePushDiagnostic } from "@/components/MobilePushDiagnostic";
@@ -316,7 +316,7 @@ export default function CustomerHome() {
                 onClick={() => navigate("/customer/eco-points")}
                 className="bg-eco-green-light border-eco-green text-eco-green-dark hover:bg-eco-green hover:text-white"
               >
-                <Leaf size={16} className="mr-1" />
+                <Award size={16} className="mr-1" />
                 {customerInfo?.ecoPoints || 0} pts
               </Button>
 
@@ -445,7 +445,7 @@ export default function CustomerHome() {
                 <p className="text-sm text-eco-gray mb-1">{t('customer.hello')},</p>
                 <p className="font-medium text-eco-gray-dark">{customerInfo?.fullName}</p>
                 <div className="flex items-center mt-2">
-                  <Leaf size={16} className="text-eco-green mr-1" />
+                  <Award size={16} className="text-eco-green mr-1" />
                   <span className="text-sm font-medium text-eco-green-dark">
                     {customerInfo?.ecoPoints || 0} {t('customer.ecoPointsFooter')}
                   </span>
@@ -462,7 +462,7 @@ export default function CustomerHome() {
                     setIsMobileMenuOpen(false);
                   }}
                 >
-                  <Leaf size={20} className="mr-3 text-eco-green" />
+                  <Award size={20} className="mr-3 text-eco-green" />
                   <div>
                     <div className="font-medium">{t('customer.ecoPointsFooter')}</div>
                     <div className="text-xs text-eco-gray">{customerInfo?.ecoPoints || 0} {t('customer.pointsAvailable')}</div>
@@ -543,7 +543,7 @@ export default function CustomerHome() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="bg-eco-blue p-3 rounded-full">
-                  <Leaf size={24} className="text-white" />
+                  <Award size={24} className="text-white" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-eco-gray-dark">
