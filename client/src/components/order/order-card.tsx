@@ -10,7 +10,8 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Truck, Clock, Package, CreditCard, AlertTriangle, RefreshCw } from "lucide-react";
+import { Truck, Clock, Package, CreditCard, AlertTriangle, RefreshCw, CheckCircle } from "lucide-react";
+import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -89,6 +90,7 @@ const getNextStatus = (currentStatus: string, fulfillmentMethod: string) => {
 export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const updateStatusMutation = useMutation({

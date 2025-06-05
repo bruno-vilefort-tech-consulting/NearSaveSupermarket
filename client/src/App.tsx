@@ -11,6 +11,7 @@ import Dashboard from "@/pages/dashboard";
 import Products from "@/pages/products";
 import AddProduct from "@/pages/add-product";
 import Orders from "@/pages/orders";
+import ConfirmOrder from "@/pages/confirm-order";
 import MonthlyOrders from "@/pages/monthly-orders";
 
 // Customer App Pages
@@ -89,6 +90,7 @@ function Router() {
           <Route path="/products" component={Products} />
           <Route path="/add-product" component={AddProduct} />
           <Route path="/orders" component={Orders} />
+          <Route path="/orders/:id/confirm" component={ConfirmOrder} />
           <Route path="/monthly-orders" component={MonthlyOrders} />
           <Route path="/settings" component={StaffSettings} />
         </>
