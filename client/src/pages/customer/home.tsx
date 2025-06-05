@@ -51,10 +51,19 @@ export default function CustomerHome() {
     return R * c;
   };
 
-  // Obter localização do usuário
+  // Obter localização do usuário com fallbacks para produção
   const getUserLocation = () => {
     if (!navigator.geolocation) {
       console.log('Geolocalização não suportada pelo navegador');
+      setLocationPermission('denied');
+      return;
+    }
+
+    // Verificar se estamos em contexto seguro (HTTPS ou localhost)
+    const isSecureContext = window.isSecureContext || location.protocol === 'https:' || location.hostname === 'localhost';
+    
+    if (!isSecureContext) {
+      console.log('Geolocalização requer contexto seguro (HTTPS)');
       setLocationPermission('denied');
       return;
     }
@@ -67,13 +76,26 @@ export default function CustomerHome() {
           setLocationPermission('denied');
           return;
         }
+        
+        // Se permissão está granted ou prompt, tenta obter localização
+        if (result.state === 'granted' || result.state === 'prompt') {
+          requestLocation();
+        }
       }).catch(() => {
         // Se não conseguir verificar a permissão, continua tentando obter localização
         console.log('Não foi possível verificar permissão, tentando obter localização...');
+        requestLocation();
       });
+    } else {
+      // Navegador não suporta permissions API, tenta diretamente
+      requestLocation();
     }
+  };
 
+  const requestLocation = () => {
     console.log('Tentando obter localização do usuário...');
+    
+    // Primeiro, tenta com precisão baixa para ser mais compatível
     navigator.geolocation.getCurrentPosition(
       (position) => {
         console.log('Localização obtida com sucesso:', {
@@ -88,7 +110,7 @@ export default function CustomerHome() {
         setLocationPermission('granted');
       },
       (error) => {
-        console.error('Erro ao obter localização:', {
+        console.error('Erro ao obter localização (primeira tentativa):', {
           code: error.code,
           message: error.message,
           errorTypes: {
@@ -98,24 +120,62 @@ export default function CustomerHome() {
           }
         });
         
-        switch (error.code) {
-          case 1: // PERMISSION_DENIED
-            setLocationPermission('denied');
-            break;
-          case 2: // POSITION_UNAVAILABLE
-          case 3: // TIMEOUT
-            setLocationPermission('denied');
-            break;
-          default:
-            setLocationPermission('denied');
+        // Se falhou, tenta uma segunda vez com configurações ainda mais permissivas
+        if (error.code === 3) { // TIMEOUT
+          console.log('Timeout na primeira tentativa, tentando novamente...');
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              console.log('Localização obtida na segunda tentativa:', {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy
+              });
+              setUserLocation({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              });
+              setLocationPermission('granted');
+            },
+            (secondError) => {
+              console.error('Erro na segunda tentativa:', secondError);
+              handleLocationError(secondError);
+            },
+            {
+              enableHighAccuracy: false,
+              timeout: 30000, // 30 segundos
+              maximumAge: 300000 // 5 minutos
+            }
+          );
+        } else {
+          handleLocationError(error);
         }
       },
       {
-        enableHighAccuracy: false, // Mudar para false para ser mais compatível
-        timeout: 15000, // Aumentar timeout
+        enableHighAccuracy: false, // Precisão baixa para ser mais compatível
+        timeout: 10000, // 10 segundos
         maximumAge: 600000 // 10 minutos
       }
     );
+  };
+
+  const handleLocationError = (error: any) => {
+    switch (error.code) {
+      case 1: // PERMISSION_DENIED
+        console.log('Permissão de localização negada pelo usuário');
+        setLocationPermission('denied');
+        break;
+      case 2: // POSITION_UNAVAILABLE
+        console.log('Localização indisponível');
+        setLocationPermission('denied');
+        break;
+      case 3: // TIMEOUT
+        console.log('Timeout ao obter localização');
+        setLocationPermission('denied');
+        break;
+      default:
+        console.log('Erro desconhecido ao obter localização');
+        setLocationPermission('denied');
+    }
   };
 
   // Carregar dados iniciais e obter localização

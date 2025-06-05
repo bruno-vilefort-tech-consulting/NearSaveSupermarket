@@ -104,15 +104,15 @@ export default function CustomerOrders() {
     return (
       <div className="min-h-screen bg-eco-gray-light flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-red-800 mb-2">Erro ao carregar pedidos</h2>
-            <p className="text-red-600 mb-4">
+          <div className="bg-eco-orange-light border border-eco-orange rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-eco-orange-dark mb-2">Erro ao carregar pedidos</h2>
+            <p className="text-eco-gray-dark mb-4">
               {error instanceof Error ? error.message : 'Ocorreu um erro inesperado'}
             </p>
             <Button 
               onClick={() => refetch()} 
               variant="outline"
-              className="border-eco-orange text-eco-orange hover:bg-eco-orange-light"
+              className="border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Tentar novamente
