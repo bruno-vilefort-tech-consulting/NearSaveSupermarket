@@ -67,7 +67,7 @@ export function BottomNavigation() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-eco-gray-light px-4 py-2 shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-eco-blue-light px-4 py-2 shadow-lg">
       <div className="flex justify-around items-end">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -79,12 +79,12 @@ export function BottomNavigation() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate(item.path)}
-                className="flex flex-col items-center p-2 text-eco-gray hover:text-eco-orange transition-colors"
+                className="flex flex-col items-center p-2 text-eco-gray hover:text-eco-blue transition-colors"
               >
-                <div className="w-10 h-10 bg-eco-green hover:bg-eco-green-dark rounded-full flex items-center justify-center mb-1 shadow-md transition-colors">
+                <div className="w-10 h-10 bg-eco-blue hover:bg-eco-blue-dark rounded-full flex items-center justify-center mb-1 shadow-md transition-colors">
                   <Icon className="text-white" size={20} />
                 </div>
-                <span className="text-xs font-medium text-eco-green">{item.label}</span>
+                <span className="text-xs font-medium text-eco-blue">{item.label}</span>
               </Button>
             );
           }
@@ -102,7 +102,7 @@ export function BottomNavigation() {
                 }
               }}
               className={`flex flex-col items-center p-2 relative transition-colors ${
-                item.isActive ? "text-eco-green" : "text-eco-gray hover:text-eco-orange"
+                item.isActive ? "text-eco-blue" : "text-eco-gray hover:text-eco-blue"
               }`}
             >
               <div className="w-10 h-10 flex items-center justify-center mb-1 relative">
