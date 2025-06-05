@@ -458,24 +458,25 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
               </div>
               
               {order.externalReference && order.pixPaymentId && (
-                <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-orange-700 font-medium mb-2">
+                <div className="mt-4 p-3 bg-eco-blue-light border border-eco-blue rounded-lg">
+                  <div className="flex items-center gap-2 text-eco-blue-dark font-medium mb-2">
                     <CreditCard className="h-4 w-4" />
-                    Pagamento PIX Detectado
+                    Estorno PIX Automático
                   </div>
-                  <p className="text-sm text-orange-600">
-                    Este pedido possui pagamento PIX. Use o botão <strong>"Estorno PIX"</strong> separadamente se necessário processar o estorno.
+                  <p className="text-sm text-eco-blue-dark">
+                    Este pedido possui pagamento PIX que será <strong>estornado automaticamente</strong> durante o cancelamento.
                   </p>
-                  <div className="flex items-center gap-1 mt-2 text-xs text-orange-500">
+                  <div className="flex items-center gap-1 mt-2 text-xs text-eco-blue">
                     <AlertTriangle className="h-3 w-3" />
-                    Cancelamento não inclui estorno automático
+                    O cliente será notificado sobre o estorno
                   </div>
                 </div>
               )}
             </div>
             
-            <p className="text-sm text-gray-600 mt-4">
-              Esta ação não pode ser desfeita. O pedido será marcado como cancelado.
+            <p className="text-sm text-eco-gray mt-4">
+              Esta ação não pode ser desfeita. O pedido será marcado como <strong>"Cancelado-lojista"</strong>
+              {order.externalReference && order.pixPaymentId && " e o estorno PIX será processado automaticamente"}.
             </p>
           </div>
 
@@ -483,15 +484,14 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
             <Button 
               variant="outline" 
               onClick={() => setShowCancelDialog(false)}
-              className="flex-1"
+              className="flex-1 border-eco-blue text-eco-blue hover:bg-eco-blue-light"
             >
               Manter Pedido
             </Button>
             <Button 
-              variant="destructive" 
               onClick={confirmCancelOrder}
               disabled={updateStatusMutation.isPending || cancelOrderMutation.isPending}
-              className="flex-1"
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
             >
               {(updateStatusMutation.isPending || cancelOrderMutation.isPending) ? (
                 <div className="flex items-center gap-2">
@@ -499,7 +499,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                   Processando...
                 </div>
               ) : (
-                "Sim, Cancelar"
+                order.externalReference && order.pixPaymentId ? "Cancelar e Estornar" : "Sim, Cancelar"
               )}
             </Button>
           </DialogFooter>
