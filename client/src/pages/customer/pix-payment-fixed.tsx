@@ -97,16 +97,26 @@ export default function PixPaymentFixed() {
     }
   };
 
-  const checkOrderStatus = async () => {
+  const checkOrderStatus = async (retryCount = 0) => {
     if (!orderId || isCheckingPayment) return;
     
     setIsCheckingPayment(true);
-    console.log('🔍 [PIX CHECK] Checking order status for:', orderId);
+    console.log('🔍 [PIX CHECK] Checking order status for:', orderId, 'attempt:', retryCount + 1);
     console.log('🔍 [PIX CHECK] Current payment status:', paymentStatus);
     console.log('🔍 [PIX CHECK] Is expired:', isExpired);
     
     try {
-      const response = await fetch(`/api/orders/${orderId}/payment-status`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+      
+      const response = await fetch(`/api/orders/${orderId}/payment-status`, {
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      clearTimeout(timeoutId);
       console.log('🔍 [PIX CHECK] Response status:', response.status, response.statusText);
       
       if (!response.ok) {
@@ -159,7 +169,21 @@ export default function PixPaymentFixed() {
       }
     } catch (error) {
       console.error('❌ [PIX CHECK] Erro ao verificar status do pedido:', error);
-      // Em caso de erro na verificação, continuar tentando mas não bloquear a interface
+      
+      // Se for erro de rede ou timeout e ainda não tentamos 3 vezes, tentar novamente
+      if (retryCount < 2 && (
+        error instanceof TypeError || // Network error
+        error.name === 'AbortError' || // Timeout
+        (error instanceof Error && error.message.includes('Failed to fetch'))
+      )) {
+        console.log(`🔄 [PIX CHECK] Tentando novamente em 2 segundos... (tentativa ${retryCount + 2}/3)`);
+        setTimeout(() => {
+          checkOrderStatus(retryCount + 1);
+        }, 2000);
+        return;
+      }
+      
+      // Log do erro mas não bloquear a interface
       if (error instanceof Error) {
         console.error('❌ [PIX CHECK] Error details:', error.message);
       }

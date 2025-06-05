@@ -136,15 +136,24 @@ export default function PixPayment() {
     }
   };
 
-  const checkPaymentStatus = async () => {
+  const checkPaymentStatus = async (retryCount = 0) => {
     if (!pixData || isCheckingPayment) return;
 
     try {
       setIsCheckingPayment(true);
-      const response = await apiRequest('GET', `/api/payments/pix/status/${pixData.id}`);
+      console.log('🔍 [PIX CHECK] Checking payment status for:', pixData.id, 'attempt:', retryCount + 1);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+      
+      const response = await apiRequest('GET', `/api/payments/pix/status/${pixData.id}`, undefined, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       const statusData = await response.json();
       
-      console.log('Payment status check:', statusData);
+      console.log('🔍 [PIX CHECK] Payment status response:', statusData);
       
       if (statusData.status !== paymentStatus) {
         setPaymentStatus(statusData.status);
@@ -171,9 +180,28 @@ export default function PixPayment() {
         }
       }
     } catch (error) {
-      console.error('Error checking payment status:', error);
+      console.error('❌ [PIX CHECK] Error checking payment status:', error);
+      
+      // Se for erro de rede ou timeout e ainda não tentamos 3 vezes, tentar novamente
+      if (retryCount < 2 && (
+        error instanceof TypeError || // Network error
+        error.name === 'AbortError' || // Timeout
+        (error instanceof Error && error.message.includes('Failed to fetch'))
+      )) {
+        console.log(`🔄 [PIX CHECK] Tentando novamente em 2 segundos... (tentativa ${retryCount + 2}/3)`);
+        setTimeout(() => {
+          checkPaymentStatus(retryCount + 1);
+        }, 2000);
+        return;
+      }
+      
+      // Log do erro mas não bloquear a interface
+      if (error instanceof Error) {
+        console.error('❌ [PIX CHECK] Error details:', error.message);
+      }
     } finally {
       setIsCheckingPayment(false);
+      console.log('🔄 [PIX CHECK] Check completed, setting isCheckingPayment to false');
     }
   };
 
