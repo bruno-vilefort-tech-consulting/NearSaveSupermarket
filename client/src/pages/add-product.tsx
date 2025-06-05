@@ -326,7 +326,7 @@ export default function AddProduct() {
                     </Button>
                     <Button 
                       type="submit" 
-                      className="flex-1 bg-primary-600 hover:bg-primary-700"
+                      className="flex-1 bg-eco-green hover:bg-eco-green-dark text-white"
                       disabled={createProductMutation.isPending}
                     >
                       {createProductMutation.isPending ? t('product.adding') : t('product.addButton')}
