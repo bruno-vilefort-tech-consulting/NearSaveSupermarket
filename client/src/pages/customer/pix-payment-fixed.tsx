@@ -153,6 +153,10 @@ export default function PixPaymentFixed() {
       }
     } catch (error) {
       console.error('Erro ao verificar status do pedido:', error);
+      // Em caso de erro na verificação, continuar tentando mas não bloquear a interface
+      if (error instanceof Error) {
+        console.error('Error details:', error.message);
+      }
     } finally {
       setIsCheckingPayment(false);
     }

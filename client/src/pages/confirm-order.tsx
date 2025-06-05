@@ -437,6 +437,67 @@ export default function ConfirmOrderPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dialog de Sucesso */}
+      {confirmOrderMutation.isSuccess && confirmOrderMutation.data && (
+        <AlertDialog open={true} onOpenChange={() => navigate('/orders')}>
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="h-6 w-6" />
+                Pedido Confirmado com Sucesso!
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                <div className="space-y-4">
+                  <p className="text-sm">
+                    O pedido #{order?.id} foi processado e o cliente foi notificado.
+                  </p>
+                  
+                  {confirmOrderMutation.data.refundProcessed && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CreditCard className="h-4 w-4 text-orange-600" />
+                        <span className="font-medium text-orange-800">Estorno PIX Processado</span>
+                      </div>
+                      <p className="text-sm text-orange-700">
+                        Valor estornado: <span className="font-semibold">R$ {confirmOrderMutation.data.refundAmount?.toFixed(2)}</span>
+                      </p>
+                      <p className="text-xs text-orange-600 mt-1">
+                        O estorno será processado em até 1 hora útil
+                      </p>
+                    </div>
+                  )}
+                  
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="font-medium text-green-800">
+                        {confirmOrderMutation.data.refundProcessed ? 'Confirmação Parcial' : 'Confirmação Integral'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-green-700">
+                      {confirmOrderMutation.data.confirmedItemsCount} itens confirmados
+                    </p>
+                    {confirmOrderMutation.data.refundProcessed && (
+                      <p className="text-xs text-green-600 mt-1">
+                        {confirmOrderMutation.data.removedItemsCount} itens removidos
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction 
+                onClick={() => navigate('/orders')}
+                className="bg-green-600 hover:bg-green-700 text-white w-full"
+              >
+                Voltar aos Pedidos
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
