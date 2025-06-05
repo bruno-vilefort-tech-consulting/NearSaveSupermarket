@@ -755,6 +755,8 @@ export class DatabaseStorage implements IStorage {
       .values({
         ...orderData,
         status: 'awaiting_payment',
+        lastManualStatus: 'awaiting_payment', // Fix: Ensure protection system doesn't revert status
+        lastManualUpdate: new Date(),
         pixPaymentId: pixData.pixPaymentId,
         pixCopyPaste: pixData.pixCopyPaste,
         pixExpirationDate: pixData.pixExpirationDate,
