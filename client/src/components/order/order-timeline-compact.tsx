@@ -58,13 +58,17 @@ export function OrderTimelineCompact({
                 flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all duration-300
                 ${isCompleted 
                   ? "bg-eco-green border-eco-green text-white" 
-                  : isCurrent
+                  : isCurrent && currentStatus !== "completed"
                   ? "bg-eco-blue border-eco-blue text-white animate-pulse"
+                  : isCurrent && currentStatus === "completed"
+                  ? "bg-eco-green border-eco-green text-white"
                   : "bg-eco-gray-light border-eco-gray text-eco-gray"
                 }
               `}
             >
               {isCompleted ? (
+                <Check className="w-3 h-3" />
+              ) : isCurrent && currentStatus === "completed" ? (
                 <Check className="w-3 h-3" />
               ) : (
                 step.icon
