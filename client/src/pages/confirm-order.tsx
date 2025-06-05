@@ -175,12 +175,12 @@ export default function ConfirmOrderPage() {
 
   const confirmWithRefund = () => {
     const { refundAmount } = calculateTotals();
-    setShowConfirmDialog(false); // Fechar modal imediatamente
     confirmOrderMutation.mutate({
       orderId: parseInt(orderId!),
       confirmedItems: confirmationItems,
       refundAmount,
     });
+    setShowConfirmDialog(false);
   };
 
   if (isLoading) {
