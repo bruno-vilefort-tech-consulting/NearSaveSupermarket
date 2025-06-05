@@ -1245,38 +1245,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (refundAmount && refundAmount > 0 && order.pixPaymentId) {
         console.log(`💰 [ORDER CONFIRM] Processando estorno PIX de R$ ${refundAmount}`);
         
-        try {
-          const refundResult = await createPixRefund({
-            paymentId: order.pixPaymentId,
-            amount: refundAmount,
-            reason: "Confirmação parcial do pedido - itens indisponíveis"
-          });
-
-          if (refundResult.success) {
-            console.log(`✅ [ORDER CONFIRM] Estorno PIX processado com sucesso:`, refundResult);
-            refundProcessed = true;
-            refundDetails = refundResult;
-
-            // Atualizar informações de estorno no pedido
-            await storage.updateOrderRefund(orderId, {
-              pixRefundId: refundResult.refundId || '',
-              refundAmount: refundAmount.toString(),
-              refundStatus: refundResult.status || 'pending',
-              refundDate: new Date(),
-              refundReason: "Confirmação parcial - itens indisponíveis"
+        // Verificar se já existe um estorno para este pedido
+        if (order.pixRefundId && order.refundAmount) {
+          console.log(`⚠️ [ORDER CONFIRM] Pedido ${orderId} já possui estorno PIX processado`);
+          refundProcessed = true;
+          refundDetails = {
+            refundId: order.pixRefundId,
+            status: order.refundStatus || 'approved',
+            amount: parseFloat(order.refundAmount)
+          };
+        } else {
+          try {
+            const refundResult = await createPixRefund({
+              paymentId: order.pixPaymentId,
+              amount: refundAmount,
+              reason: "Confirmação parcial do pedido - itens indisponíveis"
             });
-          } else {
-            console.error(`❌ [ORDER CONFIRM] Falha no estorno PIX:`, refundResult.error);
-            return res.status(400).json({ 
-              message: "Erro ao processar estorno PIX", 
-              error: refundResult.error 
+
+            if (refundResult.success) {
+              console.log(`✅ [ORDER CONFIRM] Estorno PIX processado com sucesso:`, refundResult);
+              refundProcessed = true;
+              refundDetails = refundResult;
+
+              // Atualizar informações de estorno no pedido
+              await storage.updateOrderRefund(orderId, {
+                pixRefundId: refundResult.refundId || '',
+                refundAmount: refundAmount.toString(),
+                refundStatus: refundResult.status || 'pending',
+                refundDate: new Date(),
+                refundReason: "Confirmação parcial - itens indisponíveis"
+              });
+            } else {
+              // Se falhar por "already posted", verificar se existe um estorno anterior
+              if (refundResult.error && refundResult.error.includes('Already posted')) {
+                console.log(`⚠️ [ORDER CONFIRM] Estorno duplicado detectado - continuando com confirmação`);
+                refundProcessed = true;
+                refundDetails = {
+                  refundId: 'duplicate_attempt',
+                  status: 'approved',
+                  amount: refundAmount
+                };
+              } else {
+                console.error(`❌ [ORDER CONFIRM] Falha no estorno PIX:`, refundResult.error);
+                return res.status(400).json({ 
+                  message: "Erro ao processar estorno PIX", 
+                  error: refundResult.error 
+                });
+              }
+            }
+          } catch (error) {
+            console.error(`❌ [ORDER CONFIRM] Erro no estorno PIX:`, error);
+            return res.status(500).json({ 
+              message: "Erro interno ao processar estorno PIX" 
             });
           }
-        } catch (error) {
-          console.error(`❌ [ORDER CONFIRM] Erro no estorno PIX:`, error);
-          return res.status(500).json({ 
-            message: "Erro interno ao processar estorno PIX" 
-          });
         }
       }
 
