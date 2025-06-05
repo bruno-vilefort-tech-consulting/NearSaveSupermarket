@@ -553,27 +553,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('🔄 [CUSTOMER CANCEL] Processando estorno PIX automático para:', order.pixPaymentId);
 
         try {
-          // Criar estorno via Mercado Pago
-          const refundResult = await createPixRefund({
-            paymentId: order.pixPaymentId,
-            reason: reason || 'Cancelamento solicitado pelo cliente'
-          });
-
-          if (refundResult.success) {
-            console.log('✅ [CUSTOMER CANCEL] Estorno PIX processado:', refundResult);
-
-            // Atualizar pedido com informações do estorno
-            await storage.updateOrderRefund(parseInt(orderId), {
-              pixRefundId: refundResult.refundId!,
-              refundAmount: refundResult.amount?.toString() || order.totalAmount,
-              refundStatus: refundResult.status || 'approved',
-              refundDate: new Date(),
-              refundReason: reason || 'Cancelamento solicitado pelo cliente'
+          // Calcular valor restante para estorno (total pago - já estornado)
+          const totalAmount = parseFloat(order.totalAmount);
+          const alreadyRefunded = order.refundAmount ? parseFloat(order.refundAmount) : 0;
+          const remainingAmount = totalAmount - alreadyRefunded;
+          
+          console.log(`💰 [CUSTOMER CANCEL] Valor total: R$ ${totalAmount.toFixed(2)}, já estornado: R$ ${alreadyRefunded.toFixed(2)}, restante: R$ ${remainingAmount.toFixed(2)}`);
+          
+          if (remainingAmount <= 0) {
+            console.log('ℹ️ [CUSTOMER CANCEL] Não há valor restante para estornar');
+          } else {
+            // Criar estorno via Mercado Pago
+            const refundResult = await createPixRefund({
+              paymentId: order.pixPaymentId,
+              amount: remainingAmount,
+              reason: reason || 'Cancelamento solicitado pelo cliente'
             });
 
-            console.log('✅ [CUSTOMER CANCEL] Informações de estorno salvas');
-          } else {
-            console.warn('⚠️ [CUSTOMER CANCEL] Falha no estorno PIX, mas continuando cancelamento:', refundResult.error);
+            if (refundResult.success) {
+              console.log('✅ [CUSTOMER CANCEL] Estorno PIX processado:', refundResult);
+
+              // Atualizar pedido com informações do estorno
+              await storage.updateOrderRefund(parseInt(orderId), {
+                pixRefundId: refundResult.refundId!,
+                refundAmount: (alreadyRefunded + (refundResult.amount || remainingAmount)).toString(),
+                refundStatus: refundResult.status || 'approved',
+                refundDate: new Date(),
+                refundReason: reason || 'Cancelamento solicitado pelo cliente'
+              });
+
+              console.log('✅ [CUSTOMER CANCEL] Informações de estorno salvas');
+            } else {
+              console.warn('⚠️ [CUSTOMER CANCEL] Falha no estorno PIX, mas continuando cancelamento:', refundResult.error);
+            }
           }
         } catch (refundError: any) {
           console.warn('⚠️ [CUSTOMER CANCEL] Erro no estorno PIX, mas continuando cancelamento:', refundError.message);
@@ -645,50 +657,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Se o pedido tem PIX associado e foi pago, processar estorno automático
       if (order.pixPaymentId && (order.status === 'pending' || order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready' || order.status === 'shipped')) {
         try {
-          console.log(`💰 [STAFF CANCEL] Processando estorno PIX para pedido ${orderId}, PIX ID: ${order.pixPaymentId}`);
+          // Calcular valor restante para estorno (total pago - já estornado)
+          const totalAmount = parseFloat(order.totalAmount);
+          const alreadyRefunded = order.refundAmount ? parseFloat(order.refundAmount) : 0;
+          const remainingAmount = totalAmount - alreadyRefunded;
           
-          const refundData = {
-            paymentId: order.pixPaymentId,
-            reason: reason || "Cancelamento solicitado pelo estabelecimento"
-          };
-
-          const refundResponse = await createPixRefund(refundData);
+          console.log(`💰 [STAFF CANCEL] Valor total: R$ ${totalAmount.toFixed(2)}, já estornado: R$ ${alreadyRefunded.toFixed(2)}, restante: R$ ${remainingAmount.toFixed(2)}`);
           
-          if (refundResponse.success) {
-            console.log(`✅ [STAFF CANCEL] Estorno PIX processado com sucesso para pedido ${orderId}:`, refundResponse);
+          if (remainingAmount <= 0) {
+            console.log('ℹ️ [STAFF CANCEL] Não há valor restante para estornar');
+            refundProcessed = true; // Mark as processed even if no refund needed
+          } else {
+            console.log(`💰 [STAFF CANCEL] Processando estorno PIX para pedido ${orderId}, PIX ID: ${order.pixPaymentId}`);
             
-            // Atualizar dados do estorno no pedido
-            await storage.updateOrderRefund(parseInt(orderId), {
-              pixRefundId: refundResponse.refundId || 'STAFF_REFUND_' + Date.now(),
-              refundAmount: refundResponse.amount?.toString() || order.totalAmount,
-              refundStatus: refundResponse.status || 'approved',
-              refundDate: new Date(),
-              refundReason: reason || "Cancelamento solicitado pelo estabelecimento"
-            });
-
-            refundProcessed = true;
-            refundInfo = {
-              refundId: refundResponse.refundId,
-              amount: refundResponse.amount,
-              status: refundResponse.status
+            const refundData = {
+              paymentId: order.pixPaymentId,
+              amount: remainingAmount,
+              reason: reason || "Cancelamento solicitado pelo estabelecimento"
             };
 
-            console.log(`💰 [STAFF CANCEL] Dados do estorno salvos no pedido ${orderId}`);
+            const refundResponse = await createPixRefund(refundData);
             
-            // Enviar notificação push sobre estorno (se o cliente tiver subscrito)
-            try {
-              if (order.customerEmail) {
-                await sendPushNotification(order.customerEmail, {
-                  title: 'Estorno PIX Processado',
-                  body: `Seu estorno de R$ ${(refundResponse.amount || parseFloat(order.totalAmount)).toFixed(2)} foi processado pelo estabelecimento.`,
-                  url: '/customer/orders'
-                });
+            if (refundResponse.success) {
+              console.log(`✅ [STAFF CANCEL] Estorno PIX processado com sucesso para pedido ${orderId}:`, refundResponse);
+              
+              // Atualizar dados do estorno no pedido
+              await storage.updateOrderRefund(parseInt(orderId), {
+                pixRefundId: refundResponse.refundId || 'STAFF_REFUND_' + Date.now(),
+                refundAmount: (alreadyRefunded + (refundResponse.amount || remainingAmount)).toString(),
+                refundStatus: refundResponse.status || 'approved',
+                refundDate: new Date(),
+                refundReason: reason || "Cancelamento solicitado pelo estabelecimento"
+              });
+
+              refundProcessed = true;
+              refundInfo = {
+                refundId: refundResponse.refundId,
+                amount: refundResponse.amount,
+                status: refundResponse.status
+              };
+
+              console.log(`💰 [STAFF CANCEL] Dados do estorno salvos no pedido ${orderId}`);
+              
+              // Enviar notificação push sobre estorno (se o cliente tiver subscrito)
+              try {
+                if (order.customerEmail) {
+                  await sendPushNotification(order.customerEmail, {
+                    title: 'Estorno PIX Processado',
+                    body: `Seu estorno de R$ ${(refundResponse.amount || remainingAmount).toFixed(2)} foi processado pelo estabelecimento.`,
+                    url: '/customer/orders'
+                  });
+                }
+              } catch (notifError) {
+                console.log('⚠️ [STAFF CANCEL] Erro ao enviar notificação de estorno:', notifError);
               }
-            } catch (notifError) {
-              console.log('⚠️ [STAFF CANCEL] Erro ao enviar notificação de estorno:', notifError);
+            } else {
+              console.log(`⚠️ [STAFF CANCEL] Falha no estorno PIX para pedido ${orderId}:`, refundResponse.message);
             }
-          } else {
-            console.log(`⚠️ [STAFF CANCEL] Falha no estorno PIX para pedido ${orderId}:`, refundResponse.message);
           }
         } catch (refundError) {
           console.error(`❌ [STAFF CANCEL] Erro no processo de estorno PIX para pedido ${orderId}:`, refundError);
