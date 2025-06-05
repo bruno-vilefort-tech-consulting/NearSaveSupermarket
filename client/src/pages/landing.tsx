@@ -97,6 +97,13 @@ export default function Landing() {
           <path d="M240 50 Q235 45 230 50 Q235 55 240 50 Q245 45 250 50 Q245 55 240 50" fill="url(#orangeGradient)" opacity="0.5" />
         </svg>
       </div>
+      
+      {/* Marketing Tagline */}
+      <div className="text-center mt-6">
+        <p className="text-lg font-medium text-eco-gray-dark">
+          Seu carrinho mais cheio, seu gasto mais leve
+        </p>
+      </div>
     </div>
   );
 
