@@ -68,7 +68,7 @@ export default function PixPaymentFixed() {
     if (paymentStatus === 'awaiting_payment' && !isExpired) {
       const interval = setInterval(() => {
         checkOrderStatus();
-      }, 10000); // Verificar a cada 10 segundos
+      }, 5000); // Verificar a cada 5 segundos
 
       return () => clearInterval(interval);
     }
@@ -101,21 +101,25 @@ export default function PixPaymentFixed() {
     if (!orderId || isCheckingPayment) return;
     
     setIsCheckingPayment(true);
-    console.log('🔍 Checking order status for:', orderId);
+    console.log('🔍 [PIX CHECK] Checking order status for:', orderId);
+    console.log('🔍 [PIX CHECK] Current payment status:', paymentStatus);
+    console.log('🔍 [PIX CHECK] Is expired:', isExpired);
     
     try {
       const response = await fetch(`/api/orders/${orderId}/payment-status`);
+      console.log('🔍 [PIX CHECK] Response status:', response.status, response.statusText);
       
       if (!response.ok) {
-        throw new Error('Erro ao verificar status');
+        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
-      console.log('Order status response:', result);
+      console.log('🔍 [PIX CHECK] Order status response:', result);
 
       if (result.status === 'confirmed' || result.status === 'payment_confirmed') {
-        // Pagamento confirmado
+        // Pagamento confirmado - parar todas as verificações
         setPaymentStatus('payment_confirmed');
+        setIsExpired(true); // Para parar o timer e verificações
         
         // Limpar dados temporários do PIX
         localStorage.removeItem('pixPaymentData');
@@ -129,6 +133,8 @@ export default function PixPaymentFixed() {
         setTimeout(() => {
           setLocation('/customer/orders');
         }, 2000);
+        
+        return; // Parar execução desta função
         
       } else if (result.status === 'expired' || result.status === 'payment_expired') {
         // PIX expirado
