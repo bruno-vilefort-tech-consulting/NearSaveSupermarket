@@ -955,13 +955,8 @@ export class DatabaseStorage implements IStorage {
             if (currentOrder.lastManualStatus && currentOrder.status !== currentOrder.lastManualStatus) {
               console.log(`🚨 PROTECTION ACTIVATED: Automatic status change detected for order ${orderId} from ${currentOrder.status} back to ${currentOrder.lastManualStatus}`);
               
-              await db
-                .update(orders)
-                .set({ 
-                  status: currentOrder.lastManualStatus,
-                  updatedAt: currentOrder.lastManualUpdate || currentOrder.createdAt
-                })
-                .where(eq(orders.id, orderId));
+              // Use the secure updateOrderStatus method with PROTECTION_SYSTEM identifier
+              await this.updateOrderStatus(orderId, currentOrder.lastManualStatus, 'PROTECTION_SYSTEM');
                 
               console.log(`✅ PROTECTION SUCCESS: Order ${orderId} status reverted to ${currentOrder.lastManualStatus}`);
             } else {
