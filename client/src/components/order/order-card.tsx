@@ -357,6 +357,17 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
             const isRemoved = order.status === "confirmed" && item.confirmationStatus === "removed";
             const isPending = order.status === "confirmed" && (!item.confirmationStatus || item.confirmationStatus === "pending");
             
+            // Debug log para cliente
+            if (order.id === 194) {
+              console.log(`🔍 Cliente - Item ${item.id} (${item.product.name}):`, {
+                confirmationStatus: item.confirmationStatus,
+                isConfirmed,
+                isRemoved,
+                isPending,
+                canEditStatus
+              });
+            }
+            
             return (
               <div key={item.id} className={`flex items-center space-x-3 p-2 rounded-lg ${
                 isRemoved ? "bg-red-50 border border-red-200" : 
