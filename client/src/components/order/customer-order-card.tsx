@@ -297,7 +297,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
   };
 
   return (
-    <Card className="w-full shadow-md hover:shadow-lg transition-shadow duration-200 bg-white border-eco-gray-light">
+    <Card className="w-full shadow-md hover:shadow-lg transition-shadow duration-200 bg-white border-eco-green-light">
       <CardContent className="p-4 space-y-4">
         {/* Header do Pedido */}
         <div className="flex items-center justify-between">
@@ -445,7 +445,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
                     size="sm"
                     onClick={() => setShowCancelConfirm(false)}
                     disabled={cancelMutation.isPending}
-                    className="flex-1 border-eco-gray-light text-eco-gray-dark hover:bg-eco-gray-light"
+                    className="flex-1 border-eco-blue text-eco-blue hover:bg-eco-blue-light"
                   >
                     Voltar
                   </Button>

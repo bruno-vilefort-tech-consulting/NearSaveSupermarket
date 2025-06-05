@@ -215,7 +215,7 @@ export default function SupermarketProducts() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/customer")}
-                className="text-eco-gray hover:text-eco-gray-dark hover:bg-eco-gray-light flex-shrink-0"
+                className="text-eco-green hover:text-eco-green-dark hover:bg-eco-green-light flex-shrink-0"
               >
                 <ArrowLeft size={16} className="mr-1" />
                 {t('common.back')}
@@ -266,7 +266,7 @@ export default function SupermarketProducts() {
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category ? "bg-eco-green hover:bg-eco-green-dark text-white" : "border-eco-gray text-eco-gray-dark hover:bg-eco-gray-light"}
+                className={selectedCategory === category ? "bg-eco-green hover:bg-eco-green-dark text-white" : "border-eco-green text-eco-green hover:bg-eco-green-light"}
               >
                 {getCategoryName(category, t)}
               </Button>

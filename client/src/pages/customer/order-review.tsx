@@ -145,9 +145,9 @@ export default function OrderReview() {
       <div className="max-w-md mx-auto p-4 space-y-4">
         
         {/* Informações do Cliente */}
-        <Card className="bg-white border-eco-blue-light">
+        <Card className="bg-white border-eco-green-light">
           <CardHeader className="pb-3">
-            <CardTitle className="text-eco-blue flex items-center gap-2">
+            <CardTitle className="text-eco-green flex items-center gap-2">
               <User className="h-4 w-4" />
               Dados do Cliente
             </CardTitle>
@@ -237,9 +237,9 @@ export default function OrderReview() {
         ))}
 
         {/* Método de Pagamento */}
-        <Card className="bg-white border-eco-blue-light">
+        <Card className="bg-white border-eco-green-light">
           <CardHeader className="pb-3">
-            <CardTitle className="text-eco-blue flex items-center gap-2">
+            <CardTitle className="text-eco-green flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
               Método de Pagamento
             </CardTitle>
@@ -249,20 +249,20 @@ export default function OrderReview() {
               <div 
                 className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                   paymentMethod === 'pix' 
-                    ? 'border-eco-blue bg-eco-blue/10' 
-                    : 'border-eco-gray-light hover:border-eco-blue/50'
+                    ? 'border-eco-green bg-eco-green/10' 
+                    : 'border-eco-gray-light hover:border-eco-green/50'
                 }`}
                 onClick={() => setPaymentMethod('pix')}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-4 h-4 rounded-full border-2 ${
-                    paymentMethod === 'pix' ? 'border-eco-blue bg-eco-blue' : 'border-eco-gray-light'
+                    paymentMethod === 'pix' ? 'border-eco-green bg-eco-green' : 'border-eco-gray-light'
                   }`}>
                     {paymentMethod === 'pix' && (
                       <div className="w-full h-full rounded-full bg-white scale-50"></div>
                     )}
                   </div>
-                  <Smartphone className="h-5 w-5 text-eco-blue" />
+                  <Smartphone className="h-5 w-5 text-eco-green" />
                   <div>
                     <p className="font-medium text-eco-gray-dark">PIX</p>
                     <p className="text-xs text-eco-gray">Pagamento instantâneo</p>
@@ -310,7 +310,7 @@ export default function OrderReview() {
         {/* Botão Voltar */}
         <Button 
           variant="outline"
-          className="w-full border-eco-gray-light text-eco-gray-dark hover:bg-eco-gray-light"
+          className="w-full border-eco-green text-eco-green hover:bg-eco-green-light"
           onClick={() => navigate('/customer/cart')}
           disabled={isProcessing}
         >
