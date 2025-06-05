@@ -352,27 +352,89 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
         </div>
 
         <div className="space-y-2 mb-4">
-          {order.orderItems.map((item) => (
-            <div key={item.id} className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-eco-blue-light rounded-lg flex items-center justify-center flex-shrink-0">
-                {item.product.imageUrl ? (
-                  <img 
-                    src={item.product.imageUrl} 
-                    alt={item.product.name}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                ) : (
-                  <Package className="text-eco-blue" size={16} />
-                )}
+          {order.orderItems.map((item) => {
+            const isConfirmed = order.status === "confirmed" && item.confirmationStatus === "confirmed";
+            const isRemoved = order.status === "confirmed" && item.confirmationStatus === "removed";
+            const isPending = order.status === "confirmed" && (!item.confirmationStatus || item.confirmationStatus === "pending");
+            
+            return (
+              <div key={item.id} className={`flex items-center space-x-3 p-2 rounded-lg ${
+                isRemoved ? "bg-red-50 border border-red-200" : 
+                isConfirmed ? "bg-green-50 border border-green-200" :
+                "bg-transparent"
+              }`}>
+                <div className="w-12 h-12 bg-eco-blue-light rounded-lg flex items-center justify-center flex-shrink-0 relative">
+                  {item.product.imageUrl ? (
+                    <img 
+                      src={item.product.imageUrl} 
+                      alt={item.product.name}
+                      className={`w-full h-full object-cover rounded-lg ${isRemoved ? "opacity-50 grayscale" : ""}`}
+                    />
+                  ) : (
+                    <Package className={`text-eco-blue ${isRemoved ? "opacity-50" : ""}`} size={16} />
+                  )}
+                  
+                  {/* Status indicator overlay */}
+                  {order.status === "confirmed" && (
+                    <div className="absolute -top-1 -right-1">
+                      {isConfirmed && (
+                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                          <CheckCircle className="text-white" size={12} />
+                        </div>
+                      )}
+                      {isRemoved && (
+                        <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                          <AlertTriangle className="text-white" size={12} />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className={`font-medium truncate ${
+                      isRemoved ? "text-red-600 line-through" : 
+                      isConfirmed ? "text-green-700" : 
+                      "text-eco-blue-dark"
+                    }`}>
+                      {item.product.name}
+                    </p>
+                    
+                    {/* Status badge for confirmed orders */}
+                    {order.status === "confirmed" && (
+                      <>
+                        {isConfirmed && (
+                          <Badge className="bg-green-100 text-green-800 text-xs px-2 py-0.5">
+                            Aceito
+                          </Badge>
+                        )}
+                        {isRemoved && (
+                          <Badge className="bg-red-100 text-red-800 text-xs px-2 py-0.5">
+                            Removido
+                          </Badge>
+                        )}
+                        {isPending && (
+                          <Badge className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5">
+                            Pendente
+                          </Badge>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  
+                  <p className={`text-sm ${
+                    isRemoved ? "text-red-500" : 
+                    isConfirmed ? "text-green-600" : 
+                    "text-eco-gray"
+                  }`}>
+                    Qty: {item.quantity} • R$ {parseFloat(item.priceAtTime).toFixed(2)} cada
+                    {isRemoved && " (Indisponível)"}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-eco-blue-dark truncate">{item.product.name}</p>
-                <p className="text-sm text-eco-gray">
-                  Qty: {item.quantity} • R$ {parseFloat(item.priceAtTime).toFixed(2)} cada
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-eco-blue-light">
