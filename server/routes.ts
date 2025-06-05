@@ -1365,7 +1365,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Marcar todos os itens do pedido com status baseado na confirmação
       for (const orderItem of order.orderItems) {
-        const isConfirmed = confirmedItems.some((confirmedItem: any) => confirmedItem.id === orderItem.id);
+        const confirmedItem = confirmedItems.find((confirmedItem: any) => confirmedItem.orderItemId === orderItem.id);
+        const isConfirmed = confirmedItem && confirmedItem.confirmed;
         const newStatus = isConfirmed ? 'confirmed' : 'removed';
         
         await storage.updateOrderItemConfirmationStatus(orderItem.id, newStatus);

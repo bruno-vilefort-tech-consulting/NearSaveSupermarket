@@ -158,13 +158,14 @@ export default function PixPaymentFixed() {
         }
       }
     } catch (error) {
-      console.error('Erro ao verificar status do pedido:', error);
+      console.error('❌ [PIX CHECK] Erro ao verificar status do pedido:', error);
       // Em caso de erro na verificação, continuar tentando mas não bloquear a interface
       if (error instanceof Error) {
-        console.error('Error details:', error.message);
+        console.error('❌ [PIX CHECK] Error details:', error.message);
       }
     } finally {
       setIsCheckingPayment(false);
+      console.log('🔄 [PIX CHECK] Check completed, setting isCheckingPayment to false');
     }
   };
 
