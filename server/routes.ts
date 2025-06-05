@@ -1281,7 +1281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Atualizar status do pedido para "confirmed"
-      const updatedOrder = await storage.updateOrderStatus(orderId, "confirmed", `Staff ${staffId}`);
+      const updatedOrder = await storage.updateOrderStatus(orderId, "confirmed", `STAFF_${staffId}`);
       
       if (!updatedOrder) {
         return res.status(500).json({ message: "Failed to update order status" });
@@ -1304,13 +1304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           for (const subscription of pushSubscriptions) {
             await sendPushNotification(
-              {
-                endpoint: subscription.endpoint,
-                keys: {
-                  p256dh: subscription.p256dhKey,
-                  auth: subscription.authKey
-                }
-              },
+              subscription.endpoint,
               {
                 title,
                 body,
