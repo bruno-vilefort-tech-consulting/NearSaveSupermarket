@@ -260,7 +260,7 @@ export default function StaffRegister() {
                 <Button 
                   type="submit" 
                   disabled={registerMutation.isPending}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                  className="w-full bg-eco-blue hover:bg-eco-blue-dark text-white py-3"
                 >
                   {registerMutation.isPending ? t('staff.registering') : t('staff.registerButton')}
                 </Button>
