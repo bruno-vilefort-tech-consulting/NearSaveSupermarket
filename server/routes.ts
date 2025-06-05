@@ -955,6 +955,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check order payment status
+  app.get("/api/orders/:id/payment-status", async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "ID do pedido inválido" });
+      }
+
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      // Se não tem PIX ID, retornar status atual
+      if (!order.pixPaymentId) {
+        return res.json({ 
+          status: order.status,
+          message: "Pedido não possui PIX associado"
+        });
+      }
+
+      // Verificar status no Mercado Pago
+      const paymentStatus = await getPaymentStatus(order.pixPaymentId);
+      console.log(`🔍 Payment status check for order ${orderId}: MP status=${paymentStatus.status}, Order status=${order.status}`);
+      
+      if (paymentStatus.status === 'approved') {
+        if (order.status === 'awaiting_payment') {
+          const updatedOrder = await storage.updateOrderPaymentStatus(parseInt(orderId), 'payment_confirmed');
+          console.log(`✅ Pagamento confirmado para pedido ${orderId}`);
+          return res.json({ 
+            status: 'confirmed', 
+            message: 'Pagamento confirmado com sucesso',
+            order: updatedOrder
+          });
+        } else {
+          // Para qualquer outro status quando pagamento foi aprovado, considerar confirmado
+          console.log(`✅ Payment already processed for order ${orderId}, returning confirmed status`);
+          return res.json({ 
+            status: 'confirmed', 
+            message: 'Pagamento confirmado - pedido em processamento',
+            order: order
+          });
+        }
+      }
+
+      res.json({ 
+        status: order.status, 
+        paymentStatus: paymentStatus.status,
+        expirationDate: order.pixExpirationDate,
+        pixCopyPaste: order.pixCopyPaste
+      });
+    } catch (error) {
+      console.error('❌ Erro ao verificar status:', error);
+      res.status(500).json({ message: "Erro ao verificar status do pagamento" });
+    }
+  });
+
   // Authenticated endpoint to get current user's orders
   app.get("/api/my-orders", isAuthenticated, async (req, res) => {
     try {
