@@ -488,7 +488,7 @@ export const translations: Record<Language, TranslationKeys> = {
     'auth.passwordMinLength': 'A senha deve ter pelo menos 6 caracteres',
     'auth.passwordMismatch': 'As senhas não coincidem',
     'auth.noAccount': 'Não tem conta?',
-    'auth.loginReplit': 'Login com Replit (Temporário)',
+
     'auth.unauthorized': 'Não autorizado',
     'auth.sessionExpired': 'Você foi desconectado. Fazendo login novamente...',
     'auth.loginRedirect': 'Você precisa estar logado como staff. Redirecionando...',

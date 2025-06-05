@@ -53,10 +53,6 @@ export default function StaffLogin() {
     navigate("/staff/forgot-password");
   };
 
-  const handleReplitLogin = () => {
-    window.location.href = "/api/login";
-  };
-
   return (
     <div className="min-h-screen bg-eco-blue-light">
       <div className="container mx-auto px-4 py-8">
@@ -158,25 +154,6 @@ export default function StaffLogin() {
                   Esqueci minha senha
                 </button>
               </div>
-
-              {/* Divider */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-eco-blue-light" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-eco-gray">OU</span>
-                </div>
-              </div>
-
-              {/* Replit Login */}
-              <Button
-                onClick={handleReplitLogin}
-                variant="outline"
-                className="w-full border-2 border-eco-blue text-eco-blue hover:bg-eco-blue-light"
-              >
-                Entrar com Replit
-              </Button>
 
               {/* Register Link */}
               <div className="text-center">
