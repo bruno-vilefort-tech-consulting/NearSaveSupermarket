@@ -608,10 +608,10 @@ export default function CustomerHome() {
         )}
 
         {locationPermission === 'granted' && userLocation && (
-          <div className="mb-6 p-4 bg-eco-green-light border border-eco-green rounded-lg">
+          <div className="mb-6 p-3 bg-white border border-eco-gray-light rounded-lg">
             <div className="flex items-center">
-              <MapPin className="text-eco-green mr-2" size={20} />
-              <span className="text-eco-green-dark">Mostrando supermercados próximos (até 20km)</span>
+              <MapPin className="text-eco-gray mr-2" size={16} />
+              <span className="text-eco-gray text-sm">Mostrando supermercados próximos (até 20km)</span>
             </div>
           </div>
         )}
