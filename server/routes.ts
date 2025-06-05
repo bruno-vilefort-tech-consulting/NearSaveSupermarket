@@ -3,7 +3,9 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, orderItems } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, cancelPixPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
@@ -1300,6 +1302,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           }
         }
+      }
+
+      // Atualizar status de confirmação dos itens no banco de dados
+      for (const item of confirmedItems) {
+        const status = item.confirmed ? "confirmed" : "removed";
+        await db.update(orderItems)
+          .set({ confirmationStatus: status })
+          .where(eq(orderItems.id, item.orderItemId));
       }
 
       // Atualizar status do pedido para "confirmed"
