@@ -101,7 +101,7 @@ export default function Landing() {
       {/* Marketing Tagline */}
       <div className="text-center mt-6">
         <p className="text-lg font-medium text-eco-gray-dark leading-relaxed">
-          Seu carrinho mais cheio,<br />
+          Seu carrinho mais cheio<br />
           seu gasto mais leve
         </p>
       </div>
