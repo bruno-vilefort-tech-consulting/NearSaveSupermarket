@@ -56,9 +56,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath);
     } else {
-      // Return a default placeholder image or 404
+      // Log missing image for monitoring
       console.log(`Image not found: ${filePath}`);
-      res.status(404).json({ error: "Image not found" });
+      res.status(404).json({ error: "Image not found", filename });
+    }
+  });
+  
+  // Check for missing product images
+  app.get("/api/admin/missing-images", async (req, res) => {
+    try {
+      const products = await storage.getProducts();
+      const missingImages = [];
+      
+      for (const product of products) {
+        if (product.imageUrl) {
+          const filename = path.basename(product.imageUrl);
+          const filePath = path.join(uploadDir, filename);
+          
+          if (!fs.existsSync(filePath)) {
+            missingImages.push({
+              productId: product.id,
+              productName: product.name,
+              imageUrl: product.imageUrl,
+              filename: filename
+            });
+          }
+        }
+      }
+      
+      res.json({ missingImages, total: missingImages.length });
+    } catch (error) {
+      console.error("Error checking missing images:", error);
+      res.status(500).json({ error: "Failed to check missing images" });
     }
   });
   
