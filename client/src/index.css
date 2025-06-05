@@ -24,7 +24,7 @@
   --ring: 160 60% 30%;
   --radius: 0.5rem;
   
-  /* Paleta EcoMart baseada na imagem */
+  /* Paleta SaveUp baseada na imagem */
   --eco-orange: 25 95% 55%; /* Laranja vibrante */
   --eco-orange-light: 25 85% 85%; /* Laranja claro */
   --eco-orange-dark: 25 95% 45%; /* Laranja escuro */
@@ -83,7 +83,7 @@
 }
 
 @layer utilities {
-  /* Gradientes EcoMart */
+  /* Gradientes SaveUp */
   .gradient-eco-green {
     background: linear-gradient(135deg, hsl(var(--eco-green-light)), hsl(var(--eco-green)));
   }
@@ -96,7 +96,7 @@
     background: linear-gradient(135deg, hsl(var(--eco-blue-light)), hsl(var(--eco-blue)));
   }
   
-  /* Cores de fundo EcoMart */
+  /* Cores de fundo SaveUp */
   .bg-eco-green { background-color: hsl(var(--eco-green)); }
   .bg-eco-green-light { background-color: hsl(var(--eco-green-light)); }
   .bg-eco-green-dark { background-color: hsl(var(--eco-green-dark)); }
@@ -119,7 +119,7 @@
   
   .bg-eco-cream { background-color: hsl(var(--eco-cream)); }
   
-  /* Cores de texto EcoMart */
+  /* Cores de texto SaveUp */
   .text-eco-green { color: hsl(var(--eco-green)); }
   .text-eco-green-dark { color: hsl(var(--eco-green-dark)); }
   .text-eco-orange { color: hsl(var(--eco-orange)); }
@@ -132,7 +132,7 @@
   .text-eco-sage { color: hsl(var(--eco-sage)); }
   .text-eco-sage-dark { color: hsl(var(--eco-sage-dark)); }
   
-  /* Bordas EcoMart */
+  /* Bordas SaveUp */
   .border-eco-green { border-color: hsl(var(--eco-green)); }
   .border-eco-orange { border-color: hsl(var(--eco-orange)); }
   .border-eco-blue { border-color: hsl(var(--eco-blue)); }

@@ -35,7 +35,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       to: params.to,
       from: {
         email: params.from,
-        name: 'EcoMart - Suporte'
+        name: 'SaveUp - Suporte'
       },
       subject: params.subject,
       text: params.text,
