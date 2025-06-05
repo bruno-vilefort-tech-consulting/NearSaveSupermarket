@@ -548,9 +548,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Se o pedido tem PIX payment ID e não foi estornado, processar estorno automaticamente
-      if (order.pixPaymentId && (!order.refundStatus || order.refundStatus === 'failed')) {
-        console.log('🔄 [CUSTOMER CANCEL] Processando estorno PIX automático para:', order.pixPaymentId);
+      // Se o pedido tem PIX payment ID, verificar se há valor restante para estornar
+      if (order.pixPaymentId) {
+        console.log('🔄 [CUSTOMER CANCEL] Verificando necessidade de estorno PIX para:', order.pixPaymentId);
 
         try {
           // Calcular valor restante para estorno (total pago - já estornado)
@@ -563,6 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (remainingAmount <= 0) {
             console.log('ℹ️ [CUSTOMER CANCEL] Não há valor restante para estornar');
           } else {
+            console.log('🔄 [CUSTOMER CANCEL] Processando estorno PIX adicional');
             // Criar estorno via Mercado Pago
             const refundResult = await createPixRefund({
               paymentId: order.pixPaymentId,
@@ -590,9 +591,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (refundError: any) {
           console.warn('⚠️ [CUSTOMER CANCEL] Erro no estorno PIX, mas continuando cancelamento:', refundError.message);
         }
-      } else if (order.pixPaymentId && order.refundStatus) {
-        console.log('✅ [CUSTOMER CANCEL] Estorno PIX já processado anteriormente:', order.refundStatus);
-        // Even if refund was already processed, we still need to update order status to cancelled
       }
 
       // SEMPRE atualizar status do pedido para cancelled-customer
@@ -654,8 +652,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let refundProcessed = false;
       let refundInfo = null;
 
-      // Se o pedido tem PIX associado e foi pago, processar estorno automático
-      if (order.pixPaymentId && (order.status === 'pending' || order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready' || order.status === 'shipped')) {
+      // Se o pedido tem PIX associado, verificar se há valor restante para estornar
+      if (order.pixPaymentId) {
         try {
           // Calcular valor restante para estorno (total pago - já estornado)
           const totalAmount = parseFloat(order.totalAmount);
