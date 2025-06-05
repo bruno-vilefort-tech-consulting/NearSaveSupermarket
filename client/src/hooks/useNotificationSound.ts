@@ -10,6 +10,12 @@ export function useNotificationSound() {
     try {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       setIsReady(true);
+      // Auto-enable sound for staff pages
+      const isStaffPage = window.location.pathname.includes('/orders') || 
+                         window.location.pathname.includes('/staff');
+      if (isStaffPage) {
+        setIsEnabled(true);
+      }
     } catch (error) {
       console.error('Web Audio API not supported:', error);
       setIsReady(false);
@@ -61,9 +67,20 @@ export function useNotificationSound() {
   }, []);
 
   const playNotification = useCallback(async () => {
-    if (!audioContextRef.current || !isEnabled || !isReady) return false;
+    if (!audioContextRef.current || !isReady) return false;
 
     try {
+      // Auto-enable sound if not enabled yet for staff pages
+      if (!isEnabled) {
+        const isStaffPage = window.location.pathname.includes('/orders') || 
+                           window.location.pathname.includes('/staff');
+        if (isStaffPage) {
+          setIsEnabled(true);
+        } else {
+          return false;
+        }
+      }
+
       // Resume audio context if needed
       if (audioContextRef.current.state === 'suspended') {
         await audioContextRef.current.resume();
