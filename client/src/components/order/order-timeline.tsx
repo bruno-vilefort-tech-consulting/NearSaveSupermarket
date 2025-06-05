@@ -126,12 +126,16 @@ export function OrderTimeline({ currentStatus, fulfillmentMethod, createdAt }: O
                       ? "bg-red-500 border-red-500 text-white"
                       : status === "completed" 
                       ? "bg-green-500 border-green-500 text-white" 
-                      : status === "current"
+                      : status === "current" && currentStatus !== "completed"
                       ? "bg-blue-500 border-blue-500 text-white animate-pulse"
+                      : status === "current" && currentStatus === "completed"
+                      ? "bg-green-500 border-green-500 text-white"
                       : "bg-gray-100 border-gray-300 text-gray-400"
                   }`}
                 >
                   {status === "completed" && currentStatus !== "cancelled" ? (
+                    <Check className="w-4 h-4" />
+                  ) : status === "current" && currentStatus === "completed" ? (
                     <Check className="w-4 h-4" />
                   ) : (
                     step.icon
