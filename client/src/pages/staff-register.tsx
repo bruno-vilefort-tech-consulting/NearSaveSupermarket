@@ -115,7 +115,7 @@ export default function StaffRegister() {
         {/* Main Content */}
         <div className="max-w-md mx-auto">
           <Card className="shadow-lg border-eco-blue-light">
-            <CardHeader className="text-center bg-eco-blue-light rounded-t-lg">
+            <CardHeader className="text-center bg-white rounded-t-lg">
               <CardTitle className="text-2xl text-eco-blue-dark">
                 Novo Registro
               </CardTitle>
