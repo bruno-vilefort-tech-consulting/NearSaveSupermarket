@@ -149,11 +149,18 @@ export default function ConfirmOrderPage() {
   };
 
   const calculateTotals = () => {
-    const confirmedItems = confirmationItems.filter(item => item.confirmed);
-    const missingItems = confirmationItems.filter(item => !item.confirmed);
+    const confirmedConfirmationItems = confirmationItems.filter(item => item.confirmed);
+    const missingConfirmationItems = confirmationItems.filter(item => !item.confirmed);
     
-    const confirmedTotal = confirmedItems.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
-    const refundAmount = missingItems.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
+    // Map to full order items for display
+    const confirmedItems = confirmedConfirmationItems.map(confItem => 
+      order?.orderItems.find(orderItem => orderItem.id === confItem.orderItemId)
+    ).filter(Boolean);
+    
+    const missingItems = missingConfirmationItems;
+    
+    const confirmedTotal = confirmedConfirmationItems.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
+    const refundAmount = missingConfirmationItems.reduce((sum, item) => sum + (item.priceAtTime * item.quantity), 0);
     
     return { confirmedItems, missingItems, confirmedTotal, refundAmount };
   };
@@ -407,7 +414,7 @@ export default function ConfirmOrderPage() {
                                   <CheckCircle className="h-3 w-3 text-green-600" />
                                 </div>
                                 <div>
-                                  <p className="font-medium text-green-800 text-sm">{item.product.name}</p>
+                                  <p className="font-medium text-green-800 text-sm">{item.product?.name || 'Produto'}</p>
                                   <p className="text-xs text-green-600">Qtd: {item.quantity}</p>
                                 </div>
                               </div>
@@ -431,7 +438,7 @@ export default function ConfirmOrderPage() {
                                   <AlertTriangle className="h-3 w-3 text-red-600" />
                                 </div>
                                 <div>
-                                  <p className="font-medium text-red-800 text-sm line-through">{item.name}</p>
+                                  <p className="font-medium text-red-800 text-sm line-through">{item.name || 'Produto'}</p>
                                   <p className="text-xs text-red-600">Qtd: {item.quantity}</p>
                                 </div>
                               </div>
