@@ -82,28 +82,35 @@ export default function StaffSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-eco-blue-light">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Settings className="text-blue-600 mr-2" size={32} />
-            <h1 className="text-3xl font-bold text-gray-900">Configurações</h1>
+            <div className="w-16 h-16 bg-eco-blue rounded-full flex items-center justify-center mr-4">
+              <Settings className="text-white" size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-eco-gray-dark">Configurações</h1>
+              <div className="flex justify-center mt-1">
+                <span className="text-eco-orange text-[10px] font-bold">EcoMart Staff</span>
+              </div>
+            </div>
           </div>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-eco-gray">
             {staffUser?.companyName || "Seu Supermercado"}
           </p>
         </div>
 
         {/* Main Content */}
         <div className="max-w-2xl mx-auto">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <MapPin size={20} />
+          <Card className="shadow-lg border-eco-blue-light">
+            <CardHeader className="bg-eco-blue-light rounded-t-lg">
+              <CardTitle className="flex items-center space-x-2 text-eco-blue-dark">
+                <MapPin size={20} className="text-eco-blue" />
                 <span>Localização do Supermercado</span>
               </CardTitle>
-              <p className="text-gray-600">
+              <p className="text-eco-gray">
                 Defina ou atualize a localização do seu supermercado para aparecer corretamente no mapa dos clientes
               </p>
             </CardHeader>
@@ -111,9 +118,9 @@ export default function StaffSettings() {
             <CardContent className="space-y-6">
               {/* Current Location Info */}
               {location && (
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-green-800 mb-2">Localização Atual</h3>
-                  <p className="text-green-700 text-sm">
+                <div className="bg-eco-blue-light p-4 rounded-lg border border-eco-blue">
+                  <h3 className="font-semibold text-eco-blue-dark mb-2">Localização Atual</h3>
+                  <p className="text-eco-blue-dark text-sm">
                     Latitude: {location.lat.toFixed(6)}<br />
                     Longitude: {location.lng.toFixed(6)}
                   </p>
@@ -122,7 +129,7 @@ export default function StaffSettings() {
 
               {/* Location Picker */}
               <div className="space-y-2">
-                <Label className="text-base font-medium">
+                <Label className="text-base font-medium text-eco-blue-dark">
                   Definir Nova Localização
                 </Label>
                 <LocationPicker
@@ -138,7 +145,7 @@ export default function StaffSettings() {
                 <Button
                   onClick={handleSaveLocation}
                   disabled={!location || updateLocationMutation.isPending}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-eco-blue hover:bg-eco-blue-dark text-white"
                 >
                   {updateLocationMutation.isPending ? (
                     <>

@@ -92,28 +92,35 @@ export default function StaffRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-eco-blue-light">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Settings className="text-blue-600 mr-2" size={32} />
-            <h1 className="text-3xl font-bold text-gray-900">EcoMart Staff</h1>
+            <div className="w-16 h-16 bg-eco-blue rounded-full flex items-center justify-center mr-4">
+              <Settings className="text-white" size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-eco-gray-dark">EcoMart Staff</h1>
+              <div className="flex justify-center mt-1">
+                <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
+              </div>
+            </div>
           </div>
-          <p className="text-lg text-gray-600">
-            {t('staff.partnerRegistration')}
+          <p className="text-lg text-eco-gray">
+            Registro de supermercado parceiro
           </p>
         </div>
 
         {/* Main Content */}
         <div className="max-w-md mx-auto">
-          <Card className="shadow-lg">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl text-gray-900">
-                {t('staff.newRegistration')}
+          <Card className="shadow-lg border-eco-blue-light">
+            <CardHeader className="text-center bg-eco-blue-light rounded-t-lg">
+              <CardTitle className="text-2xl text-eco-blue-dark">
+                Novo Registro
               </CardTitle>
-              <p className="text-gray-600 mt-2">
-                {t('staff.registerSupermarket')}
+              <p className="text-eco-gray mt-2">
+                Cadastre seu supermercado na plataforma
               </p>
             </CardHeader>
             
@@ -261,13 +268,13 @@ export default function StaffRegister() {
 
               {/* Login Link */}
               <div className="text-center">
-                <p className="text-gray-600 text-sm">
-                  {t('staff.alreadyHaveAccount')}{" "}
+                <p className="text-eco-gray text-sm">
+                  Já tem uma conta?{" "}
                   <button
                     onClick={() => navigate("/staff-login")}
-                    className="text-blue-600 hover:text-blue-800 font-semibold underline"
+                    className="text-eco-blue hover:text-eco-blue-dark font-semibold underline"
                   >
-                    {t('staff.doLogin')}
+                    Fazer Login
                   </button>
                 </p>
               </div>
@@ -276,9 +283,9 @@ export default function StaffRegister() {
               <Button
                 onClick={() => window.location.href = '/'}
                 variant="ghost"
-                className="w-full text-gray-600"
+                className="w-full text-eco-gray hover:bg-eco-blue-light"
               >
-                ← {t('common.backToHome')}
+                ← Voltar ao Início
               </Button>
             </CardContent>
           </Card>
