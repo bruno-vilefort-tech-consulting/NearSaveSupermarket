@@ -31,16 +31,7 @@ export default function Landing() {
     <div className="relative text-center space-y-8">
       {/* Logo e Título Principal */}
       <div className="space-y-6">
-        <div className="flex justify-center">
-          <div className="relative">
-            <div className="w-20 h-20 bg-eco-green rounded-3xl flex items-center justify-center shadow-lg shadow-eco-green/25">
-              <Leaf className="h-10 w-10 text-white" />
-            </div>
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-eco-orange rounded-full flex items-center justify-center">
-              <Heart className="h-3 w-3 text-white" />
-            </div>
-          </div>
-        </div>
+
         
         <div className="space-y-3">
           <h1 className="text-5xl font-bold text-eco-gray-dark tracking-tight">
