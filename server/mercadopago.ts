@@ -496,47 +496,7 @@ export async function checkRefundStatus(paymentId: string): Promise<RefundStatus
   }
 }
 
-// Função para calcular valor disponível para estorno
-export async function getRefundableAmount(paymentId: string): Promise<{ totalAmount: number; refundedAmount: number; availableAmount: number }> {
-  try {
-    const paymentStatus = await getPaymentStatus(paymentId);
-    if (!paymentStatus) {
-      throw new Error('Pagamento não encontrado');
-    }
-
-    // Buscar histórico de estornos
-    const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}/refunds`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`
-      }
-    });
-
-    const refundsData = await response.json();
-    const refunds = response.ok ? refundsData.results || [] : [];
-    
-    // Calcular valor total já estornado
-    const refundedAmount = refunds
-      .filter((refund: any) => refund.status === 'approved')
-      .reduce((total: number, refund: any) => total + (refund.amount || 0), 0);
-
-    const totalAmount = parseFloat((paymentStatus as any).transactionAmount || (paymentStatus as any).amount || '0');
-    const availableAmount = totalAmount - refundedAmount;
-
-    console.log(`💰 [REFUND CALC] Pagamento ${paymentId}: Total R$ ${totalAmount}, Estornado R$ ${refundedAmount}, Disponível R$ ${availableAmount}`);
-
-    return {
-      totalAmount,
-      refundedAmount,
-      availableAmount
-    };
-  } catch (error: any) {
-    console.error('❌ [REFUND CALC] Erro ao calcular valor disponível:', error);
-    throw error;
-  }
-}
-
+// Função para criar estorno PIX
 export async function createPixRefund(data: PixRefundData): Promise<PixRefundResponse> {
   try {
     console.log('🔄 [PIX REFUND] Iniciando estorno para pagamento:', data.paymentId);
@@ -554,35 +514,12 @@ export async function createPixRefund(data: PixRefundData): Promise<PixRefundRes
       };
     }
 
-    // Verificar valor disponível para estorno
-    const refundableInfo = await getRefundableAmount(data.paymentId);
-    
-    // Se foi especificado um valor, verificar se está disponível
-    let refundAmount = data.amount;
-    if (refundAmount) {
-      if (refundAmount > refundableInfo.availableAmount) {
-        return {
-          success: false,
-          error: `Valor solicitado (R$ ${refundAmount.toFixed(2)}) excede o disponível para estorno (R$ ${refundableInfo.availableAmount.toFixed(2)})`
-        };
-      }
-    } else {
-      // Se não foi especificado valor, estornar o valor total disponível
-      refundAmount = refundableInfo.availableAmount;
-    }
-
-    // Verificar se há valor disponível para estorno
-    if (refundAmount <= 0) {
-      return {
-        success: false,
-        error: `Não há valor disponível para estorno. Valor total já estornado: R$ ${refundableInfo.refundedAmount.toFixed(2)}`
-      };
-    }
-
     // Dados do estorno
-    const refundData: any = {
-      amount: refundAmount
-    };
+    const refundData: any = {};
+    
+    if (data.amount) {
+      refundData.amount = data.amount;
+    }
     
     if (data.reason) {
       refundData.metadata = {
@@ -590,7 +527,7 @@ export async function createPixRefund(data: PixRefundData): Promise<PixRefundRes
       };
     }
 
-    console.log(`🔄 [PIX REFUND] Dados do estorno: R$ ${refundAmount.toFixed(2)} de R$ ${refundableInfo.availableAmount.toFixed(2)} disponível`);
+    console.log('🔄 [PIX REFUND] Dados do estorno:', refundData);
 
     // Fazer requisição de estorno para o Mercado Pago
     const response = await fetch(`https://api.mercadopago.com/v1/payments/${data.paymentId}/refunds`, {
