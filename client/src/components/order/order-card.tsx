@@ -352,7 +352,16 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
         </div>
 
         <div className="space-y-2 mb-4">
-          {order.orderItems.map((item) => {
+          {order.orderItems
+            .filter((item) => {
+              // Para pedidos confirmados com confirmação parcial, ocultar itens removidos para clientes
+              if (order.status === "confirmed" && !canEditStatus) {
+                return item.confirmationStatus !== "removed";
+              }
+              // Para staff, mostrar todos os itens com indicadores visuais
+              return true;
+            })
+            .map((item) => {
             const isConfirmed = order.status === "confirmed" && item.confirmationStatus === "confirmed";
             const isRemoved = order.status === "confirmed" && item.confirmationStatus === "removed";
             const isPending = order.status === "confirmed" && (!item.confirmationStatus || item.confirmationStatus === "pending");
