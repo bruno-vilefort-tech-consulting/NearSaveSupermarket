@@ -221,13 +221,13 @@ export default function CustomerHome() {
     },
   });
 
-  // Calcular quantidade de pedidos em processamento
+  // Calcular quantidade de pedidos não concluídos (todos os status exceto 'completed', 'cancelled-customer', 'cancelled-staff')
   const processingOrdersCount = React.useMemo(() => {
     if (!orders || !Array.isArray(orders)) return 0;
     return orders.filter((order: any) => 
-      order.status === 'pending' || 
-      order.status === 'processing' || 
-      order.status === 'awaiting_payment'
+      order.status !== 'completed' && 
+      order.status !== 'cancelled-customer' && 
+      order.status !== 'cancelled-staff'
     ).length;
   }, [orders]);
 
