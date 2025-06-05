@@ -114,7 +114,7 @@ export default function StaffRegister() {
 
         {/* Main Content */}
         <div className="max-w-md mx-auto">
-          <Card className="shadow-lg border-eco-blue-light bg-white">
+          <Card className="shadow-lg border-eco-blue-light">
             <CardHeader className="text-center bg-eco-blue-light rounded-t-lg">
               <CardTitle className="text-2xl text-eco-blue-dark">
                 Novo Registro
@@ -124,7 +124,7 @@ export default function StaffRegister() {
               </p>
             </CardHeader>
             
-            <CardContent className="space-y-6 bg-white">
+            <CardContent className="space-y-6">
               {/* Registration Form */}
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">

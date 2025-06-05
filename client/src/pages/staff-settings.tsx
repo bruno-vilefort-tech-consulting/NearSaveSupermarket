@@ -104,7 +104,7 @@ export default function StaffSettings() {
 
         {/* Main Content */}
         <div className="max-w-2xl mx-auto">
-          <Card className="shadow-lg border-eco-blue-light bg-white">
+          <Card className="shadow-lg border-eco-blue-light">
             <CardHeader className="bg-eco-blue-light rounded-t-lg">
               <CardTitle className="flex items-center space-x-2 text-eco-blue-dark">
                 <MapPin size={20} className="text-eco-blue" />
@@ -115,7 +115,7 @@ export default function StaffSettings() {
               </p>
             </CardHeader>
             
-            <CardContent className="space-y-6 bg-white">
+            <CardContent className="space-y-6">
               {/* Current Location Info */}
               {location && (
                 <div className="bg-eco-blue-light p-4 rounded-lg border border-eco-blue">

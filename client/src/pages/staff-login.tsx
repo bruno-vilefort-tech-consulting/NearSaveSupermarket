@@ -80,7 +80,7 @@ export default function StaffLogin() {
 
         {/* Main Content */}
         <div className="max-w-md mx-auto">
-          <Card className="shadow-lg border-eco-blue-light bg-white">
+          <Card className="shadow-lg border-eco-blue-light">
             <CardHeader className="text-center bg-eco-blue-light rounded-t-lg">
               <CardTitle className="text-2xl text-eco-blue-dark">
                 Acesso do Staff
@@ -90,7 +90,7 @@ export default function StaffLogin() {
               </p>
             </CardHeader>
             
-            <CardContent className="space-y-6 bg-white">
+            <CardContent className="space-y-6">
               {/* Error Message */}
               {errorMessage && (
                 <div className="flex items-center gap-2 p-3 bg-eco-orange-light border border-eco-orange rounded-md text-eco-orange-dark">
