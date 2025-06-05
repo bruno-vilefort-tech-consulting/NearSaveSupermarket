@@ -541,11 +541,11 @@ export default function CustomerHome() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Eco Points Highlight */}
-        <Card className="mb-8 gradient-eco-green border-eco-green">
+        <Card className="mb-8 gradient-eco-blue border-eco-blue">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="bg-eco-green p-3 rounded-full">
+                <div className="bg-eco-blue p-3 rounded-full">
                   <Leaf size={24} className="text-white" />
                 </div>
                 <div>
@@ -553,13 +553,13 @@ export default function CustomerHome() {
                     {t('customer.ecoPointsProgram')}
                   </h3>
                   <p className="text-sm text-eco-gray">
-                    {t('customer.youHave')} <span className="font-bold text-eco-green-dark">{customerInfo?.ecoPoints || 0} {t('customer.points')}</span> {t('customer.sustainablePurchases')}
+                    {t('customer.youHave')} <span className="font-bold text-eco-blue-dark">{customerInfo?.ecoPoints || 0} {t('customer.points')}</span> {t('customer.sustainablePurchases')}
                   </p>
                 </div>
               </div>
               <Button
                 onClick={() => navigate("/customer/eco-points")}
-                className="bg-eco-green hover:bg-eco-green-dark text-white"
+                className="bg-eco-blue hover:bg-eco-blue-dark text-white"
               >
                 {t('customer.learnMore')}
               </Button>
