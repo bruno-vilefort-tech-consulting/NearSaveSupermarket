@@ -309,26 +309,26 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   const currentStatus = statusConfig[order.status as keyof typeof statusConfig];
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm border-eco-blue-light">
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="font-semibold text-gray-900">Pedido #{order.id}</h3>
-            <p className="text-sm text-gray-600 font-medium">{order.customerName}</p>
+            <h3 className="font-semibold text-eco-blue-dark">Pedido #{order.id}</h3>
+            <p className="text-sm text-eco-gray font-medium">{order.customerName}</p>
             {order.customerEmail && (
-              <p className="text-xs text-gray-500">📧 {order.customerEmail}</p>
+              <p className="text-xs text-eco-gray">📧 {order.customerEmail}</p>
             )}
             {order.customerPhone && (
-              <p className="text-xs text-gray-500">📱 {order.customerPhone}</p>
+              <p className="text-xs text-eco-gray">📱 {order.customerPhone}</p>
             )}
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-eco-gray">
               {order.fulfillmentMethod === "delivery" ? "🚚 Entrega" : "🏪 Retirada no Local"}
             </p>
             {order.deliveryAddress && order.fulfillmentMethod === "delivery" && (
-              <p className="text-xs text-gray-500 mt-1">📍 {order.deliveryAddress}</p>
+              <p className="text-xs text-eco-gray mt-1">📍 {order.deliveryAddress}</p>
             )}
           </div>
-          <Badge className={currentStatus?.color || "bg-gray-100 text-gray-800"}>
+          <Badge className={currentStatus?.color || "bg-eco-blue-light text-eco-blue-dark"}>
             {currentStatus?.label || order.status}
           </Badge>
         </div>
@@ -336,7 +336,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
         <div className="space-y-2 mb-4">
           {order.orderItems.map((item) => (
             <div key={item.id} className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 bg-eco-blue-light rounded-lg flex items-center justify-center flex-shrink-0">
                 {item.product.imageUrl ? (
                   <img 
                     src={item.product.imageUrl} 
@@ -344,26 +344,26 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                     className="w-full h-full object-cover rounded-lg"
                   />
                 ) : (
-                  <Package className="text-gray-400" size={16} />
+                  <Package className="text-eco-blue" size={16} />
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 truncate">{item.product.name}</p>
-                <p className="text-sm text-gray-600">
-                  Qty: {item.quantity} • ${parseFloat(item.priceAtTime).toFixed(2)} each
+                <p className="font-medium text-eco-blue-dark truncate">{item.product.name}</p>
+                <p className="text-sm text-eco-gray">
+                  Qty: {item.quantity} • R$ {parseFloat(item.priceAtTime).toFixed(2)} cada
                 </p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div className="flex items-center space-x-4 text-sm text-gray-600">
+        <div className="flex items-center justify-between pt-3 border-t border-eco-blue-light">
+          <div className="flex items-center space-x-4 text-sm text-eco-gray">
             <span className="flex items-center">
-              <Clock className="text-gray-400 mr-1" size={14} />
+              <Clock className="text-eco-blue mr-1" size={14} />
               {getTimeAgo(order.createdAt)}
             </span>
-            <span className="font-medium text-green-600">
+            <span className="font-medium text-eco-blue">
               Total: R$ {parseFloat(order.totalAmount).toFixed(2)}
             </span>
           </div>
@@ -389,7 +389,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                     variant="outline"
                     onClick={handlePixRefund}
                     disabled={pixRefundMutation.isPending}
-                    className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                    className="border-eco-blue text-eco-blue hover:bg-eco-blue-light"
                   >
                     {pixRefundMutation.isPending ? "Processando..." : "Estorno PIX"}
                   </Button>
@@ -402,7 +402,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                     size="sm"
                     onClick={handleStatusUpdate}
                     disabled={updateStatusMutation.isPending}
-                    className="bg-green-600 hover:bg-green-700 text-white font-medium"
+                    className="bg-eco-blue hover:bg-eco-blue-dark text-white font-medium"
                   >
                     {updateStatusMutation.isPending ? "Atualizando..." : getNextStatusLabel()}
                   </Button>
@@ -411,7 +411,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
 
               {/* Indicador de PIX */}
               {order.externalReference && order.pixPaymentId && order.status !== "completed" && (
-                <div className="text-xs text-blue-600 flex items-center gap-1">
+                <div className="text-xs text-eco-blue flex items-center gap-1">
                   <CreditCard className="h-3 w-3" />
                   {order.pixRefundId ? 
                     `PIX Estornado (${order.refundStatus})` : 
