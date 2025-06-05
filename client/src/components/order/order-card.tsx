@@ -352,21 +352,19 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
         </div>
 
         <div className="space-y-2 mb-4">
-          {order.orderItems.map((item) => {
+          {order.orderItems
+            .filter((item) => {
+              // Para pedidos confirmados com confirmação parcial, ocultar itens removidos para clientes
+              if (order.status === "confirmed" && !canEditStatus) {
+                return item.confirmationStatus !== "removed";
+              }
+              // Para staff, mostrar todos os itens com indicadores visuais
+              return true;
+            })
+            .map((item) => {
             const isConfirmed = order.status === "confirmed" && item.confirmationStatus === "confirmed";
             const isRemoved = order.status === "confirmed" && item.confirmationStatus === "removed";
             const isPending = order.status === "confirmed" && (!item.confirmationStatus || item.confirmationStatus === "pending");
-            
-            // Debug log para cliente
-            if (order.id === 194) {
-              console.log(`🔍 Cliente - Item ${item.id} (${item.product.name}):`, {
-                confirmationStatus: item.confirmationStatus,
-                isConfirmed,
-                isRemoved,
-                isPending,
-                canEditStatus
-              });
-            }
             
             return (
               <div key={item.id} className={`flex items-center space-x-3 p-2 rounded-lg ${
@@ -440,11 +438,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                     "text-eco-gray"
                   }`}>
                     Qty: {item.quantity} • R$ {parseFloat(item.priceAtTime).toFixed(2)} cada
-                    {isRemoved && (
-                      <span className="block text-xs text-red-600 font-medium mt-1">
-                        ❌ Item removido - valor estornado via PIX
-                      </span>
-                    )}
+                    {isRemoved && " (Indisponível)"}
                   </p>
                 </div>
               </div>
@@ -525,19 +519,6 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                         "PIX Pago - Cancelado pelo estabelecimento" :
                         "PIX Pago"
                   }
-                </div>
-              )}
-
-              {/* Informação sobre estorno parcial */}
-              {order.status === "confirmed" && order.pixRefundId && order.refundAmount && (
-                <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center gap-2 text-blue-700 text-xs">
-                    <CreditCard className="h-3 w-3" />
-                    <span className="font-medium">Estorno PIX processado</span>
-                  </div>
-                  <p className="text-xs text-blue-600 mt-1">
-                    R$ {parseFloat(order.refundAmount).toFixed(2)} estornado por itens indisponíveis
-                  </p>
                 </div>
               )}
             </div>
