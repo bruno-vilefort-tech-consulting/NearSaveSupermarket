@@ -343,12 +343,24 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
           <div className="space-y-1">
             {order.orderItems.map((item) => (
               <div key={item.id} className="flex justify-between items-center text-sm py-1">
-                <div className="flex-1">
-                  <span className="font-medium text-eco-gray-dark">{item.product.name}</span>
-                  <span className="text-eco-gray ml-2">x{item.quantity}</span>
+                <div className="flex-1 flex items-center gap-2">
+                  {/* Status do item - visual indicator */}
+                  {item.confirmationStatus === 'confirmed' && (
+                    <CheckCircle className="h-4 w-4 text-eco-green flex-shrink-0" />
+                  )}
+                  {item.confirmationStatus === 'removed' && (
+                    <X className="h-4 w-4 text-red-500 flex-shrink-0" />
+                  )}
+                  
+                  <div className={item.confirmationStatus === 'removed' ? 'line-through text-eco-gray' : ''}>
+                    <span className="font-medium text-eco-gray-dark">{item.product.name}</span>
+                    <span className="text-eco-gray ml-2">x{item.quantity}</span>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <span className="font-medium text-eco-green">{formatPrice((parseFloat(item.priceAtTime) * item.quantity).toString())}</span>
+                  <span className={`font-medium ${item.confirmationStatus === 'removed' ? 'line-through text-eco-gray' : 'text-eco-green'}`}>
+                    {formatPrice((parseFloat(item.priceAtTime) * item.quantity).toString())}
+                  </span>
                 </div>
               </div>
             ))}
