@@ -1337,6 +1337,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Atualizar status dos itens com base na confirmação
+      console.log(`🔄 [ORDER CONFIRM] Atualizando status dos itens`);
+      
+      // Marcar todos os itens do pedido com status baseado na confirmação
+      for (const orderItem of order.orderItems) {
+        const isConfirmed = confirmedItems.some((confirmedItem: any) => confirmedItem.id === orderItem.id);
+        const newStatus = isConfirmed ? 'confirmed' : 'removed';
+        
+        await storage.updateOrderItemConfirmationStatus(orderItem.id, newStatus);
+        console.log(`📦 [ITEM STATUS] Item ${orderItem.id} (${orderItem.product.name}) marcado como: ${newStatus}`);
+      }
+
       // Atualizar status do pedido para "confirmed"
       const updatedOrder = await storage.updateOrderStatus(orderId, "confirmed", `STAFF_${staffId}`);
       

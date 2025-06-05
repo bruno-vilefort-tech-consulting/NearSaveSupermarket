@@ -153,6 +153,9 @@ export interface IStorage {
     refundDate: Date;
     refundReason: string;
   }): Promise<void>;
+  
+  // Order item confirmation operations
+  updateOrderItemConfirmationStatus(itemId: number, status: 'confirmed' | 'removed' | 'pending'): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -545,6 +548,7 @@ export class DatabaseStorage implements IStorage {
             productId: orderItems.productId,
             quantity: orderItems.quantity,
             priceAtTime: orderItems.priceAtTime,
+            confirmationStatus: orderItems.confirmationStatus,
             createdAt: orderItems.createdAt,
             product: products,
           })
@@ -1613,6 +1617,17 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, orderId));
     
     console.log(`✅ [REFUND] Pedido ${orderId} atualizado com dados de estorno:`, refundData);
+  }
+
+  async updateOrderItemConfirmationStatus(itemId: number, status: 'confirmed' | 'removed' | 'pending'): Promise<void> {
+    await db
+      .update(orderItems)
+      .set({
+        confirmationStatus: status
+      })
+      .where(eq(orderItems.id, itemId));
+    
+    console.log(`✅ [ITEM STATUS] Item ${itemId} atualizado para status: ${status}`);
   }
 }
 
