@@ -301,15 +301,27 @@ export default function SupermarketProducts() {
                   onClick={() => handleProductClick(product)}
                 >
                   <CardHeader className="pb-3">
-                    {product.imageUrl && (
-                      <div className="w-full h-32 bg-eco-gray-light rounded-lg mb-3 overflow-hidden">
+                    <div className="w-full h-32 bg-eco-gray-light rounded-lg mb-3 overflow-hidden">
+                      {product.imageUrl ? (
                         <img
                           src={product.imageUrl}
                           alt={product.name}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Hide broken image and show placeholder
+                            e.currentTarget.style.display = 'none';
+                            const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (placeholder) placeholder.style.display = 'flex';
+                          }}
                         />
+                      ) : null}
+                      <div 
+                        className={`w-full h-full flex items-center justify-center bg-eco-green-light ${product.imageUrl ? 'hidden' : 'flex'}`}
+                        style={{ display: product.imageUrl ? 'none' : 'flex' }}
+                      >
+                        <Package className="text-eco-green" size={32} />
                       </div>
-                    )}
+                    </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-start">
                         <Badge variant="secondary" className="text-xs bg-eco-blue-light text-eco-blue-dark border-eco-blue">

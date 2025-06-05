@@ -144,16 +144,26 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
           )}
           {/* Product Info */}
           <div className="flex space-x-4">
-            <div className="w-20 h-20 rounded-lg overflow-hidden bg-eco-gray-light flex-shrink-0">
+            <div className="w-20 h-20 rounded-lg overflow-hidden bg-eco-gray-light flex-shrink-0 relative">
               {product.imageUrl ? (
-                <img 
-                  src={product.imageUrl} 
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <img 
+                    src={product.imageUrl} 
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (placeholder) placeholder.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-full h-full flex items-center justify-center bg-eco-green-light absolute top-0 left-0 hidden">
+                    <ShoppingCart className="text-eco-green" size={24} />
+                  </div>
+                </>
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <ShoppingCart className="text-eco-gray" size={24} />
+                <div className="w-full h-full flex items-center justify-center bg-eco-green-light">
+                  <ShoppingCart className="text-eco-green" size={24} />
                 </div>
               )}
             </div>

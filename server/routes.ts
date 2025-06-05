@@ -47,7 +47,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Serve uploaded files
+  // Serve uploaded files with fallback for missing images
+  app.get("/uploads/:filename", (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(uploadDir, filename);
+    
+    // Check if file exists
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      // Return a default placeholder image or 404
+      console.log(`Image not found: ${filePath}`);
+      res.status(404).json({ error: "Image not found" });
+    }
+  });
+  
+  // Also serve static files normally for other cases
   app.use("/uploads", express.static(uploadDir));
 
   // Staff registration route
