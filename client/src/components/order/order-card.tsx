@@ -40,6 +40,7 @@ interface OrderCardProps {
       id: number;
       quantity: number;
       priceAtTime: string;
+      confirmationStatus?: string;
       product: {
         id: number;
         name: string;
@@ -358,27 +359,65 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
         </div>
 
         <div className="space-y-2 mb-4">
-          {order.orderItems.map((item) => (
-            <div key={item.id} className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-eco-blue-light rounded-lg flex items-center justify-center flex-shrink-0">
-                {item.product.imageUrl ? (
-                  <img 
-                    src={item.product.imageUrl} 
-                    alt={item.product.name}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                ) : (
-                  <Package className="text-eco-blue" size={16} />
-                )}
+          {order.orderItems.map((item) => {
+            const isConfirmed = item.confirmationStatus === 'confirmed';
+            const isRemoved = item.confirmationStatus === 'removed';
+            const isPending = !item.confirmationStatus || item.confirmationStatus === 'pending';
+            
+            return (
+              <div key={item.id} className={`flex items-center space-x-3 ${isRemoved ? 'opacity-60' : ''}`}>
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 relative ${
+                  isPending ? 'bg-eco-blue-light' :
+                  isConfirmed ? 'bg-green-100' : 
+                  'bg-red-100'
+                }`}>
+                  {item.product.imageUrl ? (
+                    <img 
+                      src={item.product.imageUrl} 
+                      alt={item.product.name}
+                      className={`w-full h-full object-cover rounded-lg ${isRemoved ? 'grayscale' : ''}`}
+                    />
+                  ) : (
+                    <Package className={`${
+                      isPending ? 'text-eco-blue' :
+                      isConfirmed ? 'text-green-600' : 
+                      'text-red-600'
+                    }`} size={16} />
+                  )}
+                  
+                  {/* Status indicator */}
+                  {isConfirmed && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle className="text-white" size={10} />
+                    </div>
+                  )}
+                  {isRemoved && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                      <AlertTriangle className="text-white" size={10} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`font-medium truncate ${
+                    isPending ? 'text-eco-blue-dark' :
+                    isConfirmed ? 'text-green-800' : 
+                    'text-red-800 line-through'
+                  }`}>
+                    {item.product.name}
+                  </p>
+                  <p className={`text-sm ${
+                    isPending ? 'text-eco-gray' :
+                    isConfirmed ? 'text-green-600' : 
+                    'text-red-600'
+                  }`}>
+                    Qty: {item.quantity} • R$ {parseFloat(item.priceAtTime).toFixed(2)} cada
+                    {isConfirmed && <span className="ml-2 text-xs font-medium">✓ Confirmado</span>}
+                    {isRemoved && <span className="ml-2 text-xs font-medium">✗ Removido</span>}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-eco-blue-dark truncate">{item.product.name}</p>
-                <p className="text-sm text-eco-gray">
-                  Qty: {item.quantity} • R$ {parseFloat(item.priceAtTime).toFixed(2)} cada
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-eco-blue-light">
