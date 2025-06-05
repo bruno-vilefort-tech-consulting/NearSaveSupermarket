@@ -392,27 +392,66 @@ export default function ConfirmOrderPage() {
                 
                 {refundInfo && (
                   <>
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                      <h4 className="font-medium text-orange-800 mb-2">Itens Indisponíveis:</h4>
-                      <ul className="text-sm text-orange-700 space-y-1">
-                        {refundInfo.missingItems.map((item) => (
-                          <li key={item.orderItemId}>
-                            • {item.name} (Qtd: {item.quantity}) - R$ {(item.priceAtTime * item.quantity).toFixed(2)}
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="grid gap-3">
+                      {/* Itens Confirmados */}
+                      <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-r-lg">
+                        <div className="flex items-center gap-2 text-green-800 font-bold mb-3">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          Itens Confirmados ({confirmedItems.length})
+                        </div>
+                        <div className="space-y-2">
+                          {confirmedItems.map((item) => (
+                            <div key={item.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-green-200">
+                              <div className="flex items-center gap-3">
+                                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                                  <CheckCircle className="h-3 w-3 text-green-600" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-green-800 text-sm">{item.product.name}</p>
+                                  <p className="text-xs text-green-600">Qtd: {item.quantity}</p>
+                                </div>
+                              </div>
+                              <p className="font-bold text-green-800 text-sm">R$ {(parseFloat(item.priceAtTime) * item.quantity).toFixed(2)}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Itens Removidos */}
+                      <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                        <div className="flex items-center gap-2 text-red-800 font-bold mb-3">
+                          <AlertTriangle className="h-5 w-5 text-red-600" />
+                          Itens Removidos ({refundInfo.missingItems.length})
+                        </div>
+                        <div className="space-y-2">
+                          {refundInfo.missingItems.map((item) => (
+                            <div key={item.orderItemId} className="flex items-center justify-between bg-white rounded-lg p-3 border border-red-200 opacity-75">
+                              <div className="flex items-center gap-3">
+                                <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                                  <AlertTriangle className="h-3 w-3 text-red-600" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-red-800 text-sm line-through">{item.name}</p>
+                                  <p className="text-xs text-red-600">Qtd: {item.quantity}</p>
+                                </div>
+                              </div>
+                              <p className="font-bold text-red-800 text-sm line-through">R$ {(item.priceAtTime * item.quantity).toFixed(2)}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                     
-                    <div className="bg-eco-blue-light border border-eco-blue rounded-lg p-3">
-                      <div className="flex items-center gap-2 text-eco-blue-dark font-medium mb-2">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-blue-800 font-medium mb-2">
                         <CreditCard className="h-4 w-4" />
                         Estorno PIX Automático
                       </div>
-                      <p className="text-sm text-eco-blue-dark">
-                        Valor a ser estornado: <strong>R$ {refundInfo.refundAmount.toFixed(2)}</strong>
+                      <p className="text-sm text-blue-700">
+                        Valor a ser estornado: <strong className="text-blue-900">R$ {refundInfo.refundAmount.toFixed(2)}</strong>
                       </p>
-                      <p className="text-xs text-eco-blue mt-1">
-                        O cliente será notificado sobre o estorno e a confirmação parcial.
+                      <p className="text-xs text-blue-600 mt-2">
+                        O cliente será notificado sobre o estorno e a confirmação parcial via email e push notification.
                       </p>
                     </div>
                   </>

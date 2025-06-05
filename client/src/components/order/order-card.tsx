@@ -345,9 +345,16 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
               <p className="text-xs text-eco-gray mt-1">📍 {order.deliveryAddress}</p>
             )}
           </div>
-          <Badge className={currentStatus?.color || "bg-eco-blue-light text-eco-blue-dark"}>
-            {currentStatus?.label || order.status}
-          </Badge>
+          <div className="flex flex-col items-end gap-1">
+            <Badge className={currentStatus?.color || "bg-eco-blue-light text-eco-blue-dark"}>
+              {currentStatus?.label || order.status}
+            </Badge>
+            {order.pixRefundId && order.refundAmount && (
+              <Badge className="bg-orange-100 text-orange-800 text-xs">
+                Estorno PIX R$ {order.refundAmount}
+              </Badge>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2 mb-4">
