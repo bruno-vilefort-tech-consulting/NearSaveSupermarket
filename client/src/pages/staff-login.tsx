@@ -58,35 +58,42 @@ export default function StaffLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-eco-blue-light">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Settings className="text-blue-600 mr-2" size={32} />
-            <h1 className="text-3xl font-bold text-gray-900">EcoMart Staff</h1>
+            <div className="w-16 h-16 bg-eco-blue rounded-full flex items-center justify-center mr-4">
+              <Settings className="text-white" size={32} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-eco-gray-dark">EcoMart Staff</h1>
+              <div className="flex justify-center mt-1">
+                <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
+              </div>
+            </div>
           </div>
-          <p className="text-lg text-gray-600">
-            {t('staff.login')}
+          <p className="text-lg text-eco-gray">
+            Sistema de gerenciamento para supermercados
           </p>
         </div>
 
         {/* Main Content */}
         <div className="max-w-md mx-auto">
-          <Card className="shadow-lg">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl text-gray-900">
-                {t('staff.login')}
+          <Card className="shadow-lg border-eco-blue-light">
+            <CardHeader className="text-center bg-eco-blue-light rounded-t-lg">
+              <CardTitle className="text-2xl text-eco-blue-dark">
+                Acesso do Staff
               </CardTitle>
-              <p className="text-gray-600 mt-2">
-                {t('staff.login')}
+              <p className="text-eco-gray mt-2">
+                Entre com suas credenciais
               </p>
             </CardHeader>
             
             <CardContent className="space-y-6">
               {/* Error Message */}
               {errorMessage && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
+                <div className="flex items-center gap-2 p-3 bg-eco-orange-light border border-eco-orange rounded-md text-eco-orange-dark">
                   <AlertCircle size={16} />
                   <span className="text-sm font-medium">{errorMessage}</span>
                 </div>
@@ -95,24 +102,24 @@ export default function StaffLogin() {
               {/* Login Form */}
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center space-x-2">
-                    <Mail size={16} />
-                    <span>{t('auth.email')} *</span>
+                  <Label htmlFor="email" className="flex items-center space-x-2 text-eco-blue-dark">
+                    <Mail size={16} className="text-eco-blue" />
+                    <span>Email *</span>
                   </Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder={t('auth.email')}
-                    className="w-full"
+                    placeholder="Digite seu email"
+                    className="w-full border-eco-blue-light focus:border-eco-blue focus:ring-eco-blue"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="flex items-center space-x-2">
-                    <Lock size={16} />
-                    <span>{t('auth.password')} *</span>
+                  <Label htmlFor="password" className="flex items-center space-x-2 text-eco-blue-dark">
+                    <Lock size={16} className="text-eco-blue" />
+                    <span>Senha *</span>
                   </Label>
                   <div className="relative">
                     <Input
@@ -120,13 +127,13 @@ export default function StaffLogin() {
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder={t('auth.password')}
-                      className="w-full pr-10"
+                      placeholder="Digite sua senha"
+                      className="w-full pr-10 border-eco-blue-light focus:border-eco-blue focus:ring-eco-blue"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-eco-blue hover:text-eco-blue-dark"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -136,9 +143,9 @@ export default function StaffLogin() {
                 <Button 
                   type="submit" 
                   disabled={loginMutation.isPending}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                  className="w-full bg-eco-blue hover:bg-eco-blue-dark text-white py-3"
                 >
-                  {loginMutation.isPending ? `${t('auth.login')}...` : t('auth.login')}
+                  {loginMutation.isPending ? 'Entrando...' : 'Entrar'}
                 </Button>
               </form>
 
@@ -146,19 +153,19 @@ export default function StaffLogin() {
               <div className="text-center">
                 <button
                   onClick={handleForgotPassword}
-                  className="text-blue-600 hover:text-blue-800 text-sm underline"
+                  className="text-eco-blue hover:text-eco-blue-dark text-sm underline"
                 >
-                  {t('auth.forgotPassword')}
+                  Esqueci minha senha
                 </button>
               </div>
 
               {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t border-eco-blue-light" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">{t('common.or')}</span>
+                  <span className="bg-white px-2 text-eco-gray">OU</span>
                 </div>
               </div>
 
@@ -166,20 +173,20 @@ export default function StaffLogin() {
               <Button
                 onClick={handleReplitLogin}
                 variant="outline"
-                className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                className="w-full border-2 border-eco-blue text-eco-blue hover:bg-eco-blue-light"
               >
-                {t('auth.loginReplit')}
+                Entrar com Replit
               </Button>
 
               {/* Register Link */}
               <div className="text-center">
-                <p className="text-gray-600 text-sm">
-                  {t('auth.noAccount')}{" "}
+                <p className="text-eco-gray text-sm">
+                  Não tem conta?{" "}
                   <button
                     onClick={() => navigate("/staff-register")}
-                    className="text-blue-600 hover:text-blue-800 font-semibold underline"
+                    className="text-eco-blue hover:text-eco-blue-dark font-semibold underline"
                   >
-                    {t('auth.register')}
+                    Cadastre-se
                   </button>
                 </p>
               </div>
@@ -188,16 +195,16 @@ export default function StaffLogin() {
               <Button
                 onClick={() => navigate('/')}
                 variant="ghost"
-                className="w-full text-gray-600"
+                className="w-full text-eco-gray hover:bg-eco-blue-light"
               >
-                {t('common.backToHome')}
+                Voltar ao Início
               </Button>
             </CardContent>
           </Card>
 
           {/* Footer */}
           <div className="text-center mt-8">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-eco-gray">
               Sistema de gerenciamento para supermercados parceiros
             </p>
           </div>
