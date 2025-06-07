@@ -18,9 +18,10 @@ interface CheckoutFormProps {
   orderId: string;
   amount: number;
   customerEmail: string;
+  orderData?: any;
 }
 
-const CheckoutForm = ({ orderId, amount, customerEmail }: CheckoutFormProps) => {
+const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const [, setLocation] = useLocation();
@@ -290,6 +291,7 @@ export default function StripeCheckout() {
         orderId={params.orderId}
         amount={parseFloat(orderData.totalAmount)}
         customerEmail={orderData.customerEmail || ""}
+        orderData={orderData}
       />
     </Elements>
   );
