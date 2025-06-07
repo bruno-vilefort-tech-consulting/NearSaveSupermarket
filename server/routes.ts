@@ -601,7 +601,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Se o pedido tem PIX payment ID, verificar se há valor restante para estornar
+      let refundProcessed = false;
+      let refundInfo = null;
+
+      // Verificar tipo de pagamento e processar estorno accordingly
       if (order.pixPaymentId) {
         console.log('🔄 [CUSTOMER CANCEL] Verificando necessidade de estorno PIX para:', order.pixPaymentId);
 
@@ -615,6 +618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           if (remainingAmount <= 0) {
             console.log('ℹ️ [CUSTOMER CANCEL] Não há valor restante para estornar');
+            refundProcessed = true;
           } else {
             console.log('🔄 [CUSTOMER CANCEL] Processando estorno PIX adicional');
             // Criar estorno via Mercado Pago
@@ -626,6 +630,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             if (refundResult.success) {
               console.log('✅ [CUSTOMER CANCEL] Estorno PIX processado:', refundResult);
+              refundProcessed = true;
+              refundInfo = {
+                refundId: refundResult.refundId,
+                amount: refundResult.amount,
+                status: refundResult.status,
+                method: 'PIX'
+              };
 
               // Atualizar pedido com informações do estorno
               await storage.updateOrderRefund(parseInt(orderId), {
@@ -644,6 +655,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (refundError: any) {
           console.warn('⚠️ [CUSTOMER CANCEL] Erro no estorno PIX, mas continuando cancelamento:', refundError.message);
         }
+      } else if (order.externalReference) {
+        // Se tem external reference, pode ser pagamento Stripe
+        console.log('🔄 [CUSTOMER CANCEL] Verificando pagamento Stripe para:', order.externalReference);
+        
+        try {
+          // Calcular valor restante para estorno
+          const totalAmount = parseFloat(order.totalAmount);
+          const alreadyRefunded = order.refundAmount ? parseFloat(order.refundAmount) : 0;
+          const remainingAmount = totalAmount - alreadyRefunded;
+          
+          console.log(`💰 [CUSTOMER CANCEL] Valor total: R$ ${totalAmount.toFixed(2)}, já estornado: R$ ${alreadyRefunded.toFixed(2)}, restante: R$ ${remainingAmount.toFixed(2)}`);
+          
+          if (remainingAmount <= 0) {
+            console.log('ℹ️ [CUSTOMER CANCEL] Não há valor restante para estornar');
+            refundProcessed = true;
+          } else {
+            // Buscar payment intent no Stripe
+            const paymentIntent = await stripe.paymentIntents.retrieve(order.externalReference);
+            
+            if (paymentIntent && paymentIntent.status === 'succeeded') {
+              console.log('🔄 [CUSTOMER CANCEL] Processando estorno Stripe');
+              
+              // Criar estorno no Stripe
+              const refund = await stripe.refunds.create({
+                payment_intent: order.externalReference,
+                amount: Math.round(remainingAmount * 100), // Convert to cents
+                reason: 'requested_by_customer',
+                metadata: {
+                  order_id: orderId.toString(),
+                  refund_reason: reason || "Cancelamento solicitado pelo cliente"
+                }
+              });
+
+              console.log('✅ [CUSTOMER CANCEL] Estorno Stripe processado:', refund.id);
+              refundProcessed = true;
+              refundInfo = {
+                refundId: refund.id,
+                amount: remainingAmount,
+                status: refund.status,
+                method: 'Stripe'
+              };
+
+              // Atualizar pedido com informações do estorno
+              await storage.updateOrderRefund(parseInt(orderId), {
+                pixRefundId: refund.id, // Using this field for Stripe refund ID
+                refundAmount: (alreadyRefunded + remainingAmount).toString(),
+                refundStatus: refund.status,
+                refundDate: new Date(),
+                refundReason: reason || 'Cancelamento solicitado pelo cliente'
+              });
+
+              console.log('✅ [CUSTOMER CANCEL] Dados do estorno Stripe salvos no pedido');
+            } else {
+              console.log('⚠️ [CUSTOMER CANCEL] Pagamento Stripe não elegível para estorno:', paymentIntent?.status);
+            }
+          }
+        } catch (stripeError: any) {
+          console.error('❌ [CUSTOMER CANCEL] Erro no processo de estorno Stripe:', stripeError.message);
+          // Continua com o cancelamento mesmo se o estorno falhar
+        }
       }
 
       // SEMPRE atualizar status do pedido para cancelled-customer
@@ -656,10 +727,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`✅ [CUSTOMER CANCEL] Pedido ${orderId} cancelado com sucesso`);
 
+      // Enviar notificação push sobre cancelamento
+      try {
+        if (order.customerEmail) {
+          const refundMessage = refundProcessed && refundInfo ? 
+            `Seu pedido foi cancelado e o estorno de R$ ${refundInfo.amount.toFixed(2)} foi processado via ${refundInfo.method}.` :
+            'Seu pedido foi cancelado com sucesso.';
+            
+          await sendPushNotification(order.customerEmail, {
+            title: 'Pedido Cancelado',
+            body: refundMessage,
+            url: '/customer/orders'
+          });
+        }
+      } catch (notifError) {
+        console.log('⚠️ [CUSTOMER CANCEL] Erro ao enviar notificação de cancelamento:', notifError);
+      }
+
       res.json({ 
-        message: "Pedido cancelado com sucesso",
+        message: refundProcessed ? "Pedido cancelado com sucesso e estorno processado" : "Pedido cancelado com sucesso",
         status: "cancelled-customer",
-        refundProcessed: !!order.pixPaymentId
+        refundProcessed,
+        refundInfo
       });
 
     } catch (error: any) {
@@ -2547,6 +2636,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Error sending test notification:', error);
       res.status(500).json({ message: 'Erro ao enviar notificação teste' });
+    }
+  });
+
+  // Stripe refund route for card payments
+  app.post("/api/payments/stripe/refund", async (req, res) => {
+    try {
+      const { orderId, reason } = req.body;
+      
+      console.log(`🔄 [STRIPE REFUND] Iniciando estorno para pedido: ${orderId}`);
+      
+      if (!orderId) {
+        return res.status(400).json({ message: "ID do pedido é obrigatório" });
+      }
+
+      // Buscar pedido
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      // Verificar se o pedido está elegível para estorno
+      if (order.status === 'completed') {
+        return res.status(400).json({ 
+          message: "Não é possível estornar um pedido já concluído" 
+        });
+      }
+
+      // Verificar se já foi estornado
+      if (order.refundStatus === 'refunded' || order.refundStatus === 'processing') {
+        return res.status(400).json({ 
+          message: "Este pedido já foi estornado ou está sendo processado" 
+        });
+      }
+
+      // Verificar se tem referência externa (Stripe payment intent ID)
+      if (!order.externalReference) {
+        return res.status(400).json({ 
+          message: "Pedido não possui referência de pagamento Stripe" 
+        });
+      }
+
+      const paymentIntentId = order.externalReference;
+      
+      // Buscar payment intent no Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (!paymentIntent || paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ 
+          message: "Pagamento não está elegível para estorno" 
+        });
+      }
+
+      // Calcular valor do estorno
+      const totalAmount = parseFloat(order.totalAmount);
+      const alreadyRefunded = order.refundAmount ? parseFloat(order.refundAmount) : 0;
+      const remainingAmount = totalAmount - alreadyRefunded;
+      
+      if (remainingAmount <= 0) {
+        return res.status(400).json({ 
+          message: "Não há valor restante para estornar" 
+        });
+      }
+
+      console.log(`💰 [STRIPE REFUND] Valor total: R$ ${totalAmount.toFixed(2)}, já estornado: R$ ${alreadyRefunded.toFixed(2)}, restante: R$ ${remainingAmount.toFixed(2)}`);
+
+      // Criar estorno no Stripe
+      const refund = await stripe.refunds.create({
+        payment_intent: paymentIntentId,
+        amount: Math.round(remainingAmount * 100), // Convert to cents
+        reason: 'requested_by_customer',
+        metadata: {
+          order_id: orderId.toString(),
+          refund_reason: reason || "Cancelamento solicitado pelo cliente"
+        }
+      });
+
+      console.log(`✅ [STRIPE REFUND] Estorno criado: ${refund.id}`);
+
+      // Atualizar dados do estorno no pedido
+      await storage.updateOrderRefund(parseInt(orderId), {
+        pixRefundId: refund.id, // Using this field for Stripe refund ID
+        refundAmount: (alreadyRefunded + remainingAmount).toString(),
+        refundStatus: refund.status, // pending, succeeded, failed
+        refundDate: new Date(),
+        refundReason: reason || "Cancelamento solicitado pelo cliente"
+      });
+
+      // Atualizar status do pedido
+      await storage.updateOrderStatus(parseInt(orderId), 'cancelled-customer', 'CUSTOMER_REQUEST');
+
+      console.log(`✅ [STRIPE REFUND] Pedido ${orderId} cancelado e estorno processado`);
+
+      // Enviar notificação push sobre cancelamento
+      try {
+        if (order.customerEmail) {
+          await sendPushNotification(order.customerEmail, {
+            title: 'Pedido Cancelado e Estorno Processado',
+            body: `Seu pedido foi cancelado e o estorno de R$ ${remainingAmount.toFixed(2)} foi processado no seu cartão.`,
+            url: '/customer/orders'
+          });
+        }
+      } catch (notifError) {
+        console.log('⚠️ [STRIPE REFUND] Erro ao enviar notificação de cancelamento:', notifError);
+      }
+
+      res.json({
+        success: true,
+        refundId: refund.id,
+        status: refund.status,
+        amount: remainingAmount,
+        message: "Estorno Stripe processado com sucesso"
+      });
+
+    } catch (error: any) {
+      console.error('❌ [STRIPE REFUND] Erro ao processar estorno:', error);
+      res.status(500).json({ 
+        message: "Erro ao processar estorno", 
+        error: error.message 
+      });
     }
   });
 
