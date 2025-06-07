@@ -1897,8 +1897,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   refundReason: 'staff_cancellation'
 }`);
               
-              // Update order status to cancelled-staff to distinguish from customer cancellations
-              const order = await storage.updateOrderStatus(id, "cancelled-staff", `STAFF_${staffId}`);
+              // Now update order status after successful refund processing
+              const order = await storage.updateOrderStatus(id, status, `STAFF_${staffId}`);
               if (!order) {
                 return res.status(404).json({ message: "Order not found" });
               }

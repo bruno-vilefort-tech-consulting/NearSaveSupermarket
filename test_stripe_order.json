@@ -1,0 +1,14 @@
+{
+  "customerName": "Antonio Alves",
+  "customerEmail": "antonio.alves@gmail.com", 
+  "customerPhone": "(34) 9912-1212",
+  "fulfillmentMethod": "pickup",
+  "items": [
+    {
+      "productId": 28,
+      "quantity": 10,
+      "priceAtTime": "4.00"
+    }
+  ],
+  "totalAmount": 40.00
+}
