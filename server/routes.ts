@@ -1075,6 +1075,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       console.log('✅ Stripe PaymentIntent criado:', paymentIntent.id);
+      
+      // Salvar o PaymentIntent ID no banco de dados imediatamente
+      await storage.updateOrderExternalReference(parseInt(orderId), paymentIntent.id);
+      console.log(`💾 PaymentIntent ${paymentIntent.id} salvo para pedido ${orderId}`);
+      
       res.json({ 
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
