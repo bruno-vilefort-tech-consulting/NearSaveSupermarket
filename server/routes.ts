@@ -2808,6 +2808,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint para criar pedido com pagamento Stripe simulado
+  app.post("/api/test/create-stripe-order", async (req, res) => {
+    try {
+      const { customerEmail, customerName, customerPhone, amount } = req.body;
+      
+      console.log(`🧪 [TEST] Criando pedido de teste Stripe para: ${customerEmail}`);
+      
+      // Criar payment intent no Stripe
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "brl",
+        confirm: true, // Confirmar automaticamente para teste
+        payment_method: "pm_card_visa", // Cartão de teste do Stripe
+        return_url: "https://example.com/return",
+        metadata: {
+          test_order: "true",
+          customer_email: customerEmail
+        }
+      });
+
+      if (paymentIntent.status !== 'succeeded') {
+        throw new Error('Falha ao processar pagamento de teste');
+      }
+
+      // Criar pedido no banco
+      const orderData = {
+        customerName: customerName || 'Cliente Teste',
+        customerEmail: customerEmail,
+        customerPhone: customerPhone || '(11) 9999-9999',
+        deliveryAddress: null,
+        fulfillmentMethod: 'pickup',
+        totalAmount: amount.toString(),
+        notes: 'Pedido de teste para estorno Stripe'
+      };
+
+      const items = [{
+        productId: 28, // Leite Integral (produto existente)
+        quantity: 1,
+        priceAtTime: amount.toString()
+      }];
+
+      const order = await storage.createOrder(orderData, items);
+      
+      // Confirmar pagamento e salvar referência externa
+      await storage.updateOrderStatus(order.id, 'payment_confirmed', 'STRIPE_TEST');
+      await storage.updateOrderExternalReference(order.id, paymentIntent.id);
+
+      console.log(`✅ [TEST] Pedido ${order.id} criado com PaymentIntent: ${paymentIntent.id}`);
+
+      res.json({
+        success: true,
+        order: order,
+        paymentIntentId: paymentIntent.id,
+        message: "Pedido de teste Stripe criado com sucesso"
+      });
+
+    } catch (error: any) {
+      console.error('❌ [TEST] Erro ao criar pedido de teste:', error);
+      res.status(500).json({ 
+        message: "Erro ao criar pedido de teste", 
+        error: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
