@@ -1612,6 +1612,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public order route for Stripe checkout
+  app.get("/api/public/orders/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+
+      const order = await storage.getOrder(id);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Return only essential data for payment processing
+      res.json({
+        id: order.id,
+        totalAmount: order.totalAmount,
+        customerEmail: order.customerEmail,
+        customerName: order.customerName,
+        status: order.status
+      });
+    } catch (error) {
+      console.error("Error fetching public order:", error);
+      res.status(500).json({ message: "Failed to fetch order" });
+    }
+  });
+
   app.post("/api/orders", async (req, res) => {
     try {
       const { order, items } = req.body;
