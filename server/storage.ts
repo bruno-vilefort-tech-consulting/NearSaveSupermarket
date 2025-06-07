@@ -1096,7 +1096,8 @@ export class DatabaseStorage implements IStorage {
       'PIX_MANUAL_CHECK', // Manual PIX payment verification
       'CUSTOMER_REQUEST', // Customer cancellation requests
       'STAFF_REQUEST',    // Staff cancellation requests
-      'PROTECTION_SYSTEM' // Order protection system
+      'PROTECTION_SYSTEM', // Order protection system
+      'STRIPE_PAYMENT'    // Stripe payment confirmations
     ];
     
     // Only allow explicit staff updates or authorized automatic operations

@@ -2710,11 +2710,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Atualizar pedido com referência externa e status
-      await storage.updateOrderStatus(parseInt(orderId), 'payment_confirmed', 'STRIPE_PAYMENT');
-      
-      // Salvar referência externa do payment intent
+      // Salvar referência externa do payment intent primeiro
       await storage.updateOrderExternalReference(parseInt(orderId), paymentIntentId);
+      
+      // Atualizar status do pedido usando o método específico para pagamentos
+      await storage.updateOrderPaymentStatus(parseInt(orderId), 'payment_confirmed');
 
       console.log(`✅ [STRIPE CONFIRM] Pedido ${orderId} confirmado e referência externa salva: ${paymentIntentId}`);
 
