@@ -25,6 +25,7 @@ import CustomerPaymentFixed from "@/pages/customer/payment-fixed";
 import PixPaymentFixed from "@/pages/customer/pix-payment-fixed";
 import CardPayment from "@/pages/customer/card-payment";
 import StripeCheckout from "@/pages/customer/stripe-checkout";
+import PaymentSuccess from "@/pages/customer/payment-success";
 import EcoRewards from "@/pages/customer/eco-rewards";
 import EcoPoints from "@/pages/customer/eco-points";
 import Login from "@/pages/customer/login";
@@ -68,6 +69,8 @@ function Router() {
       <Route path="/customer/payment" component={CustomerPaymentFixed} />
       <Route path="/customer/pix-payment/:orderId" component={PixPaymentFixed} />
       <Route path="/customer/card-payment" component={CardPayment} />
+      <Route path="/customer/stripe-checkout/:orderId" component={StripeCheckout} />
+      <Route path="/customer/payment-success" component={PaymentSuccess} />
       <Route path="/customer/orders" component={CustomerOrders} />
       <Route path="/customer/eco-rewards" component={EcoRewards} />
       <Route path="/customer/eco-points" component={EcoPoints} />

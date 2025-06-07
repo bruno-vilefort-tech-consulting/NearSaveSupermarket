@@ -177,7 +177,8 @@ export default function CustomerPaymentFixed() {
         </Card>
 
         {/* Botão de Pagamento */}
-        <div className="text-center mb-8">
+        <div className="space-y-4 mb-8">
+          {/* PIX Payment Button */}
           <Button
             onClick={handlePayment}
             disabled={isProcessing}
@@ -194,8 +195,22 @@ export default function CustomerPaymentFixed() {
             )}
           </Button>
           
-          <p className="text-xs text-eco-gray mt-3">
-            Você será redirecionado para a tela de pagamento PIX após confirmar
+          <div className="text-center">
+            <p className="text-sm text-eco-gray mb-3">ou</p>
+          </div>
+          
+          {/* Stripe Card Payment Button */}
+          <Button
+            onClick={() => navigate(`/customer/stripe-checkout/${orderData.id}`)}
+            disabled={isProcessing}
+            className="w-full bg-blue-600 hover:bg-blue-700 py-4 text-sm font-semibold shadow-lg rounded-xl text-white"
+            size="lg"
+          >
+            Pagar R$ {parseFloat(orderData.totalAmount).toFixed(2)} com Cartão
+          </Button>
+          
+          <p className="text-xs text-eco-gray text-center mt-3">
+            Escolha entre PIX (instantâneo) ou cartão de crédito/débito
           </p>
         </div>
       </div>
