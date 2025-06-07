@@ -107,6 +107,7 @@ export default function OrderReview() {
               customerPhone: orderData.customerPhone,
               fulfillmentMethod: orderData.deliveryType,
               deliveryAddress: orderData.deliveryAddress,
+              totalAmount: orderData.totalAmount,
               status: 'pending'
             },
             items: orderData.items
