@@ -443,15 +443,21 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
           </div>
         </div>
 
-        {/* Seção de Estorno Parcial */}
+        {/* Seção de Estorno */}
         {order.refundAmount && order.refundStatus && order.refundDate && (
           <div className="pt-2 border-t border-eco-gray-light">
             <div className="bg-eco-blue-light rounded-lg p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-eco-blue" />
                 <h5 className="font-semibold text-eco-blue">
-                  {order.pixPaymentId ? 'Estorno Parcial PIX' : 
-                   order.externalReference ? 'Estorno Parcial Stripe' : 'Estorno Parcial'}
+                  {(() => {
+                    const isFullRefund = parseFloat(order.refundAmount) === parseFloat(order.totalAmount);
+                    const refundType = isFullRefund ? 'Total' : 'Parcial';
+                    
+                    if (order.pixPaymentId) return `Estorno ${refundType} PIX`;
+                    if (order.externalReference) return `Estorno ${refundType} Stripe`;
+                    return `Estorno ${refundType}`;
+                  })()}
                 </h5>
               </div>
               
@@ -464,11 +470,11 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
                 <div className="flex justify-between">
                   <span className="text-eco-gray">Status:</span>
                   <Badge className={`text-xs ${
-                    order.refundStatus === 'approved' ? 'bg-eco-green text-white' :
+                    (order.refundStatus === 'approved' || order.refundStatus === 'succeeded') ? 'bg-eco-green text-white' :
                     order.refundStatus === 'pending' ? 'bg-eco-orange text-white' :
                     'bg-red-500 text-white'
                   }`}>
-                    {order.refundStatus === 'approved' ? 'Aprovado' :
+                    {(order.refundStatus === 'approved' || order.refundStatus === 'succeeded') ? 'Aprovado' :
                      order.refundStatus === 'pending' ? 'Processando' :
                      'Rejeitado'}
                   </Badge>
@@ -506,7 +512,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
                 )}
               </div>
               
-              {order.refundStatus === 'approved' && (
+              {(order.refundStatus === 'approved' || order.refundStatus === 'succeeded') && (
                 <div className="bg-eco-green/10 border border-eco-green/20 rounded p-2">
                   <p className="text-xs text-eco-green font-medium">
                     ✓ Estorno processado com sucesso. O valor será creditado em sua conta em até 1 dia útil.
