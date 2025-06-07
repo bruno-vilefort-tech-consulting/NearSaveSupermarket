@@ -304,10 +304,9 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
 
   const canConfirmOrder = () => {
     // Pedido pode ser confirmado se estiver com status "pending" ou "awaiting_payment" 
-    // e tiver pagamento PIX aprovado
+    // e tiver pagamento aprovado (PIX ou Stripe)
     return (order.status === "pending" || order.status === "awaiting_payment") && 
-           order.externalReference && 
-           order.pixPaymentId;
+           (order.externalReference || order.pixPaymentId);
   };
 
   const handleConfirmOrder = () => {
