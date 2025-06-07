@@ -2639,6 +2639,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe payment confirmation route
+  app.post("/api/payments/stripe/confirm", async (req, res) => {
+    try {
+      const { orderId, paymentIntentId, amount } = req.body;
+      
+      console.log(`✅ [STRIPE CONFIRM] Confirmando pagamento para pedido: ${orderId}, PI: ${paymentIntentId}`);
+      
+      if (!orderId || !paymentIntentId) {
+        return res.status(400).json({ message: "Order ID e Payment Intent ID são obrigatórios" });
+      }
+
+      // Buscar pedido
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      // Verificar payment intent no Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (!paymentIntent || paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ 
+          message: "Payment Intent não está confirmado no Stripe" 
+        });
+      }
+
+      // Atualizar pedido com referência externa e status
+      await storage.updateOrderStatus(parseInt(orderId), 'payment_confirmed', 'STRIPE_PAYMENT');
+      
+      // Salvar referência externa do payment intent
+      await storage.updateOrderExternalReference(parseInt(orderId), paymentIntentId);
+
+      console.log(`✅ [STRIPE CONFIRM] Pedido ${orderId} confirmado e referência externa salva: ${paymentIntentId}`);
+
+      res.json({
+        success: true,
+        message: "Pagamento Stripe confirmado com sucesso",
+        orderId: orderId,
+        paymentIntentId: paymentIntentId
+      });
+
+    } catch (error: any) {
+      console.error('❌ [STRIPE CONFIRM] Erro ao confirmar pagamento:', error);
+      res.status(500).json({ 
+        message: "Erro ao confirmar pagamento", 
+        error: error.message 
+      });
+    }
+  });
+
   // Stripe refund route for card payments
   app.post("/api/payments/stripe/refund", async (req, res) => {
     try {

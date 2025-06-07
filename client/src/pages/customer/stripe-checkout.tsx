@@ -59,11 +59,40 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
         });
       } else if (paymentIntent?.status === 'succeeded') {
         console.log('✅ Pagamento aprovado!');
-        toast({
-          title: "Pagamento Aprovado!",
-          description: "Redirecionando para confirmação...",
-        });
-        setLocation(`/customer/payment-success?orderId=${orderId}`);
+        
+        // Confirmar pagamento no backend e salvar referência externa
+        try {
+          const confirmResponse = await fetch('/api/payments/stripe/confirm', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              orderId: orderId,
+              paymentIntentId: paymentIntent.id,
+              amount: parseFloat(orderData?.totalAmount || '0')
+            })
+          });
+
+          if (confirmResponse.ok) {
+            console.log('✅ Pagamento confirmado no backend');
+            toast({
+              title: "Pagamento Aprovado!",
+              description: "Redirecionando para confirmação...",
+            });
+            setLocation(`/customer/payment-success?orderId=${orderId}`);
+          } else {
+            throw new Error('Erro ao confirmar pagamento no servidor');
+          }
+        } catch (confirmError) {
+          console.error('Erro ao confirmar pagamento:', confirmError);
+          toast({
+            title: "Aviso",
+            description: "Pagamento aprovado, mas houve erro na confirmação. Entre em contato se necessário.",
+            variant: "destructive",
+          });
+          setLocation(`/customer/payment-success?orderId=${orderId}`);
+        }
       } else {
         console.log('⏳ Pagamento em processamento...', paymentIntent?.status);
         toast({

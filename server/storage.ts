@@ -156,6 +156,9 @@ export interface IStorage {
   
   // Order item confirmation operations
   updateOrderItemConfirmationStatus(itemId: number, status: 'confirmed' | 'removed' | 'pending'): Promise<void>;
+  
+  // Order external reference operations
+  updateOrderExternalReference(orderId: number, externalReference: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1632,6 +1635,20 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orderItems.id, itemId));
     
     console.log(`✅ [ITEM STATUS] Item ${itemId} atualizado para status: ${status}`);
+  }
+
+  async updateOrderExternalReference(orderId: number, externalReference: string): Promise<void> {
+    console.log(`🔄 [EXTERNAL REF] Atualizando referência externa do pedido ${orderId}: ${externalReference}`);
+    
+    await db
+      .update(orders)
+      .set({
+        externalReference: externalReference,
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, orderId));
+    
+    console.log(`✅ [EXTERNAL REF] Referência externa do pedido ${orderId} atualizada para: ${externalReference}`);
   }
 }
 

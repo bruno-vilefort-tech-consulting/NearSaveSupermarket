@@ -206,11 +206,18 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
       return response.json();
     },
     onSuccess: (data) => {
+      let description = "Pedido cancelado com sucesso.";
+      
+      if (data.refundProcessed && data.refundInfo) {
+        const method = data.refundInfo.method === 'Stripe' ? 'cartão' : 'PIX';
+        description = `Pedido cancelado com sucesso. Estorno de R$ ${data.refundInfo.amount.toFixed(2)} processado no ${method}.`;
+      } else if (data.refundProcessed) {
+        description = "Pedido cancelado com sucesso. Estorno processado automaticamente.";
+      }
+      
       toast({
         title: "Pedido Cancelado",
-        description: data.refundProcessed 
-          ? "Pedido cancelado com sucesso. Estorno PIX processado automaticamente."
-          : "Pedido cancelado com sucesso.",
+        description: description,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/customer/orders"] });
       setShowCancelConfirm(false);
