@@ -450,7 +450,8 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-eco-blue" />
                 <h5 className="font-semibold text-eco-blue">
-                  {order.pixPaymentId ? 'Estorno Parcial PIX' : 'Estorno Parcial'}
+                  {order.pixPaymentId ? 'Estorno Parcial PIX' : 
+                   order.externalReference ? 'Estorno Parcial Stripe' : 'Estorno Parcial'}
                 </h5>
               </div>
               
