@@ -1616,23 +1616,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/public/orders/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      console.log(`🔍 Public order request for ID: ${id}`);
+      
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid order ID" });
       }
 
       const order = await storage.getOrder(id);
+      console.log(`📦 Order found:`, order ? { id: order.id, status: order.status, amount: order.totalAmount } : 'not found');
+      
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
 
       // Return only essential data for payment processing
-      res.json({
+      const response = {
         id: order.id,
         totalAmount: order.totalAmount,
         customerEmail: order.customerEmail,
         customerName: order.customerName,
         status: order.status
-      });
+      };
+      
+      console.log(`✅ Sending response:`, response);
+      res.json(response);
     } catch (error) {
       console.error("Error fetching public order:", error);
       res.status(500).json({ message: "Failed to fetch order" });
