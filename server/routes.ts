@@ -7,6 +7,7 @@ import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCu
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, cancelPixPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
+import Stripe from "stripe";
 
 // Declaração global para armazenar pedidos temporários
 declare global {
@@ -36,6 +37,14 @@ const upload = multer({
       cb(new Error("Only image files are allowed"));
     }
   },
+});
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -919,6 +928,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('❌ Erro ao verificar status do PIX:', error);
       res.status(500).json({ message: "Erro ao verificar status do pagamento", error: error.message });
+    }
+  });
+
+  // Stripe Payment Routes
+  app.post("/api/payments/stripe/create-payment-intent", async (req, res) => {
+    try {
+      const { amount, orderId, customerEmail } = req.body;
+      
+      if (!amount || !orderId) {
+        return res.status(400).json({ message: "Amount and orderId are required" });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "brl",
+        metadata: {
+          orderId: orderId.toString(),
+          customerEmail: customerEmail || ""
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      console.log('✅ Stripe PaymentIntent criado:', paymentIntent.id);
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error: any) {
+      console.error("❌ Erro ao criar PaymentIntent Stripe:", error);
+      res.status(500).json({ 
+        message: "Erro ao criar intenção de pagamento", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Stripe Webhook
+  app.post("/api/payments/stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+      const sig = req.headers['stripe-signature'];
+      let event;
+
+      try {
+        // Note: In production, you should set up webhook endpoint secret
+        event = stripe.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET || "");
+      } catch (err: any) {
+        console.log(`❌ Webhook signature verification failed.`, err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+      }
+
+      // Handle the event
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object;
+          console.log('✅ Stripe payment succeeded:', paymentIntent.id);
+          
+          // Update order status
+          if (paymentIntent.metadata.orderId) {
+            const orderId = parseInt(paymentIntent.metadata.orderId);
+            await storage.updateOrderPaymentStatus(orderId, 'payment_confirmed');
+            console.log(`✅ Order ${orderId} marked as paid via Stripe`);
+          }
+          break;
+        
+        case 'payment_intent.payment_failed':
+          const failedPayment = event.data.object;
+          console.log('❌ Stripe payment failed:', failedPayment.id);
+          
+          if (failedPayment.metadata.orderId) {
+            const orderId = parseInt(failedPayment.metadata.orderId);
+            await storage.updateOrderPaymentStatus(orderId, 'payment_failed');
+            console.log(`❌ Order ${orderId} marked as payment failed via Stripe`);
+          }
+          break;
+        
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+      }
+
+      res.json({ received: true });
+    } catch (error: any) {
+      console.error("❌ Error processing Stripe webhook:", error);
+      res.status(500).json({ message: "Erro ao processar webhook", error: error.message });
     }
   });
 
