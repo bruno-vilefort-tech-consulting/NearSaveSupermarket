@@ -1858,35 +1858,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (status === "cancelled") {
         const currentOrder = await storage.getOrder(id);
         if (currentOrder && currentOrder.externalReference && !currentOrder.pixPaymentId) {
-          // This is a Stripe order that needs refunding
-          console.log(`🔄 [STRIPE REFUND] Processing refund for Stripe order ${id}, PI: ${currentOrder.externalReference}`);
+          // This is a Stripe order - check if payment was confirmed and needs refunding
+          console.log(`🔍 [STRIPE CHECK] Checking payment status for order ${id}, PI: ${currentOrder.externalReference}`);
           
           try {
-            const refund = await stripe.refunds.create({
-              payment_intent: currentOrder.externalReference,
-              amount: Math.round(parseFloat(currentOrder.totalAmount) * 100), // Convert to cents
-              reason: 'requested_by_customer',
-              metadata: {
-                orderId: id.toString(),
-                reason: 'staff_cancellation'
-              }
-            });
-
-            console.log(`✅ [STRIPE REFUND] Refund successful for order ${id}: ${refund.id}`);
+            // Check payment intent status in Stripe
+            const paymentIntent = await stripe.paymentIntents.retrieve(currentOrder.externalReference);
             
-            // Update order status to cancelled-staff to distinguish from customer cancellations
-            const order = await storage.updateOrderStatus(id, "cancelled-staff", `STAFF_${staffId}`);
-            if (!order) {
-              return res.status(404).json({ message: "Order not found" });
-            }
+            if (paymentIntent.status === 'succeeded') {
+              console.log(`🔄 [STRIPE REFUND] Processing refund for paid Stripe order ${id}, PI: ${currentOrder.externalReference}`);
+              
+              const refund = await stripe.refunds.create({
+                payment_intent: currentOrder.externalReference,
+                amount: Math.round(parseFloat(currentOrder.totalAmount) * 100), // Convert to cents
+                reason: 'requested_by_customer',
+                metadata: {
+                  orderId: id.toString(),
+                  reason: 'staff_cancellation'
+                }
+              });
 
-            res.json({ 
-              ...order, 
-              refundId: refund.id,
-              refundStatus: refund.status,
-              message: "Order cancelled and refund processed successfully"
-            });
-            return;
+              console.log(`✅ [STRIPE REFUND] Refund successful for order ${id}: ${refund.id}`);
+              
+              // Update order status to cancelled-staff to distinguish from customer cancellations
+              const order = await storage.updateOrderStatus(id, "cancelled-staff", `STAFF_${staffId}`);
+              if (!order) {
+                return res.status(404).json({ message: "Order not found" });
+              }
+
+              res.json({ 
+                ...order, 
+                refundId: refund.id,
+                refundStatus: refund.status,
+                message: "Order cancelled and refund processed successfully"
+              });
+              return;
+            } else {
+              console.log(`ℹ️ [STRIPE] Payment not yet succeeded for order ${id}, status: ${paymentIntent.status} - no refund needed`);
+            }
 
           } catch (error) {
             console.error(`❌ [STRIPE REFUND] Failed to process refund for order ${id}:`, error);
