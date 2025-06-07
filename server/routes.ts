@@ -1666,6 +1666,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let refundDetails = null;
 
       // Se há itens não confirmados e valor de estorno, processar estorno automaticamente
+      console.log(`🔍 [ORDER CONFIRM DEBUG] Verificando estorno - refundAmount: ${refundAmount}, pixPaymentId: ${order.pixPaymentId}, externalReference: ${order.externalReference}`);
+      
       if (refundAmount && refundAmount > 0) {
         // Verificar se é PIX (tem pixPaymentId) ou Stripe (tem externalReference)
         if (order.pixPaymentId) {
