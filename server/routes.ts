@@ -1665,42 +1665,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let refundProcessed = false;
       let refundDetails = null;
 
-      // Se há itens não confirmados e valor de estorno, processar estorno PIX
-      if (refundAmount && refundAmount > 0 && order.pixPaymentId) {
-        console.log(`💰 [ORDER CONFIRM] Processando estorno PIX de R$ ${refundAmount}`);
-        
-        try {
-          const refundResult = await createPixRefund({
-            paymentId: order.pixPaymentId,
-            amount: refundAmount,
-            reason: "Confirmação parcial do pedido - itens indisponíveis"
-          });
+      // Se há itens não confirmados e valor de estorno, processar estorno automaticamente
+      if (refundAmount && refundAmount > 0) {
+        // Verificar se é PIX (tem pixPaymentId) ou Stripe (tem externalReference)
+        if (order.pixPaymentId) {
+          console.log(`💰 [ORDER CONFIRM] Processando estorno PIX de R$ ${refundAmount}`);
+          
+          try {
+            const refundResult = await createPixRefund({
+              paymentId: order.pixPaymentId,
+              amount: refundAmount,
+              reason: "Confirmação parcial do pedido - itens indisponíveis"
+            });
 
-          if (refundResult.success) {
-            console.log(`✅ [ORDER CONFIRM] Estorno PIX processado com sucesso:`, refundResult);
+            if (refundResult.success) {
+              console.log(`✅ [ORDER CONFIRM] Estorno PIX processado com sucesso:`, refundResult);
+              refundProcessed = true;
+              refundDetails = refundResult;
+
+              // Atualizar informações de estorno no pedido
+              await storage.updateOrderRefund(orderId, {
+                pixRefundId: refundResult.refundId || '',
+                refundAmount: refundAmount.toString(),
+                refundStatus: refundResult.status || 'pending',
+                refundDate: new Date(),
+                refundReason: "Confirmação parcial - itens indisponíveis"
+              });
+            } else {
+              console.error(`❌ [ORDER CONFIRM] Falha no estorno PIX:`, refundResult.error);
+              return res.status(400).json({ 
+                message: "Erro ao processar estorno PIX", 
+                error: refundResult.error 
+              });
+            }
+          } catch (error) {
+            console.error(`❌ [ORDER CONFIRM] Erro no estorno PIX:`, error);
+            return res.status(500).json({ 
+              message: "Erro interno ao processar estorno PIX" 
+            });
+          }
+        } else if (order.externalReference) {
+          // Estorno Stripe para cancelamento parcial
+          console.log(`💰 [ORDER CONFIRM] Processando estorno Stripe de R$ ${refundAmount} para PI: ${order.externalReference}`);
+          
+          try {
+            // Criar refund no Stripe
+            const refund = await stripe.refunds.create({
+              payment_intent: order.externalReference,
+              amount: Math.round(refundAmount * 100), // Convert to cents
+              reason: 'requested_by_customer',
+              metadata: {
+                order_id: orderId.toString(),
+                refund_type: 'partial_confirmation',
+                refund_reason: 'Confirmação parcial - itens indisponíveis'
+              }
+            });
+
+            console.log(`✅ [ORDER CONFIRM] Estorno Stripe criado com sucesso:`, {
+              refundId: refund.id,
+              amount: refund.amount / 100,
+              status: refund.status,
+              paymentIntent: refund.payment_intent
+            });
+
             refundProcessed = true;
-            refundDetails = refundResult;
+            refundDetails = {
+              refundId: refund.id,
+              status: refund.status,
+              amount: refund.amount / 100
+            };
 
             // Atualizar informações de estorno no pedido
             await storage.updateOrderRefund(orderId, {
-              pixRefundId: refundResult.refundId || '',
+              pixRefundId: refund.id, // Reusing same field for Stripe refund ID
               refundAmount: refundAmount.toString(),
-              refundStatus: refundResult.status || 'pending',
+              refundStatus: refund.status,
               refundDate: new Date(),
               refundReason: "Confirmação parcial - itens indisponíveis"
             });
-          } else {
-            console.error(`❌ [ORDER CONFIRM] Falha no estorno PIX:`, refundResult.error);
-            return res.status(400).json({ 
-              message: "Erro ao processar estorno PIX", 
-              error: refundResult.error 
+
+          } catch (error: any) {
+            console.error(`❌ [ORDER CONFIRM] Erro no estorno Stripe:`, error);
+            return res.status(500).json({ 
+              message: "Erro interno ao processar estorno Stripe",
+              error: error.message 
             });
           }
-        } catch (error) {
-          console.error(`❌ [ORDER CONFIRM] Erro no estorno PIX:`, error);
-          return res.status(500).json({ 
-            message: "Erro interno ao processar estorno PIX" 
-          });
+        } else {
+          console.log(`⚠️ [ORDER CONFIRM] Pedido ${orderId} não tem PIX Payment ID nem Payment Intent ID - não é possível processar estorno automático`);
         }
       }
 
