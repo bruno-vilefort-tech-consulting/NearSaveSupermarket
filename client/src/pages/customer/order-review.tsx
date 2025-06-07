@@ -94,23 +94,25 @@ export default function OrderReview() {
         // Redirecionar para tela de pagamento PIX
         navigate(`/customer/pix-payment/${result.orderId}`);
       } else if (paymentMethod === 'card') {
-        // Criar pedido simples para pagamento por cartão
-        const response = await fetch('/api/orders', {
+        // Criar pedido com status awaiting_payment para Stripe
+        const response = await fetch('/api/public/orders', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            order: {
-              customerName: orderData.customerName,
-              customerEmail: orderData.customerEmail,
-              customerPhone: orderData.customerPhone,
-              fulfillmentMethod: orderData.deliveryType,
-              deliveryAddress: orderData.deliveryAddress,
-              totalAmount: orderData.totalAmount,
-              status: 'pending'
-            },
-            items: orderData.items
+            customerName: orderData.customerName,
+            customerEmail: orderData.customerEmail,
+            customerPhone: orderData.customerPhone,
+            fulfillmentMethod: orderData.deliveryType,
+            deliveryAddress: orderData.deliveryAddress,
+            totalAmount: orderData.totalAmount,
+            paymentMethod: 'stripe',
+            items: orderData.items.map(item => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              priceAtTime: item.priceAtTime
+            }))
           }),
         });
 

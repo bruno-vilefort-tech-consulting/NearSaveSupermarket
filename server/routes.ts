@@ -1146,10 +1146,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public order creation for customers (mantido para compatibilidade)
+  // Public order creation for customers
   app.post("/api/public/orders", async (req, res) => {
     try {
-      const { customerName, customerEmail, customerPhone, fulfillmentMethod, deliveryAddress, totalAmount, items } = req.body;
+      const { customerName, customerEmail, customerPhone, fulfillmentMethod, deliveryAddress, totalAmount, items, paymentMethod } = req.body;
       
       if (!customerName || !customerPhone || !items || items.length === 0) {
         return res.status(400).json({ message: "Missing required fields" });
@@ -1164,11 +1164,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Set appropriate status based on payment method
+      let orderStatus = "pending";
+      if (paymentMethod === "stripe" || paymentMethod === "card") {
+        // For Stripe payments, create order as awaiting payment
+        // This prevents it from appearing in staff interface until payment is confirmed
+        orderStatus = "awaiting_payment";
+      } else if (paymentMethod === "pix") {
+        // PIX payments also start as awaiting payment
+        orderStatus = "awaiting_payment";
+      }
+
       const orderData = {
         customerName,
         customerEmail: userEmail,
         customerPhone,
-        status: "pending",
+        status: orderStatus,
         fulfillmentMethod: fulfillmentMethod || "pickup",
         deliveryAddress: deliveryAddress || null,
         totalAmount
@@ -1181,6 +1192,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }));
 
       const order = await storage.createOrder(orderData, orderItems);
+      
+      console.log(`📦 Order ${order.id} created with status: ${orderStatus} for payment method: ${paymentMethod || 'default'}`);
+      
       res.json(order);
     } catch (error) {
       console.error("Error creating public order:", error);
