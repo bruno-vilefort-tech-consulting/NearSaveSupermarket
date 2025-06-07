@@ -861,64 +861,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Se o pedido tem Stripe Payment Intent associado (sem PIX), processar estorno automático
-      if (order.externalReference && !order.pixPaymentId && !order.pixRefundId) {
+      // Se o pedido tem Stripe Payment Intent associado, processar estorno do valor remanescente
+      if (order.externalReference && !order.pixPaymentId) {
         try {
-          console.log(`🔍 [STRIPE AUTO] Verificando pagamento Stripe para pedido ${orderId}, PI: ${order.externalReference}`);
+          console.log(`🔍 [STRIPE STAFF] Verificando pagamento Stripe para pedido ${orderId}, PI: ${order.externalReference}`);
           
-          // Verificar status do payment intent no Stripe
-          const paymentIntent = await stripe.paymentIntents.retrieve(order.externalReference);
+          // Calcular valor restante para estorno (total pago - já estornado)
+          const totalAmount = parseFloat(order.totalAmount);
+          const alreadyRefunded = order.refundAmount ? parseFloat(order.refundAmount) : 0;
+          const remainingAmount = totalAmount - alreadyRefunded;
           
-          if (paymentIntent.status === 'succeeded') {
-            console.log(`🔄 [STRIPE AUTO] Processando estorno automático Stripe para pedido ${orderId}`);
-            
-            const refund = await stripe.refunds.create({
-              payment_intent: order.externalReference,
-              amount: Math.round(parseFloat(order.totalAmount) * 100), // Convert to cents
-              reason: 'requested_by_customer',
-              metadata: {
-                orderId: orderId,
-                reason: 'staff_cancellation'
-              }
-            });
-
-            console.log(`✅ [STRIPE AUTO] Estorno automático criado: ${refund.id} para pedido ${orderId}`);
-            
-            // Atualizar pedido com dados do estorno
-            await storage.updateOrderRefund(parseInt(orderId), {
-              pixRefundId: refund.id,
-              refundAmount: order.totalAmount,
-              refundStatus: refund.status,
-              refundDate: new Date(),
-              refundReason: 'staff_cancellation'
-            });
-
+          console.log(`💰 [STRIPE STAFF] Valor total: R$ ${totalAmount.toFixed(2)}, já estornado: R$ ${alreadyRefunded.toFixed(2)}, restante: R$ ${remainingAmount.toFixed(2)}`);
+          
+          if (remainingAmount <= 0) {
+            console.log('ℹ️ [STRIPE STAFF] Não há valor restante para estornar');
             refundProcessed = true;
-            refundInfo = {
-              refundId: refund.id,
-              amount: parseFloat(order.totalAmount),
-              status: refund.status
-            };
-
-            console.log(`💰 [STRIPE AUTO] Dados do estorno automático salvos no pedido ${orderId}`);
-            
-            // Enviar notificação push sobre estorno automático
-            try {
-              if (order.customerEmail) {
-                await sendPushNotification(order.customerEmail, {
-                  title: 'Estorno Processado Automaticamente',
-                  body: `Seu estorno de R$ ${parseFloat(order.totalAmount).toFixed(2)} foi processado automaticamente pelo estabelecimento.`,
-                  url: '/customer/orders'
-                });
-              }
-            } catch (notifError) {
-              console.log('⚠️ [STRIPE AUTO] Erro ao enviar notificação de estorno:', notifError);
-            }
           } else {
-            console.log(`ℹ️ [STRIPE AUTO] Payment Intent ${order.externalReference} status: ${paymentIntent.status} - sem estorno necessário`);
+            // Verificar status do payment intent no Stripe
+            const paymentIntent = await stripe.paymentIntents.retrieve(order.externalReference);
+            
+            if (paymentIntent.status === 'succeeded') {
+              console.log(`🔄 [STRIPE STAFF] Processando estorno Stripe do valor remanescente para pedido ${orderId}`);
+              
+              const refund = await stripe.refunds.create({
+                payment_intent: order.externalReference,
+                amount: Math.round(remainingAmount * 100), // Convert to cents
+                reason: 'requested_by_customer',
+                metadata: {
+                  orderId: orderId,
+                  reason: 'staff_cancellation_remaining'
+                }
+              });
+
+              console.log(`✅ [STRIPE STAFF] Estorno do valor remanescente criado: ${refund.id} para pedido ${orderId}`);
+              
+              // Atualizar pedido com dados do estorno (somando ao valor já estornado)
+              await storage.updateOrderRefund(parseInt(orderId), {
+                pixRefundId: refund.id,
+                refundAmount: (alreadyRefunded + remainingAmount).toString(),
+                refundStatus: refund.status,
+                refundDate: new Date(),
+                refundReason: 'staff_cancellation_remaining'
+              });
+
+              refundProcessed = true;
+              refundInfo = {
+                refundId: refund.id,
+                amount: remainingAmount,
+                status: refund.status
+              };
+
+              console.log(`💰 [STRIPE STAFF] Dados do estorno do valor remanescente salvos no pedido ${orderId}`);
+              
+              // Enviar notificação push sobre estorno
+              try {
+                if (order.customerEmail) {
+                  await sendPushNotification(order.customerEmail, {
+                    title: 'Estorno Adicional Processado',
+                    body: `Estorno adicional de R$ ${remainingAmount.toFixed(2)} foi processado pelo estabelecimento.`,
+                    url: '/customer/orders'
+                  });
+                }
+              } catch (notifError) {
+                console.log('⚠️ [STRIPE STAFF] Erro ao enviar notificação de estorno:', notifError);
+              }
+            } else {
+              console.log(`ℹ️ [STRIPE STAFF] Payment Intent ${order.externalReference} status: ${paymentIntent.status} - sem estorno necessário`);
+            }
           }
         } catch (stripeError) {
-          console.error(`❌ [STRIPE AUTO] Erro no processo de estorno automático Stripe para pedido ${orderId}:`, stripeError);
+          console.error(`❌ [STRIPE STAFF] Erro no processo de estorno Stripe para pedido ${orderId}:`, stripeError);
           // Continua com o cancelamento mesmo se o estorno falhar
         }
       }
