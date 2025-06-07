@@ -38,12 +38,17 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
     setIsProcessing(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
+      console.log('🔄 Iniciando confirmação do pagamento...');
+      
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/customer/payment-success?orderId=${orderId}`,
         },
+        redirect: 'if_required'
       });
+
+      console.log('💳 Resultado do pagamento:', { error, paymentIntent });
 
       if (error) {
         console.error('Stripe payment error:', error);
@@ -52,12 +57,25 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
           description: error.message || "Erro ao processar pagamento",
           variant: "destructive",
         });
+      } else if (paymentIntent?.status === 'succeeded') {
+        console.log('✅ Pagamento aprovado!');
+        toast({
+          title: "Pagamento Aprovado!",
+          description: "Redirecionando para confirmação...",
+        });
+        setLocation(`/customer/payment-success?orderId=${orderId}`);
+      } else {
+        console.log('⏳ Pagamento em processamento...', paymentIntent?.status);
+        toast({
+          title: "Pagamento em Processamento",
+          description: "Aguardando confirmação...",
+        });
       }
     } catch (error: any) {
       console.error('Payment submission error:', error);
       toast({
         title: "Erro no Pagamento",
-        description: "Erro inesperado ao processar pagamento",
+        description: error?.message || "Erro inesperado ao processar pagamento",
         variant: "destructive",
       });
     } finally {
