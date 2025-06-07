@@ -166,8 +166,8 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     },
     onSuccess: (data) => {
       toast({
-        title: "Estorno PIX Processado",
-        description: `Estorno PIX realizado com sucesso. ID: ${data.refundId}`,
+        title: "Estorno Processado",
+        description: `Estorno realizado com sucesso. ID: ${data.refundId}`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/staff/orders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
@@ -185,7 +185,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
         return;
       }
       toast({
-        title: "Erro no Estorno PIX",
+        title: "Erro no Estorno",
         description: error.message,
         variant: "destructive",
       });
@@ -455,7 +455,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                   </Button>
                 )}
                 
-                {/* Botão separado para Estorno PIX - apenas para cancelamentos manuais pelo staff sem estorno processado */}
+                {/* Botão separado para Estorno - apenas para cancelamentos manuais pelo staff sem estorno processado */}
                 {order.externalReference && order.pixPaymentId && !order.pixRefundId && !order.refundStatus && order.status === "cancelled-staff" && (
                   <Button 
                     size="sm"
@@ -464,7 +464,7 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
                     disabled={pixRefundMutation.isPending}
                     className="border-eco-blue text-eco-blue hover:bg-eco-blue-light"
                   >
-                    {pixRefundMutation.isPending ? "Processando..." : "Estorno PIX"}
+                    {pixRefundMutation.isPending ? "Processando..." : "Estorno"}
                   </Button>
                 )}
                 

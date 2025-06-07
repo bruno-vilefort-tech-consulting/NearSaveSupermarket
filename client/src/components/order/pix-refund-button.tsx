@@ -122,7 +122,7 @@ export function PixRefundButton({ order }: PixRefundButtonProps) {
           className="text-blue-600 border-blue-200 hover:bg-blue-50"
         >
           <DollarSign size={14} className="mr-1" />
-          Estornar PIX
+          Estorno
         </Button>
       ) : (
         <div className="flex items-center gap-2">
