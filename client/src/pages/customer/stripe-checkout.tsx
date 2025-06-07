@@ -177,7 +177,7 @@ export default function StripeCheckout() {
     const initializePayment = async () => {
       try {
         // Get order details first
-        const orderResponse = await fetch(`/api/public/orders/${params.orderId}`);
+        const orderResponse = await fetch(`/api/public/order/${params.orderId}`);
         if (!orderResponse.ok) {
           throw new Error('Ordem não encontrada');
         }

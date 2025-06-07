@@ -1593,14 +1593,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Test route
-  app.get("/api/public/test", (req, res) => {
-    console.log("🧪 Test route hit");
-    res.json({ message: "Test route works" });
-  });
-
-  // Public order route for Stripe checkout (must be before the authenticated route)
-  app.get("/api/public/orders/:id", async (req, res) => {
+  // Public order route for Stripe checkout by ID
+  app.get("/api/public/order/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       console.log(`🔍 Public order request for ID: ${id}`);
