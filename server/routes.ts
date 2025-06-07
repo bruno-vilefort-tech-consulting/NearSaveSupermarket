@@ -1029,6 +1029,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Amount and orderId are required" });
       }
 
+      // Primeiro, verificar se já existe um PaymentIntent para este pedido
+      const existingOrder = await storage.getOrder(parseInt(orderId));
+      if (existingOrder && existingOrder.externalReference) {
+        console.log(`🔄 PaymentIntent existente encontrado para pedido ${orderId}: ${existingOrder.externalReference}`);
+        
+        try {
+          // Verificar se o PaymentIntent ainda é válido no Stripe
+          const existingPaymentIntent = await stripe.paymentIntents.retrieve(existingOrder.externalReference);
+          
+          if (existingPaymentIntent && existingPaymentIntent.status !== 'succeeded' && existingPaymentIntent.status !== 'canceled') {
+            console.log(`✅ Reutilizando PaymentIntent existente: ${existingPaymentIntent.id}, status: ${existingPaymentIntent.status}`);
+            
+            return res.json({
+              clientSecret: existingPaymentIntent.client_secret,
+              paymentIntentId: existingPaymentIntent.id,
+              adjustedAmount: (existingPaymentIntent.amount / 100).toString(),
+              originalAmount: amount.toString(),
+              reused: true
+            });
+          }
+        } catch (stripeError) {
+          console.log(`⚠️ PaymentIntent existente não encontrado no Stripe: ${existingOrder.externalReference}, criando novo...`);
+        }
+      }
+
       // Stripe requires minimum R$ 0.50 for BRL payments
       const minAmount = 0.50;
       const adjustedAmount = Math.max(amount, minAmount);
@@ -1054,7 +1079,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
         adjustedAmount: adjustedAmount.toString(),
-        originalAmount: amount.toString()
+        originalAmount: amount.toString(),
+        reused: false
       });
     } catch (error: any) {
       console.error("❌ Erro ao criar PaymentIntent Stripe:", error);
