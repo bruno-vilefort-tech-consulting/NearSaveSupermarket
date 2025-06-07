@@ -177,22 +177,30 @@ export default function StripeCheckout() {
     const initializePayment = async () => {
       try {
         // Get order details first
-        const orderResponse = await apiRequest("GET", `/api/public/orders/${params.orderId}`);
+        const orderResponse = await fetch(`/api/public/orders/${params.orderId}`);
         if (!orderResponse.ok) {
           throw new Error('Ordem não encontrada');
         }
         const order = await orderResponse.json();
+        console.log('Order data received:', order);
         setOrderData(order);
 
         // Create payment intent
-        const response = await apiRequest("POST", "/api/payments/stripe/create-payment-intent", {
-          amount: parseFloat(order.totalAmount),
-          orderId: order.id,
-          customerEmail: order.customerEmail || ""
+        const response = await fetch("/api/payments/stripe/create-payment-intent", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: parseFloat(order.totalAmount),
+            orderId: order.id,
+            customerEmail: order.customerEmail || ""
+          })
         });
 
         if (!response.ok) {
-          throw new Error('Erro ao criar intenção de pagamento');
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Erro ao criar intenção de pagamento');
         }
 
         const data = await response.json();

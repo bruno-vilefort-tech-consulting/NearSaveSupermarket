@@ -1593,26 +1593,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/orders/:id", isAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid order ID" });
-      }
-
-      const order = await storage.getOrder(id);
-      if (!order) {
-        return res.status(404).json({ message: "Order not found" });
-      }
-
-      res.json(order);
-    } catch (error) {
-      console.error("Error fetching order:", error);
-      res.status(500).json({ message: "Failed to fetch order" });
-    }
+  // Test route
+  app.get("/api/public/test", (req, res) => {
+    console.log("🧪 Test route hit");
+    res.json({ message: "Test route works" });
   });
 
-  // Public order route for Stripe checkout
+  // Public order route for Stripe checkout (must be before the authenticated route)
   app.get("/api/public/orders/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -1642,6 +1629,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(response);
     } catch (error) {
       console.error("Error fetching public order:", error);
+      res.status(500).json({ message: "Failed to fetch order" });
+    }
+  });
+
+  app.get("/api/orders/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+
+      const order = await storage.getOrder(id);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      res.json(order);
+    } catch (error) {
+      console.error("Error fetching order:", error);
       res.status(500).json({ message: "Failed to fetch order" });
     }
   });
