@@ -964,12 +964,17 @@ export class DatabaseStorage implements IStorage {
             }
             
             if (currentOrder.lastManualStatus && currentOrder.status !== currentOrder.lastManualStatus) {
-              console.log(`🚨 PROTECTION ACTIVATED: Automatic status change detected for order ${orderId} from ${currentOrder.status} back to ${currentOrder.lastManualStatus}`);
-              
-              // Use the secure updateOrderStatus method with PROTECTION_SYSTEM identifier
-              await this.updateOrderStatus(orderId, currentOrder.lastManualStatus, 'PROTECTION_SYSTEM');
+              // Skip protection for Stripe orders awaiting payment - this is expected behavior
+              if (currentOrder.status === 'awaiting_payment' && currentOrder.externalReference && !currentOrder.pixPaymentId) {
+                console.log(`💳 STRIPE ORDER: Order ${orderId} is Stripe payment awaiting confirmation - protection skipped`);
+              } else {
+                console.log(`🚨 PROTECTION ACTIVATED: Automatic status change detected for order ${orderId} from ${currentOrder.status} back to ${currentOrder.lastManualStatus}`);
                 
-              console.log(`✅ PROTECTION SUCCESS: Order ${orderId} status reverted to ${currentOrder.lastManualStatus}`);
+                // Use the secure updateOrderStatus method with PROTECTION_SYSTEM identifier
+                await this.updateOrderStatus(orderId, currentOrder.lastManualStatus, 'PROTECTION_SYSTEM');
+                  
+                console.log(`✅ PROTECTION SUCCESS: Order ${orderId} status reverted to ${currentOrder.lastManualStatus}`);
+              }
             } else {
               console.log(`✓ PROTECTION OK: Order ${orderId} status unchanged`);
             }
