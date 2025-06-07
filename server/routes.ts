@@ -1880,6 +1880,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
               console.log(`✅ [STRIPE REFUND] Refund successful for order ${id}: ${refund.id}`);
               
+              // Update order with refund data first
+              await storage.updateOrderRefund(id, {
+                pixRefundId: refund.id,
+                refundAmount: currentOrder.totalAmount,
+                refundStatus: refund.status,
+                refundDate: new Date(),
+                refundReason: 'staff_cancellation'
+              });
+              
+              console.log(`✅ [REFUND] Pedido ${id} atualizado com dados de estorno: {
+  pixRefundId: '${refund.id}',
+  refundAmount: '${currentOrder.totalAmount}',
+  refundStatus: '${refund.status}',
+  refundDate: ${new Date().toISOString()},
+  refundReason: 'staff_cancellation'
+}`);
+              
               // Update order status to cancelled-staff to distinguish from customer cancellations
               const order = await storage.updateOrderStatus(id, "cancelled-staff", `STAFF_${staffId}`);
               if (!order) {
