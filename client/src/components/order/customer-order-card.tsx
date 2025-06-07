@@ -36,6 +36,7 @@ interface CustomerOrderCardProps {
     pixPaymentId?: string;
     pixCopyPaste?: string;
     pixExpirationDate?: string;
+    externalReference?: string;
     refundStatus?: string;
     refundAmount?: string;
     refundDate?: string;
@@ -442,13 +443,15 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
           </div>
         </div>
 
-        {/* Seção de Estorno Parcial PIX */}
+        {/* Seção de Estorno Parcial */}
         {order.refundAmount && order.refundStatus && order.refundDate && (
           <div className="pt-2 border-t border-eco-gray-light">
             <div className="bg-eco-blue-light rounded-lg p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-eco-blue" />
-                <h5 className="font-semibold text-eco-blue">Estorno Parcial PIX</h5>
+                <h5 className="font-semibold text-eco-blue">
+                  {order.pixPaymentId ? 'Estorno Parcial PIX' : 'Estorno Parcial'}
+                </h5>
               </div>
               
               <div className="space-y-2 text-sm">

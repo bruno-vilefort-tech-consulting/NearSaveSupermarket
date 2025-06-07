@@ -2839,6 +2839,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to check Stripe refund status
+  app.post("/api/test/stripe-refund-check", async (req, res) => {
+    try {
+      const { refundId } = req.body;
+      
+      if (!refundId) {
+        return res.status(400).json({ message: "Refund ID é obrigatório" });
+      }
+
+      console.log(`🔍 [STRIPE CHECK] Verificando refund: ${refundId}`);
+      
+      // Check if refund exists in Stripe
+      const refund = await stripe.refunds.retrieve(refundId);
+      
+      console.log(`✅ [STRIPE CHECK] Refund encontrado:`, refund);
+      
+      res.json({
+        success: true,
+        refund: {
+          id: refund.id,
+          status: refund.status,
+          amount: refund.amount / 100, // Convert from cents
+          created: refund.created,
+          payment_intent: refund.payment_intent,
+          reason: refund.reason
+        }
+      });
+
+    } catch (error: any) {
+      console.error('❌ [STRIPE CHECK] Erro:', error.message);
+      res.status(500).json({ 
+        success: false,
+        message: "Erro ao verificar refund", 
+        error: error.message 
+      });
+    }
+  });
+
   // Test endpoint para criar pedido com pagamento Stripe real para teste
   app.post("/api/test/create-stripe-order", async (req, res) => {
     try {
