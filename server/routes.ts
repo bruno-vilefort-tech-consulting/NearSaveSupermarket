@@ -1855,9 +1855,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`MANUAL STATUS UPDATE: Order ${id} status changed to ${status} by staff ${staffId}`);
       
       // If cancelling, check if we need to process Stripe refund
-      if (status === "cancelled") {
+      if (status === "cancelled" || status === "cancelled-staff") {
         const currentOrder = await storage.getOrder(id);
-        if (currentOrder && currentOrder.externalReference && !currentOrder.pixPaymentId) {
+        if (currentOrder && currentOrder.externalReference && !currentOrder.pixPaymentId && !currentOrder.pixRefundId) {
           // This is a Stripe order - check if payment was confirmed and needs refunding
           console.log(`🔍 [STRIPE CHECK] Checking payment status for order ${id}, PI: ${currentOrder.externalReference}`);
           
