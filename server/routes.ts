@@ -1853,6 +1853,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`MANUAL STATUS UPDATE: Order ${id} status changed to ${status} by staff ${staffId}`);
+      
+      // If cancelling, check if we need to process Stripe refund
+      if (status === "cancelled") {
+        const currentOrder = await storage.getOrder(id);
+        if (currentOrder && currentOrder.externalReference && !currentOrder.pixPaymentId) {
+          // This is a Stripe order that needs refunding
+          console.log(`🔄 [STRIPE REFUND] Processing refund for Stripe order ${id}, PI: ${currentOrder.externalReference}`);
+          
+          try {
+            const refund = await stripe.refunds.create({
+              payment_intent: currentOrder.externalReference,
+              amount: Math.round(parseFloat(currentOrder.totalAmount) * 100), // Convert to cents
+              reason: 'requested_by_customer',
+              metadata: {
+                orderId: id.toString(),
+                reason: 'staff_cancellation'
+              }
+            });
+
+            console.log(`✅ [STRIPE REFUND] Refund successful for order ${id}: ${refund.id}`);
+            
+            // Update order status to cancelled-staff to distinguish from customer cancellations
+            const order = await storage.updateOrderStatus(id, "cancelled-staff", `STAFF_${staffId}`);
+            if (!order) {
+              return res.status(404).json({ message: "Order not found" });
+            }
+
+            res.json({ 
+              ...order, 
+              refundId: refund.id,
+              refundStatus: refund.status,
+              message: "Order cancelled and refund processed successfully"
+            });
+            return;
+
+          } catch (error) {
+            console.error(`❌ [STRIPE REFUND] Failed to process refund for order ${id}:`, error);
+            return res.status(500).json({ 
+              message: "Failed to process refund. Order not cancelled.", 
+              error: error.message 
+            });
+          }
+        }
+      }
+
       const order = await storage.updateOrderStatus(id, status, `STAFF_${staffId}`);
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
