@@ -57,41 +57,75 @@ export default function OrderReview() {
     setIsProcessing(true);
 
     try {
-      // Criar pedido com status awaiting_payment
-      const response = await fetch('/api/orders/create-with-pix', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerName: orderData.customerName,
-          customerEmail: orderData.customerEmail,
-          customerPhone: orderData.customerPhone,
-          totalAmount: orderData.totalAmount,
-          items: orderData.items
-        }),
-      });
+      if (paymentMethod === 'pix') {
+        // Criar pedido com status awaiting_payment para PIX
+        const response = await fetch('/api/orders/create-with-pix', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerName: orderData.customerName,
+            customerEmail: orderData.customerEmail,
+            customerPhone: orderData.customerPhone,
+            totalAmount: orderData.totalAmount,
+            items: orderData.items
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Erro ao criar pedido');
+        if (!response.ok) {
+          throw new Error('Erro ao criar pedido');
+        }
+
+        const result = await response.json();
+        
+        // Limpar carrinho e dados de revisão
+        localStorage.removeItem('cart');
+        localStorage.removeItem('orderReview');
+        
+        // Salvar dados do pagamento PIX
+        localStorage.setItem('pixPaymentData', JSON.stringify({
+          orderId: result.orderId,
+          pixPayment: result.pixPayment,
+          expirationDate: result.expirationDate,
+          customerData: orderData
+        }));
+
+        // Redirecionar para tela de pagamento PIX
+        navigate(`/customer/pix-payment/${result.orderId}`);
+      } else if (paymentMethod === 'card') {
+        // Criar pedido simples para pagamento por cartão
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            order: {
+              customerName: orderData.customerName,
+              customerEmail: orderData.customerEmail,
+              customerPhone: orderData.customerPhone,
+              fulfillmentMethod: orderData.deliveryType,
+              deliveryAddress: orderData.deliveryAddress,
+              status: 'pending'
+            },
+            items: orderData.items
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao criar pedido');
+        }
+
+        const result = await response.json();
+        
+        // Limpar carrinho e dados de revisão
+        localStorage.removeItem('cart');
+        localStorage.removeItem('orderReview');
+
+        // Redirecionar para checkout Stripe
+        navigate(`/customer/stripe-checkout/${result.id}`);
       }
-
-      const result = await response.json();
-      
-      // Limpar carrinho e dados de revisão
-      localStorage.removeItem('cart');
-      localStorage.removeItem('orderReview');
-      
-      // Salvar dados do pagamento PIX
-      localStorage.setItem('pixPaymentData', JSON.stringify({
-        orderId: result.orderId,
-        pixPayment: result.pixPayment,
-        expirationDate: result.expirationDate,
-        customerData: orderData
-      }));
-
-      // Redirecionar para tela de pagamento PIX
-      navigate(`/customer/pix-payment/${result.orderId}`);
       
     } catch (error) {
       console.error('Erro ao criar pedido:', error);
@@ -266,6 +300,30 @@ export default function OrderReview() {
                   <div>
                     <p className="font-medium text-eco-gray-dark">PIX</p>
                     <p className="text-xs text-eco-gray">Pagamento instantâneo</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div 
+                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  paymentMethod === 'card' 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-eco-gray-light hover:border-blue-500/50'
+                }`}
+                onClick={() => setPaymentMethod('card')}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    paymentMethod === 'card' ? 'border-blue-500 bg-blue-500' : 'border-eco-gray-light'
+                  }`}>
+                    {paymentMethod === 'card' && (
+                      <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                    )}
+                  </div>
+                  <CreditCard className="h-5 w-5 text-blue-500" />
+                  <div>
+                    <p className="font-medium text-eco-gray-dark">Cartão</p>
+                    <p className="text-xs text-eco-gray">Crédito ou débito</p>
                   </div>
                 </div>
               </div>
