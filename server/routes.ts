@@ -1854,9 +1854,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`MANUAL STATUS UPDATE: Order ${id} status changed to ${status} by staff ${staffId}`);
       
-      // If cancelling, check if we need to process Stripe refund
+      // If cancelling, check if we need to process Stripe refund BEFORE status change
       if (status === "cancelled" || status === "cancelled-staff") {
+        console.log(`🔍 [AUTO REFUND] Checking order ${id} for automatic refund processing`);
         const currentOrder = await storage.getOrder(id);
+        
+        console.log(`🔍 [AUTO REFUND] Order ${id} details:`, {
+          hasOrder: !!currentOrder,
+          externalReference: currentOrder?.externalReference,
+          pixPaymentId: currentOrder?.pixPaymentId,
+          pixRefundId: currentOrder?.pixRefundId,
+          status: currentOrder?.status
+        });
+        
         if (currentOrder && currentOrder.externalReference && !currentOrder.pixPaymentId && !currentOrder.pixRefundId) {
           // This is a Stripe order - check if payment was confirmed and needs refunding
           console.log(`🔍 [STRIPE CHECK] Checking payment status for order ${id}, PI: ${currentOrder.externalReference}`);
