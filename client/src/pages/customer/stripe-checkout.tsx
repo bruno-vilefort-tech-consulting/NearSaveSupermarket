@@ -101,7 +101,23 @@ const CheckoutForm = ({ orderId, amount, customerEmail }: CheckoutFormProps) => 
               </div>
               <CardTitle>Finalizar Pagamento</CardTitle>
               <CardDescription>
-                Total: <span className="font-semibold text-lg text-eco-green">{formatCurrency(amount)}</span>
+                {orderData?.originalAmount && parseFloat(orderData.originalAmount) !== amount ? (
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-500">
+                      Valor original: <span className="line-through">{formatCurrency(parseFloat(orderData.originalAmount))}</span>
+                    </div>
+                    <div>
+                      Total ajustado: <span className="font-semibold text-lg text-eco-green">{formatCurrency(amount)}</span>
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      *Valor mínimo exigido para pagamentos com cartão
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    Total: <span className="font-semibold text-lg text-eco-green">{formatCurrency(amount)}</span>
+                  </div>
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -205,6 +221,15 @@ export default function StripeCheckout() {
 
         const data = await response.json();
         setClientSecret(data.clientSecret);
+        
+        // Update order data with adjusted amount if different
+        if (data.adjustedAmount && parseFloat(data.adjustedAmount) !== parseFloat(order.totalAmount)) {
+          setOrderData({
+            ...order,
+            totalAmount: data.adjustedAmount,
+            originalAmount: order.totalAmount
+          });
+        }
       } catch (error: any) {
         console.error('Error initializing payment:', error);
         toast({

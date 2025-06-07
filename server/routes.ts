@@ -940,12 +940,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Amount and orderId are required" });
       }
 
+      // Stripe requires minimum R$ 0.50 for BRL payments
+      const minAmount = 0.50;
+      const adjustedAmount = Math.max(amount, minAmount);
+      
+      console.log(`💳 Stripe payment: Original amount R$ ${amount}, Adjusted amount R$ ${adjustedAmount}`);
+
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
+        amount: Math.round(adjustedAmount * 100), // Convert to cents
         currency: "brl",
         metadata: {
           orderId: orderId.toString(),
-          customerEmail: customerEmail || ""
+          customerEmail: customerEmail || "",
+          originalAmount: amount.toString(),
+          adjustedAmount: adjustedAmount.toString()
         },
         automatic_payment_methods: {
           enabled: true,
@@ -955,7 +963,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('✅ Stripe PaymentIntent criado:', paymentIntent.id);
       res.json({ 
         clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
+        paymentIntentId: paymentIntent.id,
+        adjustedAmount: adjustedAmount.toString(),
+        originalAmount: amount.toString()
       });
     } catch (error: any) {
       console.error("❌ Erro ao criar PaymentIntent Stripe:", error);
