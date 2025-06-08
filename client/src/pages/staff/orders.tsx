@@ -89,13 +89,32 @@ function StaffOrders() {
   });
 
   const filteredOrders = orders.filter((order: Order) => {
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+    let matchesStatus = false;
+    if (statusFilter === "all") {
+      matchesStatus = true;
+    } else if (statusFilter === "cancelled") {
+      // Inclui todos os tipos de cancelamento
+      matchesStatus = order.status === "cancelled" || 
+                    order.status === "cancelled-customer" || 
+                    order.status === "cancelled-staff";
+    } else {
+      matchesStatus = order.status === statusFilter;
+    }
+    
     const matchesMethod = methodFilter === "all" || order.fulfillmentMethod === methodFilter;
     return matchesStatus && matchesMethod;
   });
 
   const getStatusCount = (status: string) => {
     if (status === "all") return orders.length;
+    if (status === "cancelled") {
+      // Conta todos os tipos de cancelamento: cliente e staff
+      return orders.filter((order: Order) => 
+        order.status === "cancelled" || 
+        order.status === "cancelled-customer" || 
+        order.status === "cancelled-staff"
+      ).length;
+    }
     return orders.filter((order: Order) => order.status === status).length;
   };
 
