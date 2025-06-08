@@ -51,6 +51,25 @@ function StaffOrders() {
   const { data: orders = [], isLoading, error } = useQuery<Order[]>({
     queryKey: ["/api/staff/orders"],
     retry: false,
+    queryFn: async () => {
+      const staffUser = localStorage.getItem('staffInfo');
+      if (!staffUser) {
+        throw new Error('Staff não autenticado');
+      }
+      
+      const parsed = JSON.parse(staffUser);
+      const response = await fetch('/api/staff/orders', {
+        headers: {
+          'X-Staff-Id': parsed.id.toString()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      
+      return response.json();
+    }
   });
 
   const formatCurrency = (value: string) => {
