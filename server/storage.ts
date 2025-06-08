@@ -1392,11 +1392,11 @@ export class DatabaseStorage implements IStorage {
 
     const commercialRate = Number(staffInfo?.commercialRate || 5.00); // Default 5% if not found
 
-    // Get unique completed orders that contain this staff's products
-    const completedOrdersQuery = await db
+    // Calculate revenue from confirmed order items only
+    const confirmedItemsQuery = await db
       .select({ 
-        orderId: orders.id,
-        totalAmount: orders.totalAmount
+        priceAtTime: orderItems.priceAtTime,
+        quantity: orderItems.quantity
       })
       .from(orders)
       .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -1404,14 +1404,14 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(products.createdByStaff, staffId),
-          eq(orders.status, "completed")
+          eq(orders.status, "completed"),
+          eq(orderItems.confirmationStatus, "confirmed")
         )
-      )
-      .groupBy(orders.id, orders.totalAmount);
+      );
 
-    // Calculate total revenue from unique orders
-    const grossRevenue = completedOrdersQuery.reduce((sum, order) => {
-      return sum + Number(order.totalAmount);
+    // Calculate total revenue from confirmed items only
+    const grossRevenue = confirmedItemsQuery.reduce((sum, item) => {
+      return sum + (Number(item.priceAtTime) * Number(item.quantity));
     }, 0);
     const commission = grossRevenue * (commercialRate / 100);
     const netRevenue = grossRevenue - commission;
