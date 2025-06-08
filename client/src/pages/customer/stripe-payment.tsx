@@ -29,32 +29,41 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
     event.preventDefault();
 
     if (!stripe || !elements) {
+      console.log('Stripe não inicializado');
       return;
     }
 
     setIsLoading(true);
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: window.location.origin + '/payment-success',
-      },
-    });
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: window.location.origin + '/payment-success',
+        },
+      });
 
-    if (error) {
+      if (error) {
+        console.error('Erro no pagamento Stripe:', error);
+        toast({
+          title: "Erro no Pagamento",
+          description: error.message || "Ocorreu um erro durante o pagamento",
+          variant: "destructive",
+        });
+      } else {
+        console.log('Pagamento Stripe bem-sucedido');
+        // O redirecionamento será automático
+      }
+    } catch (err) {
+      console.error('Erro inesperado no pagamento:', err);
       toast({
         title: "Erro no Pagamento",
-        description: error.message,
+        description: "Ocorreu um erro inesperado. Tente novamente.",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Pagamento Realizado",
-        description: "Seu pagamento foi processado com sucesso!",
-      });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -81,19 +90,37 @@ export default function StripePayment() {
   const [isCreatingPayment, setIsCreatingPayment] = useState(true);
 
   useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('Erro não tratado no Stripe:', event.reason);
+      event.preventDefault();
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
     // Carrega itens do carrinho
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
-      const parsedCart = JSON.parse(savedCart);
-      setCartItems(parsedCart);
-      
-      // Calcula o total e cria o payment intent
-      const total = parsedCart.reduce((sum: number, item: CartItem) => {
-        return sum + (parseFloat(item.discountPrice) * item.quantity);
-      }, 0);
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        setCartItems(parsedCart);
+        
+        // Calcula o total e cria o payment intent
+        const total = parsedCart.reduce((sum: number, item: CartItem) => {
+          return sum + (parseFloat(item.discountPrice) * item.quantity);
+        }, 0);
 
-      createPaymentIntent(total);
+        createPaymentIntent(total);
+      } catch (error) {
+        console.error('Erro ao processar carrinho:', error);
+        setIsCreatingPayment(false);
+      }
+    } else {
+      setIsCreatingPayment(false);
     }
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
   }, []);
 
   const createPaymentIntent = async (amount: number) => {
