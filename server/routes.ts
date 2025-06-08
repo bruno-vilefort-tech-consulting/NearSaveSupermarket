@@ -3602,6 +3602,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin routes for supermarket management
+  app.get("/api/admin/supermarkets", async (req, res) => {
+    try {
+      const supermarkets = await storage.getAllStaffUsers();
+      
+      // Remove passwords from response
+      const sanitizedSupermarkets = supermarkets.map(staff => {
+        const { password, ...staffWithoutPassword } = staff;
+        return staffWithoutPassword;
+      });
+      
+      res.json(sanitizedSupermarkets);
+    } catch (error: any) {
+      console.error("Error fetching supermarkets:", error);
+      res.status(500).json({ message: "Failed to fetch supermarkets" });
+    }
+  });
+
+  app.post("/api/admin/supermarkets", async (req, res) => {
+    try {
+      const supermarketData = req.body;
+      const newSupermarket = await storage.createStaffUser(supermarketData);
+      
+      // Remove password from response
+      const { password, ...staffResponse } = newSupermarket;
+      res.json(staffResponse);
+    } catch (error: any) {
+      console.error("Error creating supermarket:", error);
+      res.status(500).json({ message: "Failed to create supermarket" });
+    }
+  });
+
+  app.put("/api/admin/supermarkets/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      // Update basic supermarket info
+      await storage.updateStaffData(parseInt(id), updateData);
+      
+      // Update approval status if provided
+      if (updateData.approvalStatus) {
+        if (updateData.approvalStatus === 'approved') {
+          await storage.approveStaffUser(parseInt(id), 1); // Assuming admin ID 1
+        } else if (updateData.approvalStatus === 'rejected') {
+          await storage.rejectStaffUser(parseInt(id), 1, updateData.rejectionReason || 'Rejeitado pelo administrador');
+        }
+      }
+      
+      res.json({ message: "Supermarket updated successfully" });
+    } catch (error: any) {
+      console.error("Error updating supermarket:", error);
+      res.status(500).json({ message: "Failed to update supermarket" });
+    }
+  });
+
+  app.delete("/api/admin/supermarkets/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Deactivate instead of hard delete
+      await storage.updateStaffData(parseInt(id), { isActive: 0 });
+      
+      res.json({ message: "Supermarket deactivated successfully" });
+    } catch (error: any) {
+      console.error("Error deactivating supermarket:", error);
+      res.status(500).json({ message: "Failed to deactivate supermarket" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

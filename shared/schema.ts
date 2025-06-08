@@ -61,6 +61,8 @@ export const staffUsers = pgTable("staff_users", {
   approvedBy: integer("approved_by").references(() => adminUsers.id),
   approvedAt: timestamp("approved_at"),
   rejectionReason: text("rejection_reason"),
+  commercialRate: numeric("commercial_rate", { precision: 5, scale: 2 }).default("5.00"), // Taxa comercial em %
+  paymentTerms: integer("payment_terms").default(30), // Prazo de pagamento em dias
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

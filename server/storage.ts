@@ -1735,6 +1735,10 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ [SPONSORSHIP] Staff ${staffId} patrocínio atualizado para: ${isSponsored ? 'ATIVO' : 'INATIVO'}`);
   }
 
+  async getAllStaffUsers(): Promise<StaffUser[]> {
+    return await db.select().from(staffUsers).orderBy(staffUsers.createdAt);
+  }
+
   // Admin user operations
   async getAdminUserByEmail(email: string): Promise<AdminUser | undefined> {
     const [adminUser] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
