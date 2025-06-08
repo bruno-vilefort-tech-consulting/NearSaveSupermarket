@@ -1392,8 +1392,6 @@ export class DatabaseStorage implements IStorage {
     const commission = grossRevenue * (commercialRate / 100);
     const netRevenue = grossRevenue - commission;
 
-    console.log(`💰 [STATS] Staff ${staffId} - Gross: ${grossRevenue}, Rate: ${commercialRate}%, Commission: ${commission}, Net: ${netRevenue}`);
-
     return {
       activeProducts: Number(activeProductsResult.count),
       pendingOrders: Number(pendingOrdersCount),
