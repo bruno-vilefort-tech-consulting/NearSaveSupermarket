@@ -231,9 +231,6 @@ export default function CartFinal() {
                       
                       <div className="flex-1">
                         <h3 className="font-semibold text-eco-gray-dark">{item.name}</h3>
-                        {item.supermarketName && (
-                          <p className="text-sm text-eco-gray">{item.supermarketName}</p>
-                        )}
                         
                         <div className="flex items-center space-x-2 mt-1">
                           <span className="text-lg font-bold text-eco-green">
