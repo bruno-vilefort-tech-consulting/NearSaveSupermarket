@@ -43,7 +43,7 @@ export default function CustomerLogin() {
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
       setErrorMessage(""); // Limpar erro anterior
-      const response = await apiRequest("POST", "/api/login", data);
+      const response = await apiRequest("POST", "/api/customer/login", data);
       return response.json();
     },
     onSuccess: (data) => {
