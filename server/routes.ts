@@ -277,6 +277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         originalPrice: req.body.originalPrice.toString(),
         discountPrice: req.body.discountPrice.toString(),
         quantity: parseInt(req.body.quantity),
+        isActive: 1, // Set as active by default for new products
       });
 
       let imageUrl = req.body.imageUrl || null;
@@ -324,6 +325,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Handle new image upload
       if (req.file) {
         updateData.imageUrl = `/uploads/${req.file.filename}`;
+      }
+
+      // Ensure isActive is properly handled if provided
+      if (req.body.isActive !== undefined) {
+        updateData.isActive = parseInt(req.body.isActive) || 1;
       }
 
       const productData = insertProductSchema.partial().parse(updateData);

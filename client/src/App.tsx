@@ -80,6 +80,14 @@ function Router() {
       <Route path="/staff/dashboard" component={StaffDashboard} />
       <Route path="/staff/products" component={StaffProducts} />
       
+      {/* Staff App Routes (Brazilian Portuguese URLs) */}
+      <Route path="/supermercado" component={StaffLanding} />
+      <Route path="/supermercado/login" component={StaffLogin} />
+      <Route path="/supermercado/register" component={StaffRegister} />
+      <Route path="/supermercado/dashboard" component={StaffDashboard} />
+      <Route path="/supermercado/products" component={StaffProducts} />
+      <Route path="/supermercado/produtos" component={StaffProducts} />
+      
       {/* Admin App Routes */}
       <Route path="/admin" component={AdminLogin} />
       <Route path="/admin/login" component={AdminLogin} />
