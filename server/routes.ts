@@ -1338,6 +1338,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public endpoint to get specific order by ID
+  app.get("/api/public/order/:id", async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "ID do pedido inválido" });
+      }
+
+      const order = await storage.getOrder(orderId);
+      
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      // Include PIX data in response for payment screen
+      const response = {
+        id: order.id,
+        customerName: order.customerName,
+        customerEmail: order.customerEmail,
+        customerPhone: order.customerPhone,
+        totalAmount: order.totalAmount,
+        status: order.status,
+        pixPaymentId: order.pixPaymentId,
+        pixCopyPaste: order.pixCopyPaste,
+        pixExpirationDate: order.pixExpirationDate,
+        items: order.orderItems?.map(item => ({
+          productName: item.productName || 'Produto',
+          quantity: item.quantity,
+          priceAtTime: item.priceAtTime
+        })) || []
+      };
+
+      res.json(response);
+    } catch (error) {
+      console.error("Error fetching order:", error);
+      res.status(500).json({ message: "Failed to fetch order" });
+    }
+  });
+
   // Public endpoint to get eco actions by email or phone
   app.get("/api/public/eco-actions/:identifier", async (req, res) => {
     try {

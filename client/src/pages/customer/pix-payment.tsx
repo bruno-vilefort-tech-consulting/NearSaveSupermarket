@@ -92,10 +92,38 @@ export default function PixPayment() {
     try {
       setIsLoading(true);
       
-      // Get PIX data from localStorage (saved in payment-method.tsx)
+      // Get order data from API first
+      const orderResponse = await fetch(`/api/public/order/${orderId}`);
+      if (!orderResponse.ok) {
+        throw new Error('Failed to fetch order data');
+      }
+      
+      const order = await orderResponse.json();
+      console.log('Order data loaded:', order);
+      setOrderData(order);
+      
+      // Try to get PIX data from localStorage first
       const pixDataStr = localStorage.getItem(`pixData_${orderId}`);
-      if (!pixDataStr) {
-        console.error('PIX data not found in localStorage for order:', orderId);
+      
+      if (pixDataStr) {
+        const pixPaymentData = JSON.parse(pixDataStr);
+        console.log('PIX data loaded from localStorage:', pixPaymentData);
+        setPixData(pixPaymentData);
+        setPaymentStatus('pending');
+      } else if (order.pixPaymentId && order.pixCopyPaste) {
+        // Fallback: create PIX data from order data
+        console.log('PIX data not in localStorage, using order data as fallback');
+        const pixPaymentData = {
+          id: order.pixPaymentId,
+          pixCopyPaste: order.pixCopyPaste,
+          expirationDate: order.pixExpirationDate || new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+          status: 'pending'
+        };
+        
+        setPixData(pixPaymentData);
+        setPaymentStatus('pending');
+      } else {
+        console.error('No PIX data available for order:', orderId);
         toast({
           title: "Erro",
           description: "Dados do PIX não encontrados",
@@ -104,22 +132,6 @@ export default function PixPayment() {
         setLocation('/home');
         return;
       }
-
-      const pixPaymentData = JSON.parse(pixDataStr);
-      console.log('PIX data loaded from localStorage:', pixPaymentData);
-      
-      // Get order data from API
-      const orderResponse = await fetch(`/api/orders/${orderId}`);
-      if (!orderResponse.ok) {
-        throw new Error('Failed to fetch order data');
-      }
-      
-      const order = await orderResponse.json();
-      console.log('Order data loaded:', order);
-      
-      setOrderData(order);
-      setPixData(pixPaymentData);
-      setPaymentStatus('pending');
       
     } catch (error) {
       console.error('Error initializing PIX payment:', error);
