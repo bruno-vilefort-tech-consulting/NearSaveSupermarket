@@ -35,12 +35,9 @@ export default function CartPagePt() {
     localStorage.removeItem('translation-cache');
     sessionStorage.removeItem('cart-cache');
     
-    // Force reload if still showing cached content
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('v')) {
-      window.location.search = '?v=' + Date.now();
-      return;
-    }
+    // Force document language to Portuguese
+    document.documentElement.lang = 'pt-BR';
+    document.title = 'Carrinho - SaveUp';
     
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -53,7 +50,10 @@ export default function CartPagePt() {
     }
     
     // Debug log to verify component is loading
-    console.log('🛒 CartPagePt v2024 loaded successfully');
+    console.log('🛒 CartPagePt PORTUGUESE v2024 loaded successfully');
+    console.log('🔍 Current URL:', window.location.href);
+    console.log('🔍 Component name: CartPagePt');
+    console.log('🔍 Document title:', document.title);
   }, []);
 
   const updateQuantity = (id: number, newQuantity: number) => {
