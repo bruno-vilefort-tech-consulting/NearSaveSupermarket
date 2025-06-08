@@ -250,14 +250,14 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
     const date = new Date(dateString);
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+    if (diffInMinutes < 1) return "Agora mesmo";
+    if (diffInMinutes < 60) return `${diffInMinutes} min atrás`;
     
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 24) return `${diffInHours}h atrás`;
     
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d ago`;
+    return `${diffInDays}d atrás`;
   };
 
   const getNextStatusLabel = () => {
