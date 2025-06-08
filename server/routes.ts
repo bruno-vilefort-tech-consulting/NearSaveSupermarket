@@ -1226,26 +1226,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe Payment Routes - CORRIGIDO para evitar duplicações
+  // Stripe Payment Routes - Cache baseado em hash do carrinho
   app.post("/api/payments/stripe/create-payment-intent", async (req, res) => {
     try {
-      const { amount, orderId, customerEmail, cartHash } = req.body;
+      const { amount, customerEmail, cartHash } = req.body;
       
-      console.log(`🔍 [STRIPE DEBUG] Recebido: amount=${amount}, orderId=${orderId}, cartHash=${cartHash}, customerEmail=${customerEmail}`);
+      console.log(`💳 [STRIPE] Criando PaymentIntent: amount=${amount}, cartHash=${cartHash}`);
       
       if (!amount) {
         return res.status(400).json({ message: "Amount é obrigatório" });
       }
 
-      // Criar chave única baseada no carrinho ou usar orderId
-      const cacheKey = cartHash || `cart-${orderId}`;
+      // Usar cartHash como chave única para cache
+      const cacheKey = cartHash || `temp-${Date.now()}`;
       
       // Verificar cache primeiro para evitar duplicações
       const cachedPayment = global.paymentIntentCache?.get(cacheKey);
       const now = Date.now();
       
       if (cachedPayment && (now - cachedPayment.timestamp) < 300000) { // 5 minutos de cache
-        console.log(`🔄 [STRIPE CACHE] Reutilizando PaymentIntent em cache: ${cachedPayment.paymentIntentId}`);
+        console.log(`🔄 [STRIPE CACHE] Reutilizando PaymentIntent: ${cachedPayment.paymentIntentId}`);
         return res.json({
           clientSecret: cachedPayment.clientSecret,
           paymentIntentId: cachedPayment.paymentIntentId,
@@ -1256,80 +1256,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Verificar se há um pedido válido associado (apenas se orderId estiver presente e for válido)
-      if (orderId && orderId !== "undefined" && !isNaN(parseInt(orderId))) {
-        try {
-          const existingOrder = await storage.getOrder(parseInt(orderId));
-          if (existingOrder && existingOrder.externalReference) {
-            console.log(`🔍 [STRIPE] Verificando PaymentIntent existente para pedido ${orderId}: ${existingOrder.externalReference}`);
-            
-            try {
-              // Verificar status no Stripe
-              const existingPaymentIntent = await stripe.paymentIntents.retrieve(existingOrder.externalReference);
-              
-              // Se o PaymentIntent está em estado utilizável, reutilizar
-              if (existingPaymentIntent && 
-                  existingPaymentIntent.status !== 'succeeded' && 
-                  existingPaymentIntent.status !== 'canceled' &&
-                  existingPaymentIntent.status !== 'requires_capture') {
-                
-                console.log(`✅ [STRIPE] Reutilizando PaymentIntent existente: ${existingPaymentIntent.id}, status: ${existingPaymentIntent.status}`);
-                
-                return res.json({
-                  clientSecret: existingPaymentIntent.client_secret,
-                  paymentIntentId: existingPaymentIntent.id,
-                  adjustedAmount: (existingPaymentIntent.amount / 100).toString(),
-                  originalAmount: amount.toString(),
-                  reused: true,
-                  status: existingPaymentIntent.status
-                });
-              }
-              
-              // Se já foi pago com sucesso, não criar novo
-              if (existingPaymentIntent.status === 'succeeded') {
-                console.log(`⚠️ [STRIPE] PaymentIntent já foi pago com sucesso: ${existingPaymentIntent.id}`);
-                return res.status(400).json({
-                  message: "Este pedido já foi pago",
-                  paymentIntentId: existingPaymentIntent.id,
-                  status: "already_paid"
-                });
-              }
-              
-            } catch (stripeError: any) {
-              console.log(`⚠️ [STRIPE] PaymentIntent existente inválido: ${existingOrder.externalReference}, erro: ${stripeError.message}`);
-              // Continuar para criar um novo PaymentIntent
-            }
-          }
-        } catch (dbError: any) {
-          console.log(`⚠️ [STRIPE] Erro ao verificar pedido existente: ${dbError.message}`);
-          // Continuar para criar um novo PaymentIntent
-        }
-      }
-
       // Validar valor mínimo do Stripe para BRL
       const minAmount = 0.50;
       const adjustedAmount = Math.max(parseFloat(amount), minAmount);
       
-      console.log(`💳 [STRIPE] Criando novo PaymentIntent - Valor original: R$ ${amount}, Valor ajustado: R$ ${adjustedAmount}`);
+      console.log(`💳 [STRIPE] Criando novo PaymentIntent - Valor: R$ ${adjustedAmount}`);
 
-      // Criar novo PaymentIntent - CORRIGIDO: configuração compatível do Stripe
+      // Criar novo PaymentIntent
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(adjustedAmount * 100), // Converter para centavos
         currency: "brl",
         metadata: {
-          orderId: orderId.toString(),
           customerEmail: customerEmail || "",
-          originalAmount: amount.toString(),
-          adjustedAmount: adjustedAmount.toString(),
+          cartHash: cartHash || "",
+          originalAmount: String(amount || 0),
+          adjustedAmount: String(adjustedAmount || 0),
           created_at: new Date().toISOString()
         },
         automatic_payment_methods: {
           enabled: true,
         }
-        // Removido confirmation_method para usar padrão automático
       });
 
-      console.log(`✅ [STRIPE] PaymentIntent criado: ${paymentIntent.id}, status: ${paymentIntent.status}`);
+      console.log(`✅ [STRIPE] PaymentIntent criado: ${paymentIntent.id}`);
       
       // Salvar no cache para prevenir duplicações
       if (global.paymentIntentCache && paymentIntent.client_secret) {
@@ -1338,20 +1287,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           paymentIntentId: paymentIntent.id,
           timestamp: now
         });
-        console.log(`💾 [STRIPE CACHE] PaymentIntent ${paymentIntent.id} salvo em cache com chave: ${cacheKey}`);
-      }
-      
-      // Salvar imediatamente no banco para prevenir duplicações
-      if (orderId && !isNaN(parseInt(orderId))) {
-        await storage.updateOrderExternalReference(parseInt(orderId), paymentIntent.id);
-        console.log(`💾 [STRIPE] PaymentIntent ${paymentIntent.id} associado ao pedido ${orderId}`);
+        console.log(`💾 [STRIPE CACHE] PaymentIntent salvo em cache: ${cacheKey}`);
       }
       
       res.json({ 
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
-        adjustedAmount: adjustedAmount.toString(),
-        originalAmount: amount.toString(),
+        adjustedAmount: String(adjustedAmount || 0),
+        originalAmount: String(amount || 0),
         reused: false,
         status: paymentIntent.status
       });
