@@ -238,27 +238,27 @@ function StaffOrders() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-cream">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b border-eco-sage-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
               <Button
                 variant="ghost"
                 onClick={() => setLocation('/supermercado/dashboard')}
-                className="p-2"
+                className="p-2 hover:bg-eco-cream"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-5 w-5 text-eco-blue" />
               </Button>
               <div className="bg-eco-green/10 p-2 rounded-full">
                 <ShoppingCart className="h-6 w-6 text-eco-green" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-xl font-semibold text-eco-blue">
                   Gerenciar Pedidos
                 </h1>
-                <p className="text-sm text-gray-600">{staffUser.companyName}</p>
+                <p className="text-sm text-eco-blue-dark">{staffUser.companyName}</p>
               </div>
             </div>
             
@@ -271,12 +271,12 @@ function StaffOrders() {
                 title={soundEnabled ? "Desativar notificações sonoras" : "Ativar notificações sonoras"}
               >
                 {hasNewOrders ? (
-                  <BellRing className={`h-6 w-6 ${hasNewOrders ? 'text-red-500' : 'text-gray-600'}`} />
+                  <BellRing className={`h-6 w-6 ${hasNewOrders ? 'text-eco-orange' : 'text-gray-600'}`} />
                 ) : (
                   <Bell className={`h-6 w-6 ${soundEnabled ? 'text-eco-green' : 'text-gray-400'}`} />
                 )}
                 {hasNewOrders && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-eco-orange rounded-full animate-pulse" />
                 )}
               </Button>
               
@@ -304,7 +304,7 @@ function StaffOrders() {
 
       {/* New Order Alert Banner */}
       {hasNewOrders && (
-        <div className="bg-red-500 text-white py-3 px-4 animate-pulse">
+        <div className="bg-eco-orange text-white py-3 px-4 animate-pulse">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <BellRing className="h-6 w-6 animate-bounce" />
@@ -316,7 +316,7 @@ function StaffOrders() {
             <Button
               variant="ghost"
               onClick={() => setHasNewOrders(false)}
-              className="text-white hover:bg-red-600 p-2"
+              className="text-white hover:bg-eco-orange-dark p-2"
             >
               ✕
             </Button>
@@ -329,35 +329,35 @@ function StaffOrders() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className="border-eco-blue-light">
             <CardContent className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{getStatusCount("pending")}</div>
-                <div className="text-sm text-gray-500">Pendentes</div>
+                <div className="text-2xl font-bold text-eco-blue">{getStatusCount("pending")}</div>
+                <div className="text-sm text-eco-blue-dark">Pendentes</div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-eco-orange-light">
             <CardContent className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">{getStatusCount("confirmed")}</div>
-                <div className="text-sm text-gray-500">Confirmados</div>
+                <div className="text-2xl font-bold text-eco-orange">{getStatusCount("confirmed")}</div>
+                <div className="text-sm text-eco-orange-dark">Confirmados</div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-eco-green-light">
             <CardContent className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{getStatusCount("completed")}</div>
-                <div className="text-sm text-gray-500">Concluídos</div>
+                <div className="text-2xl font-bold text-eco-green">{getStatusCount("completed")}</div>
+                <div className="text-sm text-eco-green-dark">Concluídos</div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-eco-sage-light">
             <CardContent className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{getStatusCount("cancelled")}</div>
-                <div className="text-sm text-gray-500">Cancelados</div>
+                <div className="text-2xl font-bold text-eco-sage">{getStatusCount("cancelled")}</div>
+                <div className="text-sm text-eco-sage-dark">Cancelados</div>
               </div>
             </CardContent>
           </Card>
