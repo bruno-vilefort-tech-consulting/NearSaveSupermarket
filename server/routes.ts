@@ -3270,6 +3270,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Simple Stripe payment intent endpoint for checkout
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { amount } = req.body;
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ message: "Amount is required and must be greater than 0" });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "brl",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error('Error creating payment intent:', error);
+      res.status(500).json({ 
+        message: "Error creating payment intent", 
+        error: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

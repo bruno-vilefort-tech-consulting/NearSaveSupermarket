@@ -98,35 +98,8 @@ export default function StripePayment() {
 
   const createPaymentIntent = async (amount: number) => {
     try {
-      // Primeiro, precisamos criar um pedido temporário para obter um ID
-      const orderData = {
-        customerName: 'Cliente Stripe',
-        customerEmail: 'stripe@temp.com',
-        customerPhone: '(11) 99999-9999',
-        deliveryAddress: null,
-        fulfillmentMethod: 'pickup',
-        totalAmount: amount.toString(),
-        notes: 'Pedido via Stripe'
-      };
-
-      const items = cartItems.map(item => ({
-        productId: item.id,
-        quantity: item.quantity,
-        priceAtTime: item.discountPrice
-      }));
-
-      // Criar pedido temporário
-      const orderResponse = await apiRequest("POST", "/api/orders", {
-        ...orderData,
-        items
-      });
-      const orderResult = await orderResponse.json();
-      
-      // Agora criar o payment intent
-      const response = await apiRequest("POST", "/api/payments/stripe/create-payment-intent", { 
-        amount: amount,
-        orderId: orderResult.id,
-        customerEmail: orderData.customerEmail
+      const response = await apiRequest("POST", "/api/create-payment-intent", { 
+        amount: amount 
       });
       const data = await response.json();
       setClientSecret(data.clientSecret);
