@@ -23,7 +23,7 @@ function StaffLanding() {
           <img 
             src={supermarketImage} 
             alt="SaveUp Supermercado" 
-            className="w-40 h-40 object-contain"
+            className="w-60 h-60 object-contain"
           />
         </div>
 
