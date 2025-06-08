@@ -3,9 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Rocket, ArrowLeft, Star, Target, TrendingUp, Calendar, MapPin, Users, DollarSign, CheckCircle } from "lucide-react";
+import { Rocket, ArrowLeft, Star, Target, TrendingUp, Calendar, MapPin, Users, DollarSign, CheckCircle, X } from "lucide-react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface StaffUser {
   id: number;
@@ -350,12 +352,21 @@ function StaffMarketing() {
                       </ul>
                     </div>
                     
-                    <div className="text-center">
+                    <div className="text-center space-y-3">
                       <Badge variant="secondary" className="bg-green-100 text-green-800 px-4 py-2">
                         Plano Renova em {subscriptionData.subscription?.expiresAt ? new Date(subscriptionData.subscription.expiresAt).toLocaleDateString('pt-BR') : 'N/A'}
                       </Badge>
-                      <div className="text-xs text-gray-500 mt-2">
-                        Para cancelar este plano entre em contato com a equipe SaveUP
+                      
+                      <div className="pt-2">
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={handleCancelCampaign}
+                          className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Cancelar Campanha
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
