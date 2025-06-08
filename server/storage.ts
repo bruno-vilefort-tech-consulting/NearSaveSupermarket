@@ -1414,17 +1414,10 @@ export class DatabaseStorage implements IStorage {
         )
       );
 
-    console.log(`📊 [STATS DEBUG] Staff ${staffId} - Items encontrados:`, validItemsQuery.length);
-    validItemsQuery.forEach(item => {
-      console.log(`   Item: R$${item.priceAtTime} x ${item.quantity} = R$${Number(item.priceAtTime) * Number(item.quantity)} (status: ${item.confirmationStatus}, order: ${item.orderId})`);
-    });
-
     // Calculate total revenue from non-removed items
     const grossRevenue = validItemsQuery.reduce((sum, item) => {
       return sum + (Number(item.priceAtTime) * Number(item.quantity));
     }, 0);
-    
-    console.log(`📊 [STATS DEBUG] Staff ${staffId} - Receita bruta: R$${grossRevenue}, líquida: R$${grossRevenue - (grossRevenue * (commercialRate / 100))}`);
     const commission = grossRevenue * (commercialRate / 100);
     const netRevenue = grossRevenue - commission;
 
