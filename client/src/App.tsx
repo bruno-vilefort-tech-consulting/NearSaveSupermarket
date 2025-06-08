@@ -30,6 +30,7 @@ import EcoRewards from "@/pages/customer/eco-rewards";
 import EcoPoints from "@/pages/customer/eco-points";
 import Login from "@/pages/customer/login";
 import CustomerRegister from "@/pages/customer/register";
+import CustomerLogin from "@/pages/CustomerLogin";
 import ForgotPassword from "@/pages/customer/forgot-password";
 import ResetPassword from "@/pages/customer/reset-password";
 import StaffLogin from "@/pages/staff-login";
