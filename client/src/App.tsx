@@ -29,6 +29,11 @@ import ResetPassword from "@/pages/customer/reset-password";
 import Terms from "@/pages/terms";
 import TermsAndConditions from "@/pages/terms-and-conditions";
 
+// Staff App Pages
+import StaffLogin from "@/pages/staff/login";
+import StaffRegister from "@/pages/staff/register";
+import StaffDashboard from "@/pages/staff/dashboard";
+
 function Router() {
   return (
     <Switch>
@@ -59,6 +64,12 @@ function Router() {
       <Route path="/orders" component={CustomerOrders} />
       <Route path="/eco-rewards" component={EcoRewards} />
       <Route path="/eco-points" component={EcoPoints} />
+      
+      {/* Staff App Routes */}
+      <Route path="/staff" component={StaffLogin} />
+      <Route path="/staff/login" component={StaffLogin} />
+      <Route path="/staff/register" component={StaffRegister} />
+      <Route path="/staff/dashboard" component={StaffDashboard} />
       
       {/* Terms and Conditions - Public access */}
       <Route path="/terms" component={Terms} />
