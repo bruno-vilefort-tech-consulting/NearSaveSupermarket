@@ -78,7 +78,13 @@ export default function PaymentMethod() {
         }
 
         const order = await response.json();
-        console.log('✅ Pedido criado com sucesso:', order);
+        console.log('✅ Pedido PIX criado com sucesso:', order);
+        
+        // Salvar dados PIX no localStorage para a tela de pagamento
+        if (order.pixData) {
+          localStorage.setItem(`pixData_${order.id}`, JSON.stringify(order.pixData));
+          console.log('💾 Dados PIX salvos no localStorage para pedido:', order.id);
+        }
         
         // Redirecionar para PIX com o ID do pedido
         window.location.href = `/pix-payment/${order.id}`;

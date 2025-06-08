@@ -1275,11 +1275,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         priceAtTime: item.priceAtTime
       }));
 
-      const order = await storage.createOrder(orderData, orderItems);
-      
-      console.log(`📦 Order ${order.id} created with status: ${orderStatus} for payment method: ${paymentMethod || 'default'}`);
-      
-      res.json(order);
+      // For PIX payments, create PIX payment and order with PIX data
+      if (paymentMethod === "pix") {
+        console.log('🎯 Creating PIX payment for order...');
+        
+        const pixData = {
+          amount: parseFloat(totalAmount),
+          description: `Pedido SaveUp - ${customerName}`,
+          orderId: `TEMP_${Date.now()}`,
+          customerEmail: userEmail || customerEmail,
+          customerName,
+          customerPhone
+        };
+
+        const pixPayment = await createPixPayment(pixData);
+        
+        const pixExpirationDate = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
+        
+        const order = await storage.createOrderAwaitingPayment(orderData, orderItems, {
+          pixPaymentId: pixPayment.id,
+          pixCopyPaste: pixPayment.pixCopyPaste,
+          pixExpirationDate
+        });
+        
+        console.log(`📦 PIX Order ${order.id} created with payment ID: ${pixPayment.id}`);
+        
+        res.json({
+          ...order,
+          pixData: {
+            id: pixPayment.id,
+            pixCopyPaste: pixPayment.pixCopyPaste,
+            expirationDate: pixExpirationDate.toISOString()
+          }
+        });
+      } else {
+        const order = await storage.createOrder(orderData, orderItems);
+        
+        console.log(`📦 Order ${order.id} created with status: ${orderStatus} for payment method: ${paymentMethod || 'default'}`);
+        
+        res.json(order);
+      }
     } catch (error) {
       console.error("Error creating public order:", error);
       res.status(500).json({ message: "Failed to create order" });
@@ -1341,6 +1376,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user eco points:", error);
       res.status(500).json({ message: "Failed to fetch user eco points" });
+    }
+  });
+
+  // Check PIX payment status by payment ID
+  app.get("/api/payments/pix/status/:paymentId", async (req, res) => {
+    try {
+      const { paymentId } = req.params;
+      
+      console.log(`🔍 [PIX STATUS] Checking PIX payment status for ID: ${paymentId}`);
+      
+      const paymentStatus = await getPaymentStatus(paymentId);
+      console.log(`🔍 [PIX STATUS] Payment status result:`, paymentStatus);
+      
+      res.json(paymentStatus);
+    } catch (error: any) {
+      console.error(`❌ [PIX STATUS] Error checking PIX payment ${req.params.paymentId}:`, error);
+      res.status(500).json({ 
+        message: "Erro ao verificar status do pagamento PIX", 
+        error: error.message 
+      });
     }
   });
 

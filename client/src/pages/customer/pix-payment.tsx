@@ -92,43 +92,40 @@ export default function PixPayment() {
     try {
       setIsLoading(true);
       
-      // Get order data from localStorage (passed from cart)
-      const orderDataStr = localStorage.getItem(`order_${orderId}`);
-      if (!orderDataStr) {
+      // Get PIX data from localStorage (saved in payment-method.tsx)
+      const pixDataStr = localStorage.getItem(`pixData_${orderId}`);
+      if (!pixDataStr) {
+        console.error('PIX data not found in localStorage for order:', orderId);
         toast({
           title: "Erro",
-          description: "Dados do pedido não encontrados",
+          description: "Dados do PIX não encontrados",
           variant: "destructive",
         });
         setLocation('/home');
         return;
       }
 
-      const order = JSON.parse(orderDataStr);
-      setOrderData(order);
-
-      // Create PIX payment
-      const response = await apiRequest('POST', '/api/payments/pix/create', {
-        orderId: orderId,
-        amount: parseFloat(order.totalAmount),
-        description: `Pedido #${orderId} - ${order.customerName}`,
-        customerEmail: order.customerEmail,
-        customerName: order.customerName,
-        customerPhone: order.customerPhone,
-      });
-
-      const pixData = await response.json();
-      console.log('Response from Mercado Pago API:', pixData);
-      console.log('PIX code received:', pixData.pixCopyPaste);
-      console.log('Payment ID received:', pixData.id);
+      const pixPaymentData = JSON.parse(pixDataStr);
+      console.log('PIX data loaded from localStorage:', pixPaymentData);
       
-      setPixData(pixData);
-      setPaymentStatus(pixData.status);
+      // Get order data from API
+      const orderResponse = await fetch(`/api/orders/${orderId}`);
+      if (!orderResponse.ok) {
+        throw new Error('Failed to fetch order data');
+      }
+      
+      const order = await orderResponse.json();
+      console.log('Order data loaded:', order);
+      
+      setOrderData(order);
+      setPixData(pixPaymentData);
+      setPaymentStatus('pending');
+      
     } catch (error) {
-      console.error('Error creating PIX payment:', error);
+      console.error('Error initializing PIX payment:', error);
       toast({
         title: "Erro",
-        description: "Erro ao criar pagamento PIX",
+        description: "Erro ao carregar dados do pagamento",
         variant: "destructive",
       });
     } finally {
@@ -146,9 +143,7 @@ export default function PixPayment() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
       
-      const response = await apiRequest('GET', `/api/payments/pix/status/${pixData.id}`, undefined, {
-        signal: controller.signal
-      });
+      const response = await apiRequest('GET', `/api/payments/pix/status/${pixData.id}`);
       
       clearTimeout(timeoutId);
       const statusData = await response.json();
