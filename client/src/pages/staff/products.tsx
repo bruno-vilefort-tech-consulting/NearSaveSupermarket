@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, Plus, Edit, Trash2, ArrowLeft, Search, Eye, Calendar, DollarSign } from "lucide-react";
+import { Package, Plus, Edit, Trash2, ArrowLeft, Search, Eye, Calendar, DollarSign, Milk, Beef, Fish, Apple, Carrot, Wheat, Coffee, Droplets, Wine, Snowflake, Sparkles } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -204,7 +204,15 @@ function StaffProducts() {
     return matchesSearch && matchesCategory;
   });
 
-  const categories = Array.from(new Set(products.map(p => p.category)));
+  const predefinedCategories = [
+    "Laticínios", "Carnes", "Frango", "Peixes", "Frutas", "Verduras", "Legumes", 
+    "Pães", "Bolos", "Bebidas", "Refrigerantes", "Sucos", "Águas", "Cervejas", 
+    "Vinhos", "Congelados", "Massas", "Molhos", "Conservas", "Grãos", "Cereais", 
+    "Snacks", "Doces", "Chocolates", "Higiene", "Limpeza", "Temperos", "Óleos", "Outros"
+  ];
+  
+  const usedCategories = Array.from(new Set(products.map(p => p.category)));
+  const categories = predefinedCategories.filter(cat => usedCategories.includes(cat));
 
   const formatCurrency = (value: string) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -215,6 +223,41 @@ function StaffProducts() {
 
   const formatDate = (date: string) => {
     return format(new Date(date), 'dd/MM/yyyy', { locale: ptBR });
+  };
+
+  const getCategoryIcon = (category: string) => {
+    const iconMap: { [key: string]: any } = {
+      "Laticínios": Milk,
+      "Carnes": Beef,
+      "Frango": Beef,
+      "Peixes": Fish,
+      "Frutas": Apple,
+      "Verduras": Carrot,
+      "Legumes": Carrot,
+      "Pães": Wheat,
+      "Bolos": Wheat,
+      "Bebidas": Droplets,
+      "Refrigerantes": Droplets,
+      "Sucos": Droplets,
+      "Águas": Droplets,
+      "Cervejas": Wine,
+      "Vinhos": Wine,
+      "Congelados": Snowflake,
+      "Massas": Wheat,
+      "Molhos": Droplets,
+      "Conservas": Package,
+      "Grãos": Wheat,
+      "Cereais": Wheat,
+      "Snacks": Package,
+      "Doces": Sparkles,
+      "Chocolates": Sparkles,
+      "Higiene": Sparkles,
+      "Limpeza": Sparkles,
+      "Temperos": Package,
+      "Óleos": Droplets,
+      "Outros": Package
+    };
+    return iconMap[category] || Package;
   };
 
   const getStatusBadge = (product: Product) => {
@@ -405,7 +448,13 @@ function StaffProducts() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{product.category}</Badge>
+                          <div className="flex items-center space-x-2">
+                            {(() => {
+                              const IconComponent = getCategoryIcon(product.category);
+                              return <IconComponent className="h-4 w-4 text-gray-500" />;
+                            })()}
+                            <Badge variant="outline">{product.category}</Badge>
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-1">
@@ -516,12 +565,45 @@ function StaffProducts() {
 
               <div>
                 <Label htmlFor="category">Categoria</Label>
-                <Input
-                  id="category"
+                <Select
                   value={productData.category}
-                  onChange={(e) => setProductData({...productData, category: e.target.value})}
-                  placeholder="Ex: Laticínios, Carnes, Bebidas"
-                />
+                  onValueChange={(value) => setProductData({...productData, category: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Laticínios">Laticínios</SelectItem>
+                    <SelectItem value="Carnes">Carnes</SelectItem>
+                    <SelectItem value="Frango">Frango</SelectItem>
+                    <SelectItem value="Peixes">Peixes</SelectItem>
+                    <SelectItem value="Frutas">Frutas</SelectItem>
+                    <SelectItem value="Verduras">Verduras</SelectItem>
+                    <SelectItem value="Legumes">Legumes</SelectItem>
+                    <SelectItem value="Pães">Pães</SelectItem>
+                    <SelectItem value="Bolos">Bolos</SelectItem>
+                    <SelectItem value="Bebidas">Bebidas</SelectItem>
+                    <SelectItem value="Refrigerantes">Refrigerantes</SelectItem>
+                    <SelectItem value="Sucos">Sucos</SelectItem>
+                    <SelectItem value="Águas">Águas</SelectItem>
+                    <SelectItem value="Cervejas">Cervejas</SelectItem>
+                    <SelectItem value="Vinhos">Vinhos</SelectItem>
+                    <SelectItem value="Congelados">Congelados</SelectItem>
+                    <SelectItem value="Massas">Massas</SelectItem>
+                    <SelectItem value="Molhos">Molhos</SelectItem>
+                    <SelectItem value="Conservas">Conservas</SelectItem>
+                    <SelectItem value="Grãos">Grãos</SelectItem>
+                    <SelectItem value="Cereais">Cereais</SelectItem>
+                    <SelectItem value="Snacks">Snacks</SelectItem>
+                    <SelectItem value="Doces">Doces</SelectItem>
+                    <SelectItem value="Chocolates">Chocolates</SelectItem>
+                    <SelectItem value="Higiene">Higiene</SelectItem>
+                    <SelectItem value="Limpeza">Limpeza</SelectItem>
+                    <SelectItem value="Temperos">Temperos</SelectItem>
+                    <SelectItem value="Óleos">Óleos</SelectItem>
+                    <SelectItem value="Outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
