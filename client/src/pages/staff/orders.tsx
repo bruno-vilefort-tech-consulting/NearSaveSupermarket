@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { Package, Filter, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { ShoppingCart, Filter, ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,10 +37,38 @@ interface Order {
   orderItems: OrderItem[];
 }
 
+interface StaffUser {
+  id: number;
+  email: string;
+  companyName: string;
+  phone: string;
+  address: string;
+  isActive: number;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  cnpj: string;
+}
+
 function StaffOrders() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [methodFilter, setMethodFilter] = useState<string>("all");
+  const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const staffInfo = localStorage.getItem('staffInfo');
+    if (!staffInfo) {
+      setLocation('/staff');
+      return;
+    }
+
+    try {
+      const parsedStaffInfo = JSON.parse(staffInfo);
+      setStaffUser(parsedStaffInfo);
+    } catch (error) {
+      localStorage.removeItem('staffInfo');
+      setLocation('/staff');
+    }
+  }, [setLocation]);
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["/api/staff/orders"],
@@ -76,7 +104,7 @@ function StaffOrders() {
     return orders.filter((order: Order) => order.fulfillmentMethod === method).length;
   };
 
-  if (isLoading) {
+  if (isLoading || !staffUser) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -85,24 +113,35 @@ function StaffOrders() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header with Back Button */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="outline"
-            onClick={() => setLocation('/supermercado/dashboard')}
-            className="flex items-center gap-2 hover:bg-gray-100"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar para Home
-          </Button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                onClick={() => setLocation('/supermercado/dashboard')}
+                className="p-2"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div className="bg-eco-green/10 p-2 rounded-full">
+                <ShoppingCart className="h-6 w-6 text-eco-green" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Gerenciar Pedidos
+                </h1>
+                <p className="text-sm text-gray-600">{staffUser.companyName}</p>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Gerenciar Pedidos</h1>
-          <p className="text-gray-600 mt-2">Acompanhe e gerencie todos os pedidos recebidos</p>
-        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -192,14 +231,14 @@ function StaffOrders() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Package className="h-5 w-5" />
+              <ShoppingCart className="h-5 w-5" />
               <span>Pedidos ({filteredOrders.length})</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {filteredOrders.length === 0 ? (
               <div className="text-center py-12">
-                <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum pedido encontrado</h3>
                 <p className="text-gray-500">
                   {orders.length === 0 
