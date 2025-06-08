@@ -74,80 +74,38 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         console.log('Pagamento Stripe bem-sucedido');
         
-        // Criar o pedido após pagamento bem-sucedido
+        // CORRIGIDO: Pedido já foi criado antes do PaymentIntent
+        // Apenas confirmar o pagamento no backend
         try {
-          console.log('🎯 Iniciando criação de pedido após pagamento Stripe bem-sucedido');
-          const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
-          const savedCart = localStorage.getItem('cart');
+          console.log('🎯 Confirmando pagamento Stripe bem-sucedido');
+          const orderId = localStorage.getItem('currentOrderId');
           
-          console.log('👤 Customer Info:', customerInfo);
-          console.log('🛒 Saved Cart:', savedCart);
-          
-          if (savedCart) {
-            const parsedCart = JSON.parse(savedCart);
-            
-            const orderData = {
-              customerName: customerInfo.fullName || 'Cliente',
-              customerEmail: customerInfo.email,
-              customerPhone: customerInfo.phone,
-              fulfillmentMethod: 'pickup',
-              totalAmount: totalAmount.toFixed(2),
-              paymentMethod: 'stripe',
-              items: parsedCart.map((item: any) => ({
-                productId: item.id,
-                quantity: item.quantity,
-                priceAtTime: item.discountPrice
-              }))
-            };
-
-            console.log('📦 Order Data to send:', orderData);
-
-            const createOrderResponse = await fetch('/api/public/orders', {
+          if (orderId) {
+            const confirmResponse = await fetch('/api/payments/stripe/confirm', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(orderData)
+              body: JSON.stringify({
+                orderId: parseInt(orderId),
+                paymentIntentId: paymentIntent.id,
+                amount: totalAmount
+              })
             });
 
-            console.log('📡 Response status:', createOrderResponse.status);
-
-            if (createOrderResponse.ok) {
-              const responseData = await createOrderResponse.json();
-              console.log('✅ Pedido criado com sucesso após pagamento Stripe:', responseData);
-              
-              // Atualizar o pedido com a referência do Stripe
-              try {
-                const updateResponse = await fetch(`/api/orders/${responseData.id}/external-reference`, {
-                  method: 'PATCH',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    externalReference: paymentIntent.id
-                  })
-                });
-                
-                if (updateResponse.ok) {
-                  console.log('✅ Referência do Stripe adicionada ao pedido');
-                } else {
-                  console.error('⚠️ Erro ao adicionar referência do Stripe ao pedido');
-                }
-              } catch (updateError) {
-                console.error('⚠️ Erro ao atualizar referência do pedido:', updateError);
-              }
-              
-              // Limpar carrinho
+            if (confirmResponse.ok) {
+              console.log('✅ Pagamento confirmado no backend');
+              // Limpar dados temporários
               localStorage.removeItem('cart');
+              localStorage.removeItem('currentOrderId');
             } else {
-              const errorText = await createOrderResponse.text();
-              console.error('❌ Erro ao criar pedido após pagamento:', createOrderResponse.status, errorText);
+              console.error('⚠️ Erro ao confirmar pagamento no backend');
             }
           } else {
-            console.error('❌ Carrinho não encontrado no localStorage');
+            console.error('❌ Order ID não encontrado no localStorage');
           }
         } catch (error) {
-          console.error('❌ Erro ao criar pedido após pagamento Stripe:', error);
+          console.error('❌ Erro ao confirmar pagamento:', error);
         }
         
         window.location.href = '/payment-success';
@@ -224,12 +182,63 @@ export default function StripePayment() {
   const createPaymentIntent = async (amount: number) => {
     try {
       console.log('Criando payment intent para valor:', amount);
-      const response = await apiRequest("POST", "/api/create-payment-intent", { 
-        amount: amount 
+      
+      // CRÍTICO: Primeiro criar o pedido para ter um orderId
+      const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
+      const staffId = JSON.parse(localStorage.getItem('selectedStaff') || '{}')?.id;
+      
+      if (!customerInfo.id || !staffId) {
+        throw new Error('Informações de cliente ou supermercado não encontradas');
+      }
+
+      // Criar pedido antes do payment intent
+      console.log('🛒 Criando pedido antes do payment intent...');
+      const orderData = {
+        customerName: customerInfo.fullName,
+        customerEmail: customerInfo.email,
+        customerPhone: customerInfo.phone,
+        totalAmount: amount.toString(),
+        orderItems: cartItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          priceAtTime: item.discountPrice
+        }))
+      };
+
+      const createOrderResponse = await fetch("/api/orders", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-staff-id': staffId.toString()
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!createOrderResponse.ok) {
+        throw new Error('Erro ao criar pedido');
+      }
+
+      const orderResult = await createOrderResponse.json();
+      const orderId = orderResult.id;
+
+      console.log('📦 Pedido criado:', orderId);
+
+      // Agora usar o endpoint correto com orderId
+      const response = await fetch("/api/payments/stripe/create-payment-intent", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: amount,
+          orderId: orderId,
+          customerEmail: customerInfo.email || ""
+        })
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao criar payment intent');
       }
       
       const data = await response.json();
@@ -237,6 +246,8 @@ export default function StripePayment() {
       
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
+        // Salvar orderId para use posterior
+        localStorage.setItem('currentOrderId', orderId.toString());
       } else {
         throw new Error('Client secret não retornado');
       }
