@@ -3431,6 +3431,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff application route
+  app.get("/staff*", (req, res) => {
+    const staffIndexPath = path.join(import.meta.dirname, "..", "apps", "staff", "index.html");
+    
+    // Check if staff index.html exists
+    if (fs.existsSync(staffIndexPath)) {
+      res.sendFile(staffIndexPath);
+    } else {
+      // Fallback: create a simple HTML that loads the staff app
+      const staffHtml = `<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SaveUp - Staff</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/apps/staff/src/main.tsx"></script>
+  </body>
+</html>`;
+      res.setHeader('Content-Type', 'text/html');
+      res.send(staffHtml);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
