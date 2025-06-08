@@ -44,8 +44,16 @@ function Router() {
       <Route path="/home" component={CustomerHome} />
       <Route path="/supermarket/:id/products" component={SupermarketProducts} />
       <Route path="/supermarket-map" component={SupermarketMap} />
-      <Route path="/cart" component={CartPagePt} />
       <Route path="/customer/cart" component={CartPagePt} />
+      <Route path="/cart" component={CartPagePt} />
+      <Route path="/customer/*">
+        {(params) => {
+          if (params.wild === 'cart') {
+            return <CartPagePt />;
+          }
+          return <div>Página não encontrada</div>;
+        }}
+      </Route>
       <Route path="/order-review" component={OrderReview} />
       <Route path="/payment" component={CustomerPaymentFixed} />
       <Route path="/pix-payment/:orderId" component={PixPaymentFixed} />
