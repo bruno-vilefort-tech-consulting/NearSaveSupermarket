@@ -1322,9 +1322,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`✅ [STRIPE] PaymentIntent criado: ${paymentIntent.id}, status: ${paymentIntent.status}`);
       
+      // Salvar no cache para prevenir duplicações
+      if (global.paymentIntentCache && paymentIntent.client_secret) {
+        global.paymentIntentCache.set(cacheKey, {
+          clientSecret: paymentIntent.client_secret,
+          paymentIntentId: paymentIntent.id,
+          timestamp: now
+        });
+        console.log(`💾 [STRIPE CACHE] PaymentIntent ${paymentIntent.id} salvo em cache com chave: ${cacheKey}`);
+      }
+      
       // Salvar imediatamente no banco para prevenir duplicações
-      await storage.updateOrderExternalReference(parseInt(orderId), paymentIntent.id);
-      console.log(`💾 [STRIPE] PaymentIntent ${paymentIntent.id} associado ao pedido ${orderId}`);
+      if (orderId && !isNaN(parseInt(orderId))) {
+        await storage.updateOrderExternalReference(parseInt(orderId), paymentIntent.id);
+        console.log(`💾 [STRIPE] PaymentIntent ${paymentIntent.id} associado ao pedido ${orderId}`);
+      }
       
       res.json({ 
         clientSecret: paymentIntent.client_secret,
