@@ -120,7 +120,7 @@ function ValorAReceber() {
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
-                  Valor a Receber
+                  Gestão Financeira
                 </h1>
                 <p className="text-sm text-gray-600">{staffUser.companyName}</p>
               </div>
