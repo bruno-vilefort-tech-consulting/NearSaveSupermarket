@@ -352,8 +352,11 @@ function StaffMarketing() {
                     
                     <div className="text-center">
                       <Badge variant="secondary" className="bg-green-100 text-green-800 px-4 py-2">
-                        Plano Ativo até {subscriptionData.subscription?.expiresAt ? new Date(subscriptionData.subscription.expiresAt).toLocaleDateString('pt-BR') : 'N/A'}
+                        Plano Renova em {subscriptionData.subscription?.expiresAt ? new Date(subscriptionData.subscription.expiresAt).toLocaleDateString('pt-BR') : 'N/A'}
                       </Badge>
+                      <div className="text-xs text-gray-500 mt-2">
+                        Para cancelar este plano entre em contato com a equipe SaveUP
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
