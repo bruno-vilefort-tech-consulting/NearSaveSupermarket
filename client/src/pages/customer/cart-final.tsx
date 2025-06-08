@@ -27,6 +27,7 @@ export default function CartFinal() {
     phone: '(34) 99999-9999'
   });
   const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'delivery'>('pickup');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
 
   useEffect(() => {
     console.log('🛒 CARRINHO FINAL - Carregando itens do localStorage');
@@ -179,14 +180,20 @@ export default function CartFinal() {
                   </div>
                 </label>
               </div>
-              {deliveryMethod === 'pickup' && (
-                <div className="mt-4 p-3 bg-eco-sage-light rounded-lg">
-                  <p className="text-sm text-eco-gray-dark">
-                    <strong>Local:</strong> {cartItems[0]?.supermarketName || 'Supermercado'}
-                  </p>
-                  <p className="text-sm text-eco-gray mt-1">
-                    Retire seu pedido em até 2 horas após a confirmação
-                  </p>
+              {deliveryMethod === 'delivery' && (
+                <div className="mt-4">
+                  <label htmlFor="deliveryAddress" className="block text-sm font-medium text-eco-gray-dark mb-2">
+                    Endereço de entrega
+                  </label>
+                  <textarea
+                    id="deliveryAddress"
+                    value={deliveryAddress}
+                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                    placeholder="Digite seu endereço completo..."
+                    className="w-full p-3 border border-eco-gray-light rounded-lg focus:ring-2 focus:ring-eco-green focus:border-eco-green resize-none"
+                    rows={3}
+                    required
+                  />
                 </div>
               )}
             </div>
