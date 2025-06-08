@@ -5,6 +5,7 @@ import Orders from './pages/Orders'
 import Products from './pages/Products'
 import Settings from './pages/Settings'
 import Login from './pages/Login'
+import Register from './pages/Register'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,12 +22,12 @@ function App() {
       <Router>
         <div className="min-h-screen bg-background text-foreground">
           <Switch>
-            <Route path="/login" component={Login} />
+            <Route path="/register" component={Register} />
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/orders" component={Orders} />
             <Route path="/products" component={Products} />
             <Route path="/settings" component={Settings} />
-            <Route path="/" component={Dashboard} />
+            <Route path="/" component={Login} />
           </Switch>
         </div>
       </Router>
