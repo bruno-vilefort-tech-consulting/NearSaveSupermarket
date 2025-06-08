@@ -34,6 +34,10 @@ import StaffLogin from "@/pages/staff/login";
 import StaffRegister from "@/pages/staff/register";
 import StaffDashboard from "@/pages/staff/dashboard";
 
+// Admin App Pages
+import AdminLogin from "@/pages/admin/login";
+import AdminDashboard from "@/pages/admin/dashboard";
+
 function Router() {
   return (
     <Switch>
@@ -71,9 +75,15 @@ function Router() {
       <Route path="/staff/register" component={StaffRegister} />
       <Route path="/staff/dashboard" component={StaffDashboard} />
       
+      {/* Admin App Routes */}
+      <Route path="/admin" component={AdminLogin} />
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      
       {/* Friendly Routes */}
       <Route path="/cliente" component={CustomerLanding} />
       <Route path="/supermercado" component={StaffLogin} />
+      <Route path="/administrador" component={AdminLogin} />
       
       {/* Terms and Conditions - Public access */}
       <Route path="/terms" component={Terms} />
