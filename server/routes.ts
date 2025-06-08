@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, type StaffUser } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, cancelPixPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
@@ -3197,6 +3197,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(supermarket);
     } catch (error: any) {
       console.error('Erro ao buscar localização do supermercado:', error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Get staff sponsorship status
+  app.get("/api/staff/sponsorship", async (req, res) => {
+    try {
+      const staffUser = req.user as any;
+      if (!staffUser) {
+        return res.status(401).json({ message: "Staff não autenticado" });
+      }
+
+      const staff = await storage.getStaffUserByEmail(staffUser.email);
+      if (!staff) {
+        return res.status(404).json({ message: "Staff não encontrado" });
+      }
+
+      res.json({ 
+        isSponsored: staff.isSponsored === 1,
+        companyName: staff.companyName 
+      });
+    } catch (error) {
+      console.error("Erro ao buscar status de patrocínio:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Staff sponsorship management
+  app.patch("/api/staff/sponsorship", async (req, res) => {
+    try {
+      const staffUser = req.user as any;
+      if (!staffUser) {
+        return res.status(401).json({ message: "Staff não autenticado" });
+      }
+
+      const { isSponsored } = req.body;
+      
+      if (typeof isSponsored !== "boolean") {
+        return res.status(400).json({ message: "Status de patrocínio deve ser verdadeiro ou falso" });
+      }
+
+      const staff = await storage.getStaffUserByEmail(staffUser.email);
+      if (!staff) {
+        return res.status(404).json({ message: "Staff não encontrado" });
+      }
+
+      await storage.updateStaffSponsorshipStatus(staff.id, isSponsored);
+      
+      res.json({ 
+        message: `Patrocínio ${isSponsored ? 'ativado' : 'desativado'} com sucesso`,
+        isSponsored 
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar status de patrocínio:", error);
       res.status(500).json({ message: "Erro interno do servidor" });
     }
   });

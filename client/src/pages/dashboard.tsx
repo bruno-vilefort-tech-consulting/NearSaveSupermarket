@@ -8,6 +8,7 @@ import { useLocation } from "wouter";
 import { useStaffAuth } from "@/hooks/useStaffAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { SponsorshipCard } from "@/components/SponsorshipCard";
 
 export default function Dashboard() {
   const [, navigate] = useLocation();
@@ -16,6 +17,11 @@ export default function Dashboard() {
   
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: isStaffAuthenticated ? ["/api/staff/stats"] : ["/api/stats"],
+  });
+
+  const { data: sponsorshipData, isLoading: sponsorshipLoading } = useQuery({
+    queryKey: ["/api/staff/sponsorship"],
+    enabled: isStaffAuthenticated,
   });
 
   return (
