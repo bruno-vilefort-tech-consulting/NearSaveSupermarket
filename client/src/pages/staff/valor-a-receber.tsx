@@ -85,11 +85,11 @@ function ValorAReceber() {
 
   const getStatusBadge = (daysUntilDue: number) => {
     if (daysUntilDue < 0) {
-      return <Badge variant="destructive">Vencido</Badge>;
-    } else if (daysUntilDue <= 7) {
-      return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Próximo ao Vencimento</Badge>;
+      return <Badge variant="destructive">Pagamento Atrasado</Badge>;
+    } else if (daysUntilDue <= 2) {
+      return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Próximo ao Prazo</Badge>;
     } else {
-      return <Badge variant="outline">No Prazo</Badge>;
+      return <Badge variant="outline">Dentro do Prazo</Badge>;
     }
   };
 
@@ -137,8 +137,11 @@ function ValorAReceber() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <CreditCard className="h-5 w-5" />
-              <span>Resumo dos Valores a Receber</span>
+              <span>Resumo dos Pagamentos da SaveUp</span>
             </CardTitle>
+            <p className="text-sm text-gray-600 mt-1">
+              Pedidos concluídos aguardando pagamento da SaveUp (prazo: 7 dias após conclusão)
+            </p>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -146,19 +149,19 @@ function ValorAReceber() {
                 <div className="text-3xl font-bold text-blue-500">
                   R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
-                <div className="text-sm text-gray-500">Total a Receber</div>
+                <div className="text-sm text-gray-500">Total a Receber da SaveUp</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-700">
                   {pendingPayments.length}
                 </div>
-                <div className="text-sm text-gray-500">Pedidos Pendentes</div>
+                <div className="text-sm text-gray-500">Pedidos Aguardando Pagamento</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
                   {pendingPayments.filter((p: PendingPayment) => getDaysUntilDue(p.dueDate) >= 0).length}
                 </div>
-                <div className="text-sm text-gray-500">No Prazo</div>
+                <div className="text-sm text-gray-500">Dentro do Prazo</div>
               </div>
             </div>
           </CardContent>
@@ -214,14 +217,14 @@ function ValorAReceber() {
                         <div className="flex items-center space-x-2">
                           <Calendar className="h-4 w-4 text-gray-400" />
                           <span className="text-gray-600">
-                            Vencimento: {formatDate(payment.dueDate)}
+                            Prazo SaveUp: {formatDate(payment.dueDate)}
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="text-gray-600">
                             {daysUntilDue >= 0 
-                              ? `${daysUntilDue} dias restantes`
-                              : `Vencido há ${Math.abs(daysUntilDue)} dias`
+                              ? `${daysUntilDue} dias para pagamento`
+                              : `Atrasado há ${Math.abs(daysUntilDue)} dias`
                             }
                           </span>
                         </div>
