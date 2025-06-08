@@ -242,7 +242,7 @@ function StaffDashboard() {
                 ? 'hover:shadow-md cursor-pointer' 
                 : 'opacity-50 cursor-not-allowed'
             }`} 
-            onClick={() => staffUser.approvalStatus === 'approved' && setLocation('/staff/settings')}
+            onClick={() => staffUser.approvalStatus === 'approved' && setLocation('/supermercado/configuracoes')}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Configurações</CardTitle>

@@ -36,6 +36,7 @@ import StaffRegister from "@/pages/staff/register";
 import StaffDashboard from "@/pages/staff/dashboard";
 import StaffProducts from "@/pages/staff/products";
 import StaffOrders from "@/pages/staff/orders";
+import StaffSettings from "@/pages/staff/settings";
 import ValorAReceber from "@/pages/staff/valor-a-receber";
 
 // Admin App Pages
@@ -83,6 +84,7 @@ function Router() {
       <Route path="/staff/dashboard" component={StaffDashboard} />
       <Route path="/staff/products" component={StaffProducts} />
       <Route path="/staff/orders" component={StaffOrders} />
+      <Route path="/staff/settings" component={StaffSettings} />
       
       {/* Staff App Routes (Brazilian Portuguese URLs) */}
       <Route path="/supermercado" component={StaffLanding} />
@@ -93,6 +95,8 @@ function Router() {
       <Route path="/supermercado/produtos" component={StaffProducts} />
       <Route path="/supermercado/orders" component={StaffOrders} />
       <Route path="/supermercado/pedidos" component={StaffOrders} />
+      <Route path="/supermercado/settings" component={StaffSettings} />
+      <Route path="/supermercado/configuracoes" component={StaffSettings} />
       <Route path="/supermercado/valor-a-receber" component={ValorAReceber} />
       
       {/* Admin App Routes */}
