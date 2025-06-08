@@ -99,39 +99,6 @@ function StaffMarketing() {
     }
   ];
 
-  const activateSponsorshipMutation = useMutation({
-    mutationFn: async (planId: string) => {
-      const response = await fetch('/api/staff/marketing/sponsorship', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Staff-Id': staffUser!.id.toString(),
-        },
-        body: JSON.stringify({ planId }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Erro ao ativar patrocínio');
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Patrocínio ativado!",
-        description: "Seu supermercado será destacado no aplicativo dos clientes.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/staff/marketing"] });
-    },
-    onError: () => {
-      toast({
-        title: "Erro",
-        description: "Não foi possível ativar o patrocínio. Tente novamente.",
-        variant: "destructive",
-      });
-    },
-  });
-
   if (!staffUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle, XCircle, ArrowLeft, CreditCard, Calendar, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface SponsorshipPlan {
   id: string;
@@ -23,6 +23,7 @@ export default function MarketingConfirmation() {
   const [, setLocation] = useLocation();
   const [match, params] = useRoute('/supermercado/marketing/confirmacao/:planId');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [agreementChecked, setAgreementChecked] = useState(false);
   const { toast } = useToast();
 
   // Plans data (same as marketing page)
@@ -98,17 +99,35 @@ export default function MarketingConfirmation() {
   }
 
   const handleConfirmActivation = async () => {
+    if (!agreementChecked) {
+      toast({
+        title: "Confirmação Necessária",
+        description: "Você deve concordar com os termos antes de prosseguir.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
     
     try {
-      const response = await apiRequest('/api/staff/marketing/activate', {
+      const staffInfo = localStorage.getItem('staffInfo');
+      const staffData = staffInfo ? JSON.parse(staffInfo) : null;
+      
+      const response = await fetch('/api/staff/marketing/activate', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Staff-Id': staffData?.id?.toString() || '',
+        },
         body: JSON.stringify({
           planId: selectedPlan.id
         })
       });
 
-      if (response.success) {
+      const result = await response.json();
+
+      if (response.ok && result.success) {
         toast({
           title: "Plano Ativado com Sucesso!",
           description: `O plano ${selectedPlan.name} foi ativado. O valor será deduzido do seu contas a receber.`,
@@ -117,7 +136,7 @@ export default function MarketingConfirmation() {
         // Redirect to marketing page or dashboard
         setLocation('/supermercado/marketing');
       } else {
-        throw new Error(response.message || 'Erro ao ativar plano');
+        throw new Error(result.message || 'Erro ao ativar plano');
       }
     } catch (error: any) {
       console.error('Error activating plan:', error);
@@ -264,6 +283,55 @@ export default function MarketingConfirmation() {
         </Card>
       </div>
 
+      {/* Agreement Terms */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5" />
+            Termos de Ativação do Plano
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+              <h4 className="font-semibold text-blue-900 mb-2">Condições de Pagamento</h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• O valor do plano será automaticamente deduzido do seu saldo em contas a receber</li>
+                <li>• A cobrança será processada imediatamente após a confirmação</li>
+                <li>• Em caso de saldo insuficiente, será gerada uma fatura para pagamento</li>
+              </ul>
+            </div>
+            
+            <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+              <h4 className="font-semibold text-yellow-900 mb-2">Termos de Uso</h4>
+              <ul className="text-sm text-yellow-800 space-y-1">
+                <li>• O plano terá vigência conforme a duração especificada</li>
+                <li>• Os benefícios serão aplicados em até 24 horas após a ativação</li>
+                <li>• Cancelamentos devem ser solicitados com 30 dias de antecedência</li>
+                <li>• O uso deve estar em conformidade com as políticas da plataforma</li>
+              </ul>
+            </div>
+
+            <div className="flex items-start space-x-3 pt-4">
+              <Checkbox 
+                id="agreement" 
+                checked={agreementChecked}
+                onCheckedChange={(checked) => setAgreementChecked(!!checked)}
+                className="mt-1"
+              />
+              <label 
+                htmlFor="agreement" 
+                className="text-sm leading-relaxed cursor-pointer"
+              >
+                Eu li e concordo com os termos de ativação do plano. Autorizo a dedução do valor 
+                <strong> R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> 
+                do meu saldo em contas a receber ou a geração de fatura caso o saldo seja insuficiente.
+              </label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Action Buttons */}
       <div className="flex gap-4 mt-8 justify-center">
         <Button 
@@ -278,8 +346,12 @@ export default function MarketingConfirmation() {
         <Button 
           size="lg"
           onClick={handleConfirmActivation}
-          disabled={isProcessing}
-          className="min-w-32 bg-green-600 hover:bg-green-700"
+          disabled={isProcessing || !agreementChecked}
+          className={`min-w-32 ${
+            agreementChecked 
+              ? 'bg-green-600 hover:bg-green-700' 
+              : 'bg-gray-400 cursor-not-allowed'
+          }`}
         >
           {isProcessing ? (
             <div className="flex items-center gap-2">
