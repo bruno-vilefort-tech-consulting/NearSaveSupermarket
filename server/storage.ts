@@ -1444,7 +1444,10 @@ export class DatabaseStorage implements IStorage {
         eq(products.createdByStaff, staffUsers.id),
         eq(products.isActive, 1)
       ))
-      .where(eq(staffUsers.isActive, 1))
+      .where(and(
+        eq(staffUsers.isActive, 1),
+        eq(staffUsers.approvalStatus, 'approved')
+      ))
       .groupBy(staffUsers.id, staffUsers.companyName, staffUsers.address)
       .having(sql`count(${products.id}) > 0`);
 
@@ -1477,6 +1480,7 @@ export class DatabaseStorage implements IStorage {
           AND s.latitude IS NOT NULL 
           AND s.longitude IS NOT NULL
           AND s.is_active = 1
+          AND s.approval_status = 'approved'
         GROUP BY s.id, s.company_name, s.address, s.latitude, s.longitude, s.is_sponsored
         ORDER BY s.is_sponsored DESC, s.company_name ASC
       `);
