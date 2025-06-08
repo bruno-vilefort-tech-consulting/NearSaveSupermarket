@@ -30,11 +30,15 @@ interface CartItem {
 export default function CustomerCart() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [customerInfo, setCustomerInfo] = useState<any>(null);
+
+  // Debug: verificar idioma atual
+  console.log('Current language:', language);
+  console.log('Sample translation:', t('cart.title'));
 
   // Carregar itens do carrinho e informações do cliente do localStorage
   useEffect(() => {
@@ -171,8 +175,8 @@ export default function CustomerCart() {
     // Verificar se há informações do cliente
     if (!customerInfo?.fullName || !customerInfo?.email) {
       toast({
-        title: 'Informações Necessárias',
-        description: 'Por favor, preencha suas informações pessoais primeiro.',
+        title: t('cart.requiredInfo'),
+        description: t('cart.requiredInfoDescription'),
         variant: "destructive",
       });
       return;
