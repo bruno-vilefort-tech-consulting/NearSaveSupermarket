@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { db } from "./db";
 import { eq, sql } from "drizzle-orm";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, type StaffUser, staffUsers } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, insertMarketingSubscriptionSchema, type StaffUser, staffUsers } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, cancelPixPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
@@ -3803,58 +3803,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Marketing subscription status check
+  app.get('/api/staff/marketing-subscription', async (req, res) => {
+    try {
+      const staffId = parseInt(req.headers['x-staff-id'] as string);
+      
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID not found" });
+      }
+
+      const activeSubscription = await storage.getActiveMarketingSubscriptionByStaffId(staffId);
+      
+      res.json({
+        hasActiveSubscription: !!activeSubscription,
+        subscription: activeSubscription || null
+      });
+    } catch (error) {
+      console.error("Error checking marketing subscription:", error);
+      res.status(500).json({ message: "Failed to check subscription status" });
+    }
+  });
+
   // Marketing activation endpoint
   app.post("/api/staff/marketing/activate", async (req, res) => {
     try {
-      const staffId = req.get('X-Staff-Id');
+      const staffId = parseInt(req.headers['x-staff-id'] as string);
+      
       if (!staffId) {
         return res.status(401).json({ 
           success: false, 
-          message: "Staff ID required" 
+          message: "Staff ID not found" 
         });
       }
 
-      const { planId } = req.body;
-      if (!planId) {
+      const { planId, planName, price } = req.body;
+      
+      if (!planId || !planName || !price) {
         return res.status(400).json({ 
           success: false, 
-          message: "Plan ID is required" 
+          message: "Plan data is required" 
         });
       }
 
-      // Validate plan exists
-      const validPlans = ['basic', 'premium', 'enterprise'];
-      if (!validPlans.includes(planId)) {
+      // Check if staff already has an active subscription
+      const existingSubscription = await storage.getActiveMarketingSubscriptionByStaffId(staffId);
+      
+      if (existingSubscription) {
         return res.status(400).json({ 
-          success: false, 
-          message: "Invalid plan selected" 
+          success: false,
+          message: "Você já possui um plano de marketing ativo",
+          subscription: existingSubscription
         });
       }
 
-      // Get staff user to verify they exist
-      const staffUser = await storage.getStaffUserByEmail(staffId);
-      if (!staffUser) {
-        return res.status(404).json({ 
-          success: false, 
-          message: "Staff user not found" 
-        });
-      }
+      // Calculate expiration date (30 days from now)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
 
-      // For now, we'll just log the activation (in a real system, this would handle billing)
-      console.log(`🎯 [MARKETING] Staff ${staffId} (${staffUser.companyName}) activated plan: ${planId}`);
+      // Create subscription
+      const subscription = await storage.createMarketingSubscription({
+        staffId,
+        planId,
+        planName,
+        price,
+        expiresAt
+      });
 
-      // In a real implementation, you would:
-      // 1. Check current account balance/receivables
-      // 2. Deduct the plan cost or create an invoice
-      // 3. Update the staff user's marketing plan status
-      // 4. Set plan expiration date
-      // 5. Enable marketing features
+      console.log(`📈 MARKETING: Plano ${subscription.planId} ativado para staff ${staffId}`);
 
       res.json({ 
         success: true, 
-        message: `Plano ${planId} ativado com sucesso`,
-        planId,
-        activatedAt: new Date().toISOString()
+        message: "Plano de marketing ativado com sucesso!",
+        subscription
       });
     } catch (error: any) {
       console.error("Error activating marketing plan:", error);
@@ -4131,41 +4151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Marketing sponsorship routes
-  app.post("/api/staff/marketing/activate", async (req, res) => {
-    try {
-      const staffId = req.headers['x-staff-id'];
-      
-      if (!staffId) {
-        return res.status(401).json({ message: "Staff authentication required" });
-      }
 
-      const { planId } = req.body;
-      
-      if (!planId) {
-        return res.status(400).json({ message: "Plan ID is required" });
-      }
-
-      // For now, we'll simulate the activation process
-      // In a real implementation, this would integrate with a payment processor
-      console.log(`Marketing sponsorship activation requested by staff ${staffId} for plan ${planId}`);
-      
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Return success response
-      res.json({
-        success: true,
-        message: "Plano de patrocínio ativado com sucesso!",
-        planId,
-        activationDate: new Date(),
-        status: "active"
-      });
-    } catch (error) {
-      console.error("Error activating marketing sponsorship:", error);
-      res.status(500).json({ message: "Failed to activate sponsorship plan" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
