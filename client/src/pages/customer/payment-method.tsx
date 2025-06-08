@@ -34,12 +34,47 @@ export default function PaymentMethod() {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  const handleContinuePayment = () => {
+  const handleContinuePayment = async () => {
     console.log('Continuando para pagamento:', paymentMethod);
     
     if (paymentMethod === 'pix') {
-      // Navegar para tela de PIX
-      window.location.href = '/pix-payment';
+      try {
+        // Primeiro criar o pedido
+        const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
+        
+        const orderData = {
+          customerName: customerInfo.fullName || 'Cliente',
+          customerEmail: customerInfo.email,
+          customerPhone: customerInfo.phone,
+          items: cartItems.map(item => ({
+            productId: item.id,
+            quantity: item.quantity,
+            priceAtTime: item.discountPrice
+          })),
+          totalAmount: getTotalAmount().toFixed(2),
+          paymentMethod: 'pix'
+        };
+
+        const response = await fetch('/api/orders/create-public', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData)
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao criar pedido');
+        }
+
+        const order = await response.json();
+        
+        // Redirecionar para PIX com o ID do pedido
+        window.location.href = `/pix-payment/${order.id}`;
+      } catch (error) {
+        console.error('Erro ao criar pedido PIX:', error);
+        alert('Erro ao processar pedido. Tente novamente.');
+      }
     } else if (paymentMethod === 'card') {
       // Navegar para tela de Stripe
       window.location.href = '/customer/stripe-payment';
