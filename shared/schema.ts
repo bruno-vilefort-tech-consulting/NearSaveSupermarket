@@ -214,10 +214,31 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Marketing plan subscriptions table
+export const marketingSubscriptions = pgTable("marketing_subscriptions", {
+  id: serial("id").primaryKey(),
+  staffId: integer("staff_id").notNull(),
+  planId: varchar("plan_id").notNull(), // basic, premium, enterprise
+  planName: varchar("plan_name").notNull(),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status").notNull().default("active"), // active, cancelled, expired
+  activatedAt: timestamp("activated_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const pushSubscriptionsRelations = relations(pushSubscriptions, ({ one }) => ({
   customer: one(customers, {
     fields: [pushSubscriptions.customerEmail],
     references: [customers.email],
+  }),
+}));
+
+export const marketingSubscriptionsRelations = relations(marketingSubscriptions, ({ one }) => ({
+  staff: one(staffUsers, {
+    fields: [marketingSubscriptions.staffId],
+    references: [staffUsers.id],
   }),
 }));
 
@@ -293,6 +314,15 @@ export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions
 
 export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema>;
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+
+export const insertMarketingSubscriptionSchema = createInsertSchema(marketingSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMarketingSubscription = z.infer<typeof insertMarketingSubscriptionSchema>;
+export type MarketingSubscription = typeof marketingSubscriptions.$inferSelect;
 
 // Admin User schemas and types
 export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({

@@ -8,6 +8,7 @@ import {
   customers,
   passwordResetTokens,
   adminUsers,
+  marketingSubscriptions,
   type User,
   type UpsertUser,
   type Product,
@@ -30,6 +31,8 @@ import {
   type InsertPasswordResetToken,
   type PushSubscription,
   type InsertPushSubscription,
+  type MarketingSubscription,
+  type InsertMarketingSubscription,
   pushSubscriptions,
 } from "@shared/schema";
 import { db } from "./db";
@@ -194,6 +197,12 @@ export interface IStorage {
   
   // Order external reference operations
   updateOrderExternalReference(orderId: number, externalReference: string): Promise<void>;
+  
+  // Marketing subscription operations
+  createMarketingSubscription(subscription: InsertMarketingSubscription): Promise<MarketingSubscription>;
+  getMarketingSubscriptionByStaffId(staffId: number): Promise<MarketingSubscription | undefined>;
+  getActiveMarketingSubscriptionByStaffId(staffId: number): Promise<MarketingSubscription | undefined>;
+  updateMarketingSubscriptionStatus(id: number, status: string): Promise<MarketingSubscription | undefined>;
   
   // Financial statement operations
   getFinancialStatement(): Promise<Array<{
@@ -2154,6 +2163,59 @@ export class DatabaseStorage implements IStorage {
         items: row.items || []
       };
     });
+  }
+
+  // Marketing subscription operations
+  async createMarketingSubscription(subscription: InsertMarketingSubscription): Promise<MarketingSubscription> {
+    const [result] = await db
+      .insert(marketingSubscriptions)
+      .values(subscription)
+      .returning();
+    
+    console.log(`📈 MARKETING: Plano ${subscription.planId} ativado para staff ${subscription.staffId}`);
+    return result;
+  }
+
+  async getMarketingSubscriptionByStaffId(staffId: number): Promise<MarketingSubscription | undefined> {
+    const [subscription] = await db
+      .select()
+      .from(marketingSubscriptions)
+      .where(eq(marketingSubscriptions.staffId, staffId))
+      .orderBy(desc(marketingSubscriptions.createdAt))
+      .limit(1);
+
+    return subscription || undefined;
+  }
+
+  async getActiveMarketingSubscriptionByStaffId(staffId: number): Promise<MarketingSubscription | undefined> {
+    const [subscription] = await db
+      .select()
+      .from(marketingSubscriptions)
+      .where(
+        and(
+          eq(marketingSubscriptions.staffId, staffId),
+          eq(marketingSubscriptions.status, 'active'),
+          sql`${marketingSubscriptions.expiresAt} > NOW()`
+        )
+      )
+      .orderBy(desc(marketingSubscriptions.createdAt))
+      .limit(1);
+
+    return subscription || undefined;
+  }
+
+  async updateMarketingSubscriptionStatus(id: number, status: string): Promise<MarketingSubscription | undefined> {
+    const [subscription] = await db
+      .update(marketingSubscriptions)
+      .set({ 
+        status, 
+        updatedAt: new Date() 
+      })
+      .where(eq(marketingSubscriptions.id, id))
+      .returning();
+
+    console.log(`📈 MARKETING: Assinatura ${id} status atualizado para ${status}`);
+    return subscription || undefined;
   }
 }
 
