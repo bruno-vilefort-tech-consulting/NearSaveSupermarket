@@ -64,7 +64,7 @@ export default function MarketingConfirmation() {
       name: 'Plano Empresarial',
       description: 'Solução completa para redes de supermercados',
       price: 399.90,
-      duration: '30 dias',
+      duration: 'mensal',
       features: [
         'Tudo do Plano Premium',
         'Campanhas personalizadas',
