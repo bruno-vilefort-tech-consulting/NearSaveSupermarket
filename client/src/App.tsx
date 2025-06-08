@@ -42,6 +42,7 @@ import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminSupermarkets from "@/pages/admin/supermarkets";
 import AdminFinancialStatement from "@/pages/admin/financial-statement";
+import SupermarketPayments from "@/pages/admin/supermarket-payments";
 
 function Router() {
   return (
@@ -98,6 +99,7 @@ function Router() {
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/supermarkets" component={AdminSupermarkets} />
       <Route path="/admin/financial-statement" component={AdminFinancialStatement} />
+      <Route path="/admin/supermarket-payments" component={SupermarketPayments} />
       
       {/* Friendly Routes */}
       <Route path="/cliente" component={CustomerLanding} />

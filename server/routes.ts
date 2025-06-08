@@ -3648,6 +3648,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin routes for supermarket payment management
+  app.get("/api/admin/supermarket-payments", async (req, res) => {
+    try {
+      // Get payment summary for all supermarkets
+      const paymentSummary = await storage.getSupermarketPaymentSummary();
+      res.json(paymentSummary);
+    } catch (error: any) {
+      console.error("Erro ao buscar resumo de pagamentos:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  app.put("/api/admin/orders/:orderId/supermarket-payment", async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const { status, amount, notes } = req.body;
+      
+      if (!orderId || !status) {
+        return res.status(400).json({ message: "Order ID e status são obrigatórios" });
+      }
+
+      const validStatuses = ['aguardando_pagamento', 'pagamento_antecipado', 'pagamento_realizado'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ 
+          message: "Status inválido",
+          validStatuses 
+        });
+      }
+
+      const updatedOrder = await storage.updateSupermarketPaymentStatus(
+        parseInt(orderId),
+        status,
+        amount,
+        notes
+      );
+
+      if (!updatedOrder) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      res.json({
+        message: "Status de pagamento atualizado com sucesso",
+        order: updatedOrder
+      });
+    } catch (error: any) {
+      console.error("Erro ao atualizar status de pagamento:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   app.post("/api/admin/reject-supermarket/:staffId", async (req, res) => {
     try {
       const { staffId } = req.params;

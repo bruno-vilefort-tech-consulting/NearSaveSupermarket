@@ -1788,6 +1788,71 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ [STAFF UPDATE] Staff ${staffId} atualizado com dados:`, updateData);
   }
 
+  // Supermarket payment management
+  async updateSupermarketPaymentStatus(
+    orderId: number, 
+    status: 'aguardando_pagamento' | 'pagamento_antecipado' | 'pagamento_realizado',
+    amount?: number,
+    notes?: string
+  ): Promise<Order | undefined> {
+    const updateData: any = {
+      supermarketPaymentStatus: status,
+      updatedAt: new Date()
+    };
+
+    if (amount !== undefined) {
+      updateData.supermarketPaymentAmount = amount.toString();
+    }
+
+    if (status === 'pagamento_realizado') {
+      updateData.supermarketPaymentDate = new Date();
+    }
+
+    if (notes) {
+      updateData.supermarketPaymentNotes = notes;
+    }
+
+    const [order] = await db
+      .update(orders)
+      .set(updateData)
+      .where(eq(orders.id, orderId))
+      .returning();
+
+    console.log(`💰 PAGAMENTO SUPERMERCADO: Pedido ${orderId} status atualizado para ${status}`);
+    return order;
+  }
+
+  async getSupermarketPaymentSummary(staffId?: number): Promise<any> {
+    let whereConditions = [];
+    
+    if (staffId) {
+      whereConditions = [
+        eq(products.createdByStaff, staffId),
+        not(eq(orders.status, 'payment_expired')),
+        not(eq(orders.status, 'awaiting_payment'))
+      ];
+    } else {
+      whereConditions = [
+        not(eq(orders.status, 'payment_expired')),
+        not(eq(orders.status, 'awaiting_payment'))
+      ];
+    }
+
+    const paymentSummary = await db
+      .select({
+        supermarketPaymentStatus: orders.supermarketPaymentStatus,
+        totalAmount: sql<number>`SUM(CAST(${orders.totalAmount} AS DECIMAL))`,
+        orderCount: sql<number>`COUNT(${orders.id})`
+      })
+      .from(orders)
+      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(and(...whereConditions))
+      .groupBy(orders.supermarketPaymentStatus);
+
+    return paymentSummary;
+  }
+
   // Admin user operations
   async getAdminUserByEmail(email: string): Promise<AdminUser | undefined> {
     const [adminUser] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
