@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Calendar, DollarSign, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useLocation } from "wouter";
 
 interface StaffUser {
@@ -36,6 +37,7 @@ interface PendingPayment {
 
 function ValorAReceber() {
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
+  const [isValorReceberExpanded, setIsValorReceberExpanded] = useState(false);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -136,20 +138,129 @@ function ValorAReceber() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Valor a Receber Card */}
-          <Card className="transition-shadow hover:shadow-md cursor-pointer">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Valor a Receber</CardTitle>
-              <Clock className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {pendingPayments.length} pedidos pendentes
-              </p>
-            </CardContent>
-          </Card>
+          <Collapsible 
+            open={isValorReceberExpanded} 
+            onOpenChange={setIsValorReceberExpanded}
+            className="col-span-1 md:col-span-3"
+          >
+            <CollapsibleTrigger asChild>
+              <Card className="transition-shadow hover:shadow-md cursor-pointer">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Valor a Receber</CardTitle>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="h-4 w-4 text-blue-600" />
+                    {isValorReceberExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-gray-500" />
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-600">
+                    R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {pendingPayments.length} pedidos pendentes
+                  </p>
+                </CardContent>
+              </Card>
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent className="space-y-4 mt-4">
+              {/* Summary Details */}
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-blue-500">
+                        R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className="text-sm text-gray-500">Total a Receber da SaveUp</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-700">
+                        {pendingPayments.length}
+                      </div>
+                      <div className="text-sm text-gray-500">Pedidos Aguardando Pagamento</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">
+                        {pendingPayments.filter((p: PendingPayment) => getDaysUntilDue(p.dueDate) >= 0).length}
+                      </div>
+                      <div className="text-sm text-gray-500">Dentro do Prazo</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Payments List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5" />
+                    <span>Pagamentos Pendentes ({pendingPayments.length})</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {pendingPayments.length === 0 ? (
+                    <div className="text-center py-12">
+                      <DollarSign className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum pagamento pendente</h3>
+                      <p className="text-gray-500">
+                        Todos os seus pedidos foram pagos pela SaveUp.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {pendingPayments.map((payment: PendingPayment) => {
+                        const daysUntilDue = getDaysUntilDue(payment.dueDate);
+                        return (
+                          <div key={payment.id} className="border rounded-lg p-4 bg-gray-50">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h4 className="font-medium text-gray-900">Pedido #{payment.id}</h4>
+                                <p className="text-sm text-gray-600">Cliente: {payment.customerName}</p>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-lg font-bold text-blue-600">
+                                  R$ {parseFloat(payment.netAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </div>
+                                {getStatusBadge(daysUntilDue)}
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                              <div>
+                                <span className="font-medium">Concluído:</span> {new Date(payment.completedAt).toLocaleDateString('pt-BR')}
+                              </div>
+                              <div>
+                                <span className="font-medium">Vencimento:</span> {new Date(payment.dueDate).toLocaleDateString('pt-BR')}
+                              </div>
+                            </div>
+                            
+                            {payment.orderItems.length > 0 && (
+                              <div className="mt-3">
+                                <p className="text-sm font-medium text-gray-700 mb-1">Produtos:</p>
+                                <div className="text-sm text-gray-600">
+                                  {payment.orderItems.map((item, index) => (
+                                    <span key={item.id}>
+                                      {item.quantity}x {item.product.name}
+                                      {index < payment.orderItems.length - 1 ? ', ' : ''}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Valores Recebidos Card */}
           <Card className="transition-shadow hover:shadow-md cursor-pointer">
@@ -183,85 +294,6 @@ function ValorAReceber() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Summary Details */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-500">
-                  R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-                <div className="text-sm text-gray-500">Total a Receber da SaveUp</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-700">
-                  {pendingPayments.length}
-                </div>
-                <div className="text-sm text-gray-500">Pedidos Aguardando Pagamento</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {pendingPayments.filter((p: PendingPayment) => getDaysUntilDue(p.dueDate) >= 0).length}
-                </div>
-                <div className="text-sm text-gray-500">Dentro do Prazo</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Payments List */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5" />
-              <span>Pagamentos Pendentes ({pendingPayments.length})</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {pendingPayments.length === 0 ? (
-              <div className="text-center py-12">
-                <DollarSign className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum pagamento pendente</h3>
-                <p className="text-gray-500">
-                  Todos os seus pedidos foram pagos pela SaveUp.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {pendingPayments.map((payment: PendingPayment) => {
-                  const daysUntilDue = getDaysUntilDue(payment.dueDate);
-                  return (
-                    <div key={payment.id} className="border rounded-lg p-3 hover:bg-gray-50 transition-colors">
-                      <div className="flex justify-between items-center">
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="font-semibold text-gray-900">
-                              Pedido #{payment.id}
-                            </h3>
-                            <div className="text-lg font-bold text-blue-500">
-                              R$ {parseFloat(payment.netAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm text-gray-600">
-                              {payment.customerName}
-                            </p>
-                            {getStatusBadge(daysUntilDue)}
-                          </div>
-                          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                            <span>Concluído: {formatDate(payment.completedAt)}</span>
-                            <span>Prazo: {formatDate(payment.dueDate)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
