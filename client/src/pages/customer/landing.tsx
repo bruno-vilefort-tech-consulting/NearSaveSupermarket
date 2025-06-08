@@ -35,11 +35,11 @@ export default function CustomerLanding() {
   }, []);
 
   const ModernHeroSection = () => (
-    <div className="relative text-center space-y-8">
+    <div className="relative text-center space-y-4 md:space-y-8">
       {/* Logo e Título Principal */}
-      <div className="space-y-6">
-        <div className="space-y-3">
-          <h1 className="text-5xl font-bold text-eco-gray-dark tracking-tight">
+      <div className="space-y-4 md:space-y-6">
+        <div className="space-y-2 md:space-y-3">
+          <h1 className="text-3xl md:text-5xl font-bold text-eco-gray-dark tracking-tight">
             {t('landing.title')}
           </h1>
           <div className="flex justify-center">
@@ -52,16 +52,16 @@ export default function CustomerLanding() {
       </div>
 
       {/* Ilustração das Sacolas Coloridas */}
-      <div className="flex justify-center items-center my-8">
+      <div className="flex justify-center items-center my-4 md:my-8">
         <img 
           src={shoppingBagsImage} 
           alt="Sacolas de compras coloridas" 
-          className="w-64 h-auto max-w-full object-contain drop-shadow-lg"
+          className="w-48 md:w-64 h-auto max-w-full object-contain drop-shadow-lg"
         />
       </div>
 
       {/* CTA Buttons */}
-      <div className="flex flex-col gap-3 justify-center items-center w-full max-w-xs mx-auto">
+      <div className="flex flex-col gap-3 justify-center items-center w-full max-w-xs mx-auto px-4">
         <Button
           onClick={handleLogin}
           size="default"
@@ -157,7 +157,7 @@ export default function CustomerLanding() {
   );
 
   return (
-    <div className="h-screen bg-gradient-to-b from-eco-gray-light to-white flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-eco-gray-light to-white flex flex-col">
       {/* Header */}
       <div className="flex justify-end items-center p-4">
         {/* Language Selector */}
@@ -199,7 +199,7 @@ export default function CustomerLanding() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-center items-center px-4">
+      <div className="flex-1 flex flex-col justify-center items-center px-4 py-8">
         <ModernHeroSection />
       </div>
     </div>
