@@ -76,63 +76,63 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
         
         // Criar o pedido após pagamento bem-sucedido
         try {
-          console.log('🎯 Criando pedido após pagamento bem-sucedido');
+          console.log('🎯 Confirmando pagamento e criando pedido');
           const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
           const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
           
-          const orderData = {
-            customerName: customerInfo.fullName || '',
-            customerEmail: customerInfo.email || '',
-            customerPhone: customerInfo.phone || '',
-            fulfillmentMethod: 'pickup',
-            items: cartItems.map((item: any) => ({
-              productId: item.id,
-              quantity: item.quantity,
-              priceAtTime: item.discountPrice
-            })),
+          const requestData = {
             paymentIntentId: paymentIntent.id,
-            totalAmount: totalAmount.toString()
+            customerData: {
+              customerName: customerInfo.fullName || '',
+              customerEmail: customerInfo.email || '',
+              customerPhone: customerInfo.phone || ''
+            },
+            orderData: {
+              fulfillmentMethod: 'pickup',
+              deliveryAddress: null,
+              totalAmount: totalAmount.toString(),
+              items: cartItems.map((item: any) => ({
+                productId: item.id,
+                quantity: item.quantity,
+                priceAtTime: item.discountPrice
+              }))
+            }
           };
 
-          const createOrderResponse = await fetch('/api/customer/orders', {
+          const confirmResponse = await fetch('/api/payments/stripe/confirm-and-create-order', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(orderData)
+            body: JSON.stringify(requestData)
           });
 
-          if (createOrderResponse.ok) {
-            const newOrder = await createOrderResponse.json();
-            console.log('✅ Pedido criado com sucesso:', newOrder.id);
+          if (confirmResponse.ok) {
+            const result = await confirmResponse.json();
+            console.log('✅ Pagamento confirmado e pedido criado:', result.order.id);
             
-            // Confirmar o pagamento no backend
-            const confirmResponse = await fetch('/api/payments/stripe/confirm', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                orderId: newOrder.id,
-                paymentIntentId: paymentIntent.id,
-                amount: totalAmount
-              })
-            });
-
-            if (confirmResponse.ok) {
-              console.log('✅ Pagamento confirmado no backend');
-              // Limpar dados temporários
-              localStorage.removeItem('cart');
-              localStorage.removeItem('currentOrderId');
-              localStorage.setItem('lastOrderId', newOrder.id.toString());
-            } else {
-              console.error('⚠️ Erro ao confirmar pagamento no backend');
-            }
+            // Limpar dados temporários
+            localStorage.removeItem('cart');
+            localStorage.removeItem('currentOrderId');
+            localStorage.setItem('lastOrderId', result.order.id.toString());
           } else {
-            console.error('❌ Erro ao criar pedido');
+            const errorData = await confirmResponse.json();
+            console.error('❌ Erro ao confirmar pagamento:', errorData);
+            
+            toast({
+              title: "Erro no Processamento",
+              description: "Pagamento aprovado, mas houve erro ao criar o pedido. Entre em contato conosco.",
+              variant: "destructive",
+            });
           }
         } catch (error) {
-          console.error('❌ Erro ao processar pedido:', error);
+          console.error('❌ Erro ao processar confirmação:', error);
+          
+          toast({
+            title: "Erro no Processamento",
+            description: "Pagamento aprovado, mas houve erro no processamento. Entre em contato conosco.",
+            variant: "destructive",
+          });
         }
         
         window.location.href = '/payment-success';

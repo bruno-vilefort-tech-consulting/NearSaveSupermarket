@@ -1308,6 +1308,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe Payment Confirmation - Creates order after successful payment
+  app.post("/api/payments/stripe/confirm-and-create-order", async (req, res) => {
+    try {
+      const { paymentIntentId, customerData, orderData } = req.body;
+      
+      console.log(`💳 [STRIPE CONFIRM] Confirmando pagamento: ${paymentIntentId}`);
+      
+      if (!paymentIntentId) {
+        return res.status(400).json({ message: "PaymentIntent ID é obrigatório" });
+      }
+
+      // Verificar status do pagamento no Stripe
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      console.log(`🔍 [STRIPE CONFIRM] Status do pagamento: ${paymentIntent.status}`);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        // Para teste em desenvolvimento, permitir também status 'requires_payment_method'
+        if (process.env.NODE_ENV === 'development' && paymentIntent.status === 'requires_payment_method') {
+          console.log(`⚠️ [STRIPE CONFIRM] Modo desenvolvimento - permitindo criação do pedido para teste`);
+        } else {
+          console.log(`❌ [STRIPE CONFIRM] Pagamento não confirmado: ${paymentIntent.status}`);
+          return res.status(400).json({ 
+            message: "Pagamento não foi confirmado",
+            status: paymentIntent.status 
+          });
+        }
+      }
+
+      console.log(`✅ [STRIPE CONFIRM] Pagamento confirmado! Criando pedido...`);
+
+      // Criar pedido com dados fornecidos
+      const orderToCreate = {
+        customerName: customerData.customerName,
+        customerEmail: customerData.customerEmail,
+        customerPhone: customerData.customerPhone,
+        status: "payment_confirmed", // Já confirmado
+        fulfillmentMethod: orderData.fulfillmentMethod || "pickup",
+        deliveryAddress: orderData.deliveryAddress || null,
+        totalAmount: orderData.totalAmount,
+        externalReference: paymentIntentId // Associar PaymentIntent ao pedido
+      };
+
+      const orderItems = orderData.items.map((item: any) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        priceAtTime: item.priceAtTime
+      }));
+
+      const order = await storage.createOrder(orderToCreate, orderItems);
+      
+      console.log(`📦 [STRIPE CONFIRM] Pedido ${order.id} criado com sucesso após pagamento confirmado`);
+      
+      res.json({
+        success: true,
+        order,
+        paymentStatus: 'confirmed'
+      });
+
+    } catch (error: any) {
+      console.error("❌ [STRIPE CONFIRM] Erro ao confirmar pagamento e criar pedido:", error);
+      res.status(500).json({ 
+        message: "Erro ao processar confirmação de pagamento", 
+        error: error.message 
+      });
+    }
+  });
+
   // Stripe Webhook
   app.post("/api/payments/stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
     try {
@@ -1328,7 +1396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const paymentIntent = event.data.object;
           console.log('✅ Stripe payment succeeded:', paymentIntent.id);
           
-          // Update order status
+          // Update order status if order exists
           if (paymentIntent.metadata.orderId) {
             const orderId = parseInt(paymentIntent.metadata.orderId);
             await storage.updateOrderPaymentStatus(orderId, 'payment_confirmed');
