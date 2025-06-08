@@ -104,6 +104,7 @@ export default function CustomerCartPT() {
             </Link>
             <div className="ml-4">
               <h1 className="text-lg font-bold text-eco-gray-dark">CARRINHO DE COMPRAS</h1>
+              <small className="text-xs text-green-600 font-bold">PORTUGUÊS v7 - FORÇAR CACHE</small>
             </div>
           </div>
         </div>
@@ -118,6 +119,7 @@ export default function CustomerCartPT() {
 
             <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">SEU CARRINHO ESTÁ VAZIO</h2>
             <p className="text-eco-gray mb-6">Adicione produtos para começar suas compras sustentáveis</p>
+            <div className="text-xs text-gray-400 mb-2">Versão: {Date.now()}</div>
             <Link href="/customer">
               <Button className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors">
                 CONTINUAR COMPRANDO
