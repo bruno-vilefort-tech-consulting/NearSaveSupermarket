@@ -1,0 +1,17 @@
+{
+  "currentApp": "customer",
+  "apps": {
+    "customer": {
+      "name": "SaveUp Customer",
+      "theme": "green",
+      "entry": "apps/customer/src/main.tsx",
+      "routes": "/customer"
+    },
+    "staff": {
+      "name": "SaveUp Staff",
+      "theme": "blue", 
+      "entry": "apps/staff/src/main.tsx",
+      "routes": "/staff"
+    }
+  }
+}
