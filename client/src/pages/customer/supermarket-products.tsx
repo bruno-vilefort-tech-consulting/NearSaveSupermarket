@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, ShoppingCart, ArrowLeft, Package, MapPin, Clock, Leaf, AlertTriangle } from "lucide-react";
-import { AddToCartModal } from "@/components/add-to-cart-modal";
+import { AddToCartModalPT } from "@/components/add-to-cart-modal-pt";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface Product {
@@ -401,7 +401,7 @@ export default function SupermarketProducts() {
       </div>
 
       {/* Add to Cart Modal */}
-      <AddToCartModal
+      <AddToCartModalPT
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
