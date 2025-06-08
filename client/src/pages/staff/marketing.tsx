@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Rocket, ArrowLeft, Star, Target, TrendingUp, Calendar, MapPin, Users, DollarSign } from "lucide-react";
 import { useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
 
 interface StaffUser {
   id: number;
@@ -32,8 +30,6 @@ interface SponsorshipPlan {
 function StaffMarketing() {
   const [, setLocation] = useLocation();
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     const staffInfo = localStorage.getItem('staffInfo');
@@ -292,10 +288,9 @@ function StaffMarketing() {
                   
                   <Button 
                     className={`w-full ${plan.recommended ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
-                    onClick={() => activateSponsorshipMutation.mutate(plan.id)}
-                    disabled={activateSponsorshipMutation.isPending}
+                    onClick={() => setLocation(`/supermercado/marketing/confirmacao/${plan.id}`)}
                   >
-                    {activateSponsorshipMutation.isPending ? 'Ativando...' : 'Ativar Patrocínio'}
+                    Escolher Plano
                   </Button>
                 </CardContent>
               </Card>

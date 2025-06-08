@@ -38,6 +38,7 @@ import StaffProducts from "@/pages/staff/products";
 import StaffOrders from "@/pages/staff/orders";
 import StaffSettings from "@/pages/staff/settings";
 import StaffMarketing from "@/pages/staff/marketing";
+import MarketingConfirmation from "@/pages/staff/marketing-confirmation";
 import ValorAReceber from "@/pages/staff/valor-a-receber";
 import ValorAReceberDetalhes from "@/pages/staff/valor-a-receber-detalhes";
 import ConfirmOrderPage from "@/pages/confirm-order";
@@ -104,6 +105,7 @@ function Router() {
       <Route path="/supermercado/settings" component={StaffSettings} />
       <Route path="/supermercado/configuracoes" component={StaffSettings} />
       <Route path="/supermercado/marketing" component={StaffMarketing} />
+      <Route path="/supermercado/marketing/confirmacao/:planId" component={MarketingConfirmation} />
       <Route path="/supermercado/gestao-financeira" component={ValorAReceber} />
       <Route path="/supermercado/gestao-financeira/valor-a-receber" component={ValorAReceberDetalhes} />
       
