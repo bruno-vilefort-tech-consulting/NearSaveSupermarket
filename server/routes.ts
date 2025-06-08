@@ -1231,6 +1231,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { amount, orderId, customerEmail, cartHash } = req.body;
       
+      console.log(`🔍 [STRIPE DEBUG] Recebido: amount=${amount}, orderId=${orderId}, cartHash=${cartHash}, customerEmail=${customerEmail}`);
+      
       if (!amount) {
         return res.status(400).json({ message: "Amount é obrigatório" });
       }
@@ -1254,45 +1256,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // CRÍTICO: Verificar se já existe um PaymentIntent válido para este pedido
-      const existingOrder = await storage.getOrder(parseInt(orderId));
-      if (existingOrder && existingOrder.externalReference) {
-        console.log(`🔍 [STRIPE] Verificando PaymentIntent existente para pedido ${orderId}: ${existingOrder.externalReference}`);
-        
+      // Verificar se há um pedido válido associado (apenas se orderId estiver presente e for válido)
+      if (orderId && orderId !== "undefined" && !isNaN(parseInt(orderId))) {
         try {
-          // Verificar status no Stripe
-          const existingPaymentIntent = await stripe.paymentIntents.retrieve(existingOrder.externalReference);
-          
-          // Se o PaymentIntent está em estado utilizável, reutilizar
-          if (existingPaymentIntent && 
-              existingPaymentIntent.status !== 'succeeded' && 
-              existingPaymentIntent.status !== 'canceled' &&
-              existingPaymentIntent.status !== 'requires_capture') {
+          const existingOrder = await storage.getOrder(parseInt(orderId));
+          if (existingOrder && existingOrder.externalReference) {
+            console.log(`🔍 [STRIPE] Verificando PaymentIntent existente para pedido ${orderId}: ${existingOrder.externalReference}`);
             
-            console.log(`✅ [STRIPE] Reutilizando PaymentIntent existente: ${existingPaymentIntent.id}, status: ${existingPaymentIntent.status}`);
-            
-            return res.json({
-              clientSecret: existingPaymentIntent.client_secret,
-              paymentIntentId: existingPaymentIntent.id,
-              adjustedAmount: (existingPaymentIntent.amount / 100).toString(),
-              originalAmount: amount.toString(),
-              reused: true,
-              status: existingPaymentIntent.status
-            });
+            try {
+              // Verificar status no Stripe
+              const existingPaymentIntent = await stripe.paymentIntents.retrieve(existingOrder.externalReference);
+              
+              // Se o PaymentIntent está em estado utilizável, reutilizar
+              if (existingPaymentIntent && 
+                  existingPaymentIntent.status !== 'succeeded' && 
+                  existingPaymentIntent.status !== 'canceled' &&
+                  existingPaymentIntent.status !== 'requires_capture') {
+                
+                console.log(`✅ [STRIPE] Reutilizando PaymentIntent existente: ${existingPaymentIntent.id}, status: ${existingPaymentIntent.status}`);
+                
+                return res.json({
+                  clientSecret: existingPaymentIntent.client_secret,
+                  paymentIntentId: existingPaymentIntent.id,
+                  adjustedAmount: (existingPaymentIntent.amount / 100).toString(),
+                  originalAmount: amount.toString(),
+                  reused: true,
+                  status: existingPaymentIntent.status
+                });
+              }
+              
+              // Se já foi pago com sucesso, não criar novo
+              if (existingPaymentIntent.status === 'succeeded') {
+                console.log(`⚠️ [STRIPE] PaymentIntent já foi pago com sucesso: ${existingPaymentIntent.id}`);
+                return res.status(400).json({
+                  message: "Este pedido já foi pago",
+                  paymentIntentId: existingPaymentIntent.id,
+                  status: "already_paid"
+                });
+              }
+              
+            } catch (stripeError: any) {
+              console.log(`⚠️ [STRIPE] PaymentIntent existente inválido: ${existingOrder.externalReference}, erro: ${stripeError.message}`);
+              // Continuar para criar um novo PaymentIntent
+            }
           }
-          
-          // Se já foi pago com sucesso, não criar novo
-          if (existingPaymentIntent.status === 'succeeded') {
-            console.log(`⚠️ [STRIPE] PaymentIntent já foi pago com sucesso: ${existingPaymentIntent.id}`);
-            return res.status(400).json({
-              message: "Este pedido já foi pago",
-              paymentIntentId: existingPaymentIntent.id,
-              status: "already_paid"
-            });
-          }
-          
-        } catch (stripeError: any) {
-          console.log(`⚠️ [STRIPE] PaymentIntent existente inválido: ${existingOrder.externalReference}, erro: ${stripeError.message}`);
+        } catch (dbError: any) {
+          console.log(`⚠️ [STRIPE] Erro ao verificar pedido existente: ${dbError.message}`);
           // Continuar para criar um novo PaymentIntent
         }
       }
