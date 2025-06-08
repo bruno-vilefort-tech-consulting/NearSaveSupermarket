@@ -55,8 +55,19 @@ function ValorAReceberDetalhes() {
   }, [setLocation]);
 
   const { data: pendingPayments = [], isLoading } = useQuery<PendingPayment[]>({
-    queryKey: ['/api/staff/pending-payments'],
+    queryKey: ['/api/staff/pending-payments', staffUser?.id],
     enabled: !!staffUser?.id,
+    queryFn: async () => {
+      const response = await fetch('/api/staff/pending-payments', {
+        headers: {
+          'x-staff-id': staffUser!.id.toString()
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    },
   });
 
   // Ordenar por data crescente (mais antigos primeiro)

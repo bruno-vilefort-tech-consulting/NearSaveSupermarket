@@ -28,14 +28,13 @@ function StaffDashboard() {
 
   // Fetch staff statistics
   const { data: stats } = useQuery({
-    queryKey: ["/api/staff/stats"],
+    queryKey: ["/api/staff/stats", staffUser?.id],
     queryFn: async () => {
-      const staffId = localStorage.getItem("staffId");
       const response = await fetch("/api/staff/stats", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "X-Staff-Id": staffId || "",
+          "X-Staff-Id": staffUser!.id.toString(),
         },
       });
       if (!response.ok) {
@@ -43,7 +42,7 @@ function StaffDashboard() {
       }
       return response.json();
     },
-    enabled: !!staffUser && staffUser.approvalStatus === 'approved',
+    enabled: !!staffUser?.id && staffUser.approvalStatus === 'approved',
   });
 
   useEffect(() => {
@@ -57,9 +56,6 @@ function StaffDashboard() {
     try {
       const parsedStaffInfo = JSON.parse(staffInfo);
       setStaffUser(parsedStaffInfo);
-      
-      // Ensure staffId is set in localStorage for API calls
-      localStorage.setItem('staffId', '13');
     } catch (error) {
       localStorage.removeItem('staffInfo');
       setLocation('/staff');
