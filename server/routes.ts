@@ -3687,27 +3687,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Simple Stripe payment intent endpoint for checkout
+  // DEPRECATED: Redirecting to new secure endpoint
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
-      const { amount } = req.body;
+      console.log('⚠️ [DEPRECATED] Endpoint /api/create-payment-intent está obsoleto, redirecionando para versão segura');
       
-      if (!amount || amount <= 0) {
-        return res.status(400).json({ message: "Amount is required and must be greater than 0" });
-      }
-
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: "brl",
-        automatic_payment_methods: {
-          enabled: true,
-        },
+      // Este endpoint antigo criava duplicações no Stripe
+      // Retornar erro para forçar uso do endpoint correto
+      return res.status(410).json({ 
+        message: "Este endpoint está obsoleto. Use /api/payments/stripe/create-payment-intent com orderId",
+        deprecated: true,
+        newEndpoint: "/api/payments/stripe/create-payment-intent"
       });
-
-      res.json({ clientSecret: paymentIntent.client_secret });
     } catch (error: any) {
-      console.error('Error creating payment intent:', error);
+      console.error('Error in deprecated endpoint:', error);
       res.status(500).json({ 
-        message: "Error creating payment intent", 
+        message: "Endpoint obsoleto", 
         error: error.message 
       });
     }
