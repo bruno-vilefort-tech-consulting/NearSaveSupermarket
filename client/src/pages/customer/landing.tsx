@@ -74,29 +74,29 @@ export default function CustomerLanding() {
 
           {/* Sacola Pequena (esquerda) */}
           <g filter="url(#shadow)">
-            <path d="M30 70 L30 110 Q30 115 35 115 L55 115 Q60 115 60 110 L60 70 Z" fill="url(#orangeBagGradient)" />
-            <rect x="30" y="67" width="30" height="5" rx="2" fill="url(#orangeBagGradient)" opacity="0.8" />
+            <path d="M25 85 L25 120 Q25 125 30 125 L50 125 Q55 125 55 120 L55 85 Z" fill="url(#orangeBagGradient)" />
+            <rect x="25" y="82" width="30" height="5" rx="2" fill="url(#orangeBagGradient)" opacity="0.8" />
             {/* Alças */}
-            <path d="M37 67 Q37 61 43 61 Q49 61 49 67" stroke="url(#orangeBagGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-            <path d="M41 67 Q41 61 47 61 Q53 61 53 67" stroke="url(#orangeBagGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <path d="M32 82 Q32 76 38 76 Q44 76 44 82" stroke="url(#orangeBagGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <path d="M36 82 Q36 76 42 76 Q48 76 48 82" stroke="url(#orangeBagGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
           </g>
 
-          {/* Sacola Grande (centro) */}
+          {/* Sacola Média (centro) */}
           <g filter="url(#shadow)">
-            <path d="M75 45 L75 125 Q75 135 85 135 L125 135 Q135 135 135 125 L135 45 Z" fill="url(#greenBagGradient)" />
-            <rect x="75" y="40" width="60" height="8" rx="4" fill="url(#greenBagGradient)" opacity="0.8" />
+            <path d="M65 70 L65 120 Q65 125 70 125 L100 125 Q105 125 105 120 L105 70 Z" fill="url(#lightGreenGradient)" />
+            <rect x="65" y="67" width="40" height="6" rx="3" fill="url(#lightGreenGradient)" opacity="0.8" />
             {/* Alças */}
-            <path d="M90 40 Q90 30 100 30 Q110 30 110 40" stroke="url(#greenBagGradient)" strokeWidth="4" fill="none" strokeLinecap="round" />
-            <path d="M100 40 Q100 30 110 30 Q120 30 120 40" stroke="url(#greenBagGradient)" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M73 67 Q73 60 80 60 Q87 60 87 67" stroke="url(#lightGreenGradient)" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M83 67 Q83 60 90 60 Q97 60 97 67" stroke="url(#lightGreenGradient)" strokeWidth="3" fill="none" strokeLinecap="round" />
           </g>
 
-          {/* Sacola Pequena (direita) */}
+          {/* Sacola Grande (direita) */}
           <g filter="url(#shadow)">
-            <path d="M150 70 L150 110 Q150 115 155 115 L175 115 Q180 115 180 110 L180 70 Z" fill="url(#lightGreenGradient)" />
-            <rect x="150" y="67" width="30" height="5" rx="2" fill="url(#lightGreenGradient)" opacity="0.8" />
+            <path d="M115 45 L115 120 Q115 125 120 125 L155 125 Q160 125 160 120 L160 45 Z" fill="url(#greenBagGradient)" />
+            <rect x="115" y="40" width="45" height="8" rx="4" fill="url(#greenBagGradient)" opacity="0.8" />
             {/* Alças */}
-            <path d="M157 67 Q157 61 163 61 Q169 61 169 67" stroke="url(#lightGreenGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-            <path d="M161 67 Q161 61 167 61 Q173 61 173 67" stroke="url(#lightGreenGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <path d="M125 40 Q125 30 133 30 Q141 30 141 40" stroke="url(#greenBagGradient)" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M134 40 Q134 30 142 30 Q150 30 150 40" stroke="url(#greenBagGradient)" strokeWidth="4" fill="none" strokeLinecap="round" />
           </g>
         </svg>
       </div>
