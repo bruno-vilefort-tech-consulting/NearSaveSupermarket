@@ -1392,11 +1392,13 @@ export class DatabaseStorage implements IStorage {
 
     const commercialRate = Number(staffInfo?.commercialRate || 5.00); // Default 5% if not found
 
-    // Calculate revenue from confirmed order items only
-    const confirmedItemsQuery = await db
+    // Calculate revenue from non-removed order items (pending + confirmed)
+    const validItemsQuery = await db
       .select({ 
         priceAtTime: orderItems.priceAtTime,
-        quantity: orderItems.quantity
+        quantity: orderItems.quantity,
+        confirmationStatus: orderItems.confirmationStatus,
+        orderId: orders.id
       })
       .from(orders)
       .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -1405,14 +1407,24 @@ export class DatabaseStorage implements IStorage {
         and(
           eq(products.createdByStaff, staffId),
           eq(orders.status, "completed"),
-          eq(orderItems.confirmationStatus, "confirmed")
+          or(
+            eq(orderItems.confirmationStatus, "pending"),
+            eq(orderItems.confirmationStatus, "confirmed")
+          ) // Include pending and confirmed items
         )
       );
 
-    // Calculate total revenue from confirmed items only
-    const grossRevenue = confirmedItemsQuery.reduce((sum, item) => {
+    console.log(`📊 [STATS DEBUG] Staff ${staffId} - Items encontrados:`, validItemsQuery.length);
+    validItemsQuery.forEach(item => {
+      console.log(`   Item: R$${item.priceAtTime} x ${item.quantity} = R$${Number(item.priceAtTime) * Number(item.quantity)} (status: ${item.confirmationStatus}, order: ${item.orderId})`);
+    });
+
+    // Calculate total revenue from non-removed items
+    const grossRevenue = validItemsQuery.reduce((sum, item) => {
       return sum + (Number(item.priceAtTime) * Number(item.quantity));
     }, 0);
+    
+    console.log(`📊 [STATS DEBUG] Staff ${staffId} - Receita bruta: R$${grossRevenue}, líquida: R$${grossRevenue - (grossRevenue * (commercialRate / 100))}`);
     const commission = grossRevenue * (commercialRate / 100);
     const netRevenue = grossRevenue - commission;
 
