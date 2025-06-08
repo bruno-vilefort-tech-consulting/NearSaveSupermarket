@@ -128,7 +128,7 @@ function AdminFinancialStatement() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
+              <CardTitle className="text-sm font-medium">Volume Total Vendas</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -164,7 +164,7 @@ function AdminFinancialStatement() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Pedidos Financeiros</CardTitle>
+              <CardTitle>Pedidos Aguardando Pagamento</CardTitle>
               <div className="flex items-center space-x-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
