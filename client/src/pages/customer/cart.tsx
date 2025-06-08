@@ -1,15 +1,12 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Plus, Minus, Trash2, MapPin, Clock, User, Phone, Mail } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useLanguage } from "@/hooks/useLanguage";
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'wouter';
+import { ArrowLeft, Plus, Minus, Trash2, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CartItem {
   id: number;
@@ -27,29 +24,16 @@ interface CartItem {
   };
 }
 
-export default function CustomerCart() {
-  const [, navigate] = useLocation();
-  const { toast } = useToast();
-  const { t, language } = useLanguage();
+export default function CustomerCartPT() {
+  const { language, t } = useLanguage();
+  const [, setLocation] = useLocation();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [deliveryType, setDeliveryType] = useState("pickup");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [customerInfo, setCustomerInfo] = useState<any>(null);
 
-  // Debug: verificar idioma atual
-  console.log('Cart component loaded - Language:', language);
-  console.log('Cart title translation:', t('cart.title'));
-  console.log('Current URL:', window.location.href);
-  console.log('Component ID: CART_COMPONENT_PT_BR_v3');
-  
-  // Force clear localStorage cache for translations
-  useEffect(() => {
-    console.log('Cart component mounted with language:', language);
-    console.log('Translation test - empty cart:', t('cart.empty'));
-    console.log('Translation test - continue shopping:', t('cart.continueShopping'));
-  }, [language]);
 
-  // Carregar itens do carrinho e informações do cliente do localStorage
+
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -62,158 +46,52 @@ export default function CustomerCart() {
     }
   }, []);
 
-  // Salvar no localStorage sempre que o carrinho for atualizado
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  const formatPrice = (price: string) => {
-    return `R$ ${parseFloat(price).toFixed(2).replace('.', ',')}`;
-  };
-
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      const updatedItems = cartItems.filter(item => item.id !== id);
-      setCartItems(updatedItems);
-      // Se o carrinho ficar vazio, limpar também o ID do supermercado
-      if (updatedItems.length === 0) {
-        localStorage.removeItem('cartSupermarketId');
-      }
-    } else {
-      setCartItems(cartItems.map(item => 
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      ));
-    }
-  };
-
-  const removeItem = (id: number) => {
-    const updatedItems = cartItems.filter(item => item.id !== id);
-    setCartItems(updatedItems);
-    // Se o carrinho ficar vazio, limpar também o ID do supermercado
-    if (updatedItems.length === 0) {
-      localStorage.removeItem('cartSupermarketId');
-    }
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-    localStorage.removeItem('cart');
-    localStorage.removeItem('cartSupermarketId');
-  };
-
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => {
-      return total + (parseFloat(item.discountPrice) * item.quantity);
-    }, 0);
-  };
-
-  const calculateSavings = () => {
-    return cartItems.reduce((savings, item) => {
-      const originalTotal = parseFloat(item.originalPrice) * item.quantity;
-      const discountTotal = parseFloat(item.discountPrice) * item.quantity;
-      return savings + (originalTotal - discountTotal);
-    }, 0);
-  };
-
-  // Agrupar itens por supermercado
-  const getSupermarckets = () => {
-    const supermarkets = new Map();
-    
-    cartItems.forEach(item => {
-      const supermarketName = item.createdBy?.supermarketName || "Supermercado";
-      const supermarketAddress = item.createdBy?.supermarketAddress || "Endereço não informado";
+  const updateQuantity = (itemId: number, change: number) => {
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.map(item => {
+        if (item.id === itemId) {
+          const newQuantity = Math.max(0, item.quantity + change);
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      }).filter(item => item.quantity > 0);
       
-      if (!supermarkets.has(supermarketName)) {
-        supermarkets.set(supermarketName, {
-          name: supermarketName,
-          address: supermarketAddress,
-          items: []
-        });
-      }
-      
-      supermarkets.get(supermarketName).items.push(item);
+      localStorage.setItem('cart', JSON.stringify(updatedItems));
+      return updatedItems;
     });
-    
-    return Array.from(supermarkets.values());
   };
 
-  const createOrderMutation = useMutation({
-    mutationFn: async (orderData: any) => {
-      const response = await fetch("/api/public/orders", {
-        method: "POST",
-        body: JSON.stringify(orderData),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-      
-      return await response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: t('cart.orderSuccess'),
-        description: t('cart.orderSuccessDescription'),
-      });
-      clearCart();
-      navigate("/customer");
-    },
-    onError: (error) => {
-      console.error("Erro ao criar pedido:", error);
-      toast({
-        title: t('cart.orderError'),
-        description: t('cart.orderErrorDescription'),
-        variant: "destructive",
-      });
-    },
-  });
+  const removeItem = (itemId: number) => {
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.filter(item => item.id !== itemId);
+      localStorage.setItem('cart', JSON.stringify(updatedItems));
+      return updatedItems;
+    });
+  };
 
-  const handleCheckout = async () => {
-    if (deliveryType === "delivery" && !deliveryAddress.trim()) {
-      toast({
-        title: t('cart.addressRequired'),
-        description: t('cart.addressRequiredDescription'),
-        variant: "destructive",
-      });
+  const getTotalValue = () => {
+    return cartItems.reduce((total, item) => {
+      return total + (parseFloat(item.discountPrice.replace('R$ ', '').replace(',', '.')) * item.quantity);
+    }, 0);
+  };
+
+  const handleCheckout = () => {
+    if (!customerInfo) {
+      alert('Por favor, faça login para continuar com a compra.');
+      setLocation('/customer/login');
       return;
     }
-
-    // Verificar se há informações do cliente
-    if (!customerInfo?.fullName || !customerInfo?.email) {
-      toast({
-        title: t('cart.requiredInfo'),
-        description: t('cart.requiredInfoDescription'),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Salvar dados do pedido para a tela de revisão
-    const orderData = {
-      customerName: customerInfo.fullName,
-      customerEmail: customerInfo.email,
-      customerPhone: customerInfo.phone || "",
-      deliveryType,
-      deliveryAddress: deliveryType === "delivery" ? deliveryAddress : null,
-      totalAmount: (calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toFixed(2),
-      items: cartItems.map(item => ({
-        productId: item.id,
-        productName: item.name,
-        quantity: item.quantity,
-        priceAtTime: item.discountPrice,
-        imageUrl: item.imageUrl,
-        expirationDate: item.expirationDate,
-        supermarketName: item.createdBy?.supermarketName || item.supermarketName
-      }))
-    };
-
-    localStorage.setItem('orderReview', JSON.stringify(orderData));
     
-    // Redirecionar para tela de revisão do pedido
-    navigate('/order-review');
+    const orderData = {
+      items: cartItems,
+      deliveryType,
+      deliveryAddress,
+      customerInfo,
+      totalAmount: getTotalValue().toFixed(2)
+    };
+    
+    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+    setLocation('/customer/order-review');
   };
 
   if (cartItems.length === 0) {
@@ -225,8 +103,7 @@ export default function CustomerCart() {
               <ArrowLeft className="h-6 w-6 text-eco-gray" />
             </Link>
             <div className="ml-4">
-              <h1 className="text-lg font-bold text-eco-gray-dark">{t('cart.title')} - v2.0 {new Date().getTime()}</h1>
-              <small className="text-xs text-red-500">Lang: {language} | Cart Updated</small>
+              <h1 className="text-lg font-bold text-eco-gray-dark">CARRINHO DE COMPRAS</h1>
             </div>
           </div>
         </div>
@@ -238,9 +115,7 @@ export default function CustomerCart() {
                 <span className="text-2xl">🛒</span>
               </div>
             </div>
-            <div className="bg-red-100 p-2 rounded mb-4">
-              <p className="text-xs text-red-600">CART COMPONENT PT-BR v5 - {Date.now()}</p>
-            </div>
+
             <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">SEU CARRINHO ESTÁ VAZIO</h2>
             <p className="text-eco-gray mb-6">Adicione produtos para começar suas compras sustentáveis</p>
             <Link href="/customer">
@@ -254,267 +129,146 @@ export default function CustomerCart() {
     );
   }
 
-  const supermarkets = getSupermarckets();
+  const groupedItems = cartItems.reduce((acc, item) => {
+    const supermarketKey = item.createdBy?.supermarketName || item.supermarketName || 'Mercado Desconhecido';
+    if (!acc[supermarketKey]) {
+      acc[supermarketKey] = {
+        supermarketName: supermarketKey,
+        supermarketAddress: item.createdBy?.supermarketAddress || '',
+        items: []
+      };
+    }
+    acc[supermarketKey].items.push(item);
+    return acc;
+  }, {} as Record<string, { supermarketName: string; supermarketAddress: string; items: CartItem[] }>);
 
   return (
     <div className="min-h-screen bg-eco-gray-light">
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-          <Link href="/customer">
-            <ArrowLeft className="h-6 w-6 text-eco-gray" />
-          </Link>
-          <div className="ml-4">
-            <h1 className="text-lg font-semibold text-eco-gray-dark">{t('cart.title')} ({cartItems.length})</h1>
-            <p className="text-sm text-eco-gray">
-              {supermarkets.length === 1 
-                ? `${supermarkets[0].name}` 
-                : `${supermarkets.length} ${t('cart.supermarkets')}`
-              }
-            </p>
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <Link href="/customer">
+              <ArrowLeft className="h-6 w-6 text-eco-gray" />
+            </Link>
+            <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">CARRINHO DE COMPRAS</h1>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-eco-gray">Total</p>
+            <p className="text-lg font-bold text-eco-green">R$ {getTotalValue().toFixed(2).replace('.', ',')}</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-md mx-auto p-4 space-y-4">
-        {/* Itens do Carrinho agrupados por Supermercado */}
-        {supermarkets.map((supermarket, index) => (
-          <div key={index} className="space-y-3">
-            {/* Header do Supermercado */}
-            <div className="bg-eco-green-light p-3 rounded-lg border-l-4 border-eco-green">
-              <h3 className="font-semibold text-eco-green-dark">{supermarket.name}</h3>
-              <div className="flex items-center text-sm text-eco-green mt-1">
-                <MapPin size={12} className="mr-1" />
-                {supermarket.address}
+      <div className="max-w-md mx-auto pb-24">
+        {Object.values(groupedItems).map((supermarket, index) => (
+          <div key={index} className="bg-white mb-4 mx-4 rounded-lg shadow-sm">
+            <div className="p-4 border-b border-eco-gray-light">
+              <div className="flex items-center">
+                <MapPin className="h-5 w-5 text-eco-green mr-2" />
+                <div>
+                  <h3 className="font-semibold text-eco-gray-dark">{supermarket.supermarketName}</h3>
+                  {supermarket.supermarketAddress && (
+                    <p className="text-sm text-eco-gray">{supermarket.supermarketAddress}</p>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Itens do Supermercado */}
             {supermarket.items.map((item: CartItem) => (
-              <Card key={item.id} className="bg-white border-eco-green-light">
-                <CardContent className="p-4">
-                  <div className="flex gap-3">
-                    {item.imageUrl && (
+              <div key={item.id} className="p-4 border-b border-eco-gray-light last:border-b-0">
+                <div className="flex items-center space-x-3">
+                  <div className="w-16 h-16 bg-eco-gray-light rounded-lg flex items-center justify-center overflow-hidden">
+                    {item.imageUrl ? (
                       <img 
                         src={item.imageUrl} 
                         alt={item.name}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        className="w-full h-full object-cover"
                       />
+                    ) : (
+                      <span className="text-2xl">📦</span>
                     )}
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm text-eco-gray-dark">{item.name}</h4>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Clock className="h-3 w-3 text-eco-orange" />
-                        <span className="text-xs text-eco-orange">
-                          {t('cart.validUntil')} {new Date(item.expirationDate).toLocaleDateString('pt-BR')}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <div>
-                          <span className="text-sm font-semibold text-eco-green">
-                            {formatPrice(item.discountPrice)}
-                          </span>
-                          <span className="text-xs text-eco-gray line-through ml-2">
-                            {formatPrice(item.originalPrice)}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0 border-eco-green hover:bg-eco-green hover:text-white"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="text-sm font-medium w-8 text-center text-eco-gray-dark">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0 border-eco-green hover:bg-eco-green hover:text-white"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 border-red-300 hover:border-red-500"
-                            onClick={() => removeItem(item.id)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex-1">
+                    <h4 className="font-medium text-eco-gray-dark">{item.name}</h4>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-sm text-eco-gray line-through">{item.originalPrice}</span>
+                      <span className="text-lg font-bold text-eco-green">{item.discountPrice}</span>
+                    </div>
+                    <p className="text-xs text-eco-orange mt-1">
+                      Vence: {new Date(item.expirationDate).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => updateQuantity(item.id, -1)}
+                        className="w-8 h-8 rounded-full bg-eco-gray-light flex items-center justify-center"
+                      >
+                        <Minus className="h-4 w-4 text-eco-gray" />
+                      </button>
+                      <span className="text-lg font-semibold min-w-[2rem] text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, 1)}
+                        className="w-8 h-8 rounded-full bg-eco-green flex items-center justify-center"
+                      >
+                        <Plus className="h-4 w-4 text-white" />
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="text-red-500 p-1"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         ))}
 
-        {/* Informações do Cliente */}
-        {customerInfo && (
-          <Card className="bg-white border-eco-blue-light">
-            <CardContent className="p-4">
-              <h3 className="font-semibold mb-3 text-eco-gray-dark">{t('cart.customerData')}</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-eco-blue" />
-                  <span className="text-eco-gray-dark">{customerInfo.fullName}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-eco-blue" />
-                  <span className="text-eco-gray-dark">{customerInfo.phone}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-eco-blue" />
-                  <span className="text-eco-gray-dark">{customerInfo.email}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Informações do Cliente */}
-        <Card className="bg-white border-eco-blue-light">
-          <CardContent className="p-4">
-            <h3 className="font-semibold mb-3 text-eco-gray-dark flex items-center gap-2">
-              <User className="h-4 w-4 text-eco-blue" />
-              {t('cart.customerInfo')}
-            </h3>
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="fullName" className="text-eco-gray-dark">{t('cart.fullName')}</Label>
-                <Input
-                  id="fullName"
-                  value={customerInfo?.fullName || ""}
-                  onChange={(e) => {
-                    const updated = { ...customerInfo, fullName: e.target.value };
-                    setCustomerInfo(updated);
-                    localStorage.setItem('customerInfo', JSON.stringify(updated));
-                  }}
-                  placeholder={t('cart.fullNamePlaceholder')}
-                  className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
-                />
-              </div>
-              <div>
-                <Label htmlFor="email" className="text-eco-gray-dark flex items-center gap-1">
-                  <Mail className="h-3 w-3" />
-                  {t('cart.email')}
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={customerInfo?.email || ""}
-                  onChange={(e) => {
-                    const updated = { ...customerInfo, email: e.target.value };
-                    setCustomerInfo(updated);
-                    localStorage.setItem('customerInfo', JSON.stringify(updated));
-                  }}
-                  placeholder={t('cart.emailPlaceholder')}
-                  className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
-                />
-              </div>
-              <div>
-                <Label htmlFor="phone" className="text-eco-gray-dark flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
-                  {t('cart.phone')}
-                </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={customerInfo?.phone || ""}
-                  onChange={(e) => {
-                    const updated = { ...customerInfo, phone: e.target.value };
-                    setCustomerInfo(updated);
-                    localStorage.setItem('customerInfo', JSON.stringify(updated));
-                  }}
-                  placeholder={t('cart.phonePlaceholder')}
-                  className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
-                />
-              </div>
+        <div className="bg-white mx-4 rounded-lg shadow-sm p-4 mb-4">
+          <h3 className="font-semibold text-eco-gray-dark mb-3">TIPO DE ENTREGA</h3>
+          <RadioGroup value={deliveryType} onValueChange={setDeliveryType}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="pickup" id="pickup" />
+              <Label htmlFor="pickup">RETIRADA NO LOCAL</Label>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Tipo de Entrega */}
-        <Card className="bg-white border-eco-orange-light">
-          <CardContent className="p-4">
-            <h3 className="font-semibold mb-3 text-eco-gray-dark">{t('cart.deliveryMethod')}</h3>
-            <RadioGroup value={deliveryType} onValueChange={setDeliveryType}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="pickup" id="pickup" />
-                <Label htmlFor="pickup" className="flex-1 text-eco-gray-dark">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-eco-orange" />
-                    <span>{t('cart.pickupFree')}</span>
-                  </div>
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="delivery" id="delivery" />
-                <Label htmlFor="delivery" className="flex-1 text-eco-gray-dark">
-                  <div className="flex items-center gap-2">
-                    <span>🚚</span>
-                    <span>{t('cart.deliveryFee')}</span>
-                  </div>
-                </Label>
-              </div>
-            </RadioGroup>
-            
-            {deliveryType === "delivery" && (
-              <div className="mt-3">
-                <Label htmlFor="address" className="text-eco-gray-dark">{t('cart.deliveryAddress')}</Label>
-                <Input
-                  id="address"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
-                  placeholder={t('cart.deliveryAddressPlaceholder')}
-                  className="border-eco-gray-light focus:border-eco-orange focus:ring-eco-orange"
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Resumo do Pedido */}
-        <Card className="bg-white border-eco-green-light">
-          <CardContent className="p-4">
-            <h3 className="font-semibold mb-3 text-eco-gray-dark">{t('cart.orderSummary')}</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-eco-gray-dark">{t('cart.subtotal')}</span>
-                <span className="text-eco-gray-dark">{formatPrice(calculateTotal().toString())}</span>
-              </div>
-              <div className="flex justify-between text-eco-green">
-                <span>{t('cart.savings')}</span>
-                <span>-{formatPrice(calculateSavings().toString())}</span>
-              </div>
-              {deliveryType === "delivery" && (
-                <div className="flex justify-between">
-                  <span className="text-eco-gray-dark">{t('cart.delivery')}</span>
-                  <span className="text-eco-gray-dark">R$ 5,00</span>
-                </div>
-              )}
-              <div className="border-t border-eco-green-light pt-2 flex justify-between font-semibold">
-                <span className="text-eco-gray-dark">{t('cart.total')}</span>
-                <span className="text-eco-gray-dark">{formatPrice((calculateTotal() + (deliveryType === "delivery" ? 5 : 0)).toString())}</span>
-              </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="delivery" id="delivery" />
+              <Label htmlFor="delivery">ENTREGA A DOMICÍLIO</Label>
             </div>
-          </CardContent>
-        </Card>
+          </RadioGroup>
 
-        {/* Botão de Finalizar */}
-        <Button 
-          className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold h-12 rounded-xl transition-colors"
-          onClick={handleCheckout}
-          disabled={createOrderMutation.isPending}
-        >
-          {createOrderMutation.isPending ? t('cart.processing') : t('cart.finishOrder')}
-        </Button>
+          {deliveryType === "delivery" && (
+            <div className="mt-4">
+              <Label htmlFor="address">ENDEREÇO DE ENTREGA</Label>
+              <Textarea
+                id="address"
+                placeholder="Digite o endereço completo..."
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                className="mt-2"
+                rows={3}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-eco-gray-light p-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-lg font-semibold text-eco-gray-dark">TOTAL:</span>
+            <span className="text-2xl font-bold text-eco-green">R$ {getTotalValue().toFixed(2).replace('.', ',')}</span>
+          </div>
+          <Button 
+            onClick={handleCheckout}
+            className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl transition-colors"
+          >
+            FINALIZAR COMPRA
+          </Button>
+        </div>
       </div>
     </div>
   );
