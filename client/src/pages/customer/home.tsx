@@ -732,15 +732,7 @@ export default function CustomerHome() {
                       </div>
                     </div>
                     
-                    {supermarket.hasPromotions && (
-                      <Badge className={`text-xs font-semibold flex-shrink-0 ${
-                        supermarket.isSponsored 
-                          ? 'bg-red-500 text-white border-red-600 shadow-md' 
-                          : 'bg-red-100 text-red-700 border-red-200'
-                      }`}>
-                        PROMOÇÕES
-                      </Badge>
-                    )}
+
                   </div>
                 </CardHeader>
 
