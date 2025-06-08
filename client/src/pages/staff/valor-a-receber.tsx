@@ -55,16 +55,10 @@ function ValorAReceber() {
   }, [setLocation]);
 
   const { data: pendingPayments = [], isLoading } = useQuery({
-    queryKey: ["/api/staff/pending-payments"],
+    queryKey: ["/api/staff/pending-payments", staffUser?.email],
+    enabled: !!staffUser?.email,
     queryFn: async () => {
-      const staffId = localStorage.getItem("staffId");
-      const response = await fetch("/api/staff/pending-payments", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Staff-Id": staffId || "",
-        },
-      });
+      const response = await fetch(`/api/staff/pending-payments?email=${encodeURIComponent(staffUser!.email)}`);
       if (!response.ok) {
         throw new Error(`${response.status}: ${response.statusText}`);
       }

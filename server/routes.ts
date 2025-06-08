@@ -1645,6 +1645,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff endpoint to get pending payments
+  app.get("/api/staff/pending-payments", async (req, res) => {
+    try {
+      const email = req.query.email as string;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email é obrigatório" });
+      }
+
+      const staffUser = await storage.getStaffUserByEmail(email);
+      if (!staffUser) {
+        return res.status(404).json({ message: "Usuário staff não encontrado" });
+      }
+
+      const pendingPayments = await storage.getPendingPaymentsForStaff(staffUser.id);
+      res.json(pendingPayments);
+    } catch (error) {
+      console.error('❌ Erro ao buscar pagamentos pendentes:', error);
+      res.status(500).json({ message: "Erro ao buscar pagamentos pendentes" });
+    }
+  });
+
   // Authenticated endpoint to get current user's orders
   app.get("/api/my-orders", isAuthenticated, async (req, res) => {
     try {
