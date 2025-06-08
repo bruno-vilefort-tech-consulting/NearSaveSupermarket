@@ -2038,7 +2038,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Verificar se o pedido pode ser confirmado
-      if (order.status !== "pending" && order.status !== "awaiting_payment") {
+      if (order.status !== "pending" && order.status !== "awaiting_payment" && order.status !== "confirmed") {
         return res.status(400).json({ message: "Order cannot be confirmed in current status" });
       }
 
