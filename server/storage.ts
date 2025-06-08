@@ -1414,15 +1414,7 @@ export class DatabaseStorage implements IStorage {
         )
       );
 
-    console.log(`📊 [STATS DEBUG] Staff ${staffId} - Valid items for revenue calculation:`, 
-      validItemsQuery.map(item => ({
-        orderId: item.orderId,
-        price: item.priceAtTime,
-        qty: item.quantity,
-        status: item.confirmationStatus,
-        value: Number(item.priceAtTime) * Number(item.quantity)
-      }))
-    );
+
 
     // Calculate total revenue from non-removed items
     const grossRevenue = validItemsQuery.reduce((sum, item) => {
@@ -1551,15 +1543,7 @@ export class DatabaseStorage implements IStorage {
           )
         );
 
-      console.log(`💰 [PENDING PAYMENTS DEBUG] Order ${order.id} items:`, 
-        items.map(item => ({
-          name: item.productName,
-          status: item.confirmationStatus,
-          price: item.priceAtTime,
-          qty: item.quantity,
-          value: Number(item.priceAtTime) * Number(item.quantity)
-        }))
-      );
+
 
       // Calculate correct gross amount from valid items only
       const grossAmount = items.reduce((sum, item) => {
@@ -2113,13 +2097,13 @@ export class DatabaseStorage implements IStorage {
         o.id as order_id,
         o.customer_name,
         o.customer_email,
-        o.total_amount,
         o.status,
         o.created_at,
         s.id as supermarket_id,
         s.company_name,
         s.commercial_rate,
         s.payment_terms,
+        SUM(oi.quantity * oi.price_at_time::numeric) as calculated_total,
         json_agg(
           json_build_object(
             'productName', p.name,
@@ -2134,14 +2118,15 @@ export class DatabaseStorage implements IStorage {
       JOIN staff_users s ON p.created_by_staff = s.id
       WHERE o.status IN ('completed', 'payment_confirmed', 'prepared', 'shipped', 'picked_up')
         AND s.approval_status = 'approved'
+        AND oi.confirmation_status IN ('confirmed', 'pending')
       GROUP BY 
-        o.id, o.customer_name, o.customer_email, o.total_amount, o.status, o.created_at,
+        o.id, o.customer_name, o.customer_email, o.status, o.created_at,
         s.id, s.company_name, s.commercial_rate, s.payment_terms
       ORDER BY o.created_at DESC
     `);
 
     return result.rows.map((row: any) => {
-      const orderTotal = parseFloat(row.total_amount);
+      const orderTotal = parseFloat(row.calculated_total);
       const commercialRate = parseFloat(row.commercial_rate);
       const rateAmount = (orderTotal * commercialRate) / 100;
       const amountToReceive = orderTotal - rateAmount;
