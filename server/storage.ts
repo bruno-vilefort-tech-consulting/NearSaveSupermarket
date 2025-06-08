@@ -2142,7 +2142,7 @@ export class DatabaseStorage implements IStorage {
         customerEmail: row.customer_email,
         supermarketId: parseInt(row.supermarket_id),
         supermarketName: row.company_name,
-        orderTotal: row.total_amount,
+        orderTotal: row.calculated_total.toString(),
         commercialRate: row.commercial_rate,
         rateAmount: rateAmount.toFixed(2),
         amountToReceive: amountToReceive.toFixed(2),
