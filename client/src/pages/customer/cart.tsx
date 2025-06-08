@@ -39,10 +39,14 @@ export default function CustomerCart() {
   // Debug: verificar idioma atual
   console.log('Cart component loaded - Language:', language);
   console.log('Cart title translation:', t('cart.title'));
+  console.log('Current URL:', window.location.href);
+  console.log('Component ID: CART_COMPONENT_PT_BR_v3');
   
   // Force clear localStorage cache for translations
   useEffect(() => {
     console.log('Cart component mounted with language:', language);
+    console.log('Translation test - empty cart:', t('cart.empty'));
+    console.log('Translation test - continue shopping:', t('cart.continueShopping'));
   }, [language]);
 
   // Carregar itens do carrinho e informações do cliente do localStorage
@@ -234,11 +238,14 @@ export default function CustomerCart() {
                 <span className="text-2xl">🛒</span>
               </div>
             </div>
-            <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">{t('cart.empty')}</h2>
-            <p className="text-eco-gray mb-6">{t('cart.emptyDescription')}</p>
+            <div className="bg-red-100 p-2 rounded mb-4">
+              <p className="text-xs text-red-600">CART COMPONENT PT-BR v5 - {Date.now()}</p>
+            </div>
+            <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">SEU CARRINHO ESTÁ VAZIO</h2>
+            <p className="text-eco-gray mb-6">Adicione produtos para começar suas compras sustentáveis</p>
             <Link href="/customer">
               <Button className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors">
-                {t('cart.continueShopping')}
+                CONTINUAR COMPRANDO
               </Button>
             </Link>
           </div>
