@@ -1396,7 +1396,9 @@ export class DatabaseStorage implements IStorage {
     const validItemsQuery = await db
       .select({ 
         priceAtTime: orderItems.priceAtTime,
-        quantity: orderItems.quantity
+        quantity: orderItems.quantity,
+        confirmationStatus: orderItems.confirmationStatus,
+        orderId: orderItems.orderId
       })
       .from(orders)
       .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -1411,6 +1413,16 @@ export class DatabaseStorage implements IStorage {
           ) // Include pending and confirmed items
         )
       );
+
+    console.log(`📊 [STATS DEBUG] Staff ${staffId} - Valid items for revenue calculation:`, 
+      validItemsQuery.map(item => ({
+        orderId: item.orderId,
+        price: item.priceAtTime,
+        qty: item.quantity,
+        status: item.confirmationStatus,
+        value: Number(item.priceAtTime) * Number(item.quantity)
+      }))
+    );
 
     // Calculate total revenue from non-removed items
     const grossRevenue = validItemsQuery.reduce((sum, item) => {
@@ -1538,6 +1550,16 @@ export class DatabaseStorage implements IStorage {
             )
           )
         );
+
+      console.log(`💰 [PENDING PAYMENTS DEBUG] Order ${order.id} items:`, 
+        items.map(item => ({
+          name: item.productName,
+          status: item.confirmationStatus,
+          price: item.priceAtTime,
+          qty: item.quantity,
+          value: Number(item.priceAtTime) * Number(item.quantity)
+        }))
+      );
 
       // Calculate correct gross amount from valid items only
       const grossAmount = items.reduce((sum, item) => {
