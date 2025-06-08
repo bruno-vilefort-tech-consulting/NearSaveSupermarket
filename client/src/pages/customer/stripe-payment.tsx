@@ -180,6 +180,10 @@ export default function StripePayment() {
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
+    // Limpar cache de pagamento anterior para evitar conflitos
+    sessionStorage.removeItem('current-payment-key');
+    sessionStorage.removeItem('stripe-creating');
+
     // Carrega itens do carrinho
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -187,24 +191,18 @@ export default function StripePayment() {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
         
-        // Calcular total e criar PaymentIntent apenas UMA vez
+        // Calcular total e criar PaymentIntent
         const total = parsedCart.reduce((sum: number, item: CartItem) => {
           return sum + (parseFloat(item.discountPrice) * item.quantity);
         }, 0);
 
         // Criar chave única baseada no conteúdo do carrinho
-        const cartKey = btoa(JSON.stringify(parsedCart.map(item => `${item.id}-${item.quantity}`)));
-        const currentPaymentKey = sessionStorage.getItem('current-payment-key');
+        const cartKey = btoa(JSON.stringify(parsedCart.map((item: any) => `${item.id}-${item.quantity}`)));
         
-        // Só criar PaymentIntent se não existe um para este carrinho específico
-        if (currentPaymentKey !== cartKey) {
-          sessionStorage.setItem('current-payment-key', cartKey);
-          sessionStorage.setItem('stripe-creating', 'true');
-          createPaymentIntent(total);
-        } else {
-          console.log('PaymentIntent já existe para este carrinho');
-          setIsCreatingPayment(false);
-        }
+        // Criar PaymentIntent
+        sessionStorage.setItem('current-payment-key', cartKey);
+        sessionStorage.setItem('stripe-creating', 'true');
+        createPaymentIntent(total);
       } catch (error) {
         console.error('Erro ao processar carrinho:', error);
         setIsCreatingPayment(false);
@@ -220,25 +218,17 @@ export default function StripePayment() {
 
   const createPaymentIntent = async (amount: number) => {
     try {
-      console.log('🔄 Iniciando criação do PaymentIntent para valor:', amount);
-      
       const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
       const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
       
-      console.log('📋 Customer Info:', customerInfo);
-      console.log('🛒 Cart Items:', cartItems);
-      
       // Criar hash único do carrinho para cache
       const cartHash = btoa(JSON.stringify(cartItems.map((item: any) => `${item.id}-${item.quantity}`)));
-      console.log('🔑 Cart Hash:', cartHash);
       
       const requestBody = {
         amount: amount,
         cartHash: cartHash,
         customerEmail: customerInfo.email || ""
       };
-      
-      console.log('📤 Enviando request para Stripe:', requestBody);
       
       // Usar endpoint com cache para evitar duplicações no Stripe
       const response = await fetch("/api/payments/stripe/create-payment-intent", {
@@ -249,20 +239,15 @@ export default function StripePayment() {
         body: JSON.stringify(requestBody)
       });
       
-      console.log('📥 Response status:', response.status, response.statusText);
-      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erro ao criar payment intent');
       }
       
       const data = await response.json();
-      console.log('Payment intent criado:', data.clientSecret ? 'Sucesso' : 'Falha');
       
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
-        console.log('✅ PaymentIntent criado com sucesso');
-        // Limpa o flag de criação após sucesso
         sessionStorage.removeItem('stripe-creating');
       } else {
         throw new Error('Client secret não retornado');
@@ -274,6 +259,7 @@ export default function StripePayment() {
       // Limpa o flag de criação mesmo em caso de erro para permitir nova tentativa
       sessionStorage.removeItem('stripe-creating');
     } finally {
+      console.log('🏁 Finalizando criação do PaymentIntent, setIsCreatingPayment(false)');
       setIsCreatingPayment(false);
     }
   };
@@ -288,7 +274,10 @@ export default function StripePayment() {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
+  console.log('🔍 Estado atual - isCreatingPayment:', isCreatingPayment, 'clientSecret:', clientSecret ? 'presente' : 'ausente');
+
   if (isCreatingPayment) {
+    console.log('🔄 Renderizando tela de loading...');
     return (
       <div className="min-h-screen bg-eco-sage-light">
         {/* Header */}
