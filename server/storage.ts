@@ -1381,9 +1381,9 @@ export class DatabaseStorage implements IStorage {
       );
 
     return {
-      activeProducts: activeProductsResult.count,
-      pendingOrders: pendingOrdersCount,
-      totalRevenue: revenueResult.total || 0,
+      activeProducts: Number(activeProductsResult.count),
+      pendingOrders: Number(pendingOrdersCount),
+      totalRevenue: Number(revenueResult.total || 0),
     };
   }
 

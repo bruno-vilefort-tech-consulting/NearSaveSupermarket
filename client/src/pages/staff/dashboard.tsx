@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Store, Package, ShoppingCart, Settings, LogOut, BarChart3 } from "lucide-react";
@@ -15,9 +16,35 @@ interface StaffUser {
   cnpj: string;
 }
 
+interface StaffStats {
+  activeProducts: number;
+  pendingOrders: number;
+  totalRevenue: number;
+}
+
 function StaffDashboard() {
   const [, setLocation] = useLocation();
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
+
+  // Fetch staff statistics
+  const { data: stats } = useQuery({
+    queryKey: ["/api/staff/stats"],
+    queryFn: async () => {
+      const staffId = localStorage.getItem("staffId");
+      const response = await fetch("/api/staff/stats", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Staff-Id": staffId || "",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch stats");
+      }
+      return response.json();
+    },
+    enabled: !!staffUser && staffUser.approvalStatus === 'approved',
+  });
 
   useEffect(() => {
     // Check if staff is logged in
@@ -157,7 +184,9 @@ function StaffDashboard() {
               <Package className="h-4 w-4 text-eco-green" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
+              <div className="text-2xl font-bold">
+                {staffUser.approvalStatus === 'approved' ? (stats?.activeProducts || 0) : 0}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {staffUser.approvalStatus === 'approved' ? 'Gerenciar produtos' : 'Requer aprovação'}
               </p>
@@ -177,7 +206,9 @@ function StaffDashboard() {
               <ShoppingCart className="h-4 w-4 text-eco-orange" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">0</div>
+              <div className="text-2xl font-bold">
+                {staffUser.approvalStatus === 'approved' ? (stats?.pendingOrders || 0) : 0}
+              </div>
               <p className="text-xs text-muted-foreground">
                 {staffUser.approvalStatus === 'approved' ? 'Pedidos pendentes' : 'Requer aprovação'}
               </p>
@@ -190,7 +221,12 @@ function StaffDashboard() {
               <BarChart3 className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">R$ 0,00</div>
+              <div className="text-2xl font-bold">
+                {staffUser.approvalStatus === 'approved' 
+                  ? `R$ ${(stats?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                  : 'R$ 0,00'
+                }
+              </div>
               <p className="text-xs text-muted-foreground">
                 {staffUser.approvalStatus === 'approved' ? 'Total do mês' : 'Requer aprovação'}
               </p>
