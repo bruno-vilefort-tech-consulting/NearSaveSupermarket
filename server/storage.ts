@@ -176,6 +176,29 @@ export interface IStorage {
   
   // Order external reference operations
   updateOrderExternalReference(orderId: number, externalReference: string): Promise<void>;
+  
+  // Financial statement operations
+  getFinancialStatement(): Promise<Array<{
+    orderId: number;
+    customerName: string;
+    customerEmail: string | null;
+    supermarketId: number;
+    supermarketName: string;
+    orderTotal: string;
+    commercialRate: string;
+    rateAmount: string;
+    amountToReceive: string;
+    orderDate: Date | null;
+    paymentTerms: number;
+    paymentDate: Date;
+    status: string;
+    items: Array<{
+      productName: string;
+      quantity: number;
+      unitPrice: string;
+      totalPrice: string;
+    }>;
+  }>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1785,6 +1808,90 @@ export class DatabaseStorage implements IStorage {
     }
 
     return adminUser;
+  }
+
+  // Financial statement operations
+  async getFinancialStatement(): Promise<Array<{
+    orderId: number;
+    customerName: string;
+    customerEmail: string | null;
+    supermarketId: number;
+    supermarketName: string;
+    orderTotal: string;
+    commercialRate: string;
+    rateAmount: string;
+    amountToReceive: string;
+    orderDate: Date | null;
+    paymentTerms: number;
+    paymentDate: Date;
+    status: string;
+    items: Array<{
+      productName: string;
+      quantity: number;
+      unitPrice: string;
+      totalPrice: string;
+    }>;
+  }>> {
+    const result = await db.execute(sql`
+      SELECT 
+        o.id as order_id,
+        o.customer_name,
+        o.customer_email,
+        o.total_amount,
+        o.status,
+        o.created_at,
+        s.id as supermarket_id,
+        s.company_name,
+        s.commercial_rate,
+        s.payment_terms,
+        json_agg(
+          json_build_object(
+            'productName', p.name,
+            'quantity', oi.quantity,
+            'unitPrice', oi.price_at_time,
+            'totalPrice', (oi.quantity * oi.price_at_time::numeric)::text
+          )
+        ) as items
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN products p ON oi.product_id = p.id
+      JOIN staff_users s ON p.created_by_staff = s.id
+      WHERE o.status IN ('completed', 'payment_confirmed', 'prepared', 'shipped', 'picked_up')
+        AND s.approval_status = 'approved'
+      GROUP BY 
+        o.id, o.customer_name, o.customer_email, o.total_amount, o.status, o.created_at,
+        s.id, s.company_name, s.commercial_rate, s.payment_terms
+      ORDER BY o.created_at DESC
+    `);
+
+    return result.rows.map((row: any) => {
+      const orderTotal = parseFloat(row.total_amount);
+      const commercialRate = parseFloat(row.commercial_rate);
+      const rateAmount = (orderTotal * commercialRate) / 100;
+      const amountToReceive = orderTotal - rateAmount;
+      
+      // Calculate payment date based on order date + payment terms
+      const orderDate = new Date(row.created_at);
+      const paymentDate = new Date(orderDate);
+      paymentDate.setDate(paymentDate.getDate() + parseInt(row.payment_terms));
+
+      return {
+        orderId: parseInt(row.order_id),
+        customerName: row.customer_name,
+        customerEmail: row.customer_email,
+        supermarketId: parseInt(row.supermarket_id),
+        supermarketName: row.company_name,
+        orderTotal: row.total_amount,
+        commercialRate: row.commercial_rate,
+        rateAmount: rateAmount.toFixed(2),
+        amountToReceive: amountToReceive.toFixed(2),
+        orderDate: row.created_at,
+        paymentTerms: parseInt(row.payment_terms),
+        paymentDate: paymentDate,
+        status: row.status,
+        items: row.items || []
+      };
+    });
   }
 }
 

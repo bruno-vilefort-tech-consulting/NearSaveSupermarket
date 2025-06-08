@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Store, Users, DollarSign, LogOut, Shield } from "lucide-react";
+import { Store, Users, DollarSign, LogOut, Shield, Receipt } from "lucide-react";
 import { useLocation } from "wouter";
 
 interface AdminUser {

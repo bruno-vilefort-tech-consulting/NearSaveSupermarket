@@ -3620,6 +3620,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Routes - Get financial statement
+  app.get("/api/admin/financial-statement", async (req, res) => {
+    try {
+      const financialData = await storage.getFinancialStatement();
+      res.json(financialData);
+    } catch (error) {
+      console.error("Error fetching financial statement:", error);
+      res.status(500).json({ message: "Erro ao buscar extrato financeiro" });
+    }
+  });
+
   app.post("/api/admin/supermarkets", async (req, res) => {
     try {
       const supermarketData = req.body;
