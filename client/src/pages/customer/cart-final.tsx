@@ -182,22 +182,22 @@ export default function CartFinal() {
             ))}
             
             {/* Total Summary */}
-            <div className="bg-white rounded-lg shadow-sm border p-4 mt-6">
+            <div className="bg-white rounded-lg shadow-sm border border-eco-gray-light p-4 mt-6">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-lg font-semibold text-gray-800">Total:</span>
-                <span className="text-xl font-bold text-green-600">
+                <span className="text-lg font-semibold text-eco-gray-dark">Total:</span>
+                <span className="text-xl font-bold text-eco-green">
                   R$ {getTotalPrice().toFixed(2).replace('.', ',')}
                 </span>
               </div>
               
               <div className="space-y-2">
                 <a href="/order-review">
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition-colors">
+                  <button className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl transition-colors">
                     Finalizar Pedido
                   </button>
                 </a>
                 <a href="/customer">
-                  <button className="w-full border border-green-600 text-green-600 hover:bg-green-50 font-semibold py-3 rounded-xl transition-colors">
+                  <button className="w-full border border-eco-green text-eco-green hover:bg-eco-green-light font-semibold py-3 rounded-xl transition-colors">
                     Continuar Comprando
                   </button>
                 </a>

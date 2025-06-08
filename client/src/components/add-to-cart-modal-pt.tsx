@@ -75,14 +75,14 @@ export function AddToCartModalPT({ product, isOpen, onClose, onAddToCart }: AddT
           {/* Price Information */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-green-600">
+              <span className="text-2xl font-bold text-eco-green">
                 R$ {parseFloat(product.discountPrice).toFixed(2).replace('.', ',')}
               </span>
-              <span className="text-lg text-gray-500 line-through">
+              <span className="text-lg text-eco-gray line-through">
                 R$ {parseFloat(product.originalPrice).toFixed(2).replace('.', ',')}
               </span>
             </div>
-            <Badge className="bg-orange-500 text-white">
+            <Badge className="bg-eco-orange text-white">
               {discountPercentage}% OFF
             </Badge>
           </div>
@@ -99,7 +99,7 @@ export function AddToCartModalPT({ product, isOpen, onClose, onAddToCart }: AddT
               </span>
             </div>
             
-            <div className="flex items-center space-x-2 text-sm text-green-600">
+            <div className="flex items-center space-x-2 text-sm text-eco-green">
               <Leaf size={16} />
               <span>Salve o meio ambiente!</span>
             </div>
@@ -162,7 +162,7 @@ export function AddToCartModalPT({ product, isOpen, onClose, onAddToCart }: AddT
           </Button>
           <Button
             onClick={handleAddToCart}
-            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
+            className="w-full sm:w-auto bg-eco-green hover:bg-eco-green-dark text-white"
           >
             <ShoppingCart size={16} className="mr-2" />
             Adicionar ao Carrinho
