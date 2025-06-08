@@ -51,8 +51,8 @@ export default function CustomerLanding() {
       </div>
 
       {/* Ilustração das Sacolas */}
-      <div className="flex justify-center">
-        <svg viewBox="0 0 220 140" className="w-[28rem] h-auto">
+      <div className="flex justify-center items-center">
+        <svg viewBox="0 0 180 100" className="w-[24rem] h-auto">
           {/* Definições de gradientes */}
           <defs>
             <linearGradient id="greenBagGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -74,29 +74,29 @@ export default function CustomerLanding() {
 
           {/* Sacola Pequena (esquerda) */}
           <g filter="url(#shadow)">
-            <path d="M25 85 L25 120 Q25 125 30 125 L50 125 Q55 125 55 120 L55 85 Z" fill="url(#orangeBagGradient)" />
-            <rect x="25" y="82" width="30" height="5" rx="2" fill="url(#orangeBagGradient)" opacity="0.8" />
+            <path d="M15 55 L15 80 Q15 85 20 85 L35 85 Q40 85 40 80 L40 55 Z" fill="url(#orangeBagGradient)" />
+            <rect x="15" y="52" width="25" height="4" rx="2" fill="url(#orangeBagGradient)" opacity="0.8" />
             {/* Alças */}
-            <path d="M32 82 Q32 76 38 76 Q44 76 44 82" stroke="url(#orangeBagGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-            <path d="M36 82 Q36 76 42 76 Q48 76 48 82" stroke="url(#orangeBagGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <path d="M21 52 Q21 47 26 47 Q31 47 31 52" stroke="url(#orangeBagGradient)" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <path d="M24 52 Q24 47 29 47 Q34 47 34 52" stroke="url(#orangeBagGradient)" strokeWidth="2" fill="none" strokeLinecap="round" />
           </g>
 
           {/* Sacola Média (centro) */}
           <g filter="url(#shadow)">
-            <path d="M65 70 L65 120 Q65 125 70 125 L100 125 Q105 125 105 120 L105 70 Z" fill="url(#lightGreenGradient)" />
-            <rect x="65" y="67" width="40" height="6" rx="3" fill="url(#lightGreenGradient)" opacity="0.8" />
+            <path d="M50 45 L50 80 Q50 85 55 85 L75 85 Q80 85 80 80 L80 45 Z" fill="url(#lightGreenGradient)" />
+            <rect x="50" y="42" width="30" height="5" rx="2" fill="url(#lightGreenGradient)" opacity="0.8" />
             {/* Alças */}
-            <path d="M73 67 Q73 60 80 60 Q87 60 87 67" stroke="url(#lightGreenGradient)" strokeWidth="3" fill="none" strokeLinecap="round" />
-            <path d="M83 67 Q83 60 90 60 Q97 60 97 67" stroke="url(#lightGreenGradient)" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M56 42 Q56 36 62 36 Q68 36 68 42" stroke="url(#lightGreenGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <path d="M62 42 Q62 36 68 36 Q74 36 74 42" stroke="url(#lightGreenGradient)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
           </g>
 
           {/* Sacola Grande (direita) */}
           <g filter="url(#shadow)">
-            <path d="M115 45 L115 120 Q115 125 120 125 L155 125 Q160 125 160 120 L160 45 Z" fill="url(#greenBagGradient)" />
-            <rect x="115" y="40" width="45" height="8" rx="4" fill="url(#greenBagGradient)" opacity="0.8" />
+            <path d="M90 30 L90 80 Q90 85 95 85 L125 85 Q130 85 130 80 L130 30 Z" fill="url(#greenBagGradient)" />
+            <rect x="90" y="26" width="40" height="6" rx="3" fill="url(#greenBagGradient)" opacity="0.8" />
             {/* Alças */}
-            <path d="M125 40 Q125 30 133 30 Q141 30 141 40" stroke="url(#greenBagGradient)" strokeWidth="4" fill="none" strokeLinecap="round" />
-            <path d="M134 40 Q134 30 142 30 Q150 30 150 40" stroke="url(#greenBagGradient)" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M98 26 Q98 19 105 19 Q112 19 112 26" stroke="url(#greenBagGradient)" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M108 26 Q108 19 115 19 Q122 19 122 26" stroke="url(#greenBagGradient)" strokeWidth="3" fill="none" strokeLinecap="round" />
           </g>
         </svg>
       </div>
