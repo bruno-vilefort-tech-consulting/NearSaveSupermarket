@@ -122,6 +122,17 @@ export default function CartFinal() {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Supermarket Information */}
+            <div className="bg-eco-sage-light rounded-lg border border-eco-green/20 p-4">
+              <div className="flex items-center">
+                <MapPin className="h-5 w-5 text-eco-green mr-2" />
+                <div>
+                  <h2 className="text-lg font-semibold text-eco-gray-dark">{cartItems[0]?.supermarketName}</h2>
+                  <p className="text-sm text-eco-gray">{cartItems[0]?.createdBy?.supermarketAddress}</p>
+                </div>
+              </div>
+            </div>
+
             {/* Customer Information */}
             <div className="bg-white rounded-lg shadow-sm border border-eco-gray-light p-4">
               <div className="flex items-center space-x-2 mb-4">
