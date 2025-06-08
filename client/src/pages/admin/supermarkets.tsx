@@ -252,31 +252,95 @@ function AdminSupermarkets() {
             </div>
           </div>
 
-          <div className="flex-1 p-6">
-            <div className="max-w-4xl mx-auto">
+          <div className="flex-1 flex">
+            {/* Sidebar vertical navigation */}
+            <div className="w-64 bg-gray-50 border-r border-gray-200">
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-4">Gerenciar Supermercado</h3>
+                <nav className="space-y-2">
+                  <button
+                    onClick={() => setActiveTab('general')}
+                    className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'general'
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm'
+                    }`}
+                  >
+                    <Building className="h-4 w-4 inline mr-3" />
+                    Dados Gerais
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('commercial')}
+                    className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'commercial'
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm'
+                    }`}
+                  >
+                    <CreditCard className="h-4 w-4 inline mr-3" />
+                    Comercial
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('location')}
+                    className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'location'
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm'
+                    }`}
+                  >
+                    <MapPin className="h-4 w-4 inline mr-3" />
+                    Localização
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('approval')}
+                    className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'approval'
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm'
+                    }`}
+                  >
+                    <CheckCircle className="h-4 w-4 inline mr-3" />
+                    Aprovação
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('financial')}
+                    className={`w-full text-left px-3 py-3 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'financial'
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-white hover:shadow-sm'
+                    }`}
+                  >
+                    <Receipt className="h-4 w-4 inline mr-3" />
+                    Extrato Financeiro
+                  </button>
+                  
+                  {/* Voltar button at the bottom */}
+                  <div className="pt-6 mt-6 border-t border-gray-300">
+                    <Button
+                      variant="outline"
+                      className="w-full bg-white hover:bg-gray-100 border-gray-300"
+                      onClick={() => setSelectedSupermarket(null)}
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Voltar à Lista
+                    </Button>
+                  </div>
+                </nav>
+              </div>
+            </div>
+
+            {/* Content area */}
+            <div className="flex-1 p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="general" className="flex items-center space-x-2">
-                    <Building className="h-4 w-4" />
-                    <span>Dados Gerais</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="commercial" className="flex items-center space-x-2">
-                    <CreditCard className="h-4 w-4" />
-                    <span>Comercial</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="location" className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4" />
-                    <span>Localização</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="approval" className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4" />
-                    <span>Aprovação</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="financial" className="flex items-center space-x-2">
-                    <Receipt className="h-4 w-4" />
-                    <span>Extrato Financeiro</span>
-                  </TabsTrigger>
-                </TabsList>
+                <div className="hidden">
+                  <TabsList className="grid w-full grid-cols-5">
+                    <TabsTrigger value="general">Dados Gerais</TabsTrigger>
+                    <TabsTrigger value="commercial">Comercial</TabsTrigger>
+                    <TabsTrigger value="location">Localização</TabsTrigger>
+                    <TabsTrigger value="approval">Aprovação</TabsTrigger>
+                    <TabsTrigger value="financial">Extrato Financeiro</TabsTrigger>
+                  </TabsList>
+                </div>
 
                 <TabsContent value="general" className="mt-6">
                   <Card>
