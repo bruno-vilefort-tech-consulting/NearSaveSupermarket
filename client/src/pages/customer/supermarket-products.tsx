@@ -64,7 +64,7 @@ export default function SupermarketProducts() {
   }, []);
 
   const { data: products, isLoading } = useQuery({
-    queryKey: [`/api/supermarket/${id}/products`],
+    queryKey: [`/api/customer/supermarket/${id}/products`],
   });
 
   const filteredProducts = (products || []).filter((product: Product) => {
