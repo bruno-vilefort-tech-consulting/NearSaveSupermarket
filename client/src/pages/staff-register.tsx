@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings, Mail, Phone, MapPin, Store, Lock, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Settings, Mail, Phone, MapPin, Store, Lock, Eye, EyeOff, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -23,7 +24,8 @@ export default function StaffRegister() {
     address: "",
     companyName: "",
     latitude: "",
-    longitude: ""
+    longitude: "",
+    isSponsored: false
   });
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -37,7 +39,8 @@ export default function StaffRegister() {
         address: data.address,
         companyName: data.companyName,
         latitude: data.latitude ? parseFloat(data.latitude) : null,
-        longitude: data.longitude ? parseFloat(data.longitude) : null
+        longitude: data.longitude ? parseFloat(data.longitude) : null,
+        isSponsored: data.isSponsored
       });
       return response.json();
     },
@@ -207,6 +210,26 @@ export default function StaffRegister() {
                     initialLng={formData.longitude ? parseFloat(formData.longitude) : undefined}
                     address={formData.address}
                   />
+                </div>
+
+                {/* Sponsorship Option */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3 p-4 bg-eco-orange/10 rounded-lg border border-eco-orange/20">
+                    <Checkbox 
+                      id="sponsorship"
+                      checked={formData.isSponsored}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isSponsored: !!checked }))}
+                    />
+                    <div className="flex items-center space-x-2">
+                      <Star className="text-eco-orange" size={16} />
+                      <Label htmlFor="sponsorship" className="text-sm font-medium text-eco-gray-dark cursor-pointer">
+                        Ativar Patrocínio Premium
+                      </Label>
+                    </div>
+                  </div>
+                  <p className="text-xs text-eco-gray ml-6">
+                    Supermercados patrocinados aparecem primeiro na lista para clientes, aumentando a visibilidade e vendas.
+                  </p>
                 </div>
                 
                 <div className="space-y-2">
