@@ -259,7 +259,6 @@ export default function StripePayment() {
       // Limpa o flag de criação mesmo em caso de erro para permitir nova tentativa
       sessionStorage.removeItem('stripe-creating');
     } finally {
-      console.log('🏁 Finalizando criação do PaymentIntent, setIsCreatingPayment(false)');
       setIsCreatingPayment(false);
     }
   };
@@ -274,10 +273,7 @@ export default function StripePayment() {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  console.log('🔍 Estado atual - isCreatingPayment:', isCreatingPayment, 'clientSecret:', clientSecret ? 'presente' : 'ausente');
-
   if (isCreatingPayment) {
-    console.log('🔄 Renderizando tela de loading...');
     return (
       <div className="min-h-screen bg-eco-sage-light">
         {/* Header */}
