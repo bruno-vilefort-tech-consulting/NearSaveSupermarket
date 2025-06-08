@@ -1921,6 +1921,25 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ [STAFF UPDATE] Staff ${staffId} atualizado com dados:`, updateData);
   }
 
+  async updateStaffProfile(staffId: number, profileData: {
+    companyName?: string;
+    phone?: string;
+    address?: string;
+    cnpj?: string;
+  }): Promise<StaffUser> {
+    const [updatedUser] = await db
+      .update(staffUsers)
+      .set({
+        ...profileData,
+        updatedAt: new Date()
+      })
+      .where(eq(staffUsers.id, staffId))
+      .returning();
+    
+    console.log(`✅ [STAFF PROFILE] Staff ${staffId} perfil atualizado`);
+    return updatedUser;
+  }
+
   // Supermarket payment management
   async updateSupermarketPaymentStatus(
     orderId: number, 

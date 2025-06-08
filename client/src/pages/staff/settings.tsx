@@ -53,7 +53,14 @@ export default function StaffSettings() {
 
   // Get staff user data
   const { data: staffUser, isLoading } = useQuery<StaffUser>({
-    queryKey: ['/api/staff/me']
+    queryKey: ['/api/staff/me'],
+    queryFn: async () => {
+      const email = localStorage.getItem('staffEmail');
+      if (!email) throw new Error('No staff email found');
+      const response = await fetch(`/api/staff/me?email=${encodeURIComponent(email)}`);
+      if (!response.ok) throw new Error('Failed to fetch user data');
+      return response.json();
+    }
   });
 
   // Update form when data loads
@@ -71,7 +78,22 @@ export default function StaffSettings() {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: typeof profileForm) => {
-      await apiRequest('PUT', '/api/staff/profile', data);
+      const email = localStorage.getItem('staffEmail');
+      if (!email) throw new Error('No staff email found');
+      
+      const response = await fetch(`/api/staff/profile?email=${encodeURIComponent(email)}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -92,7 +114,26 @@ export default function StaffSettings() {
   // Change password mutation
   const changePasswordMutation = useMutation({
     mutationFn: async (data: typeof passwordForm) => {
-      await apiRequest('PUT', '/api/staff/change-password', data);
+      const email = localStorage.getItem('staffEmail');
+      if (!email) throw new Error('No staff email found');
+      
+      const response = await fetch(`/api/staff/change-password?email=${encodeURIComponent(email)}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to change password');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -105,10 +146,10 @@ export default function StaffSettings() {
         confirmPassword: ''
       });
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Erro",
-        description: "Não foi possível alterar a senha.",
+        description: error.message || "Não foi possível alterar a senha.",
         variant: "destructive",
       });
     }

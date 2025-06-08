@@ -1667,6 +1667,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staff endpoint to get current user data
+  app.get("/api/staff/me", async (req, res) => {
+    try {
+      const email = req.query.email as string;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email é obrigatório" });
+      }
+
+      const staffUser = await storage.getStaffUserByEmail(email);
+      if (!staffUser) {
+        return res.status(404).json({ message: "Usuário staff não encontrado" });
+      }
+
+      // Return user without password
+      const { password: _, ...staffUserResponse } = staffUser;
+      res.json(staffUserResponse);
+    } catch (error) {
+      console.error('❌ Erro ao buscar dados do usuário:', error);
+      res.status(500).json({ message: "Erro ao buscar dados do usuário" });
+    }
+  });
+
+  // Staff endpoint to update profile
+  app.put("/api/staff/profile", async (req, res) => {
+    try {
+      const email = req.query.email as string;
+      const { companyName, phone, address, cnpj } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email é obrigatório" });
+      }
+
+      const staffUser = await storage.getStaffUserByEmail(email);
+      if (!staffUser) {
+        return res.status(404).json({ message: "Usuário staff não encontrado" });
+      }
+
+      const updatedUser = await storage.updateStaffProfile(staffUser.id, {
+        companyName,
+        phone, 
+        address,
+        cnpj
+      });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('❌ Erro ao atualizar perfil:', error);
+      res.status(500).json({ message: "Erro ao atualizar perfil" });
+    }
+  });
+
+  // Staff endpoint to change password
+  app.put("/api/staff/change-password", async (req, res) => {
+    try {
+      const email = req.query.email as string;
+      const { currentPassword, newPassword } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email é obrigatório" });
+      }
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Senha atual e nova senha são obrigatórias" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "A nova senha deve ter pelo menos 6 caracteres" });
+      }
+
+      const staffUser = await storage.getStaffUserByEmail(email);
+      if (!staffUser) {
+        return res.status(404).json({ message: "Usuário staff não encontrado" });
+      }
+
+      // Verify current password
+      const isValidPassword = await bcrypt.compare(currentPassword, staffUser.password);
+      if (!isValidPassword) {
+        return res.status(400).json({ message: "Senha atual incorreta" });
+      }
+
+      // Update password
+      await storage.updateStaffPassword(email, newPassword);
+
+      res.json({ message: "Senha alterada com sucesso" });
+    } catch (error) {
+      console.error('❌ Erro ao alterar senha:', error);
+      res.status(500).json({ message: "Erro ao alterar senha" });
+    }
+  });
+
   // Authenticated endpoint to get current user's orders
   app.get("/api/my-orders", isAuthenticated, async (req, res) => {
     try {
