@@ -36,23 +36,44 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
     setIsLoading(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
+      // Primeiro, verificar se o payment method está válido
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        console.error('Erro na validação:', submitError);
+        toast({
+          title: "Erro na Validação",
+          description: submitError.message || "Verifique os dados do cartão",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: window.location.origin + '/payment-success',
         },
+        redirect: 'if_required'
       });
 
       if (error) {
         console.error('Erro no pagamento Stripe:', error);
+        
+        // Verifica se é erro de estado inesperado (pagamento já processado)
+        if (error.code === 'payment_intent_unexpected_state' && error.payment_intent?.status === 'succeeded') {
+          console.log('Pagamento já foi processado com sucesso, redirecionando...');
+          window.location.href = '/payment-success';
+          return;
+        }
+        
         toast({
           title: "Erro no Pagamento",
           description: error.message || "Ocorreu um erro durante o pagamento",
           variant: "destructive",
         });
-      } else {
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         console.log('Pagamento Stripe bem-sucedido');
-        // O redirecionamento será automático
+        window.location.href = '/payment-success';
       }
     } catch (err) {
       console.error('Erro inesperado no pagamento:', err);
