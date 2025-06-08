@@ -673,10 +673,10 @@ export default function CustomerHome() {
               >
                 {supermarket.isSponsored && (
                   <>
-                    {/* Premium Badge */}
-                    <div className="absolute -top-2 -right-2 z-20">
-                      <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-white animate-pulse">
-                        ⭐ PREMIUM
+                    {/* Star Badge */}
+                    <div className="absolute -top-1 -right-1 z-20">
+                      <div className="w-8 h-8 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                        <span className="text-white text-sm">⭐</span>
                       </div>
                     </div>
                     
