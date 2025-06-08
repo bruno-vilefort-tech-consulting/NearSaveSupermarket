@@ -107,19 +107,19 @@ export default function CustomerLanding() {
 
       {/* CTA Buttons */}
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 justify-center items-center w-full max-w-md mx-auto">
+        <div className="flex flex-col gap-3 justify-center items-center w-full max-w-xs mx-auto">
           <Button
             onClick={handleLogin}
-            size="lg"
-            className="w-full bg-eco-green hover:bg-eco-green-dark text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            size="default"
+            className="w-full bg-eco-green hover:bg-eco-green-dark text-white px-6 py-3 text-base font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
           >
             {t('auth.login')}
           </Button>
           <Button
             onClick={handleRegister}
             variant="outline"
-            size="lg"
-            className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            size="default"
+            className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-6 py-3 text-base font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
           >
             {t('customer.register')}
           </Button>
@@ -206,14 +206,7 @@ export default function CustomerLanding() {
   return (
     <div className="h-screen bg-gradient-to-b from-eco-gray-light to-white flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex justify-between items-center p-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-eco-green rounded-full flex items-center justify-center">
-            <Leaf className="text-white" size={20} />
-          </div>
-          <span className="text-eco-gray-dark font-semibold">{t('landing.title')}</span>
-        </div>
-        
+      <div className="flex justify-end items-center p-4">
         {/* Language Selector */}
         <div className="relative" ref={languageMenuRef}>
           <Button
