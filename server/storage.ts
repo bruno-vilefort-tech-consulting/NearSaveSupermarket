@@ -121,6 +121,24 @@ export interface IStorage {
     totalAmount: string;
   }>>;
   
+  // Pending payments for staff
+  getPendingPaymentsForStaff(staffId: number): Promise<Array<{
+    id: number;
+    customerName: string;
+    totalAmount: string;
+    completedAt: string;
+    dueDate: string;
+    netAmount: string;
+    status: string;
+    orderItems: Array<{
+      id: number;
+      quantity: number;
+      product: {
+        name: string;
+      };
+    }>;
+  }>>;
+  
   // Eco-friendly actions
   createEcoAction(action: InsertEcoAction): Promise<EcoAction>;
   getEcoActionsByEmail(email: string): Promise<EcoAction[]>;
@@ -1431,6 +1449,105 @@ export class DatabaseStorage implements IStorage {
       pendingOrders: pendingOrdersResult.count,
       totalRevenue: revenueResult.total || 0,
     };
+  }
+
+  // Get pending payments for staff
+  async getPendingPaymentsForStaff(staffId: number): Promise<Array<{
+    id: number;
+    customerName: string;
+    totalAmount: string;
+    completedAt: string;
+    dueDate: string;
+    netAmount: string;
+    status: string;
+    orderItems: Array<{
+      id: number;
+      quantity: number;
+      product: {
+        name: string;
+      };
+    }>;
+  }>> {
+    // Get all completed orders for this staff that haven't been paid by SaveUp yet
+    // In real scenario, this would check payment status from SaveUp side
+    // For now, we'll show completed orders from the last 30 days as "pending payment"
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const ordersResult = await db
+      .select({
+        id: orders.id,
+        customerName: orders.customerName,
+        totalAmount: orders.totalAmount,
+        completedAt: orders.updatedAt,
+        status: orders.status,
+      })
+      .from(orders)
+      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(
+        and(
+          eq(products.createdByStaff, staffId),
+          eq(orders.status, "completed"),
+          sql`${orders.updatedAt} >= ${thirtyDaysAgo.toISOString()}`
+        )
+      )
+      .groupBy(orders.id, orders.customerName, orders.totalAmount, orders.updatedAt, orders.status);
+
+    // Get staff's commercial rate for net amount calculation
+    const [staffResult] = await db
+      .select({ commercialRate: staffUsers.commercialRate })
+      .from(staffUsers)
+      .where(eq(staffUsers.id, staffId));
+    
+    const commercialRate = Number(staffResult?.commercialRate || 5.00);
+
+    const result = [];
+    
+    for (const order of ordersResult) {
+      // Get order items for this order
+      const items = await db
+        .select({
+          id: orderItems.id,
+          quantity: orderItems.quantity,
+          productName: products.name,
+        })
+        .from(orderItems)
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .where(eq(orderItems.orderId, order.id));
+
+      // Calculate net amount (gross - SaveUp commission)
+      const grossAmount = parseFloat(order.totalAmount);
+      const commission = grossAmount * (commercialRate / 100);
+      const netAmount = grossAmount - commission;
+
+      // Calculate due date (7 days after completion)
+      const completedDate = new Date(order.completedAt!);
+      const dueDate = new Date(completedDate);
+      dueDate.setDate(dueDate.getDate() + 7);
+
+      result.push({
+        id: order.id,
+        customerName: order.customerName,
+        totalAmount: order.totalAmount,
+        completedAt: order.completedAt!.toISOString(),
+        dueDate: dueDate.toISOString(),
+        netAmount: netAmount.toFixed(2),
+        status: order.status,
+        orderItems: items.map(item => ({
+          id: item.id,
+          quantity: item.quantity,
+          product: {
+            name: item.productName,
+          },
+        })),
+      });
+    }
+
+    // Sort by due date (ascending - soonest first)
+    result.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+    
+    return result;
   }
 
   // Eco-friendly actions implementation

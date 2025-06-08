@@ -215,7 +215,10 @@ function StaffDashboard() {
             </CardContent>
           </Card>
 
-          <Card className={`transition-shadow ${staffUser.approvalStatus !== 'approved' ? 'opacity-50' : ''}`}>
+          <Card 
+            className={`transition-shadow cursor-pointer hover:shadow-md ${staffUser.approvalStatus !== 'approved' ? 'opacity-50' : ''}`}
+            onClick={() => staffUser.approvalStatus === 'approved' && setLocation('/supermercado/valor-a-receber')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Valor a Receber</CardTitle>
               <BarChart3 className="h-4 w-4 text-green-600" />

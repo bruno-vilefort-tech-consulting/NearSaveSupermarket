@@ -36,6 +36,7 @@ import StaffRegister from "@/pages/staff/register";
 import StaffDashboard from "@/pages/staff/dashboard";
 import StaffProducts from "@/pages/staff/products";
 import StaffOrders from "@/pages/staff/orders";
+import ValorAReceber from "@/pages/staff/valor-a-receber";
 
 // Admin App Pages
 import AdminLogin from "@/pages/admin/login";
@@ -92,6 +93,7 @@ function Router() {
       <Route path="/supermercado/produtos" component={StaffProducts} />
       <Route path="/supermercado/orders" component={StaffOrders} />
       <Route path="/supermercado/pedidos" component={StaffOrders} />
+      <Route path="/supermercado/valor-a-receber" component={ValorAReceber} />
       
       {/* Admin App Routes */}
       <Route path="/admin" component={AdminLogin} />
