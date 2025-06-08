@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { ShoppingCart, Filter, ArrowLeft } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ShoppingCart, Filter, ArrowLeft, Bell, BellRing, Volume2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +53,10 @@ function StaffOrders() {
   const [methodFilter, setMethodFilter] = useState<string>("all");
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
   const [, setLocation] = useLocation();
+  const [hasNewOrders, setHasNewOrders] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [lastOrderCount, setLastOrderCount] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const staffInfo = localStorage.getItem('staffInfo');
@@ -73,12 +77,12 @@ function StaffOrders() {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["/api/staff/orders"],
     queryFn: async () => {
-      const staffId = localStorage.getItem("staffId");
+      if (!staffUser?.id) return [];
       const response = await fetch("/api/staff/orders", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "X-Staff-Id": staffId || "",
+          "X-Staff-Id": staffUser.id.toString(),
         },
       });
       if (!response.ok) {
@@ -86,7 +90,91 @@ function StaffOrders() {
       }
       return response.json();
     },
+    enabled: !!staffUser?.id,
+    refetchInterval: 5000, // Atualiza a cada 5 segundos
   });
+
+  // Função para tocar o som de notificação
+  const playNotificationSound = () => {
+    if (soundEnabled) {
+      try {
+        // Tentar usar o som Web Audio API personalizado primeiro
+        createNotificationSound();
+      } catch (error) {
+        // Fallback para o áudio HTML5
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0;
+          audioRef.current.play().catch(console.error);
+        }
+      }
+      
+      // Repetir o som 2 vezes para garantir que seja ouvido
+      setTimeout(() => {
+        try {
+          createNotificationSound();
+        } catch (error) {
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(console.error);
+          }
+        }
+      }, 400);
+    }
+  };
+
+  // Detectar novos pedidos
+  useEffect(() => {
+    if (orders.length > 0) {
+      const pendingOrders = orders.filter((order: Order) => order.status === 'pending');
+      
+      if (lastOrderCount > 0 && pendingOrders.length > lastOrderCount) {
+        setHasNewOrders(true);
+        playNotificationSound();
+        
+        // Remove o alerta depois de 10 segundos
+        setTimeout(() => setHasNewOrders(false), 10000);
+      }
+      
+      setLastOrderCount(pendingOrders.length);
+    }
+  }, [orders, lastOrderCount, soundEnabled]);
+
+  // Função para criar som de notificação personalizado
+  const createNotificationSound = () => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+    
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  };
+
+  // Inicializar o áudio
+  useEffect(() => {
+    // Criar um áudio mais simples como fallback
+    audioRef.current = new Audio();
+    // Som de sino simples
+    audioRef.current.src = "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAAAAAA4AQAAAQA4AQAAAABkYXRhVgYAAP//AAABAP//AAAAAAAAAAD//wAAAgD+/wEAAAAA//8BAAEA//8AAP//AAABAP//AAAAAAAAAAAAAAAA//8AAP//AAABAP//AQD//wAAAQD//wAA//8AAP//AAAAAAEA//8AAAAA//8AAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8AAAAAAAD//wAAAQD//wAA//8AAAEA//8AAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA";
+    audioRef.current.volume = 0.8; // Volume alto
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const filteredOrders = orders.filter((order: Order) => {
     let matchesStatus = false;
@@ -154,6 +242,43 @@ function StaffOrders() {
                 </h1>
                 <p className="text-sm text-gray-600">{staffUser.companyName}</p>
               </div>
+            </div>
+            
+            {/* Notification Bell */}
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className={`p-3 relative ${hasNewOrders ? 'animate-bounce' : ''}`}
+                title={soundEnabled ? "Desativar notificações sonoras" : "Ativar notificações sonoras"}
+              >
+                {hasNewOrders ? (
+                  <BellRing className={`h-6 w-6 ${hasNewOrders ? 'text-red-500' : 'text-gray-600'}`} />
+                ) : (
+                  <Bell className={`h-6 w-6 ${soundEnabled ? 'text-eco-green' : 'text-gray-400'}`} />
+                )}
+                {hasNewOrders && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                )}
+              </Button>
+              
+              <Button
+                variant="ghost"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className="p-2"
+                title="Configurações de som"
+              >
+                <Volume2 className={`h-5 w-5 ${soundEnabled ? 'text-eco-green' : 'text-gray-400'}`} />
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={playNotificationSound}
+                className="px-3 py-2 text-xs"
+                title="Testar som de notificação"
+              >
+                Testar Som
+              </Button>
             </div>
           </div>
         </div>
