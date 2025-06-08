@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { Package, Filter } from "lucide-react";
+import { Package, Filter, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderCard } from "@/components/order/order-card";
+import { useLocation } from "wouter";
 
 interface OrderItem {
   id: number;
@@ -38,6 +40,7 @@ interface Order {
 function StaffOrders() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [methodFilter, setMethodFilter] = useState<string>("all");
+  const [, setLocation] = useLocation();
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["/api/staff/orders"],
@@ -84,6 +87,18 @@ function StaffOrders() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={() => setLocation('/supermercado/dashboard')}
+            className="flex items-center gap-2 hover:bg-gray-100"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar para Home
+          </Button>
+        </div>
+        
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Gerenciar Pedidos</h1>
           <p className="text-gray-600 mt-2">Acompanhe e gerencie todos os pedidos recebidos</p>
