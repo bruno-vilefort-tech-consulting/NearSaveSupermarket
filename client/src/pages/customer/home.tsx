@@ -664,75 +664,63 @@ export default function CustomerHome() {
             filteredSupermarkets.map((supermarket: SupermarketWithLocation) => (
               <Card
                 key={supermarket.id}
-                className={`relative hover:shadow-lg transition-all duration-500 cursor-pointer ${
+                className={`relative overflow-hidden transition-all duration-300 cursor-pointer ${
                   supermarket.isSponsored 
-                    ? 'bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-2 border-amber-300 shadow-2xl ring-4 ring-amber-200/50 hover:shadow-3xl hover:ring-amber-300/60 hover:scale-105 transform' 
-                    : 'bg-white border border-gray-200 hover:shadow-md'
+                    ? 'bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-2 border-amber-300 shadow-xl ring-2 ring-amber-200/40 hover:shadow-2xl hover:ring-amber-300/50 hover:scale-[1.02] transform' 
+                    : 'bg-white border border-gray-200 hover:shadow-lg hover:border-gray-300'
                 }`}
                 onClick={() => handleSupermarketClick(supermarket.id, supermarket.name)}
               >
                 {supermarket.isSponsored && (
                   <>
                     {/* Premium Badge */}
-                    <div className="absolute -top-3 -right-3 z-20">
-                      <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 text-amber-900 px-4 py-2 rounded-full text-xs font-bold shadow-xl border-2 border-white animate-pulse">
-                        ⭐ DESTAQUE PREMIUM
+                    <div className="absolute -top-2 -right-2 z-20">
+                      <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-white animate-pulse">
+                        ⭐ PREMIUM
                       </div>
                     </div>
                     
-                    {/* Shimmering Border Effect */}
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50 animate-shimmer"></div>
-                    
-                    {/* Corner Decorations */}
-                    <div className="absolute top-2 left-2 w-6 h-6 bg-gradient-to-br from-amber-300 to-yellow-400 rounded-full opacity-60"></div>
-                    <div className="absolute bottom-2 right-2 w-4 h-4 bg-gradient-to-br from-orange-300 to-amber-400 rounded-full opacity-60"></div>
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
                   </>
                 )}
 
-                <CardHeader className={`pb-3 relative z-10 ${supermarket.isSponsored ? 'bg-gradient-to-r from-transparent to-amber-50/30' : ''}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className={`relative w-14 h-14 rounded-xl flex items-center justify-center shadow-lg ${
+                <CardHeader className="pb-3 relative z-10">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start space-x-3 flex-1 min-w-0">
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-md flex-shrink-0 ${
                         supermarket.isSponsored 
-                          ? 'bg-gradient-to-br from-amber-400 via-yellow-400 to-orange-500 shadow-amber-300/50' 
-                          : 'bg-eco-green shadow-eco-green/30'
+                          ? 'bg-gradient-to-br from-amber-400 to-orange-500' 
+                          : 'bg-eco-green'
                       }`}>
-                        <Store className="text-white" size={24} />
-                        {supermarket.isSponsored && (
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent"></div>
-                        )}
+                        <Store className="text-white" size={20} />
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2">
-                          <h3 className={`font-bold text-lg truncate ${
-                            supermarket.isSponsored ? 'text-amber-900 drop-shadow-sm' : 'text-eco-gray-dark'
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className={`font-semibold text-base truncate ${
+                            supermarket.isSponsored ? 'text-amber-900' : 'text-eco-gray-dark'
                           }`}>
                             {supermarket.name}
                           </h3>
                           {supermarket.isSponsored && (
-                            <div className="flex items-center space-x-1">
-                              <Award className="text-amber-600" size={16} />
-                              <span className="text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-1 rounded-full">
-                                PREMIUM
-                              </span>
-                            </div>
+                            <Award className="text-amber-600 flex-shrink-0" size={14} />
                           )}
                         </div>
                         
-                        <div className="flex items-center space-x-1 mt-2">
-                          <MapPin className={supermarket.isSponsored ? "text-amber-600" : "text-eco-gray"} size={14} />
-                          <p className={`text-sm truncate ${
-                            supermarket.isSponsored ? 'text-amber-800 font-medium' : 'text-eco-gray'
+                        <div className="flex items-center gap-1 mb-1">
+                          <MapPin className={supermarket.isSponsored ? "text-amber-600" : "text-eco-gray"} size={12} />
+                          <p className={`text-xs truncate ${
+                            supermarket.isSponsored ? 'text-amber-800' : 'text-eco-gray'
                           }`}>
                             {supermarket.address}
                           </p>
                         </div>
                         
                         {supermarket.distance !== undefined && (
-                          <div className="flex items-center space-x-1 mt-1">
-                            <Navigation className={supermarket.isSponsored ? "text-amber-600" : "text-eco-blue"} size={14} />
-                            <span className={`text-sm font-semibold ${
+                          <div className="flex items-center gap-1">
+                            <Navigation className={supermarket.isSponsored ? "text-amber-600" : "text-eco-blue"} size={12} />
+                            <span className={`text-xs font-medium ${
                               supermarket.isSponsored ? 'text-amber-700' : 'text-eco-blue'
                             }`}>
                               {supermarket.distance < 1 
@@ -745,9 +733,9 @@ export default function CustomerHome() {
                     </div>
                     
                     {supermarket.hasPromotions && (
-                      <Badge className={`text-xs font-semibold ${
+                      <Badge className={`text-xs font-semibold flex-shrink-0 ${
                         supermarket.isSponsored 
-                          ? 'bg-red-500 text-white border-red-600 shadow-lg animate-bounce' 
+                          ? 'bg-red-500 text-white border-red-600 shadow-md' 
                           : 'bg-red-100 text-red-700 border-red-200'
                       }`}>
                         PROMOÇÕES
@@ -758,19 +746,19 @@ export default function CustomerHome() {
 
                 <CardContent className="pt-0 relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <Package className={supermarket.isSponsored ? "text-amber-600" : "text-eco-green"} size={18} />
-                      <span className={`text-sm font-semibold ${
+                    <div className="flex items-center gap-2">
+                      <Package className={supermarket.isSponsored ? "text-amber-600" : "text-eco-green"} size={16} />
+                      <span className={`text-sm font-medium ${
                         supermarket.isSponsored ? 'text-amber-900' : 'text-eco-gray-dark'
                       }`}>
-                        {supermarket.productCount} produtos disponíveis
+                        {supermarket.productCount} produtos
                       </span>
                     </div>
                     <Badge 
                       variant="secondary" 
-                      className={`font-medium ${
+                      className={`text-xs font-medium ${
                         supermarket.isSponsored 
-                          ? "bg-gradient-to-r from-green-400 to-emerald-500 text-white border-emerald-400 shadow-md" 
+                          ? "bg-green-500 text-white border-green-600" 
                           : "bg-eco-green-light text-eco-green-dark border-eco-green"
                       }`}
                     >
@@ -779,32 +767,32 @@ export default function CustomerHome() {
                   </div>
 
                   {supermarket.isSponsored && (
-                    <div className="mb-4 p-3 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-lg border border-amber-200">
-                      <div className="flex items-center space-x-2 text-amber-800">
-                        <Award size={16} />
-                        <span className="text-sm font-semibold">Supermercado Verificado Premium</span>
+                    <div className="mb-4 p-2 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-md border border-amber-200">
+                      <div className="flex items-center gap-2 text-amber-800">
+                        <Award size={14} />
+                        <span className="text-xs font-semibold">Verificado Premium</span>
                       </div>
                       <p className="text-xs text-amber-700 mt-1">
-                        Qualidade garantida • Entrega prioritária • Suporte dedicado
+                        Entrega prioritária • Qualidade garantida
                       </p>
                     </div>
                   )}
 
                   <Button
-                    className={`w-full font-bold py-3 rounded-xl transition-all duration-300 shadow-lg ${
+                    className={`w-full font-semibold py-2 rounded-lg transition-all duration-200 ${
                       supermarket.isSponsored
-                        ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 hover:from-amber-600 hover:via-yellow-600 hover:to-orange-600 text-white shadow-amber-400/50 hover:shadow-amber-500/60 hover:scale-105 transform'
-                        : 'bg-eco-orange hover:bg-eco-orange-dark text-white shadow-eco-orange/30'
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md hover:shadow-lg'
+                        : 'bg-eco-orange hover:bg-eco-orange-dark text-white'
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleSupermarketClick(supermarket.id, supermarket.name);
                     }}
                   >
-                    <span className="flex items-center justify-center space-x-2">
-                      <span>{supermarket.isSponsored ? 'EXPLORAR PRODUTOS PREMIUM' : 'Ver Produtos'}</span>
-                      <ArrowRight size={18} />
-                    </span>
+                    <div className="flex items-center justify-center gap-2">
+                      <span>{supermarket.isSponsored ? 'Explorar Premium' : 'Ver Produtos'}</span>
+                      <ArrowRight size={16} />
+                    </div>
                   </Button>
                 </CardContent>
               </Card>
