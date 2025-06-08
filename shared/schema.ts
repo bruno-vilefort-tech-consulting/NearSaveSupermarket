@@ -55,6 +55,7 @@ export const staffUsers = pgTable("staff_users", {
   latitude: numeric("latitude", { precision: 10, scale: 8 }),
   longitude: numeric("longitude", { precision: 11, scale: 8 }),
   isActive: integer("is_active").default(1),
+  isSponsored: integer("is_sponsored").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

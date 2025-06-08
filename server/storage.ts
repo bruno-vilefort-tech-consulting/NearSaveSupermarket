@@ -63,6 +63,9 @@ export interface IStorage {
   getProductsByStaff(staffId: number): Promise<ProductWithCreator[]>;
   createProductForStaff(product: InsertProduct & { createdByStaff: number }): Promise<Product>;
   
+  // Sponsorship operations
+  updateStaffSponsorshipStatus(staffId: number, isSponsored: boolean): Promise<void>;
+  
   // Order operations
   getOrders(filters?: { status?: string }): Promise<OrderWithItems[]>;
   getOrdersByStaff(staffId: number, filters?: { status?: string }): Promise<OrderWithItems[]>;
@@ -1404,6 +1407,7 @@ export class DatabaseStorage implements IStorage {
           s.address,
           s.latitude::text as latitude,
           s.longitude::text as longitude,
+          s.is_sponsored,
           COUNT(CASE WHEN p.is_active = 1 THEN p.id END) as product_count,
           COUNT(CASE WHEN p.is_active = 1 AND p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions
         FROM staff_users s
@@ -1412,8 +1416,8 @@ export class DatabaseStorage implements IStorage {
           AND s.latitude IS NOT NULL 
           AND s.longitude IS NOT NULL
           AND s.is_active = 1
-        GROUP BY s.id, s.company_name, s.address, s.latitude, s.longitude
-        ORDER BY s.company_name
+        GROUP BY s.id, s.company_name, s.address, s.latitude, s.longitude, s.is_sponsored
+        ORDER BY s.is_sponsored DESC, s.company_name ASC
       `);
 
       return result.rows.map((row: any) => ({
@@ -1655,6 +1659,18 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, orderId));
     
     console.log(`✅ [EXTERNAL REF] Referência externa do pedido ${orderId} atualizada para: ${externalReference}`);
+  }
+
+  async updateStaffSponsorshipStatus(staffId: number, isSponsored: boolean): Promise<void> {
+    await db
+      .update(staffUsers)
+      .set({
+        isSponsored: isSponsored ? 1 : 0,
+        updatedAt: new Date()
+      })
+      .where(eq(staffUsers.id, staffId));
+    
+    console.log(`✅ [SPONSORSHIP] Staff ${staffId} patrocínio atualizado para: ${isSponsored ? 'ATIVO' : 'INATIVO'}`);
   }
 }
 
