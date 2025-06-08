@@ -140,7 +140,7 @@ function ValorAReceber() {
               <span>Resumo dos Pagamentos da SaveUp</span>
             </CardTitle>
             <p className="text-sm text-gray-600 mt-1">
-              Pedidos concluídos aguardando pagamento da SaveUp (prazo: 7 dias após conclusão)
+              Pedidos concluídos aguardando pagamento da SaveUp (prazo: 30 dias após conclusão)
             </p>
           </CardHeader>
           <CardContent>

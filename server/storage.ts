@@ -1494,13 +1494,17 @@ export class DatabaseStorage implements IStorage {
       )
       .groupBy(orders.id, orders.customerName, orders.totalAmount, orders.updatedAt, orders.status);
 
-    // Get staff's commercial rate for net amount calculation
+    // Get staff's commercial rate and payment terms for calculations
     const [staffResult] = await db
-      .select({ commercialRate: staffUsers.commercialRate })
+      .select({ 
+        commercialRate: staffUsers.commercialRate,
+        paymentTerms: staffUsers.paymentTerms 
+      })
       .from(staffUsers)
       .where(eq(staffUsers.id, staffId));
     
     const commercialRate = Number(staffResult?.commercialRate || 5.00);
+    const paymentTerms = Number(staffResult?.paymentTerms || 30);
 
     const result = [];
     
@@ -1521,10 +1525,10 @@ export class DatabaseStorage implements IStorage {
       const commission = grossAmount * (commercialRate / 100);
       const netAmount = grossAmount - commission;
 
-      // Calculate due date (7 days after completion)
+      // Calculate due date (paymentTerms days after completion)
       const completedDate = new Date(order.completedAt!);
       const dueDate = new Date(completedDate);
-      dueDate.setDate(dueDate.getDate() + 7);
+      dueDate.setDate(dueDate.getDate() + paymentTerms);
 
       result.push({
         id: order.id,
