@@ -77,35 +77,41 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
         // Criar o pedido após pagamento bem-sucedido
         try {
           const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
+          const savedCart = localStorage.getItem('cart');
           
-          const orderData = {
-            customerName: customerInfo.fullName || 'Cliente',
-            customerEmail: customerInfo.email,
-            customerPhone: customerInfo.phone,
-            items: cartItems.map(item => ({
-              productId: item.id,
-              quantity: item.quantity,
-              priceAtTime: item.discountPrice
-            })),
-            totalAmount: getTotalAmount().toFixed(2),
-            paymentMethod: 'card',
-            externalReference: paymentIntent.id
-          };
+          if (savedCart) {
+            const parsedCart = JSON.parse(savedCart);
+            
+            const orderData = {
+              customerName: customerInfo.fullName || 'Cliente',
+              customerEmail: customerInfo.email,
+              customerPhone: customerInfo.phone,
+              items: parsedCart.map((item: any) => ({
+                productId: item.id,
+                quantity: item.quantity,
+                priceAtTime: item.discountPrice
+              })),
+              totalAmount: totalAmount.toFixed(2),
+              paymentMethod: 'card',
+              externalReference: paymentIntent.id
+            };
 
-          const createOrderResponse = await fetch('/api/orders/create-public', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(orderData)
-          });
+            const createOrderResponse = await fetch('/api/orders/create-public', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(orderData)
+            });
 
-          if (createOrderResponse.ok) {
-            console.log('Pedido criado com sucesso após pagamento Stripe');
-            // Limpar carrinho
-            localStorage.removeItem('cart');
-          } else {
-            console.error('Erro ao criar pedido após pagamento:', await createOrderResponse.text());
+            if (createOrderResponse.ok) {
+              console.log('Pedido criado com sucesso após pagamento Stripe');
+              // Limpar carrinho
+              localStorage.removeItem('cart');
+            } else {
+              const errorText = await createOrderResponse.text();
+              console.error('Erro ao criar pedido após pagamento:', createOrderResponse.status, errorText);
+            }
           }
         } catch (error) {
           console.error('Erro ao criar pedido após pagamento Stripe:', error);
