@@ -343,6 +343,24 @@ export interface TranslationKeys {
   'landing.staffButton': string;
   'landing.footer': string;
   'landing.features': string;
+  'landing.featuresTitle': string;
+  'landing.featuresSubtitle': string;
+  'landing.feature1Title': string;
+  'landing.feature1Description': string;
+  'landing.feature2Title': string;
+  'landing.feature2Description': string;
+  'landing.feature3Title': string;
+  'landing.feature3Description': string;
+  'landing.feature4Title': string;
+  'landing.feature4Description': string;
+  'landing.impactTitle': string;
+  'landing.impactSubtitle': string;
+  'landing.stat1': string;
+  'landing.stat2': string;
+  'landing.stat3': string;
+  'landing.ctaTitle': string;
+  'landing.ctaSubtitle': string;
+  'common.language': string;
 
   // Validation
   'validation.productNameRequired': string;
@@ -787,11 +805,29 @@ export const translations: Record<Language, TranslationKeys> = {
 
     // Landing Page
     'landing.title': 'SaveUp',
-    'landing.subtitle': 'By Up Brasil',
+    'landing.subtitle': 'Conectando supermercados e consumidores para reduzir o desperdício de alimentos',
     'landing.customerButton': 'Cliente - Consumidor',
     'landing.staffButton': 'Staff do Supermercado',
     'landing.footer': 'Menos desperdício, mais valor. Uma iniciativa sustentável da UP Brasil',
     'landing.features': 'Zero Desperdício • Recompensas Eco • 100% Sustentável',
+    'landing.featuresTitle': 'Por que escolher SaveUp?',
+    'landing.featuresSubtitle': 'Descubra como nossa plataforma transforma o desperdício em oportunidades',
+    'landing.feature1Title': 'Produtos com Desconto',
+    'landing.feature1Description': 'Encontre produtos próximos ao vencimento com até 70% de desconto',
+    'landing.feature2Title': 'Impacto Sustentável',
+    'landing.feature2Description': 'Ajude a reduzir o desperdício de alimentos e proteger o meio ambiente',
+    'landing.feature3Title': 'Eco Pontos',
+    'landing.feature3Description': 'Ganhe pontos a cada compra sustentável e troque por benefícios exclusivos',
+    'landing.feature4Title': 'Economia Garantida',
+    'landing.feature4Description': 'Economize até R$ 200 por mês em suas compras do supermercado',
+    'landing.impactTitle': 'Nosso Impacto',
+    'landing.impactSubtitle': 'Juntos, estamos fazendo a diferença no combate ao desperdício',
+    'landing.stat1': 'Redução no desperdício',
+    'landing.stat2': 'Produtos salvos',
+    'landing.stat3': 'Disponibilidade',
+    'landing.ctaTitle': 'Pronto para economizar e ajudar o planeta?',
+    'landing.ctaSubtitle': 'Junte-se à nossa comunidade e comece a fazer compras sustentáveis hoje mesmo',
+    'common.language': 'Idioma',
 
     // Validation
     'validation.productNameRequired': 'Nome do produto é obrigatório',
@@ -1225,11 +1261,29 @@ export const translations: Record<Language, TranslationKeys> = {
 
     // Landing Page
     'landing.title': 'SaveUp',
-    'landing.subtitle': 'By Up Brasil',
+    'landing.subtitle': 'Connecting supermarkets and consumers to reduce food waste',
     'landing.customerButton': 'Customer - Consumer',
     'landing.staffButton': 'Supermarket Staff',
     'landing.footer': 'Less waste, more value. A sustainable initiative by UP Brasil',
     'landing.features': 'Zero Waste • Eco Rewards • 100% Sustainable',
+    'landing.featuresTitle': 'Why choose SaveUp?',
+    'landing.featuresSubtitle': 'Discover how our platform transforms waste into opportunities',
+    'landing.feature1Title': 'Discounted Products',
+    'landing.feature1Description': 'Find products near expiration with up to 70% discount',
+    'landing.feature2Title': 'Sustainable Impact',
+    'landing.feature2Description': 'Help reduce food waste and protect the environment',
+    'landing.feature3Title': 'Eco Points',
+    'landing.feature3Description': 'Earn points with every sustainable purchase and exchange for exclusive benefits',
+    'landing.feature4Title': 'Guaranteed Savings',
+    'landing.feature4Description': 'Save up to $50 per month on your supermarket purchases',
+    'landing.impactTitle': 'Our Impact',
+    'landing.impactSubtitle': 'Together, we are making a difference in fighting waste',
+    'landing.stat1': 'Waste reduction',
+    'landing.stat2': 'Products saved',
+    'landing.stat3': 'Availability',
+    'landing.ctaTitle': 'Ready to save money and help the planet?',
+    'landing.ctaSubtitle': 'Join our community and start making sustainable purchases today',
+    'common.language': 'Language',
 
     // Validation
     'validation.productNameRequired': 'Product name is required',
