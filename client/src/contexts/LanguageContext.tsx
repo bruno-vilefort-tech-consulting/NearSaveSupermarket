@@ -16,12 +16,14 @@ interface LanguageProviderProps {
 export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>('pt-BR');
 
-  // Load language from localStorage on mount
+  // Force Portuguese language always
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('app-language') as Language;
-    if (savedLanguage && (savedLanguage === 'pt-BR' || savedLanguage === 'en-US')) {
-      setLanguageState(savedLanguage);
-    }
+    // Force Portuguese and clear any English cache
+    localStorage.setItem('app-language', 'pt-BR');
+    localStorage.removeItem('en-US-cache');
+    localStorage.removeItem('language-cache');
+    setLanguageState('pt-BR');
+    console.log('🔧 FORÇANDO IDIOMA PORTUGUÊS NO CONTEXTO');
   }, []);
 
   // Save language to localStorage when it changes
