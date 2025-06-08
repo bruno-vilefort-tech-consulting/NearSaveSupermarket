@@ -71,6 +71,10 @@ function Router() {
       <Route path="/staff/register" component={StaffRegister} />
       <Route path="/staff/dashboard" component={StaffDashboard} />
       
+      {/* Friendly Routes */}
+      <Route path="/cliente" component={CustomerLanding} />
+      <Route path="/supermercado" component={StaffLogin} />
+      
       {/* Terms and Conditions - Public access */}
       <Route path="/terms" component={Terms} />
       <Route path="/terms-and-conditions" component={TermsAndConditions} />
