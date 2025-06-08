@@ -66,6 +66,14 @@ export default function Dashboard() {
             </Card>
           </div>
 
+          {/* Sponsorship Card - Only for staff */}
+          {isStaffAuthenticated && (
+            <SponsorshipCard 
+              isSponsored={sponsorshipData?.isSponsored || false}
+              companyName={sponsorshipData?.companyName}
+            />
+          )}
+
           {/* Quick Actions */}
           <Card className="shadow-sm border-eco-blue-light hover:shadow-md transition-shadow">
             <CardContent className="p-6">
