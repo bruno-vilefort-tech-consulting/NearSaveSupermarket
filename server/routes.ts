@@ -1648,18 +1648,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staff endpoint to get pending payments
   app.get("/api/staff/pending-payments", async (req, res) => {
     try {
-      const email = req.query.email as string;
+      const staffId = req.headers['x-staff-id'] as string;
       
-      if (!email) {
-        return res.status(400).json({ message: "Email é obrigatório" });
+      if (!staffId) {
+        return res.status(400).json({ message: "ID do staff é obrigatório" });
       }
 
-      const staffUser = await storage.getStaffUserByEmail(email);
-      if (!staffUser) {
-        return res.status(404).json({ message: "Usuário staff não encontrado" });
-      }
-
-      const pendingPayments = await storage.getPendingPaymentsForStaff(staffUser.id);
+      const pendingPayments = await storage.getPendingPaymentsForStaff(parseInt(staffId));
       res.json(pendingPayments);
     } catch (error) {
       console.error('❌ Erro ao buscar pagamentos pendentes:', error);
