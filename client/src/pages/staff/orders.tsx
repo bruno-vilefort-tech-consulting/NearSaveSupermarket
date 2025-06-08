@@ -108,7 +108,7 @@ function StaffOrders() {
         }
       }
       
-      // Repetir o som 2 vezes para garantir que seja ouvido
+      // Repetir o som 3 vezes para garantir que seja bem ouvido
       setTimeout(() => {
         try {
           createNotificationSound();
@@ -118,7 +118,18 @@ function StaffOrders() {
             audioRef.current.play().catch(console.error);
           }
         }
-      }, 400);
+      }, 600);
+      
+      setTimeout(() => {
+        try {
+          createNotificationSound();
+        } catch (error) {
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(console.error);
+          }
+        }
+      }, 1200);
     }
   };
 
@@ -139,7 +150,7 @@ function StaffOrders() {
     }
   }, [orders, lastOrderCount, soundEnabled]);
 
-  // Função para criar som de notificação personalizado
+  // Função para criar som de notificação personalizado - VOLUME ALTO
   const createNotificationSound = () => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
@@ -148,16 +159,18 @@ function StaffOrders() {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+    // Frequências mais agudas e altas para chamar atenção
+    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(1500, audioContext.currentTime + 0.15);
+    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.3);
+    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.45);
     
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    gainNode.gain.linearRampToValueAtTime(0.8, audioContext.currentTime + 0.01); // Volume muito alto
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
     
     oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
+    oscillator.stop(audioContext.currentTime + 0.6);
   };
 
   // Inicializar o áudio
@@ -166,7 +179,7 @@ function StaffOrders() {
     audioRef.current = new Audio();
     // Som de sino simples
     audioRef.current.src = "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAAAAAA4AQAAAQA4AQAAAABkYXRhVgYAAP//AAABAP//AAAAAAAAAAD//wAAAgD+/wEAAAAA//8BAAEA//8AAP//AAABAP//AAAAAAAAAAAAAAAA//8AAP//AAABAP//AQD//wAAAQD//wAA//8AAP//AAAAAAEA//8AAAAA//8AAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8AAAAAAAD//wAAAQD//wAA//8AAAEA//8AAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA//8AAAAA//8BAP//AAABAP//AAD//wAAAQD//wAAAAABAP//AAAAAAEA//8BAP//AAD//wAAAQD//wAAAAAA//8AAAAA";
-    audioRef.current.volume = 0.8; // Volume alto
+    audioRef.current.volume = 1.0; // Volume máximo
     
     return () => {
       if (audioRef.current) {
