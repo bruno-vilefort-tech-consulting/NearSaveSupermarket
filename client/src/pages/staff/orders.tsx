@@ -108,7 +108,7 @@ function StaffOrders() {
         }
       }
       
-      // Repetir o som 3 vezes para garantir que seja bem ouvido
+      // Repetir o som "ding-dong" 2 vezes para garantir que seja bem ouvido
       setTimeout(() => {
         try {
           createNotificationSound();
@@ -118,18 +118,7 @@ function StaffOrders() {
             audioRef.current.play().catch(console.error);
           }
         }
-      }, 600);
-      
-      setTimeout(() => {
-        try {
-          createNotificationSound();
-        } catch (error) {
-          if (audioRef.current) {
-            audioRef.current.currentTime = 0;
-            audioRef.current.play().catch(console.error);
-          }
-        }
-      }, 1200);
+      }, 1500);
     }
   };
 
@@ -150,27 +139,43 @@ function StaffOrders() {
     }
   }, [orders, lastOrderCount, soundEnabled]);
 
-  // Função para criar som de notificação personalizado - VOLUME ALTO
+  // Função para criar som de alerta tipo "ding-dong" profissional
   const createNotificationSound = () => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
     
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    // Primeiro "ding" - nota mais alta
+    const oscillator1 = audioContext.createOscillator();
+    const gainNode1 = audioContext.createGain();
     
-    // Frequências mais agudas e altas para chamar atenção
-    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
-    oscillator.frequency.setValueAtTime(1500, audioContext.currentTime + 0.15);
-    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.3);
-    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.45);
+    oscillator1.connect(gainNode1);
+    gainNode1.connect(audioContext.destination);
     
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.8, audioContext.currentTime + 0.01); // Volume muito alto
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+    oscillator1.type = 'sine';
+    oscillator1.frequency.setValueAtTime(1046.5, audioContext.currentTime); // C6
     
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.6);
+    gainNode1.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode1.gain.linearRampToValueAtTime(0.7, audioContext.currentTime + 0.01);
+    gainNode1.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator1.start(audioContext.currentTime);
+    oscillator1.stop(audioContext.currentTime + 0.5);
+    
+    // Segundo "dong" - nota mais baixa (com delay)
+    const oscillator2 = audioContext.createOscillator();
+    const gainNode2 = audioContext.createGain();
+    
+    oscillator2.connect(gainNode2);
+    gainNode2.connect(audioContext.destination);
+    
+    oscillator2.type = 'sine';
+    oscillator2.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.3); // G5
+    
+    gainNode2.gain.setValueAtTime(0, audioContext.currentTime + 0.3);
+    gainNode2.gain.linearRampToValueAtTime(0.7, audioContext.currentTime + 0.31);
+    gainNode2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.9);
+    
+    oscillator2.start(audioContext.currentTime + 0.3);
+    oscillator2.stop(audioContext.currentTime + 0.9);
   };
 
   // Inicializar o áudio
