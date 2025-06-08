@@ -1365,7 +1365,15 @@ export class DatabaseStorage implements IStorage {
 
     const pendingOrdersCount = pendingOrdersQuery.length;
 
-    // Calculate revenue from completed orders containing this staff's products
+    // Calculate net revenue from completed orders containing this staff's products
+    // Need to get the staff's commercial rate to calculate net amount
+    const [staffInfo] = await db
+      .select({ commercialRate: staffUsers.commercialRate })
+      .from(staffUsers)
+      .where(eq(staffUsers.id, staffId));
+
+    const commercialRate = Number(staffInfo?.commercialRate || 5.00); // Default 5% if not found
+
     const [revenueResult] = await db
       .select({ 
         total: sql<number>`COALESCE(SUM(CAST(${orders.totalAmount} AS DECIMAL)), 0)` 
@@ -1380,10 +1388,16 @@ export class DatabaseStorage implements IStorage {
         )
       );
 
+    const grossRevenue = Number(revenueResult.total || 0);
+    const commission = grossRevenue * (commercialRate / 100);
+    const netRevenue = grossRevenue - commission;
+
+    console.log(`💰 [STATS] Staff ${staffId} - Gross: ${grossRevenue}, Rate: ${commercialRate}%, Commission: ${commission}, Net: ${netRevenue}`);
+
     return {
       activeProducts: Number(activeProductsResult.count),
       pendingOrders: Number(pendingOrdersCount),
-      totalRevenue: Number(revenueResult.total || 0),
+      totalRevenue: Number(netRevenue),
     };
   }
 
