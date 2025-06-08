@@ -1325,16 +1325,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`🔍 [STRIPE CONFIRM] Status do pagamento: ${paymentIntent.status}`);
       
       if (paymentIntent.status !== 'succeeded') {
-        // Para teste em desenvolvimento, permitir também status 'requires_payment_method'
-        if (process.env.NODE_ENV === 'development' && paymentIntent.status === 'requires_payment_method') {
-          console.log(`⚠️ [STRIPE CONFIRM] Modo desenvolvimento - permitindo criação do pedido para teste`);
-        } else {
-          console.log(`❌ [STRIPE CONFIRM] Pagamento não confirmado: ${paymentIntent.status}`);
-          return res.status(400).json({ 
-            message: "Pagamento não foi confirmado",
-            status: paymentIntent.status 
-          });
-        }
+        console.log(`❌ [STRIPE CONFIRM] Pagamento não confirmado: ${paymentIntent.status}`);
+        return res.status(400).json({ 
+          message: "Pagamento não foi confirmado",
+          status: paymentIntent.status 
+        });
       }
 
       console.log(`✅ [STRIPE CONFIRM] Pagamento confirmado! Criando pedido...`);
