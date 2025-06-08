@@ -230,10 +230,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const stats = await storage.getStatsForStaff(Number(staffId));
+      console.log(`📊 [STATS] Staff ${staffId} - Receita Total: R$ ${stats.totalRevenue}`);
       res.json(stats);
     } catch (error: any) {
       console.error("Error fetching staff stats:", error);
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // Endpoint de teste para verificar receita detalhada
+  app.get("/api/test/stats/:staffId", async (req, res) => {
+    try {
+      const staffId = parseInt(req.params.staffId);
+      const stats = await storage.getStatsForStaff(staffId);
+      
+      // Buscar dados detalhados para debug
+      const validItemsQuery = await db
+        .select({ 
+          orderId: orders.id,
+          priceAtTime: orderItems.priceAtTime,
+          quantity: orderItems.quantity,
+          confirmationStatus: orderItems.confirmationStatus
+        })
+        .from(orders)
+        .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .where(
+          and(
+            eq(products.createdByStaff, staffId),
+            eq(orders.status, "completed"),
+            or(
+              eq(orderItems.confirmationStatus, "pending"),
+              eq(orderItems.confirmationStatus, "confirmed")
+            )
+          )
+        );
+
+      res.json({
+        stats,
+        debugInfo: {
+          validItems: validItemsQuery,
+          includedOrderIds: [...new Set(validItemsQuery.map(item => item.orderId))],
+          includesOrder281: validItemsQuery.some(item => item.orderId === 281)
+        }
+      });
+    } catch (error) {
+      console.error("Error in test stats:", error);
+      res.status(500).json({ message: "Failed to fetch test stats" });
     }
   });
 
