@@ -121,15 +121,6 @@ function ValorAReceberDetalhes() {
                 </p>
               </div>
             </div>
-            
-            <div className="text-right">
-              <div className="text-2xl font-bold text-eco-green">
-                R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <p className="text-sm text-eco-gray">
-                Total pendente • {sortedPayments.length} pedidos
-              </p>
-            </div>
           </div>
         </div>
       </header>
