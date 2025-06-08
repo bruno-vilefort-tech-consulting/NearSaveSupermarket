@@ -57,6 +57,10 @@ export const staffUsers = pgTable("staff_users", {
   longitude: numeric("longitude", { precision: 11, scale: 8 }),
   isActive: integer("is_active").default(1),
   isSponsored: integer("is_sponsored").default(0),
+  approvalStatus: varchar("approval_status", { length: 50 }).default("pending").notNull(), // pending, approved, rejected
+  approvedBy: integer("approved_by").references(() => adminUsers.id),
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -45,9 +45,15 @@ export interface IStorage {
   
   // Staff user operations
   getStaffUserByEmail(email: string): Promise<StaffUser | undefined>;
+  getStaffUserByCnpj(cnpj: string): Promise<StaffUser | undefined>;
   createStaffUser(staffUser: InsertStaffUser): Promise<StaffUser>;
   validateStaffUser(email: string, password: string): Promise<StaffUser | undefined>;
   updateStaffLocation(id: number, latitude: number, longitude: number): Promise<void>;
+  
+  // Staff approval operations
+  getPendingStaffUsers(): Promise<StaffUser[]>;
+  approveStaffUser(staffId: number, adminId: number): Promise<StaffUser | undefined>;
+  rejectStaffUser(staffId: number, adminId: number, reason: string): Promise<StaffUser | undefined>;
   
   // Customer operations
   getCustomerByEmail(email: string): Promise<Customer | undefined>;
@@ -232,6 +238,14 @@ export class DatabaseStorage implements IStorage {
     return staffUser;
   }
 
+  async getStaffUserByCnpj(cnpj: string): Promise<StaffUser | undefined> {
+    const [staffUser] = await db
+      .select()
+      .from(staffUsers)
+      .where(eq(staffUsers.cnpj, cnpj));
+    return staffUser;
+  }
+
   async updateStaffLocation(id: number, latitude: number, longitude: number): Promise<void> {
     await db
       .update(staffUsers)
@@ -241,6 +255,45 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date()
       })
       .where(eq(staffUsers.id, id));
+  }
+
+  // Staff approval operations
+  async getPendingStaffUsers(): Promise<StaffUser[]> {
+    const staffUsers = await db
+      .select()
+      .from(staffUsers)
+      .where(eq(staffUsers.approvalStatus, 'pending'))
+      .orderBy(desc(staffUsers.createdAt));
+    return staffUsers;
+  }
+
+  async approveStaffUser(staffId: number, adminId: number): Promise<StaffUser | undefined> {
+    const [staffUser] = await db
+      .update(staffUsers)
+      .set({
+        approvalStatus: 'approved',
+        approvedBy: adminId,
+        approvedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(staffUsers.id, staffId))
+      .returning();
+    return staffUser;
+  }
+
+  async rejectStaffUser(staffId: number, adminId: number, reason: string): Promise<StaffUser | undefined> {
+    const [staffUser] = await db
+      .update(staffUsers)
+      .set({
+        approvalStatus: 'rejected',
+        approvedBy: adminId,
+        approvedAt: new Date(),
+        rejectionReason: reason,
+        updatedAt: new Date()
+      })
+      .where(eq(staffUsers.id, staffId))
+      .returning();
+    return staffUser;
   }
 
   // Customer operations
