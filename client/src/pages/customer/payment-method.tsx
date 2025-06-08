@@ -15,6 +15,7 @@ interface CartItem {
 export default function PaymentMethod() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card'>('pix');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
@@ -35,6 +36,9 @@ export default function PaymentMethod() {
   };
 
   const handleContinuePayment = async () => {
+    if (isProcessing) return; // Evitar múltiplas execuções
+    
+    setIsProcessing(true);
     console.log('🎯 Continuando para pagamento:', paymentMethod);
     
     if (paymentMethod === 'pix') {
@@ -91,6 +95,7 @@ export default function PaymentMethod() {
       } catch (error) {
         console.error('Erro ao criar pedido PIX:', error);
         alert('Erro ao processar pedido. Tente novamente.');
+        setIsProcessing(false);
       }
     } else if (paymentMethod === 'card') {
       // Navegar para tela de Stripe
@@ -208,9 +213,10 @@ export default function PaymentMethod() {
           {/* Continue Button */}
           <button
             onClick={handleContinuePayment}
-            className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-4 px-4 rounded-xl transition-colors"
+            disabled={isProcessing}
+            className="w-full bg-eco-green hover:bg-eco-green-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-xl transition-colors"
           >
-            Continuar para Pagamento
+            {isProcessing ? 'Processando...' : 'Continuar para Pagamento'}
           </button>
         </div>
       </div>

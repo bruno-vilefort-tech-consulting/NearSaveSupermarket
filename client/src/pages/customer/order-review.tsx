@@ -94,40 +94,11 @@ export default function OrderReview() {
         // Redirecionar para tela de pagamento PIX
         navigate(`/pix-payment/${result.orderId}`);
       } else if (paymentMethod === 'card') {
-        // Criar pedido com status awaiting_payment para Stripe
-        const response = await fetch('/api/public/orders', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            customerName: orderData.customerName,
-            customerEmail: orderData.customerEmail,
-            customerPhone: orderData.customerPhone,
-            fulfillmentMethod: orderData.deliveryType,
-            deliveryAddress: orderData.deliveryAddress,
-            totalAmount: orderData.totalAmount,
-            paymentMethod: 'stripe',
-            items: orderData.items.map(item => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              priceAtTime: item.priceAtTime
-            }))
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Erro ao criar pedido');
-        }
-
-        const result = await response.json();
+        // Para cartão, salvar dados no localStorage e redirecionar para payment-method
+        localStorage.setItem('orderReview', JSON.stringify(orderData));
         
-        // Limpar carrinho e dados de revisão
-        localStorage.removeItem('cart');
-        localStorage.removeItem('orderReview');
-
-        // Redirecionar para checkout Stripe
-        navigate(`/stripe-checkout/${result.id}`);
+        // Redirecionar para tela de método de pagamento
+        navigate('/customer/payment-method');
       }
       
     } catch (error) {
