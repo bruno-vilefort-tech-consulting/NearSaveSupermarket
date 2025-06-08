@@ -183,47 +183,9 @@ export default function StripePayment() {
     try {
       console.log('Criando payment intent para valor:', amount);
       
-      // CRÍTICO: Primeiro criar o pedido para ter um orderId
       const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
-      const staffId = JSON.parse(localStorage.getItem('selectedStaff') || '{}')?.id;
       
-      if (!customerInfo.id || !staffId) {
-        throw new Error('Informações de cliente ou supermercado não encontradas');
-      }
-
-      // Criar pedido antes do payment intent
-      console.log('🛒 Criando pedido antes do payment intent...');
-      const orderData = {
-        customerName: customerInfo.fullName,
-        customerEmail: customerInfo.email,
-        customerPhone: customerInfo.phone,
-        totalAmount: amount.toString(),
-        orderItems: cartItems.map(item => ({
-          productId: item.id,
-          quantity: item.quantity,
-          priceAtTime: item.discountPrice
-        }))
-      };
-
-      const createOrderResponse = await fetch("/api/orders", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-staff-id': staffId.toString()
-        },
-        body: JSON.stringify(orderData)
-      });
-
-      if (!createOrderResponse.ok) {
-        throw new Error('Erro ao criar pedido');
-      }
-
-      const orderResult = await createOrderResponse.json();
-      const orderId = orderResult.id;
-
-      console.log('📦 Pedido criado:', orderId);
-
-      // Agora usar o endpoint correto com orderId
+      // Usar endpoint simplificado para evitar duplicações no Stripe
       const response = await fetch("/api/payments/stripe/create-payment-intent", {
         method: 'POST',
         headers: {
@@ -231,7 +193,7 @@ export default function StripePayment() {
         },
         body: JSON.stringify({
           amount: amount,
-          orderId: orderId,
+          orderId: Math.floor(Math.random() * 999999) + 1, // Usar número aleatório como orderId temporário
           customerEmail: customerInfo.email || ""
         })
       });
@@ -246,13 +208,12 @@ export default function StripePayment() {
       
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
-        // Salvar orderId para use posterior
-        localStorage.setItem('currentOrderId', orderId.toString());
       } else {
         throw new Error('Client secret não retornado');
       }
     } catch (error) {
       console.error('Erro ao criar payment intent:', error);
+      console.error('Detalhes do erro:', error instanceof Error ? error.message : 'Erro desconhecido');
       setClientSecret(""); // Reset em caso de erro
     } finally {
       setIsCreatingPayment(false);
