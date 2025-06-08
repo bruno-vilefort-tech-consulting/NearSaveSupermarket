@@ -26,50 +26,52 @@ export default function MarketingConfirmation() {
   const [agreementChecked, setAgreementChecked] = useState(false);
   const { toast } = useToast();
 
-  // Plans data (same as marketing page)
+  // Plans data (matching marketing page exactly)
   const plans: SponsorshipPlan[] = [
     {
       id: 'basic',
-      name: 'Básico',
-      description: 'Ideal para supermercados que estão começando',
-      price: 299,
+      name: 'Plano Básico',
+      description: 'Destaque seu supermercado para clientes locais',
+      price: 99.90,
       duration: '30 dias',
       features: [
-        'Destaque na busca por 30 dias',
-        'Badge de "Patrocinado"',
-        'Relatórios básicos de performance'
+        'Aparição em destaque na página inicial',
+        'Badge "Parceiro Verificado"',
+        'Prioridade nas buscas locais',
+        'Relatório de visualizações mensal'
       ],
-      popularity: 'Mais popular'
+      popularity: 'Mais escolhido'
     },
     {
       id: 'premium',
-      name: 'Premium',
-      description: 'Para supermercados que querem mais visibilidade',
-      price: 699,
-      duration: '90 dias',
+      name: 'Plano Premium',
+      description: 'Máxima visibilidade e ferramentas avançadas',
+      price: 199.90,
+      duration: '30 dias',
       features: [
-        'Destaque na busca por 90 dias',
-        'Badge de "Premium"',
-        'Posição prioritária nos resultados',
-        'Relatórios detalhados',
-        'Suporte dedicado'
+        'Tudo do Plano Básico',
+        'Banner promocional na home',
+        'Destaque em 3 categorias de produtos',
+        'Push notifications para clientes próximos',
+        'Relatórios detalhados de engajamento',
+        'Suporte prioritário'
       ],
       recommended: true,
       popularity: 'Recomendado'
     },
     {
       id: 'enterprise',
-      name: 'Enterprise',
-      description: 'Solução completa para grandes redes',
-      price: 1499,
-      duration: '180 dias',
+      name: 'Plano Empresarial',
+      description: 'Solução completa para redes de supermercados',
+      price: 399.90,
+      duration: '30 dias',
       features: [
-        'Destaque na busca por 180 dias',
-        'Badge de "Enterprise"',
-        'Posição premium nos resultados',
-        'Relatórios avançados',
-        'Suporte 24/7',
+        'Tudo do Plano Premium',
         'Campanhas personalizadas',
+        'Analytics avançado com IA',
+        'Integração com sistemas próprios',
+        'Gerente de conta dedicado',
+        'Campanhas de email marketing',
         'Segmentação avançada de clientes'
       ],
       popularity: 'Para empresas'
