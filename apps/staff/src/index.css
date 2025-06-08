@@ -3,14 +3,14 @@
 @import 'tailwindcss/utilities';
 
 :root {
-  /* SaveUp Brand Colors */
+  /* SaveUp Brand Colors - Staff Theme */
   --background: 210 11% 98%; /* #F5F7FA */
   --foreground: 210 40% 12%; /* #1E2832 */
   --card: 0 0% 100%; /* #FFFFFF */
   --card-foreground: 210 40% 12%; /* #1E2832 */
   --popover: 0 0% 100%; /* #FFFFFF */
   --popover-foreground: 210 40% 12%; /* #1E2832 */
-  --primary: 142 76% 36%; /* #16A34A */
+  --primary: 217 91% 60%; /* #3B82F6 - Blue for Staff */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
   --secondary: 210 40% 92%; /* #E2E8F0 */
   --secondary-foreground: 210 40% 12%; /* #1E2832 */
@@ -22,7 +22,7 @@
   --destructive-foreground: 0 0% 100%; /* #FFFFFF */
   --border: 210 40% 88%; /* #CBD5E1 */
   --input: 210 40% 88%; /* #CBD5E1 */
-  --ring: 142 76% 36%; /* #16A34A */
+  --ring: 217 91% 60%; /* #3B82F6 */
   --radius: 0.5rem;
 
   /* SaveUp Custom Colors */
@@ -41,7 +41,7 @@
   --card-foreground: 210 40% 98%; /* #F8FAFC */
   --popover: 224 71% 4%; /* #0F172A */
   --popover-foreground: 210 40% 98%; /* #F8FAFC */
-  --primary: 142 76% 36%; /* #16A34A */
+  --primary: 217 91% 60%; /* #3B82F6 */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
   --secondary: 215 28% 17%; /* #1E293B */
   --secondary-foreground: 210 40% 98%; /* #F8FAFC */
@@ -53,5 +53,5 @@
   --destructive-foreground: 210 40% 98%; /* #F8FAFC */
   --border: 215 28% 17%; /* #1E293B */
   --input: 215 28% 17%; /* #1E293B */
-  --ring: 142 76% 36%; /* #16A34A */
+  --ring: 217 91% 60%; /* #3B82F6 */
 }
