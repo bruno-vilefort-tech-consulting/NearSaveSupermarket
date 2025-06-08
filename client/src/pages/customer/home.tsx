@@ -207,14 +207,14 @@ export default function CustomerHome() {
 
   // Query para buscar pedidos do cliente
   const { data: orders } = useQuery({
-    queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
+    queryKey: ["/api/orders", customerInfo?.email, customerInfo?.phone],
     enabled: !!(customerInfo?.email || customerInfo?.phone),
     queryFn: async () => {
       const params = new URLSearchParams();
       if (customerInfo?.email) params.append('email', customerInfo.email);
       if (customerInfo?.phone) params.append('phone', customerInfo.phone);
       
-      const response = await fetch(`/api/customer/orders?${params}`);
+      const response = await fetch(`/api/orders?${params}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -324,7 +324,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/orders")}
+                onClick={() => navigate("/orders")}
                 className="relative border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white"
               >
                 <Package size={16} className="mr-1" />
@@ -339,7 +339,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/supermarket-map")}
+                onClick={() => navigate("/supermarket-map")}
                 className="border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
               >
                 <MapPin size={16} className="mr-2" />
@@ -349,7 +349,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/cart")}
+                onClick={() => navigate("/cart")}
                 className="relative border-eco-gray text-eco-gray-dark hover:bg-eco-gray hover:text-white"
               >
                 <ShoppingCart size={16} className="mr-2" />
@@ -377,7 +377,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/orders")}
+                onClick={() => navigate("/orders")}
                 className="relative border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white"
               >
                 <Package size={16} />
@@ -391,7 +391,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/supermarket-map")}
+                onClick={() => navigate("/supermarket-map")}
                 className="border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
               >
                 <MapPin size={16} />
@@ -400,7 +400,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/cart")}
+                onClick={() => navigate("/cart")}
                 className="relative border-eco-gray text-eco-gray-dark hover:bg-eco-gray hover:text-white"
               >
                 <ShoppingCart size={16} />
@@ -474,7 +474,7 @@ export default function CustomerHome() {
                   variant="ghost"
                   className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-blue-light relative"
                   onClick={() => {
-                    navigate("/customer/orders");
+                    navigate("/orders");
                     setIsMobileMenuOpen(false);
                   }}
                 >
@@ -494,7 +494,7 @@ export default function CustomerHome() {
                   variant="ghost"
                   className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-orange-light"
                   onClick={() => {
-                    navigate("/customer/cart");
+                    navigate("/cart");
                     setIsMobileMenuOpen(false);
                   }}
                 >
