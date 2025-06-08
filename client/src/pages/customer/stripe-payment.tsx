@@ -192,11 +192,18 @@ export default function StripePayment() {
           return sum + (parseFloat(item.discountPrice) * item.quantity);
         }, 0);
 
-        // Criar PaymentIntent apenas se não existe um flag de criação em andamento
-        const isAlreadyCreating = sessionStorage.getItem('stripe-creating');
-        if (!isAlreadyCreating) {
+        // Criar chave única baseada no conteúdo do carrinho
+        const cartKey = btoa(JSON.stringify(parsedCart.map(item => `${item.id}-${item.quantity}`)));
+        const currentPaymentKey = sessionStorage.getItem('current-payment-key');
+        
+        // Só criar PaymentIntent se não existe um para este carrinho específico
+        if (currentPaymentKey !== cartKey) {
+          sessionStorage.setItem('current-payment-key', cartKey);
           sessionStorage.setItem('stripe-creating', 'true');
           createPaymentIntent(total);
+        } else {
+          console.log('PaymentIntent já existe para este carrinho');
+          setIsCreatingPayment(false);
         }
       } catch (error) {
         console.error('Erro ao processar carrinho:', error);
@@ -240,6 +247,7 @@ export default function StripePayment() {
       
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
+        console.log('✅ PaymentIntent criado com sucesso');
         // Limpa o flag de criação após sucesso
         sessionStorage.removeItem('stripe-creating');
       } else {

@@ -14,6 +14,7 @@ import Stripe from "stripe";
 // Declaração global para armazenar pedidos temporários
 declare global {
   var tempOrders: Map<string, any> | undefined;
+  var paymentIntentCache: Map<string, { clientSecret: string; paymentIntentId: string; timestamp: number }> | undefined;
 }
 import bcrypt from "bcrypt";
 import multer from "multer";
@@ -51,6 +52,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log('🚀 Registering routes...');
+  
+  // Initialize payment intent cache
+  if (!global.paymentIntentCache) {
+    global.paymentIntentCache = new Map();
+  }
   
   // Add JSON middleware for all API routes
   app.use('/api', express.json());
@@ -1223,10 +1229,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe Payment Routes - CORRIGIDO para evitar duplicações
   app.post("/api/payments/stripe/create-payment-intent", async (req, res) => {
     try {
-      const { amount, orderId, customerEmail } = req.body;
+      const { amount, orderId, customerEmail, cartHash } = req.body;
       
-      if (!amount || !orderId) {
-        return res.status(400).json({ message: "Amount and orderId são obrigatórios" });
+      if (!amount) {
+        return res.status(400).json({ message: "Amount é obrigatório" });
+      }
+
+      // Criar chave única baseada no carrinho ou usar orderId
+      const cacheKey = cartHash || `cart-${orderId}`;
+      
+      // Verificar cache primeiro para evitar duplicações
+      const cachedPayment = global.paymentIntentCache?.get(cacheKey);
+      const now = Date.now();
+      
+      if (cachedPayment && (now - cachedPayment.timestamp) < 300000) { // 5 minutos de cache
+        console.log(`🔄 [STRIPE CACHE] Reutilizando PaymentIntent em cache: ${cachedPayment.paymentIntentId}`);
+        return res.json({
+          clientSecret: cachedPayment.clientSecret,
+          paymentIntentId: cachedPayment.paymentIntentId,
+          adjustedAmount: amount.toString(),
+          originalAmount: amount.toString(),
+          reused: true,
+          status: 'requires_payment_method'
+        });
       }
 
       // CRÍTICO: Verificar se já existe um PaymentIntent válido para este pedido
