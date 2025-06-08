@@ -168,7 +168,7 @@ export default function CustomerLogin() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl transition-colors"
+                  className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white font-semibold py-3.5 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
                   disabled={loginMutation.isPending}
                 >
                   {loginMutation.isPending ? t('common.loading') : t('auth.login')}
@@ -184,7 +184,7 @@ export default function CustomerLogin() {
               </p>
               <Button
                 variant="outline"
-                className="w-full border-eco-blue text-eco-blue hover:bg-eco-blue-light hover:text-eco-blue-dark font-semibold py-3 rounded-xl transition-colors"
+                className="w-full border-2 border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white font-semibold py-3.5 px-6 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
                 onClick={() => navigate("/register")}
               >
                 {t('customer.register')}

@@ -430,7 +430,7 @@ export default function CustomerRegister() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl transition-colors"
+                  className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white font-semibold py-3.5 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
                   disabled={registerMutation.isPending}
                 >
                   {registerMutation.isPending ? t('customer.registering') : t('auth.register')}
