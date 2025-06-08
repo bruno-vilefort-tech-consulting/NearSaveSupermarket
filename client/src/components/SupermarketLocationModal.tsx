@@ -92,7 +92,7 @@ export default function SupermarketLocationModal({ isOpen, onClose, supermarketN
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh] p-0 overflow-hidden">
+      <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="flex items-center gap-2 text-xl font-bold text-eco-gray-dark">
             <MapPin className="h-6 w-6 text-eco-green" />
