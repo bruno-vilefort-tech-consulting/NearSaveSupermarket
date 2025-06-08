@@ -188,6 +188,15 @@ export interface TranslationKeys {
   'cart.orderErrorDescription': string;
   'cart.addressRequired': string;
   'cart.addressRequiredDescription': string;
+  'cart.customerInfo': string;
+  'cart.fullName': string;
+  'cart.fullNamePlaceholder': string;
+  'cart.email': string;
+  'cart.emailPlaceholder': string;
+  'cart.phone': string;
+  'cart.phonePlaceholder': string;
+  'cart.requiredInfo': string;
+  'cart.requiredInfoDescription': string;
 
   // Dashboard
   'dashboard.title': string;
@@ -615,6 +624,15 @@ export const translations: Record<Language, TranslationKeys> = {
     'cart.orderErrorDescription': 'Tente novamente ou entre em contato conosco.',
     'cart.addressRequired': 'Endereço obrigatório',
     'cart.addressRequiredDescription': 'Por favor, informe o endereço para entrega.',
+    'cart.customerInfo': 'Suas Informações',
+    'cart.fullName': 'Nome Completo',
+    'cart.fullNamePlaceholder': 'Digite seu nome completo',
+    'cart.email': 'Email',
+    'cart.emailPlaceholder': 'Digite seu email',
+    'cart.phone': 'Telefone',
+    'cart.phonePlaceholder': '(11) 99999-9999',
+    'cart.requiredInfo': 'Informações Necessárias',
+    'cart.requiredInfoDescription': 'Por favor, preencha suas informações pessoais primeiro.',
 
     // Add to Cart Modal
     'addToCartModal.title': 'Adicionar ao Carrinho',

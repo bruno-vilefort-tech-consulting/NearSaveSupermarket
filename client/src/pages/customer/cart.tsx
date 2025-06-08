@@ -364,11 +364,11 @@ export default function CustomerCart() {
           <CardContent className="p-4">
             <h3 className="font-semibold mb-3 text-eco-gray-dark flex items-center gap-2">
               <User className="h-4 w-4 text-eco-blue" />
-              Suas Informações
+              {t('cart.customerInfo')}
             </h3>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="fullName" className="text-eco-gray-dark">Nome Completo</Label>
+                <Label htmlFor="fullName" className="text-eco-gray-dark">{t('cart.fullName')}</Label>
                 <Input
                   id="fullName"
                   value={customerInfo?.fullName || ""}
@@ -377,14 +377,14 @@ export default function CustomerCart() {
                     setCustomerInfo(updated);
                     localStorage.setItem('customerInfo', JSON.stringify(updated));
                   }}
-                  placeholder="Digite seu nome completo"
+                  placeholder={t('cart.fullNamePlaceholder')}
                   className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
                 />
               </div>
               <div>
                 <Label htmlFor="email" className="text-eco-gray-dark flex items-center gap-1">
                   <Mail className="h-3 w-3" />
-                  Email
+                  {t('cart.email')}
                 </Label>
                 <Input
                   id="email"
@@ -395,14 +395,14 @@ export default function CustomerCart() {
                     setCustomerInfo(updated);
                     localStorage.setItem('customerInfo', JSON.stringify(updated));
                   }}
-                  placeholder="Digite seu email"
+                  placeholder={t('cart.emailPlaceholder')}
                   className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
                 />
               </div>
               <div>
                 <Label htmlFor="phone" className="text-eco-gray-dark flex items-center gap-1">
                   <Phone className="h-3 w-3" />
-                  Telefone
+                  {t('cart.phone')}
                 </Label>
                 <Input
                   id="phone"
@@ -413,7 +413,7 @@ export default function CustomerCart() {
                     setCustomerInfo(updated);
                     localStorage.setItem('customerInfo', JSON.stringify(updated));
                   }}
-                  placeholder="(11) 99999-9999"
+                  placeholder={t('cart.phonePlaceholder')}
                   className="border-eco-gray-light focus:border-eco-blue focus:ring-eco-blue"
                 />
               </div>
