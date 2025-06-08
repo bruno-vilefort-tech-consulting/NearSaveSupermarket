@@ -13,15 +13,7 @@ export function OrderTimelineCompact({
 }: OrderTimelineCompactProps) {
   // Handle cancelled statuses - don't show timeline for cancelled orders
   if (currentStatus === 'cancelled-customer' || currentStatus === 'cancelled-staff' || currentStatus === 'cancelled') {
-    return (
-      <div className="flex items-center space-x-2 text-sm text-red-600">
-        <span>
-          {currentStatus === 'cancelled-customer' && '❌ Cancelado pelo Cliente'}
-          {currentStatus === 'cancelled-staff' && '❌ Cancelado pelo Supermercado'}
-          {currentStatus === 'cancelled' && '❌ Cancelado'}
-        </span>
-      </div>
-    );
+    return null; // Don't show timeline or additional text for cancelled orders
   }
 
   const getTimelineSteps = () => {
