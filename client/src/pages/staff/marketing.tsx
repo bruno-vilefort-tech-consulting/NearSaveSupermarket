@@ -217,27 +217,188 @@ function StaffMarketing() {
                 </div>
               </AlertDescription>
             </Alert>
-            
-            <Card className="mt-6">
+
+            {/* Current Plan Details */}
+            <div className="mt-8">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  Seu Plano Atual
+                </h3>
+                <p className="text-gray-600 max-w-2xl mx-auto">
+                  Aproveite todos os recursos incluídos no seu plano ativo para maximizar a visibilidade do seu supermercado.
+                </p>
+              </div>
+
+              {/* Active Plan Card */}
+              <div className="max-w-md mx-auto">
+                <Card className="relative ring-2 ring-green-500 bg-green-50">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-green-600 text-white px-4 py-1">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Ativo
+                    </Badge>
+                  </div>
+                  
+                  <CardHeader className="text-center pb-4">
+                    <CardTitle className="text-xl">{subscriptionData.subscription?.planName}</CardTitle>
+                    <CardDescription className="text-sm">
+                      {subscriptionData.subscription?.planName === 'Plano Básico' && 'Ideal para supermercados iniciantes'}
+                      {subscriptionData.subscription?.planName === 'Plano Premium' && 'Para supermercados em crescimento'}
+                      {subscriptionData.subscription?.planName === 'Plano Enterprise' && 'Para grandes redes de supermercados'}
+                    </CardDescription>
+                    <div className="mt-4">
+                      <div className="flex items-center justify-center">
+                        <span className="text-3xl font-bold text-gray-900">
+                          R$ {subscriptionData.subscription?.price}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-center mt-1">
+                        <Calendar className="h-4 w-4 text-gray-500 mr-1" />
+                        <span className="text-sm text-gray-500">Mensal</span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0">
+                    <div className="mb-6">
+                      <h4 className="font-semibold mb-3 text-center">Recursos Incluídos:</h4>
+                      <ul className="space-y-3">
+                        {subscriptionData.subscription?.planName === 'Plano Básico' && (
+                          <>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Destaque em pesquisas locais</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Badge de parceiro</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Relatórios básicos</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Suporte por email</span>
+                            </li>
+                          </>
+                        )}
+                        {subscriptionData.subscription?.planName === 'Plano Premium' && (
+                          <>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Prioridade máxima em pesquisas</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Banner personalizado</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Relatórios avançados</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Suporte prioritário</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Campanhas promocionais</span>
+                            </li>
+                          </>
+                        )}
+                        {subscriptionData.subscription?.planName === 'Plano Enterprise' && (
+                          <>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Posicionamento premium</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Múltiplos banners</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Relatórios personalizados</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Gerente de conta dedicado</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Campanhas ilimitadas</span>
+                            </li>
+                            <li className="flex items-center text-sm">
+                              <div className="flex-shrink-0 w-4 h-4 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
+                              </div>
+                              <span>Integração avançada</span>
+                            </li>
+                          </>
+                        )}
+                      </ul>
+                    </div>
+                    
+                    <div className="text-center">
+                      <Badge variant="secondary" className="bg-green-100 text-green-800 px-4 py-2">
+                        Plano Ativo até {subscriptionData.subscription?.expiresAt ? new Date(subscriptionData.subscription.expiresAt).toLocaleDateString('pt-BR') : 'N/A'}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Marketing Statistics */}
+            <Card className="mt-8">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Target className="h-5 w-5 text-purple-600" />
-                  <span>Recursos Ativados</span>
+                  <span>Estatísticas de Marketing</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600 mb-2">✓</div>
-                    <div className="text-sm text-gray-600">Visibilidade Premium</div>
+                    <div className="text-2xl font-bold text-purple-600 mb-2">1</div>
+                    <div className="text-sm text-gray-600">Campanha Ativa</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600 mb-2">✓</div>
-                    <div className="text-sm text-gray-600">Destaque em Pesquisas</div>
+                    <div className="text-2xl font-bold text-blue-600 mb-2">2.5k</div>
+                    <div className="text-sm text-gray-600">Visualizações este mês</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600 mb-2">✓</div>
-                    <div className="text-sm text-gray-600">Relatórios Detalhados</div>
+                    <div className="text-2xl font-bold text-green-600 mb-2">127</div>
+                    <div className="text-sm text-gray-600">Novos clientes gerados</div>
                   </div>
                 </div>
               </CardContent>
