@@ -1640,27 +1640,46 @@ export class DatabaseStorage implements IStorage {
     name: string;
     address: string;
     productCount: number;
+    hasPromotions: boolean;
+    isSponsored: boolean;
   }>> {
-    const result = await db
-      .select({
-        id: staffUsers.id,
-        name: staffUsers.companyName,
-        address: staffUsers.address,
-        productCount: sql<number>`count(${products.id})::int`,
-      })
-      .from(staffUsers)
-      .leftJoin(products, and(
-        eq(products.createdByStaff, staffUsers.id),
-        eq(products.isActive, 1)
-      ))
-      .where(and(
-        eq(staffUsers.isActive, 1),
-        eq(staffUsers.approvalStatus, 'approved')
-      ))
-      .groupBy(staffUsers.id, staffUsers.companyName, staffUsers.address)
-      .having(sql`count(${products.id}) > 0`);
+    try {
+      const result = await db.execute(sql`
+        SELECT 
+          s.id,
+          s.company_name as name,
+          s.address,
+          COUNT(CASE WHEN p.is_active = 1 THEN p.id END) as product_count,
+          COUNT(CASE WHEN p.is_active = 1 AND p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions,
+          CASE 
+            WHEN ms.id IS NOT NULL AND ms.expires_at > NOW() THEN 1 
+            ELSE 0 
+          END as is_sponsored
+        FROM staff_users s
+        LEFT JOIN products p ON s.id = p.created_by_staff
+        LEFT JOIN marketing_subscriptions ms ON s.id = ms.staff_id AND ms.expires_at > NOW()
+        WHERE s.company_name IS NOT NULL 
+          AND s.is_active = 1
+          AND s.approval_status = 'approved'
+        GROUP BY s.id, s.company_name, s.address, ms.id, ms.expires_at
+        HAVING COUNT(CASE WHEN p.is_active = 1 THEN p.id END) > 0
+        ORDER BY 
+          CASE WHEN ms.id IS NOT NULL AND ms.expires_at > NOW() THEN 0 ELSE 1 END,
+          s.company_name ASC
+      `);
 
-    return result;
+      return result.rows.map((row: any) => ({
+        id: parseInt(row.id),
+        name: row.name || 'Supermercado',
+        address: row.address || '',
+        productCount: parseInt(row.product_count || '0'),
+        hasPromotions: row.has_promotions || false,
+        isSponsored: row.is_sponsored === 1
+      }));
+    } catch (error) {
+      console.error('Error in getSupermarketsWithProducts:', error);
+      return [];
+    }
   }
 
   async getSupermarketsWithLocations(): Promise<Array<{

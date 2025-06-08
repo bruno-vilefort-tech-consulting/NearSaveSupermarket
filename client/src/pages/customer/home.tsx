@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Award, LogOut, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, Store, MapPin, Package, ArrowRight, Award, LogOut, Menu, X, Navigation } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { MobilePushDiagnostic } from "@/components/MobilePushDiagnostic";
@@ -664,49 +664,56 @@ export default function CustomerHome() {
             filteredSupermarkets.map((supermarket: SupermarketWithLocation) => (
               <Card
                 key={supermarket.id}
-                className={`hover:shadow-lg transition-shadow cursor-pointer border-l-4 bg-white ${
-                  supermarket.isSponsored ? 'border-l-eco-orange' : 'border-l-eco-green'
+                className={`hover:shadow-lg transition-all duration-300 cursor-pointer bg-white ${
+                  supermarket.isSponsored 
+                    ? 'border-2 border-yellow-400 shadow-xl ring-2 ring-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50' 
+                    : 'border border-gray-200'
                 }`}
                 onClick={() => handleSupermarketClick(supermarket.id, supermarket.name)}
               >
+                {supermarket.isSponsored && (
+                  <div className="absolute -top-2 -right-2 z-10">
+                    <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                      ⭐ PATROCINADO
+                    </div>
+                  </div>
+                )}
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
                       <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                        supermarket.isSponsored ? 'bg-eco-orange-light' : 'bg-eco-blue-light'
+                        supermarket.isSponsored 
+                          ? 'bg-gradient-to-br from-yellow-400 to-orange-400' 
+                          : 'bg-eco-green'
                       }`}>
-                        <Store className={`${
-                          supermarket.isSponsored ? 'text-eco-orange' : 'text-eco-blue'
-                        }`} size={24} />
+                        <Store className="text-white" size={20} />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg font-semibold text-eco-gray-dark">
-                            {supermarket.name}
-                          </CardTitle>
-                          {supermarket.isSponsored && (
-                            <Badge 
-                              variant="secondary" 
-                              className="ml-2 bg-eco-orange-light text-eco-orange text-xs px-2 py-1 border-eco-orange"
-                            >
-                              Patrocinado
-                            </Badge>
-                          )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`font-semibold text-base truncate ${
+                          supermarket.isSponsored ? 'text-yellow-800' : 'text-eco-gray-dark'
+                        }`}>
+                          {supermarket.name}
+                        </h3>
+                        <div className="flex items-center space-x-1 mt-1">
+                          <MapPin className="text-eco-gray" size={12} />
+                          <p className="text-xs text-eco-gray truncate">{supermarket.address}</p>
                         </div>
-                        <div className="flex items-center text-sm text-eco-gray mt-1">
-                          <MapPin size={14} className="mr-1" />
-                          {supermarket.address}
-                        </div>
-                        {supermarket.distance && (
-                          <div className="flex items-center text-xs text-eco-blue mt-1 font-medium">
-                            <MapPin size={12} className="mr-1" />
-                            {supermarket.distance.toFixed(1)} km de distância
+                        {supermarket.distance !== undefined && (
+                          <div className="flex items-center space-x-1 mt-1">
+                            <Navigation className="text-eco-blue" size={12} />
+                            <span className="text-xs text-eco-blue font-medium">
+                              {supermarket.distance < 1 
+                                ? `${Math.round(supermarket.distance * 1000)}m` 
+                                : `${supermarket.distance.toFixed(1)}km`}
+                            </span>
                           </div>
                         )}
                       </div>
                     </div>
-                    {!supermarket.isSponsored && (
-                      <ArrowRight className="text-eco-gray" size={20} />
+                    {supermarket.hasPromotions && (
+                      <Badge className="bg-red-100 text-red-700 border-red-200 text-xs">
+                        {t('customer.promotions')}
+                      </Badge>
                     )}
                   </div>
                 </CardHeader>
@@ -714,19 +721,32 @@ export default function CustomerHome() {
                 <CardContent className="pt-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Package className="text-eco-green" size={16} />
-                      <span className="text-sm font-medium text-eco-gray-dark">
+                      <Package className={supermarket.isSponsored ? "text-yellow-600" : "text-eco-green"} size={16} />
+                      <span className={`text-sm font-medium ${
+                        supermarket.isSponsored ? 'text-yellow-800' : 'text-eco-gray-dark'
+                      }`}>
                         {supermarket.productCount} {t('customer.productsOnSale')}
                       </span>
                     </div>
-                    <Badge variant="secondary" className="bg-eco-green-light text-eco-green-dark border-eco-green">
+                    <Badge 
+                      variant="secondary" 
+                      className={
+                        supermarket.isSponsored 
+                          ? "bg-yellow-100 text-yellow-800 border-yellow-300" 
+                          : "bg-eco-green-light text-eco-green-dark border-eco-green"
+                      }
+                    >
                       {t('customer.available')}
                     </Badge>
                   </div>
 
                   <div className="mt-4">
                     <Button
-                      className="w-full bg-eco-orange hover:bg-eco-orange-dark text-white font-semibold py-2 rounded-xl transition-colors"
+                      className={`w-full font-semibold py-2 rounded-xl transition-colors ${
+                        supermarket.isSponsored
+                          ? 'bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white shadow-lg'
+                          : 'bg-eco-orange hover:bg-eco-orange-dark text-white'
+                      }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSupermarketClick(supermarket.id, supermarket.name);
