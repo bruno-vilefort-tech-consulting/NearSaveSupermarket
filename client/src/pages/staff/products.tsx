@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, Plus, Edit, Trash2, ArrowLeft, Search, Eye, Calendar, DollarSign, Milk, Beef, Fish, Apple, Carrot, Wheat, Coffee, Droplets, Wine, Snowflake, Sparkles } from "lucide-react";
+import { Package, Plus, Edit, Trash2, ArrowLeft, Search, Eye, Calendar, DollarSign, Milk, Beef, Fish, Apple, Carrot, Wheat, Coffee, Droplets, Wine, Snowflake, Sparkles, Upload, X, Image } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -60,6 +60,9 @@ function StaffProducts() {
     expirationDate: "",
     imageUrl: ""
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -85,9 +88,64 @@ function StaffProducts() {
     retry: false,
   });
 
+  // Image handling functions
+  const handleFileSelect = (file: File) => {
+    if (file.type.startsWith('image/')) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      toast({
+        title: "Arquivo inválido",
+        description: "Por favor, selecione apenas arquivos de imagem (PNG, JPG, etc.)",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedFile(null);
+    setImagePreview(null);
+    setProductData({...productData, imageUrl: ""});
+  };
+
   const createProductMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest("POST", "/api/staff/products", data);
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        if (key !== 'image' && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+      
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      }
+      
+      return apiRequest("POST", "/api/staff/products", formData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff/products"] });
@@ -102,6 +160,8 @@ function StaffProducts() {
         expirationDate: "",
         imageUrl: ""
       });
+      setSelectedFile(null);
+      setImagePreview(null);
       toast({
         title: "Produto criado com sucesso!",
         description: "O produto foi adicionado ao seu catálogo.",
@@ -118,7 +178,18 @@ function StaffProducts() {
 
   const updateProductMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest("PUT", `/api/staff/products/${selectedProduct?.id}`, data);
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        if (key !== 'image' && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      });
+      
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      }
+      
+      return apiRequest("PUT", `/api/staff/products/${selectedProduct?.id}`, formData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/staff/products"] });
@@ -194,6 +265,9 @@ function StaffProducts() {
       expirationDate: product.expirationDate,
       imageUrl: product.imageUrl || ""
     });
+    // Reset image upload states when editing
+    setSelectedFile(null);
+    setImagePreview(null);
     setIsEditing(true);
   };
 
@@ -654,13 +728,112 @@ function StaffProducts() {
               </div>
 
               <div>
-                <Label htmlFor="imageUrl">URL da Imagem (opcional)</Label>
-                <Input
-                  id="imageUrl"
-                  value={productData.imageUrl}
-                  onChange={(e) => setProductData({...productData, imageUrl: e.target.value})}
-                  placeholder="https://exemplo.com/imagem.jpg"
-                />
+                <Label>Imagem do Produto (opcional)</Label>
+                <div 
+                  className={`
+                    relative border-2 border-dashed rounded-lg p-6 transition-all duration-200 cursor-pointer
+                    ${isDragOver 
+                      ? 'border-eco-green bg-eco-green/5' 
+                      : 'border-gray-300 hover:border-eco-green hover:bg-gray-50'
+                    }
+                  `}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById('image-upload')?.click()}
+                >
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect(file);
+                    }}
+                  />
+                  
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage();
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <X size={16} />
+                      </button>
+                      <div className="mt-2 text-center">
+                        <p className="text-sm text-gray-600">{selectedFile?.name}</p>
+                        <p className="text-xs text-gray-500">Clique para alterar</p>
+                      </div>
+                    </div>
+                  ) : productData.imageUrl ? (
+                    <div className="relative">
+                      <img 
+                        src={productData.imageUrl} 
+                        alt="Imagem atual" 
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage();
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <X size={16} />
+                      </button>
+                      <div className="mt-2 text-center">
+                        <p className="text-xs text-gray-500">Imagem atual - Clique para alterar</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <div className="flex flex-col items-center space-y-2">
+                        <div className={`
+                          p-3 rounded-full transition-colors
+                          ${isDragOver ? 'bg-eco-green text-white' : 'bg-gray-100 text-gray-400'}
+                        `}>
+                          {isDragOver ? <Upload size={24} /> : <Image size={24} />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">
+                            {isDragOver ? 'Solte a imagem aqui' : 'Clique ou arraste uma imagem'}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG, JPEG até 10MB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Alternative URL input */}
+                <div className="mt-3">
+                  <Label className="text-sm text-gray-600">Ou cole uma URL da imagem:</Label>
+                  <Input
+                    value={productData.imageUrl}
+                    onChange={(e) => {
+                      setProductData({...productData, imageUrl: e.target.value});
+                      if (e.target.value) {
+                        setSelectedFile(null);
+                        setImagePreview(null);
+                      }
+                    }}
+                    placeholder="https://exemplo.com/imagem.jpg"
+                    className="mt-1"
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end space-x-2 pt-4">
