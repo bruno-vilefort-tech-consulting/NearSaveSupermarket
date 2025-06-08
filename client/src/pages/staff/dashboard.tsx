@@ -241,7 +241,7 @@ function StaffDashboard() {
                 }
               </div>
               <p className="text-xs text-muted-foreground">
-                {staffUser.approvalStatus === 'approved' ? 'Total' : 'Requer aprovação'}
+                {staffUser.approvalStatus === 'approved' ? 'Valor a Receber' : 'Requer aprovação'}
               </p>
             </CardContent>
           </Card>
@@ -255,7 +255,7 @@ function StaffDashboard() {
             onClick={() => staffUser.approvalStatus === 'approved' && setLocation('/supermercado/valor-a-receber')}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Valores Recebidos</CardTitle>
+              <CardTitle className="text-sm font-medium">Gestão Financeira</CardTitle>
               <DollarSign className="h-4 w-4 text-gray-600" />
             </CardHeader>
             <CardContent>
