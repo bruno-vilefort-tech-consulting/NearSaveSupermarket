@@ -1220,75 +1220,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe Payment Routes
+  // Stripe Payment Routes - CORRIGIDO para evitar duplicações
   app.post("/api/payments/stripe/create-payment-intent", async (req, res) => {
     try {
       const { amount, orderId, customerEmail } = req.body;
       
       if (!amount || !orderId) {
-        return res.status(400).json({ message: "Amount and orderId are required" });
+        return res.status(400).json({ message: "Amount and orderId são obrigatórios" });
       }
 
-      // Primeiro, verificar se já existe um PaymentIntent para este pedido
+      // CRÍTICO: Verificar se já existe um PaymentIntent válido para este pedido
       const existingOrder = await storage.getOrder(parseInt(orderId));
       if (existingOrder && existingOrder.externalReference) {
-        console.log(`🔄 PaymentIntent existente encontrado para pedido ${orderId}: ${existingOrder.externalReference}`);
+        console.log(`🔍 [STRIPE] Verificando PaymentIntent existente para pedido ${orderId}: ${existingOrder.externalReference}`);
         
         try {
-          // Verificar se o PaymentIntent ainda é válido no Stripe
+          // Verificar status no Stripe
           const existingPaymentIntent = await stripe.paymentIntents.retrieve(existingOrder.externalReference);
           
-          if (existingPaymentIntent && existingPaymentIntent.status !== 'succeeded' && existingPaymentIntent.status !== 'canceled') {
-            console.log(`✅ Reutilizando PaymentIntent existente: ${existingPaymentIntent.id}, status: ${existingPaymentIntent.status}`);
+          // Se o PaymentIntent está em estado utilizável, reutilizar
+          if (existingPaymentIntent && 
+              existingPaymentIntent.status !== 'succeeded' && 
+              existingPaymentIntent.status !== 'canceled' &&
+              existingPaymentIntent.status !== 'requires_capture') {
+            
+            console.log(`✅ [STRIPE] Reutilizando PaymentIntent existente: ${existingPaymentIntent.id}, status: ${existingPaymentIntent.status}`);
             
             return res.json({
               clientSecret: existingPaymentIntent.client_secret,
               paymentIntentId: existingPaymentIntent.id,
               adjustedAmount: (existingPaymentIntent.amount / 100).toString(),
               originalAmount: amount.toString(),
-              reused: true
+              reused: true,
+              status: existingPaymentIntent.status
             });
           }
-        } catch (stripeError) {
-          console.log(`⚠️ PaymentIntent existente não encontrado no Stripe: ${existingOrder.externalReference}, criando novo...`);
+          
+          // Se já foi pago com sucesso, não criar novo
+          if (existingPaymentIntent.status === 'succeeded') {
+            console.log(`⚠️ [STRIPE] PaymentIntent já foi pago com sucesso: ${existingPaymentIntent.id}`);
+            return res.status(400).json({
+              message: "Este pedido já foi pago",
+              paymentIntentId: existingPaymentIntent.id,
+              status: "already_paid"
+            });
+          }
+          
+        } catch (stripeError: any) {
+          console.log(`⚠️ [STRIPE] PaymentIntent existente inválido: ${existingOrder.externalReference}, erro: ${stripeError.message}`);
+          // Continuar para criar um novo PaymentIntent
         }
       }
 
-      // Stripe requires minimum R$ 0.50 for BRL payments
+      // Validar valor mínimo do Stripe para BRL
       const minAmount = 0.50;
-      const adjustedAmount = Math.max(amount, minAmount);
+      const adjustedAmount = Math.max(parseFloat(amount), minAmount);
       
-      console.log(`💳 Stripe payment: Original amount R$ ${amount}, Adjusted amount R$ ${adjustedAmount}`);
+      console.log(`💳 [STRIPE] Criando novo PaymentIntent - Valor original: R$ ${amount}, Valor ajustado: R$ ${adjustedAmount}`);
 
+      // Criar novo PaymentIntent - configuração automática para evitar status incomplete
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(adjustedAmount * 100), // Convert to cents
+        amount: Math.round(adjustedAmount * 100), // Converter para centavos
         currency: "brl",
         metadata: {
           orderId: orderId.toString(),
           customerEmail: customerEmail || "",
           originalAmount: amount.toString(),
-          adjustedAmount: adjustedAmount.toString()
+          adjustedAmount: adjustedAmount.toString(),
+          created_at: new Date().toISOString()
         },
         automatic_payment_methods: {
           enabled: true,
         },
+        // CORRIGIDO: usar confirmação automática para evitar problemas
+        confirmation_method: 'automatic'
       });
 
-      console.log('✅ Stripe PaymentIntent criado:', paymentIntent.id);
+      console.log(`✅ [STRIPE] PaymentIntent criado: ${paymentIntent.id}, status: ${paymentIntent.status}`);
       
-      // Salvar o PaymentIntent ID no banco de dados imediatamente
+      // Salvar imediatamente no banco para prevenir duplicações
       await storage.updateOrderExternalReference(parseInt(orderId), paymentIntent.id);
-      console.log(`💾 PaymentIntent ${paymentIntent.id} salvo para pedido ${orderId}`);
+      console.log(`💾 [STRIPE] PaymentIntent ${paymentIntent.id} associado ao pedido ${orderId}`);
       
       res.json({ 
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
         adjustedAmount: adjustedAmount.toString(),
         originalAmount: amount.toString(),
-        reused: false
+        reused: false,
+        status: paymentIntent.status
       });
+
     } catch (error: any) {
-      console.error("❌ Erro ao criar PaymentIntent Stripe:", error);
+      console.error("❌ [STRIPE] Erro ao criar PaymentIntent:", error);
       res.status(500).json({ 
         message: "Erro ao criar intenção de pagamento", 
         error: error.message 
@@ -3259,45 +3283,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe payment confirmation route
+  // Stripe payment confirmation route - CORRIGIDO para evitar duplicações
   app.post("/api/payments/stripe/confirm", async (req, res) => {
     try {
       const { orderId, paymentIntentId, amount } = req.body;
       
-      console.log(`✅ [STRIPE CONFIRM] Confirmando pagamento para pedido: ${orderId}, PI: ${paymentIntentId}`);
+      console.log(`🔍 [STRIPE CONFIRM] Iniciando confirmação do pagamento - Pedido: ${orderId}, PI: ${paymentIntentId}`);
       
       if (!orderId || !paymentIntentId) {
         return res.status(400).json({ message: "Order ID e Payment Intent ID são obrigatórios" });
       }
 
       // Buscar pedido
-      const order = await storage.getOrder(orderId);
+      const order = await storage.getOrder(parseInt(orderId));
       if (!order) {
         return res.status(404).json({ message: "Pedido não encontrado" });
       }
 
-      // Verificar payment intent no Stripe
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      
-      if (!paymentIntent || paymentIntent.status !== 'succeeded') {
-        return res.status(400).json({ 
-          message: "Payment Intent não está confirmado no Stripe" 
+      // Verificar se o pedido já foi processado para evitar duplicações
+      if (order.status === 'payment_confirmed' || order.status === 'completed') {
+        console.log(`⚠️ [STRIPE CONFIRM] Pedido ${orderId} já foi processado anteriormente. Status atual: ${order.status}`);
+        return res.json({
+          success: true,
+          message: "Pagamento já foi confirmado anteriormente",
+          orderId: orderId,
+          paymentIntentId: paymentIntentId,
+          alreadyProcessed: true
         });
       }
 
-      // Salvar referência externa do payment intent primeiro
-      await storage.updateOrderExternalReference(parseInt(orderId), paymentIntentId);
+      // Verificar PaymentIntent no Stripe
+      console.log(`🔍 [STRIPE CONFIRM] Verificando status do PaymentIntent no Stripe: ${paymentIntentId}`);
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
       
-      // Atualizar status do pedido usando o método específico para pagamentos
-      await storage.updateOrderPaymentStatus(parseInt(orderId), 'payment_confirmed');
+      console.log(`📊 [STRIPE CONFIRM] Status do PaymentIntent: ${paymentIntent.status}, Amount: ${paymentIntent.amount}`);
+      
+      if (!paymentIntent) {
+        return res.status(400).json({ 
+          message: "Payment Intent não encontrado no Stripe" 
+        });
+      }
 
-      console.log(`✅ [STRIPE CONFIRM] Pedido ${orderId} confirmado e referência externa salva: ${paymentIntentId}`);
+      // Verificar se o pagamento foi bem-sucedido
+      if (paymentIntent.status !== 'succeeded') {
+        console.log(`❌ [STRIPE CONFIRM] PaymentIntent não está em status 'succeeded': ${paymentIntent.status}`);
+        return res.status(400).json({ 
+          message: `Payment Intent não está confirmado. Status atual: ${paymentIntent.status}`,
+          currentStatus: paymentIntent.status
+        });
+      }
+
+      // Verificar se o valor bate
+      const orderAmount = Math.round(parseFloat(order.totalAmount) * 100);
+      if (paymentIntent.amount !== orderAmount) {
+        console.log(`⚠️ [STRIPE CONFIRM] Discrepância de valor - PaymentIntent: ${paymentIntent.amount}, Pedido: ${orderAmount}`);
+      }
+
+      // Salvar referência externa apenas se ainda não foi salva
+      if (!order.externalReference || order.externalReference !== paymentIntentId) {
+        await storage.updateOrderExternalReference(parseInt(orderId), paymentIntentId);
+        console.log(`💾 [STRIPE CONFIRM] Referência externa salva: ${paymentIntentId}`);
+      }
+      
+      // Atualizar status do pedido para payment_confirmed
+      await storage.updateOrderPaymentStatus(parseInt(orderId), 'payment_confirmed');
+      
+      console.log(`✅ [STRIPE CONFIRM] Pedido ${orderId} confirmado com sucesso. PaymentIntent: ${paymentIntentId}`);
 
       res.json({
         success: true,
         message: "Pagamento Stripe confirmado com sucesso",
         orderId: orderId,
-        paymentIntentId: paymentIntentId
+        paymentIntentId: paymentIntentId,
+        amount: (paymentIntent.amount / 100).toString(),
+        status: paymentIntent.status
       });
 
     } catch (error: any) {
