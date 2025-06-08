@@ -7,14 +7,59 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Eye, EyeOff, Store, Mail, Lock, Building, Phone, MapPin, CheckCircle } from "lucide-react";
+import { Loader2, Eye, EyeOff, Store, Mail, Lock, Building, Phone, MapPin, CheckCircle, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 
+// Função para validar CNPJ
+function validateCNPJ(cnpj: string): boolean {
+  // Remove caracteres não numéricos
+  cnpj = cnpj.replace(/[^\d]/g, '');
+  
+  // Verifica se tem 14 dígitos
+  if (cnpj.length !== 14) return false;
+  
+  // Verifica se todos os dígitos são iguais
+  if (/^(\d)\1+$/.test(cnpj)) return false;
+  
+  // Validação do primeiro dígito verificador
+  let soma = 0;
+  let peso = 5;
+  for (let i = 0; i < 12; i++) {
+    soma += parseInt(cnpj[i]) * peso;
+    peso = peso === 2 ? 9 : peso - 1;
+  }
+  let resto = soma % 11;
+  let digito1 = resto < 2 ? 0 : 11 - resto;
+  
+  if (parseInt(cnpj[12]) !== digito1) return false;
+  
+  // Validação do segundo dígito verificador
+  soma = 0;
+  peso = 6;
+  for (let i = 0; i < 13; i++) {
+    soma += parseInt(cnpj[i]) * peso;
+    peso = peso === 2 ? 9 : peso - 1;
+  }
+  resto = soma % 11;
+  let digito2 = resto < 2 ? 0 : 11 - resto;
+  
+  return parseInt(cnpj[13]) === digito2;
+}
+
+// Função para formatar CNPJ
+function formatCNPJ(value: string): string {
+  const cnpj = value.replace(/[^\d]/g, '');
+  return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+}
+
 const registerSchema = z.object({
   email: z.string().email("Email inválido"),
   companyName: z.string().min(2, "Nome da empresa deve ter pelo menos 2 caracteres"),
+  cnpj: z.string()
+    .min(14, "CNPJ deve ter 14 dígitos")
+    .refine((cnpj) => validateCNPJ(cnpj), "CNPJ inválido"),
   phone: z.string().min(10, "Telefone deve ter pelo menos 10 caracteres"),
   address: z.string().min(10, "Endereço deve ter pelo menos 10 caracteres"),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
@@ -32,15 +77,24 @@ function StaffRegister() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [registerError, setRegisterError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [cnpjValue, setCnpjValue] = useState("");
   const { toast } = useToast();
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
+
+  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d]/g, '');
+    const formattedValue = formatCNPJ(value);
+    setCnpjValue(formattedValue);
+    setValue('cnpj', value); // Store only numbers for validation
+  };
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -140,6 +194,25 @@ function StaffRegister() {
               </div>
               {errors.companyName && (
                 <p className="text-sm text-red-600">{errors.companyName.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cnpj">CNPJ</Label>
+              <div className="relative">
+                <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="cnpj"
+                  type="text"
+                  placeholder="00.000.000/0000-00"
+                  className="pl-10"
+                  value={cnpjValue}
+                  onChange={handleCnpjChange}
+                  maxLength={18}
+                />
+              </div>
+              {errors.cnpj && (
+                <p className="text-sm text-red-600">{errors.cnpj.message}</p>
               )}
             </div>
 

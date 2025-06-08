@@ -49,6 +49,7 @@ export const staffUsers = pgTable("staff_users", {
   id: serial("id").primaryKey(),
   email: varchar("email").unique().notNull(),
   password: varchar("password").notNull(),
+  cnpj: varchar("cnpj", { length: 14 }).unique().notNull(),
   phone: varchar("phone").notNull(),
   address: text("address").notNull(),
   companyName: varchar("company_name").notNull(),
