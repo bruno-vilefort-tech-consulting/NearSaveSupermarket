@@ -23,13 +23,13 @@ interface OrderCardProps {
   order: {
     id: number;
     customerName: string;
-    customerEmail?: string;
-    customerPhone?: string;
-    deliveryAddress?: string;
+    customerEmail: string | null;
+    customerPhone: string | null;
+    deliveryAddress: string | null;
     status: string;
     fulfillmentMethod: string;
     totalAmount: string;
-    createdAt: string;
+    createdAt: string | null;
     externalReference?: string;
     pixPaymentId?: string;
     pixRefundId?: string;
@@ -40,11 +40,11 @@ interface OrderCardProps {
       id: number;
       quantity: number;
       priceAtTime: string;
-      confirmationStatus?: string;
+      confirmationStatus: string | null;
       product: {
         id: number;
         name: string;
-        imageUrl?: string;
+        imageUrl: string | null;
       };
     }>;
   };

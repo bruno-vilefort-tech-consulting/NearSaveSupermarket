@@ -1,16 +1,9 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, ShoppingCart, Clock, CheckCircle, X, Eye, Search, Calendar, DollarSign, User, MapPin, Phone, Mail, ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { Package, Filter } from "lucide-react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderCard } from "@/components/order/order-card";
 
 interface OrderItem {
@@ -43,214 +36,91 @@ interface Order {
 }
 
 function StaffOrders() {
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [methodFilter, setMethodFilter] = useState<string>("all");
 
-  const { data: orders = [], isLoading, error } = useQuery<Order[]>({
+  const { data: orders = [], isLoading } = useQuery({
     queryKey: ["/api/staff/orders"],
-    retry: false,
     queryFn: async () => {
-      const staffUser = localStorage.getItem('staffInfo');
-      if (!staffUser) {
-        throw new Error('Staff não autenticado');
-      }
-      
-      const parsed = JSON.parse(staffUser);
-      const response = await fetch('/api/staff/orders', {
+      const staffId = localStorage.getItem("staffId");
+      const response = await fetch("/api/staff/orders", {
+        method: "GET",
         headers: {
-          'X-Staff-Id': parsed.id.toString()
-        }
+          "Content-Type": "application/json",
+          "X-Staff-Id": staffId || "",
+        },
       });
-      
       if (!response.ok) {
         throw new Error(`${response.status}: ${response.statusText}`);
       }
-      
       return response.json();
-    }
+    },
   });
 
-  const formatCurrency = (value: string) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(parseFloat(value));
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      'pending': { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800' },
-      'confirmed': { label: 'Confirmado', color: 'bg-blue-100 text-blue-800' },
-      'preparing': { label: 'Preparando', color: 'bg-orange-100 text-orange-800' },
-      'ready': { label: 'Pronto', color: 'bg-green-100 text-green-800' },
-      'delivered': { label: 'Entregue', color: 'bg-gray-100 text-gray-800' },
-      'cancelled': { label: 'Cancelado', color: 'bg-red-100 text-red-800' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || 
-                  { label: status, color: 'bg-gray-100 text-gray-800' };
-
-    return (
-      <Badge className={`${config.color} border-0`}>
-        {config.label}
-      </Badge>
-    );
-  };
-
-  const getFulfillmentMethodBadge = (method: string) => {
-    const methodConfig = {
-      'pickup': { label: 'Retirada', color: 'bg-purple-100 text-purple-800' },
-      'delivery': { label: 'Entrega', color: 'bg-green-100 text-green-800' },
-    };
-
-    const config = methodConfig[method as keyof typeof methodConfig] || 
-                  { label: method, color: 'bg-gray-100 text-gray-800' };
-
-    return (
-      <Badge variant="outline" className={config.color}>
-        {config.label}
-      </Badge>
-    );
-  };
-
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.id.toString().includes(searchTerm) ||
-                         (order.customerEmail && order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+  const filteredOrders = orders.filter((order: Order) => {
     const matchesStatus = statusFilter === "all" || order.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
+    const matchesMethod = methodFilter === "all" || order.fulfillmentMethod === methodFilter;
+    return matchesStatus && matchesMethod;
   });
 
-  const totalOrdersCount = orders.length;
-  const pendingOrdersCount = orders.filter(order => order.status === 'pending').length;
-  const confirmedOrdersCount = orders.filter(order => order.status === 'confirmed').length;
-  const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.totalAmount), 0);
+  const getStatusCount = (status: string) => {
+    if (status === "all") return orders.length;
+    return orders.filter((order: Order) => order.status === status).length;
+  };
+
+  const getMethodCount = (method: string) => {
+    if (method === "all") return orders.length;
+    return orders.filter((order: Order) => order.fulfillmentMethod === method).length;
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded"></div>
-              ))}
-            </div>
-            <div className="h-96 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <Card className="border-red-200">
-            <CardContent className="p-6 text-center">
-              <X className="h-12 w-12 mx-auto mb-4 text-red-500" />
-              <h3 className="text-lg font-semibold text-red-700 mb-2">Erro ao carregar pedidos</h3>
-              <p className="text-red-600 mb-4">
-                Não foi possível carregar os pedidos. Verifique sua conexão.
-              </p>
-              <Button 
-                onClick={() => window.location.reload()} 
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Tentar Novamente
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation('/supermercado/dashboard')}
-              className="flex items-center space-x-2"
-            >
-              <ArrowLeft size={16} />
-              <span>Voltar ao Dashboard</span>
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Pedidos</h1>
-              <p className="text-gray-600">Gerencie todos os pedidos dos seus produtos</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900">Gerenciar Pedidos</h1>
+          <p className="text-gray-600 mt-2">Acompanhe e gerencie todos os pedidos recebidos</p>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Pedidos</CardTitle>
-              <Package className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalOrdersCount}</div>
-              <p className="text-xs text-muted-foreground">Todos os pedidos</p>
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{getStatusCount("pending")}</div>
+                <div className="text-sm text-gray-500">Pendentes</div>
+              </div>
             </CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
-              <Clock className="h-4 w-4 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{pendingOrdersCount}</div>
-              <p className="text-xs text-muted-foreground">Aguardando confirmação</p>
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-600">{getStatusCount("confirmed")}</div>
+                <div className="text-sm text-gray-500">Confirmados</div>
+              </div>
             </CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Confirmados</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{confirmedOrdersCount}</div>
-              <p className="text-xs text-muted-foreground">Em andamento</p>
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{getStatusCount("completed")}</div>
+                <div className="text-sm text-gray-500">Concluídos</div>
+              </div>
             </CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Faturamento</CardTitle>
-              <DollarSign className="h-4 w-4 text-eco-green" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(totalRevenue.toString())}</div>
-              <p className="text-xs text-muted-foreground">Total vendido</p>
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-red-600">{getStatusCount("cancelled")}</div>
+                <div className="text-sm text-gray-500">Cancelados</div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -259,39 +129,59 @@ function StaffOrders() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <ShoppingCart className="h-5 w-5" />
-              <span>Lista de Pedidos</span>
+              <Filter className="h-5 w-5" />
+              <span>Filtros</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex space-x-4">
               <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Buscar por cliente, email ou número do pedido..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos ({getStatusCount("all")})</SelectItem>
+                    <SelectItem value="pending">Pendente ({getStatusCount("pending")})</SelectItem>
+                    <SelectItem value="confirmed">Confirmado ({getStatusCount("confirmed")})</SelectItem>
+                    <SelectItem value="preparing">Preparando ({getStatusCount("preparing")})</SelectItem>
+                    <SelectItem value="ready">Pronto ({getStatusCount("ready")})</SelectItem>
+                    <SelectItem value="completed">Concluído ({getStatusCount("completed")})</SelectItem>
+                    <SelectItem value="cancelled">Cancelado ({getStatusCount("cancelled")})</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filtrar por status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os status</SelectItem>
-                  <SelectItem value="pending">Pendente</SelectItem>
-                  <SelectItem value="confirmed">Confirmado</SelectItem>
-                  <SelectItem value="preparing">Preparando</SelectItem>
-                  <SelectItem value="ready">Pronto</SelectItem>
-                  <SelectItem value="delivered">Entregue</SelectItem>
-                  <SelectItem value="cancelled">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Método de Entrega
+                </label>
+                <Select value={methodFilter} onValueChange={setMethodFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filtrar por método" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos ({getMethodCount("all")})</SelectItem>
+                    <SelectItem value="pickup">Retirada ({getMethodCount("pickup")})</SelectItem>
+                    <SelectItem value="delivery">Entrega ({getMethodCount("delivery")})</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+          </CardContent>
+        </Card>
 
+        {/* Orders List */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Package className="h-5 w-5" />
+              <span>Pedidos ({filteredOrders.length})</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             {filteredOrders.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -305,7 +195,7 @@ function StaffOrders() {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredOrders.map((order) => (
+                {filteredOrders.map((order: Order) => (
                   <OrderCard
                     key={order.id}
                     order={order}
