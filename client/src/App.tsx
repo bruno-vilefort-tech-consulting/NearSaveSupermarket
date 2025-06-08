@@ -56,6 +56,9 @@ function Router() {
       <Route path="/staff/forgot-password" component={StaffForgotPassword} />
       <Route path="/staff/reset-password" component={StaffResetPassword} />
       
+      {/* Direct Customer Login Access */}
+      <Route path="/login-cliente" component={CustomerLogin} />
+      
       {/* Customer App Routes */}
       <Route path="/customer/login" component={Login} />
       <Route path="/customer/register" component={CustomerRegister} />
