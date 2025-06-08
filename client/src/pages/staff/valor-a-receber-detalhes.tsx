@@ -185,15 +185,15 @@ function ValorAReceberDetalhes() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-eco-gray-light">
             <CardContent className="pt-6">
               <div className="flex items-center">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Clock className="h-5 w-5 text-red-600" />
+                <div className="p-2 bg-eco-orange-light rounded-lg">
+                  <Clock className="h-5 w-5 text-eco-orange" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Vencidos</p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-sm font-medium text-eco-gray">Vencidos</p>
+                  <p className="text-lg font-bold text-eco-blue">
                     {sortedPayments.filter(p => getDaysUntilDue(p.dueDate) < 0).length}
                   </p>
                 </div>
@@ -203,10 +203,10 @@ function ValorAReceberDetalhes() {
         </div>
 
         {/* Payments List */}
-        <Card>
+        <Card className="border-eco-gray-light">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="h-5 w-5" />
+            <CardTitle className="flex items-center space-x-2 text-eco-blue">
+              <Calendar className="h-5 w-5 text-eco-orange" />
               <span>Pedidos Pendentes - Ordenados por Data</span>
             </CardTitle>
           </CardHeader>
@@ -224,20 +224,20 @@ function ValorAReceberDetalhes() {
                 {sortedPayments.map((payment: PendingPayment) => {
                   const daysUntilDue = getDaysUntilDue(payment.dueDate);
                   return (
-                    <div key={payment.id} className="border rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
+                    <div key={payment.id} className="border border-eco-gray-light rounded-lg p-4 bg-white hover:bg-eco-cream transition-colors">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-3">
                             <div>
-                              <h3 className="font-semibold text-gray-900 text-lg">
+                              <h3 className="font-semibold text-eco-blue text-lg">
                                 Pedido #{payment.id}
                               </h3>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-eco-gray">
                                 Cliente: {payment.customerName}
                               </p>
                             </div>
                             <div className="text-right">
-                              <div className="text-xl font-bold text-blue-600">
+                              <div className="text-xl font-bold text-eco-green">
                                 R$ {parseFloat(payment.netAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               </div>
                               {getStatusBadge(daysUntilDue)}
@@ -245,17 +245,17 @@ function ValorAReceberDetalhes() {
                           </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                            <div className="bg-gray-50 p-3 rounded">
-                              <span className="font-medium text-gray-700">Data de Conclusão:</span>
-                              <p className="text-gray-900">{formatDate(payment.completedAt)}</p>
+                            <div className="bg-eco-sage-light p-3 rounded">
+                              <span className="font-medium text-eco-gray-dark">Data de Conclusão:</span>
+                              <p className="text-eco-blue">{formatDate(payment.completedAt)}</p>
                             </div>
-                            <div className="bg-gray-50 p-3 rounded">
-                              <span className="font-medium text-gray-700">Vencimento do Pagamento:</span>
-                              <p className="text-gray-900">{formatDate(payment.dueDate)}</p>
+                            <div className="bg-eco-sage-light p-3 rounded">
+                              <span className="font-medium text-eco-gray-dark">Vencimento do Pagamento:</span>
+                              <p className="text-eco-blue">{formatDate(payment.dueDate)}</p>
                             </div>
-                            <div className="bg-gray-50 p-3 rounded">
-                              <span className="font-medium text-gray-700">Status:</span>
-                              <Badge variant="outline" className="text-yellow-600 border-yellow-600 mt-1">
+                            <div className="bg-eco-sage-light p-3 rounded">
+                              <span className="font-medium text-eco-gray-dark">Status:</span>
+                              <Badge variant="outline" className="text-eco-orange border-eco-orange mt-1">
                                 Aguardando SaveUp
                               </Badge>
                             </div>
