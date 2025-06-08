@@ -262,7 +262,16 @@ export default function CustomerHome() {
           return !supermarket.distance || supermarket.distance <= 100;
         })
         .sort((a: SupermarketWithLocation, b: SupermarketWithLocation) => {
-          // Ordenar por distância (mais próximos primeiro)
+          // Primeiro critério: patrocinados no topo
+          if (a.isSponsored && !b.isSponsored) return -1;
+          if (!a.isSponsored && b.isSponsored) return 1;
+          
+          // Se ambos são patrocinados, ordenar alfabeticamente
+          if (a.isSponsored && b.isSponsored) {
+            return a.name.localeCompare(b.name);
+          }
+          
+          // Se ambos não são patrocinados, ordenar por distância
           if (a.distance && b.distance) return a.distance - b.distance;
           if (a.distance && !b.distance) return -1;
           if (!a.distance && b.distance) return 1;
