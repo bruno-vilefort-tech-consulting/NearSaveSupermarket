@@ -99,9 +99,9 @@ function ValorAReceberDetalhes() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-eco-cream">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b border-eco-gray-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -109,24 +109,24 @@ function ValorAReceberDetalhes() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setLocation('/supermercado/gestao-financeira')}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 hover:bg-eco-orange-light text-eco-blue"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4 text-eco-orange" />
                 <span>Voltar</span>
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Valor a Receber</h1>
-                <p className="text-sm text-gray-500">
+                <h1 className="text-2xl font-bold text-eco-blue">Valor a Receber</h1>
+                <p className="text-sm text-eco-gray">
                   Pedidos aguardando pagamento da SaveUp
                 </p>
               </div>
             </div>
             
             <div className="text-right">
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-eco-green">
                 R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-eco-gray">
                 Total pendente • {sortedPayments.length} pedidos
               </p>
             </div>
@@ -139,15 +139,15 @@ function ValorAReceberDetalhes() {
         
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
+          <Card className="border-eco-gray-light">
             <CardContent className="pt-6">
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-eco-green-light rounded-lg">
+                  <DollarSign className="h-5 w-5 text-eco-green" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Pendente</p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-sm font-medium text-eco-gray">Total Pendente</p>
+                  <p className="text-lg font-bold text-eco-blue">
                     R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
@@ -155,29 +155,29 @@ function ValorAReceberDetalhes() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-eco-gray-light">
             <CardContent className="pt-6">
               <div className="flex items-center">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Calendar className="h-5 w-5 text-gray-600" />
+                <div className="p-2 bg-eco-blue-light rounded-lg">
+                  <Calendar className="h-5 w-5 text-eco-blue" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total de Pedidos</p>
-                  <p className="text-lg font-bold text-gray-900">{sortedPayments.length}</p>
+                  <p className="text-sm font-medium text-eco-gray">Total de Pedidos</p>
+                  <p className="text-lg font-bold text-eco-blue">{sortedPayments.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-eco-gray-light">
             <CardContent className="pt-6">
               <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Clock className="h-5 w-5 text-green-600" />
+                <div className="p-2 bg-eco-sage-light rounded-lg">
+                  <Clock className="h-5 w-5 text-eco-sage" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">No Prazo</p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-sm font-medium text-eco-gray">No Prazo</p>
+                  <p className="text-lg font-bold text-eco-blue">
                     {sortedPayments.filter(p => getDaysUntilDue(p.dueDate) >= 0).length}
                   </p>
                 </div>
