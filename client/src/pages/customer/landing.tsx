@@ -4,7 +4,7 @@ import { ShoppingCart, Users, Leaf, Globe, ChevronDown, Recycle, Heart, Trending
 import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import shoppingBagsImage from "@assets/20250608_0826_Sacolas Coloridas Lúdicas_remix_01jx7mjsn4f01rf04wn53p95v1_1749382175534.png";
+import shoppingBagsImage from "@assets/20250608_0832_Fundo Transparente_remix_01jx7mygx5e83sfwrt5bjztmnn_1749382406471.png";
 
 export default function CustomerLanding() {
   const { t, setLanguage } = useLanguage();
