@@ -2,8 +2,10 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, type StaffUser } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, type StaffUser, staffUsers } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, cancelPixPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
@@ -3210,21 +3212,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get staff sponsorship status
-  app.get("/api/staff/sponsorship", async (req, res) => {
+  app.get("/api/staff/sponsorship/status", async (req, res) => {
     try {
-      const staffUser = req.user as any;
-      if (!staffUser) {
-        return res.status(401).json({ message: "Staff não autenticado" });
+      const staffId = req.headers['x-staff-id'] || req.headers['staff-id'];
+      
+      if (!staffId || isNaN(Number(staffId))) {
+        return res.status(400).json({ message: "Staff ID is required" });
       }
 
-      const staff = await storage.getStaffUserByEmail(staffUser.email);
-      if (!staff) {
+      // Get staff data using raw SQL to avoid type issues
+      const result = await db.execute(sql`
+        SELECT is_sponsored, company_name 
+        FROM staff_users 
+        WHERE id = ${Number(staffId)}
+        LIMIT 1
+      `);
+
+      if (!result.rows.length) {
         return res.status(404).json({ message: "Staff não encontrado" });
       }
 
+      const staff = result.rows[0] as any;
       res.json({ 
-        isSponsored: staff.isSponsored === 1,
-        companyName: staff.companyName 
+        isSponsored: staff.is_sponsored === 1,
+        companyName: staff.company_name 
       });
     } catch (error) {
       console.error("Erro ao buscar status de patrocínio:", error);
@@ -3235,9 +3246,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staff sponsorship management
   app.patch("/api/staff/sponsorship", async (req, res) => {
     try {
-      const staffUser = req.user as any;
-      if (!staffUser) {
-        return res.status(401).json({ message: "Staff não autenticado" });
+      const staffId = req.headers['x-staff-id'] || req.headers['staff-id'];
+      
+      if (!staffId || isNaN(Number(staffId))) {
+        return res.status(400).json({ message: "Staff ID is required" });
       }
 
       const { isSponsored } = req.body;
@@ -3246,12 +3258,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Status de patrocínio deve ser verdadeiro ou falso" });
       }
 
-      const staff = await storage.getStaffUserByEmail(staffUser.email);
-      if (!staff) {
+      const staff = await db.select().from(staffUsers).where(eq(staffUsers.id, Number(staffId))).limit(1);
+      if (!staff.length) {
         return res.status(404).json({ message: "Staff não encontrado" });
       }
 
-      await storage.updateStaffSponsorshipStatus(staff.id, isSponsored);
+      await storage.updateStaffSponsorshipStatus(Number(staffId), isSponsored);
       
       res.json({ 
         message: `Patrocínio ${isSponsored ? 'ativado' : 'desativado'} com sucesso`,
