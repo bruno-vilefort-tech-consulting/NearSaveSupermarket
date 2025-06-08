@@ -174,13 +174,25 @@ export default function PixPayment() {
             description: "Seu pedido foi processado com sucesso. Redirecionando para seus pedidos...",
           });
           
+          // Update order status to payment confirmed
+          try {
+            await fetch(`/api/orders/${orderId}/confirm-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId: pixData.id })
+            });
+          } catch (error) {
+            console.error('Error confirming payment:', error);
+          }
+          
           // Clean up order data
           localStorage.removeItem(`order_${orderId}`);
+          localStorage.removeItem(`pixData_${orderId}`);
           localStorage.removeItem('cart');
           
           // Redirect to orders page immediately
           setTimeout(() => {
-            setLocation('/orders');
+            setLocation('/customer/orders');
           }, 1500);
           
           return; // Para a execução desta função

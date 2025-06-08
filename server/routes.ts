@@ -1365,7 +1365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         pixCopyPaste: order.pixCopyPaste,
         pixExpirationDate: order.pixExpirationDate,
         items: order.orderItems?.map(item => ({
-          productName: item.productName || 'Produto',
+          productName: item.product?.name || 'Produto',
           quantity: item.quantity,
           priceAtTime: item.priceAtTime
         })) || []
@@ -1434,6 +1434,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error(`❌ [PIX STATUS] Error checking PIX payment ${req.params.paymentId}:`, error);
       res.status(500).json({ 
         message: "Erro ao verificar status do pagamento PIX", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Confirm PIX payment for order
+  app.post("/api/orders/:id/confirm-payment", async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { paymentId } = req.body;
+      
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "ID do pedido inválido" });
+      }
+
+      console.log(`💰 [PAYMENT CONFIRM] Confirming payment for order ${orderId} with PIX ID ${paymentId}`);
+      
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      if (order.pixPaymentId !== paymentId) {
+        return res.status(400).json({ message: "PIX ID não corresponde ao pedido" });
+      }
+
+      // Update order status to payment confirmed
+      const updatedOrder = await storage.updateOrderPaymentStatus(orderId, 'payment_confirmed');
+      
+      console.log(`✅ [PAYMENT CONFIRM] Order ${orderId} payment confirmed successfully`);
+      
+      res.json({ 
+        message: "Pagamento confirmado com sucesso",
+        order: updatedOrder
+      });
+    } catch (error: any) {
+      console.error(`❌ [PAYMENT CONFIRM] Error confirming payment for order ${req.params.id}:`, error);
+      res.status(500).json({ 
+        message: "Erro ao confirmar pagamento", 
         error: error.message 
       });
     }
