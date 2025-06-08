@@ -39,6 +39,7 @@ import StaffOrders from "@/pages/staff/orders";
 import StaffSettings from "@/pages/staff/settings";
 import ValorAReceber from "@/pages/staff/valor-a-receber";
 import ValorAReceberDetalhes from "@/pages/staff/valor-a-receber-detalhes";
+import ConfirmOrderPage from "@/pages/confirm-order";
 
 // Admin App Pages
 import AdminLogin from "@/pages/admin/login";
@@ -96,6 +97,8 @@ function Router() {
       <Route path="/supermercado/produtos" component={StaffProducts} />
       <Route path="/supermercado/orders" component={StaffOrders} />
       <Route path="/supermercado/pedidos" component={StaffOrders} />
+      <Route path="/orders/:id/confirm" component={ConfirmOrderPage} />
+      <Route path="/pedidos/:id/confirmar" component={ConfirmOrderPage} />
       <Route path="/supermercado/settings" component={StaffSettings} />
       <Route path="/supermercado/configuracoes" component={StaffSettings} />
       <Route path="/supermercado/gestao-financeira" component={ValorAReceber} />
