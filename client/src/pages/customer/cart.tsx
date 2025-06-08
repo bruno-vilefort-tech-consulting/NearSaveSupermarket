@@ -37,8 +37,13 @@ export default function CustomerCart() {
   const [customerInfo, setCustomerInfo] = useState<any>(null);
 
   // Debug: verificar idioma atual
-  console.log('Current language:', language);
-  console.log('Sample translation:', t('cart.title'));
+  console.log('Cart component loaded - Language:', language);
+  console.log('Cart title translation:', t('cart.title'));
+  
+  // Force clear localStorage cache for translations
+  useEffect(() => {
+    console.log('Cart component mounted with language:', language);
+  }, [language]);
 
   // Carregar itens do carrinho e informações do cliente do localStorage
   useEffect(() => {
@@ -215,7 +220,10 @@ export default function CustomerCart() {
             <Link href="/customer">
               <ArrowLeft className="h-6 w-6 text-eco-gray" />
             </Link>
-            <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">{t('cart.title')}</h1>
+            <div className="ml-4">
+              <h1 className="text-lg font-bold text-eco-gray-dark">{t('cart.title')} - v2.0 {new Date().getTime()}</h1>
+              <small className="text-xs text-red-500">Lang: {language} | Cart Updated</small>
+            </div>
           </div>
         </div>
 
