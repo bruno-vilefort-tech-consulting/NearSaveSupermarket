@@ -39,30 +39,9 @@ interface PendingPayment {
   }[];
 }
 
-interface FinancialSummary {
-  totalPending: number;
-  totalReceived: number;
-  ordersCount: number;
-  avgOrderValue: number;
-}
-
-interface PaymentHistory {
-  id: number;
-  orderId: number;
-  customerName: string;
-  amount: string;
-  paymentDate: string;
-  paymentMethod: string;
-  status: 'paid' | 'pending' | 'cancelled';
-  type: 'sale' | 'refund';
-}
-
 function ValorAReceber() {
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
   const [, setLocation] = useLocation();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedPayment, setSelectedPayment] = useState<PendingPayment | null>(null);
 
   useEffect(() => {
     const staffInfo = localStorage.getItem('staffInfo');
@@ -96,60 +75,13 @@ function ValorAReceber() {
     },
   });
 
-  // Query for financial summary
-  const { data: financialSummary } = useQuery({
-    queryKey: ["/api/staff/financial-summary", staffUser?.id],
-    enabled: !!staffUser?.id,
-    queryFn: async () => {
-      const response = await fetch('/api/staff/financial-summary', {
-        headers: {
-          'x-staff-id': staffUser!.id.toString()
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    },
-  });
-
-  // Query for payment history
-  const { data: paymentHistory = [] } = useQuery({
-    queryKey: ["/api/staff/payment-history", staffUser?.id],
-    enabled: !!staffUser?.id,
-    queryFn: async () => {
-      const response = await fetch('/api/staff/payment-history', {
-        headers: {
-          'x-staff-id': staffUser!.id.toString()
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    },
-  });
-
   const totalPending = pendingPayments.reduce((sum: number, payment: PendingPayment) => 
     sum + parseFloat(payment.netAmount), 0
   );
 
-  // Filter payments based on search and status
-  const filteredPayments = pendingPayments.filter((payment: PendingPayment) => {
-    const matchesSearch = payment.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         payment.id.toString().includes(searchTerm);
-    const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
-  };
-
-  const formatCurrency = (value: number | string) => {
-    const numValue = typeof value === 'string' ? parseFloat(value) : value;
-    return `R$ ${numValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
   };
 
   const getDaysUntilDue = (dueDateString: string) => {
@@ -160,27 +92,14 @@ function ValorAReceber() {
     return diffDays;
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      'pending': { variant: 'secondary' as const, label: 'Pendente', color: 'bg-yellow-100 text-yellow-800' },
-      'paid': { variant: 'default' as const, label: 'Pago', color: 'bg-green-100 text-green-800' },
-      'overdue': { variant: 'destructive' as const, label: 'Atrasado', color: 'bg-red-100 text-red-800' },
-      'cancelled': { variant: 'outline' as const, label: 'Cancelado', color: 'bg-gray-100 text-gray-800' },
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge variant={config.variant} className={config.color}>{config.label}</Badge>;
-  };
-
-  const getPaymentMethodBadge = (method: string) => {
-    const methodConfig = {
-      'pix': { label: 'PIX', color: 'bg-blue-100 text-blue-800' },
-      'credit_card': { label: 'Cartão de Crédito', color: 'bg-purple-100 text-purple-800' },
-      'bank_transfer': { label: 'Transferência', color: 'bg-green-100 text-green-800' },
-    };
-    
-    const config = methodConfig[method as keyof typeof methodConfig] || { label: method, color: 'bg-gray-100 text-gray-800' };
-    return <Badge variant="outline" className={config.color}>{config.label}</Badge>;
+  const getStatusBadge = (daysUntilDue: number) => {
+    if (daysUntilDue < 0) {
+      return <Badge variant="destructive">Pagamento Atrasado</Badge>;
+    } else if (daysUntilDue <= 2) {
+      return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Próximo ao Prazo</Badge>;
+    } else {
+      return <Badge variant="outline">Dentro do Prazo</Badge>;
+    }
   };
 
   if (isLoading || !staffUser) {
