@@ -92,10 +92,10 @@ export default function SupermarketLocationModal({ isOpen, onClose, supermarketN
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-4">
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold text-eco-gray-dark">
-            <MapPin className="h-6 w-6 text-eco-green" />
+      <DialogContent className="max-w-6xl w-[95vw] h-[90vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-4 pb-2 flex-shrink-0">
+          <DialogTitle className="flex items-center gap-2 text-lg font-bold text-eco-gray-dark">
+            <MapPin className="h-5 w-5 text-eco-green" />
             Localização do Supermercado
           </DialogTitle>
         </DialogHeader>
@@ -108,24 +108,24 @@ export default function SupermarketLocationModal({ isOpen, onClose, supermarketN
             </div>
           </div>
         ) : supermarket ? (
-          <div className="flex flex-col h-full">
+          <div className="flex-1 flex flex-col">
             {/* Supermarket Info */}
-            <div className="px-6 pb-4">
-              <div className="bg-eco-gray-light rounded-lg p-4">
-                <h3 className="font-bold text-lg mb-2 text-eco-gray-dark">{supermarket.name}</h3>
-                <div className="flex items-center text-sm text-eco-gray mb-3">
-                  <MapPin size={14} className="mr-2" />
+            <div className="px-4 pb-2 flex-shrink-0">
+              <div className="bg-eco-gray-light rounded-lg p-3">
+                <h3 className="font-bold text-base mb-1 text-eco-gray-dark">{supermarket.name}</h3>
+                <div className="flex items-center text-xs text-eco-gray mb-2">
+                  <MapPin size={12} className="mr-1" />
                   {supermarket.address}
                 </div>
                 
-                <div className="flex items-center gap-3 mb-3">
-                  <Badge variant="secondary" className="flex items-center gap-1 bg-eco-green-light text-eco-green-dark border-eco-green">
-                    <Package className="h-3 w-3" />
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant="secondary" className="flex items-center gap-1 bg-eco-green-light text-eco-green-dark border-eco-green text-xs">
+                    <Package className="h-2 w-2" />
                     {supermarket.productCount} produtos
                   </Badge>
                   {supermarket.hasPromotions && (
-                    <Badge variant="destructive" className="flex items-center gap-1 bg-eco-orange text-white border-eco-orange">
-                      <Percent className="h-3 w-3" />
+                    <Badge variant="destructive" className="flex items-center gap-1 bg-eco-orange text-white border-eco-orange text-xs">
+                      <Percent className="h-2 w-2" />
                       Promoções
                     </Badge>
                   )}
@@ -133,17 +133,17 @@ export default function SupermarketLocationModal({ isOpen, onClose, supermarketN
 
                 <Button
                   onClick={openInMaps}
-                  className="bg-eco-blue hover:bg-eco-blue-dark text-white font-semibold rounded-xl transition-colors flex items-center gap-2"
+                  className="bg-eco-blue hover:bg-eco-blue-dark text-white font-semibold rounded-xl transition-colors flex items-center gap-1"
                   size="sm"
                 >
-                  <Navigation className="h-4 w-4" />
+                  <Navigation className="h-3 w-3" />
                   Como Chegar
                 </Button>
               </div>
             </div>
 
             {/* Map */}
-            <div className="flex-1 px-6 pb-6">
+            <div className="flex-1 px-4 pb-4 min-h-0">
               <div className="h-full rounded-lg overflow-hidden border border-eco-gray-light">
                 <MapContainer
                   center={supermarket.latitude && supermarket.longitude 
