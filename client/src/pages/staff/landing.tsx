@@ -31,7 +31,7 @@ function StaffLanding() {
         <div className="space-y-4">
           <Button 
             size="lg"
-            className="w-full bg-eco-green hover:bg-eco-green/90 text-white py-4 text-lg font-medium"
+            className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
             onClick={() => setLocation("/staff/login")}
           >
             Entrar
@@ -39,7 +39,7 @@ function StaffLanding() {
           <Button 
             variant="outline" 
             size="lg"
-            className="w-full border-eco-green text-eco-green hover:bg-eco-green hover:text-white py-4 text-lg"
+            className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white py-4 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
             onClick={() => setLocation("/staff/register")}
           >
             Cadastre-se

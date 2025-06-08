@@ -65,7 +65,7 @@ export default function CustomerLanding() {
         <Button
           onClick={handleLogin}
           size="default"
-          className="w-full bg-eco-green hover:bg-eco-green-dark text-white px-6 py-3 text-base font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+          className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white px-6 py-3.5 text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
         >
           {t('auth.login')}
         </Button>
@@ -73,7 +73,7 @@ export default function CustomerLanding() {
           onClick={handleRegister}
           variant="outline"
           size="default"
-          className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-6 py-3 text-base font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+          className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-6 py-3.5 text-base font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
         >
           {t('customer.register')}
         </Button>

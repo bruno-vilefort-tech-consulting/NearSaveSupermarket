@@ -168,7 +168,7 @@ export default function Landing() {
         <div className="w-full max-w-lg mx-auto space-y-4">
           <Button 
             onClick={() => window.location.href = '/customer/login'}
-            className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-4 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 text-lg"
+            className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white font-semibold py-4 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out text-lg"
             size="lg"
           >
             <div className="flex items-center justify-center space-x-3">
@@ -180,7 +180,7 @@ export default function Landing() {
           <Button 
             onClick={handleLogin}
             variant="outline"
-            className="w-full border-2 border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white font-semibold py-4 rounded-2xl transition-all duration-200 text-lg"
+            className="w-full border-2 border-eco-blue text-eco-blue hover:bg-eco-blue hover:text-white font-semibold py-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ease-in-out text-lg"
             size="lg"
           >
             <div className="flex items-center justify-center space-x-3">
