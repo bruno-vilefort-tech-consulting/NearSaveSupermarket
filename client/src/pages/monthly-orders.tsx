@@ -90,7 +90,7 @@ export default function MonthlyOrders() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/staff-login";
+        window.location.href = "/login";
       }, 1000);
       return;
     }
@@ -104,7 +104,7 @@ export default function MonthlyOrders() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/staff-login";
+        window.location.href = "/login";
       }, 1000);
       return;
     }

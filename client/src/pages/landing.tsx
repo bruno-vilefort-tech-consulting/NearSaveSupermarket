@@ -11,7 +11,7 @@ export default function Landing() {
   const languageMenuRef = useRef<HTMLDivElement>(null);
   
   const handleLogin = () => {
-    window.location.href = "/staff-login";
+    window.location.href = "/login";
   };
 
   // Fechar menu quando clicar fora dele

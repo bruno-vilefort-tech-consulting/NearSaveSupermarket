@@ -70,7 +70,7 @@ export function PixRefundButton({ order }: PixRefundButtonProps) {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/staff-login";
+          window.location.href = "/login";
         }, 1000);
         return;
       }
