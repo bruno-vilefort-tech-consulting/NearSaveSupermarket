@@ -694,7 +694,9 @@ export default function CustomerHome() {
                         )}
                       </div>
                     </div>
-                    <ArrowRight className="text-eco-gray" size={20} />
+                    {!supermarket.isSponsored && (
+                      <ArrowRight className="text-eco-gray" size={20} />
+                    )}
                   </div>
                 </CardHeader>
 
