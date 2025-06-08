@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import SupermarketLocationModal from "@/components/SupermarketLocationModal";
 
 interface OrderItem {
   id: number;
@@ -51,6 +52,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isExpired, setIsExpired] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
   // Debug: Log order data to understand PIX section visibility
   console.log('Order debug:', {
@@ -341,7 +343,15 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
             <div>
               <h3 className="font-semibold text-lg text-eco-gray-dark">Pedido #{order.id}</h3>
               {order.supermarketName && (
-                <p className="text-sm text-eco-gray">{order.supermarketName}</p>
+                <button
+                  onClick={() => setShowLocationModal(true)}
+                  className="text-sm text-eco-blue hover:text-eco-blue-dark underline text-left transition-colors"
+                >
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {order.supermarketName}
+                  </div>
+                </button>
               )}
             </div>
           </div>

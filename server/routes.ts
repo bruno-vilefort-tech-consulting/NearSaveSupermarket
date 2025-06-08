@@ -3182,6 +3182,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get supermarket location by name
+  app.get("/api/customer/supermarket/location/:name", async (req, res) => {
+    try {
+      const supermarketName = decodeURIComponent(req.params.name);
+      
+      const supermarkets = await storage.getSupermarketsWithLocations();
+      const supermarket = supermarkets.find(s => s.name === supermarketName);
+      
+      if (!supermarket) {
+        return res.status(404).json({ message: "Supermercado não encontrado" });
+      }
+      
+      res.json(supermarket);
+    } catch (error: any) {
+      console.error('Erro ao buscar localização do supermercado:', error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
