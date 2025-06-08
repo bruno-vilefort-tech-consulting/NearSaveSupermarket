@@ -139,9 +139,6 @@ function ValorAReceber() {
               <CreditCard className="h-5 w-5" />
               <span>Resumo dos Pagamentos da SaveUp</span>
             </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
-              Pedidos concluídos aguardando pagamento da SaveUp (prazo: 30 dias após conclusão)
-            </p>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -185,58 +182,31 @@ function ValorAReceber() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {pendingPayments.map((payment: PendingPayment) => {
                   const daysUntilDue = getDaysUntilDue(payment.dueDate);
                   return (
-                    <div key={payment.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold text-gray-900">
-                            Pedido #{payment.id}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            Cliente: {payment.customerName}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-blue-500">
-                            R$ {parseFloat(payment.netAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    <div key={payment.id} className="border rounded-lg p-3 hover:bg-gray-50 transition-colors">
+                      <div className="flex justify-between items-center">
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-semibold text-gray-900">
+                              Pedido #{payment.id}
+                            </h3>
+                            <div className="text-lg font-bold text-blue-500">
+                              R$ {parseFloat(payment.netAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </div>
                           </div>
-                          {getStatusBadge(daysUntilDue)}
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-600">
-                            Concluído: {formatDate(payment.completedAt)}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span className="text-gray-600">
-                            Prazo SaveUp: {formatDate(payment.dueDate)}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-gray-600">
-                            {daysUntilDue >= 0 
-                              ? `${daysUntilDue} dias para pagamento`
-                              : `Atrasado há ${Math.abs(daysUntilDue)} dias`
-                            }
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="text-sm text-gray-600">
-                          <strong>Itens:</strong> {
-                            payment.orderItems.map(item => 
-                              `${item.quantity}x ${item.product.name}`
-                            ).join(', ')
-                          }
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-gray-600">
+                              {payment.customerName}
+                            </p>
+                            {getStatusBadge(daysUntilDue)}
+                          </div>
+                          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                            <span>Concluído: {formatDate(payment.completedAt)}</span>
+                            <span>Prazo: {formatDate(payment.dueDate)}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
