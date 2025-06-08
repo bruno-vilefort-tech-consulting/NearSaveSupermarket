@@ -39,6 +39,7 @@ import StaffDashboard from "@/pages/staff/dashboard";
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminSupermarkets from "@/pages/admin/supermarkets";
+import AdminFinancialStatement from "@/pages/admin/financial-statement";
 
 function Router() {
   return (
@@ -82,6 +83,7 @@ function Router() {
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/supermarkets" component={AdminSupermarkets} />
+      <Route path="/admin/financial-statement" component={AdminFinancialStatement} />
       
       {/* Friendly Routes */}
       <Route path="/cliente" component={CustomerLanding} />

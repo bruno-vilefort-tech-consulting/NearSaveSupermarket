@@ -90,6 +90,15 @@ function AdminDashboard() {
             <DollarSign className="h-5 w-5 mr-3 text-green-600" />
             <span className="text-gray-700">Financeiro</span>
           </Button>
+
+          <Button
+            variant="ghost"
+            className="w-full justify-start h-12 text-left hover:bg-gray-100"
+            onClick={() => setLocation('/admin/financial-statement')}
+          >
+            <Receipt className="h-5 w-5 mr-3 text-purple-600" />
+            <span className="text-gray-700">Extrato Financeiro</span>
+          </Button>
         </nav>
 
         {/* User Info & Logout */}
