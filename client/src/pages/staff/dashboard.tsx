@@ -227,7 +227,7 @@ function StaffDashboard() {
 
           <Card 
             className={`transition-shadow cursor-pointer hover:shadow-md ${staffUser.approvalStatus !== 'approved' ? 'opacity-50' : ''}`}
-            onClick={() => staffUser.approvalStatus === 'approved' && setLocation('/supermercado/valor-a-receber')}
+            onClick={() => staffUser.approvalStatus === 'approved' && setLocation('/supermercado/gestao-financeira')}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Gestão Financeira</CardTitle>

@@ -136,7 +136,10 @@ function ValorAReceber() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Valor a Receber Card */}
-          <Card className="transition-shadow hover:shadow-md cursor-pointer">
+          <Card 
+            className="transition-shadow hover:shadow-md cursor-pointer"
+            onClick={() => setLocation('/supermercado/gestao-financeira/valor-a-receber')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Valor a Receber</CardTitle>
               <Clock className="h-4 w-4 text-blue-600" />
