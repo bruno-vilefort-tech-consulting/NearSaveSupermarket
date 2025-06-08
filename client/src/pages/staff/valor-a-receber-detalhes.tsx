@@ -250,30 +250,16 @@ function ValorAReceberDetalhes() {
                               <p className="text-gray-900">{formatDate(payment.completedAt)}</p>
                             </div>
                             <div className="bg-gray-50 p-3 rounded">
-                              <span className="font-medium text-gray-700">Data de Vencimento:</span>
+                              <span className="font-medium text-gray-700">Vencimento do Pagamento:</span>
                               <p className="text-gray-900">{formatDate(payment.dueDate)}</p>
                             </div>
                             <div className="bg-gray-50 p-3 rounded">
-                              <span className="font-medium text-gray-700">Valor Total:</span>
-                              <p className="text-gray-900">
-                                R$ {parseFloat(payment.totalAmount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                              </p>
+                              <span className="font-medium text-gray-700">Status:</span>
+                              <Badge variant="outline" className="text-yellow-600 border-yellow-600 mt-1">
+                                Aguardando SaveUp
+                              </Badge>
                             </div>
                           </div>
-                          
-                          {payment.orderItems.length > 0 && (
-                            <div className="mt-4 p-3 bg-blue-50 rounded">
-                              <p className="text-sm font-medium text-blue-900 mb-2">Produtos:</p>
-                              <div className="text-sm text-blue-800">
-                                {payment.orderItems.map((item, index) => (
-                                  <span key={item.id}>
-                                    {item.quantity}x {item.product.name}
-                                    {index < payment.orderItems.length - 1 ? ' • ' : ''}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
