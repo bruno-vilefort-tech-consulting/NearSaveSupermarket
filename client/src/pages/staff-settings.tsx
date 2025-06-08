@@ -35,20 +35,31 @@ export default function StaffSettings() {
 
   const updateLocationMutation = useMutation({
     mutationFn: async (locationData: { lat: number; lng: number }) => {
+      console.log('🚀 Starting location update mutation');
+      console.log('📊 Mutation data:', { locationData, staffUserId: staffUser?.id });
+      
+      if (!staffUser?.id) {
+        throw new Error('Staff user ID not found');
+      }
+      
       const response = await apiRequest("PUT", "/api/staff/location", {
         staffId: staffUser.id,
         latitude: locationData.lat,
         longitude: locationData.lng
       });
+      
+      console.log('✅ Location update response:', response);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('🎉 Location update success:', data);
       toast({
         title: "Localização atualizada",
         description: "A localização do seu supermercado foi atualizada com sucesso!",
       });
     },
     onError: (error: any) => {
+      console.error('❌ Location update error:', error);
       toast({
         title: "Erro ao atualizar localização",
         description: error.message || "Não foi possível atualizar a localização",
@@ -62,9 +73,15 @@ export default function StaffSettings() {
   };
 
   const handleSaveLocation = () => {
+    console.log('🔍 handleSaveLocation called');
+    console.log('📍 Current location:', location);
+    console.log('👤 Staff user:', staffUser);
+    
     if (location) {
+      console.log('✅ Location exists, calling mutation...');
       updateLocationMutation.mutate(location);
     } else {
+      console.log('❌ No location defined');
       toast({
         title: "Localização não definida",
         description: "Por favor, defina uma localização antes de salvar",
