@@ -292,7 +292,7 @@ function StaffOrders() {
               <Button
                 variant="outline"
                 onClick={playNotificationSound}
-                className="px-3 py-2 text-xs"
+                className="px-3 py-2 text-xs border-eco-blue bg-eco-blue-light text-eco-blue hover:bg-eco-blue hover:text-white"
                 title="Testar som de notificação"
               >
                 Testar Som
