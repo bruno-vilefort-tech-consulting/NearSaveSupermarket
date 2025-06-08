@@ -40,10 +40,12 @@ function Router() {
       <Route path="/reset-password" component={ResetPassword} />
       
       {/* Customer App Routes */}
+      <Route path="/customer" component={CustomerHome} />
       <Route path="/home" component={CustomerHome} />
       <Route path="/supermarket/:id/products" component={SupermarketProducts} />
       <Route path="/supermarket-map" component={SupermarketMap} />
       <Route path="/cart" component={CustomerCart} />
+      <Route path="/customer/cart" component={CustomerCart} />
       <Route path="/order-review" component={OrderReview} />
       <Route path="/payment" component={CustomerPaymentFixed} />
       <Route path="/pix-payment/:orderId" component={PixPaymentFixed} />
