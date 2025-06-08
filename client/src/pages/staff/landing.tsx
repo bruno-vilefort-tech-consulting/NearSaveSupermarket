@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Store, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
-import supermarketImage from "@assets/20250608_0847_Sacolas e Supermercado_remix_01jx7nrwxjfvnvt8tz1f6ermp9_1749383605674.png";
+import shoppingBagImage from "@assets/20250608_0832_Fundo Transparente_remix_01jx7mygx5e83sfwrt5bjztmnn_1749382406471.png";
 
 function StaffLanding() {
   const [, setLocation] = useLocation();
@@ -21,9 +21,9 @@ function StaffLanding() {
         {/* Logo/Image */}
         <div className="mb-8">
           <img 
-            src={supermarketImage} 
-            alt="SaveUp Supermercado" 
-            className="w-60 h-60 object-contain"
+            src={shoppingBagImage} 
+            alt="SaveUp" 
+            className="w-32 h-32 object-contain"
           />
         </div>
 
