@@ -3824,6 +3824,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cancel marketing subscription
+  app.delete('/api/staff/marketing-subscription/cancel', async (req, res) => {
+    try {
+      const staffId = parseInt(req.headers['x-staff-id'] as string);
+      
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID not found" });
+      }
+
+      // Check if staff has an active subscription
+      const activeSubscription = await storage.getActiveMarketingSubscriptionByStaffId(staffId);
+      
+      if (!activeSubscription) {
+        return res.status(404).json({ 
+          success: false,
+          message: "Nenhuma campanha ativa encontrada" 
+        });
+      }
+
+      // Cancel the subscription by setting expires_at to current time
+      const cancelled = await storage.cancelMarketingSubscription(staffId);
+      
+      if (!cancelled) {
+        return res.status(500).json({ 
+          success: false,
+          message: "Erro ao cancelar a campanha" 
+        });
+      }
+
+      console.log(`✅ [MARKETING] Campanha cancelada para staff ${staffId}`);
+
+      res.json({
+        success: true,
+        message: "Campanha cancelada com sucesso"
+      });
+    } catch (error) {
+      console.error("Error cancelling marketing subscription:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Erro interno do servidor" 
+      });
+    }
+  });
+
   // Marketing activation endpoint
   app.post("/api/staff/marketing/activate", async (req, res) => {
     try {

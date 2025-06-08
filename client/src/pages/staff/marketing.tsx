@@ -44,6 +44,8 @@ interface SubscriptionResponse {
 function StaffMarketing() {
   const [, setLocation] = useLocation();
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Check for existing marketing subscription
   const { data: subscriptionData, isLoading: subscriptionLoading } = useQuery<SubscriptionResponse>({
@@ -115,6 +117,38 @@ function StaffMarketing() {
       ]
     }
   ];
+
+  // Cancel campaign mutation
+  const cancelCampaignMutation = useMutation({
+    mutationFn: () => fetch('/api/staff/marketing-subscription/cancel', {
+      method: 'DELETE',
+      headers: {
+        'x-staff-id': staffUser?.id?.toString() || ''
+      }
+    }).then(res => res.json()),
+    onSuccess: () => {
+      toast({
+        title: "Campanha cancelada",
+        description: "Sua campanha de marketing foi cancelada com sucesso.",
+        variant: "default",
+      });
+      // Invalidate subscription data to refetch
+      queryClient.invalidateQueries({ queryKey: ['/api/staff/marketing-subscription'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao cancelar",
+        description: error?.message || "Erro interno do servidor",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleCancelCampaign = () => {
+    if (confirm("Tem certeza que deseja cancelar sua campanha de marketing? Esta ação não pode ser desfeita.")) {
+      cancelCampaignMutation.mutate();
+    }
+  };
 
   const handlePlanSelection = (plan: SponsorshipPlan) => {
     setLocation(`/supermercado/marketing/confirmacao/${plan.id}?planName=${encodeURIComponent(plan.name)}&price=${plan.price}&duration=${encodeURIComponent(plan.duration)}`);

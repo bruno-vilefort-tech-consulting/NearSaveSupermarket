@@ -2244,6 +2244,30 @@ export class DatabaseStorage implements IStorage {
     console.log(`📈 MARKETING: Assinatura ${id} status atualizado para ${status}`);
     return subscription || undefined;
   }
+
+  async cancelMarketingSubscription(staffId: number): Promise<boolean> {
+    try {
+      const result = await db
+        .update(marketingSubscriptions)
+        .set({ 
+          status: 'cancelled',
+          expiresAt: new Date(), // Set expiration to now to immediately deactivate
+          updatedAt: new Date() 
+        })
+        .where(
+          and(
+            eq(marketingSubscriptions.staffId, staffId),
+            eq(marketingSubscriptions.status, 'active')
+          )
+        );
+
+      console.log(`📈 MARKETING: Campanha cancelada para staff ${staffId}`);
+      return true;
+    } catch (error) {
+      console.error(`❌ MARKETING: Erro ao cancelar campanha para staff ${staffId}:`, error);
+      return false;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
