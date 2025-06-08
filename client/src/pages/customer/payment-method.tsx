@@ -35,8 +35,15 @@ export default function PaymentMethod() {
   };
 
   const handleContinuePayment = () => {
-    // Aqui será implementada a lógica de pagamento
     console.log('Continuando para pagamento:', paymentMethod);
+    
+    if (paymentMethod === 'pix') {
+      // Navegar para tela de PIX
+      window.location.href = '/pix-payment';
+    } else if (paymentMethod === 'card') {
+      // Navegar para tela de Stripe
+      window.location.href = '/customer/stripe-payment';
+    }
   };
 
   return (
