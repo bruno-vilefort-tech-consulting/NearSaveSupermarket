@@ -1278,7 +1278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`💳 [STRIPE] Criando novo PaymentIntent - Valor original: R$ ${amount}, Valor ajustado: R$ ${adjustedAmount}`);
 
-      // Criar novo PaymentIntent - configuração automática para evitar status incomplete
+      // Criar novo PaymentIntent - CORRIGIDO: configuração compatível do Stripe
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(adjustedAmount * 100), // Converter para centavos
         currency: "brl",
@@ -1291,9 +1291,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         automatic_payment_methods: {
           enabled: true,
-        },
-        // CORRIGIDO: usar confirmação automática para evitar problemas
-        confirmation_method: 'automatic'
+        }
+        // Removido confirmation_method para usar padrão automático
       });
 
       console.log(`✅ [STRIPE] PaymentIntent criado: ${paymentIntent.id}, status: ${paymentIntent.status}`);
