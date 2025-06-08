@@ -207,14 +207,14 @@ export default function CustomerHome() {
 
   // Query para buscar pedidos do cliente
   const { data: orders } = useQuery({
-    queryKey: ["/api/orders", customerInfo?.email, customerInfo?.phone],
+    queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
     enabled: !!(customerInfo?.email || customerInfo?.phone),
     queryFn: async () => {
       const params = new URLSearchParams();
       if (customerInfo?.email) params.append('email', customerInfo.email);
       if (customerInfo?.phone) params.append('phone', customerInfo.phone);
       
-      const response = await fetch(`/api/orders?${params}`);
+      const response = await fetch(`/api/customer/orders?${params}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

@@ -41,7 +41,7 @@ export default function CustomerOrders() {
   }, []);
 
   const { data: orders = [], isLoading, error, refetch } = useQuery({
-    queryKey: ["/api/orders", customerInfo?.email, customerInfo?.phone],
+    queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
     enabled: !!(customerInfo?.email || customerInfo?.phone),
     refetchInterval: 3000, // Auto-refresh every 3 seconds for real-time updates
     retry: 3,
@@ -58,7 +58,7 @@ export default function CustomerOrders() {
           fullCustomerInfo: customerInfo
         });
         
-        const response = await fetch(`/api/orders?${params}`);
+        const response = await fetch(`/api/customer/orders?${params}`);
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Erro na API:', response.status, errorText);
