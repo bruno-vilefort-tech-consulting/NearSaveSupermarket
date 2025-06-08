@@ -55,7 +55,7 @@ function StaffOrders() {
   const [, setLocation] = useLocation();
   const [hasNewOrders, setHasNewOrders] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [lastOrderCount, setLastOrderCount] = useState(0);
+  const [lastOrderIds, setLastOrderIds] = useState<Set<number>>(new Set());
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -125,19 +125,32 @@ function StaffOrders() {
   // Detectar novos pedidos
   useEffect(() => {
     if (orders.length > 0) {
-      const pendingOrders = orders.filter((order: Order) => order.status === 'pending');
+      const currentOrderIds = new Set<number>(orders.map((order: Order) => order.id));
       
-      if (lastOrderCount > 0 && pendingOrders.length > lastOrderCount) {
-        setHasNewOrders(true);
-        playNotificationSound();
+      // Se já temos pedidos conhecidos, verificar se há novos
+      if (lastOrderIds.size > 0) {
+        let hasNewOrder = false;
         
-        // Remove o alerta depois de 10 segundos
-        setTimeout(() => setHasNewOrders(false), 10000);
+        // Verificar se há IDs que não estavam na lista anterior
+        currentOrderIds.forEach(orderId => {
+          if (!lastOrderIds.has(orderId)) {
+            hasNewOrder = true;
+            console.log('🔔 NOVO PEDIDO DETECTADO:', orderId);
+          }
+        });
+        
+        if (hasNewOrder) {
+          setHasNewOrders(true);
+          playNotificationSound();
+          
+          // Remove o alerta depois de 10 segundos
+          setTimeout(() => setHasNewOrders(false), 10000);
+        }
       }
       
-      setLastOrderCount(pendingOrders.length);
+      setLastOrderIds(currentOrderIds);
     }
-  }, [orders, lastOrderCount, soundEnabled]);
+  }, [orders, soundEnabled]);
 
   // Função para criar som de alerta tipo "ding-dong" profissional
   const createNotificationSound = () => {
