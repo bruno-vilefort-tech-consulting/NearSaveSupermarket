@@ -18,7 +18,7 @@ export default function CustomerPaymentFixed() {
     if (savedOrderData) {
       setOrderData(JSON.parse(savedOrderData));
     } else {
-      navigate("/cart");
+      navigate("/customer/cart");
     }
   }, [navigate]);
 

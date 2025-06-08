@@ -38,7 +38,7 @@ export default function OrderReview() {
       setOrderData(JSON.parse(savedOrderReview));
     } else {
       // Se não há dados de revisão, volta para o carrinho
-      navigate('/cart');
+      navigate('/customer/cart');
     }
   }, [navigate]);
 
@@ -372,7 +372,7 @@ export default function OrderReview() {
         <Button 
           variant="outline"
           className="w-full border-eco-green text-eco-green hover:bg-eco-green-light"
-          onClick={() => navigate('/cart')}
+          onClick={() => navigate('/customer/cart')}
           disabled={isProcessing}
         >
           Voltar ao Carrinho

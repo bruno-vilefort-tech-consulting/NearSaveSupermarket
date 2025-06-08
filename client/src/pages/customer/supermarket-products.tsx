@@ -229,7 +229,7 @@ export default function SupermarketProducts() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate("/cart")}
+              onClick={() => navigate("/customer/cart")}
               className="relative flex-shrink-0 ml-3 border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
             >
               <ShoppingCart size={16} className="mr-1" />
