@@ -87,8 +87,11 @@ export default function StaffSettings() {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (data: typeof profileForm) => {
-      const email = localStorage.getItem('staffEmail');
-      if (!email) throw new Error('No staff email found');
+      const staffInfo = localStorage.getItem('staffInfo');
+      if (!staffInfo) throw new Error('No staff info found');
+      
+      const parsedStaffInfo = JSON.parse(staffInfo);
+      const email = parsedStaffInfo.email;
       
       const response = await fetch(`/api/staff/profile?email=${encodeURIComponent(email)}`, {
         method: 'PUT',
@@ -123,8 +126,11 @@ export default function StaffSettings() {
   // Change password mutation
   const changePasswordMutation = useMutation({
     mutationFn: async (data: typeof passwordForm) => {
-      const email = localStorage.getItem('staffEmail');
-      if (!email) throw new Error('No staff email found');
+      const staffInfo = localStorage.getItem('staffInfo');
+      if (!staffInfo) throw new Error('No staff info found');
+      
+      const parsedStaffInfo = JSON.parse(staffInfo);
+      const email = parsedStaffInfo.email;
       
       const response = await fetch(`/api/staff/change-password?email=${encodeURIComponent(email)}`, {
         method: 'PUT',
