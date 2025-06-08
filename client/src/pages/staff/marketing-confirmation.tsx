@@ -33,7 +33,7 @@ export default function MarketingConfirmation() {
       name: 'Plano Básico',
       description: 'Destaque seu supermercado para clientes locais',
       price: 99.90,
-      duration: 'mensal',
+      duration: 'Mensal',
       features: [
         'Aparição em destaque na página inicial',
         'Badge "Parceiro Verificado"',
@@ -47,7 +47,7 @@ export default function MarketingConfirmation() {
       name: 'Plano Premium',
       description: 'Máxima visibilidade e ferramentas avançadas',
       price: 199.90,
-      duration: 'mensal',
+      duration: 'Mensal',
       features: [
         'Tudo do Plano Básico',
         'Banner promocional na home',
@@ -64,7 +64,7 @@ export default function MarketingConfirmation() {
       name: 'Plano Empresarial',
       description: 'Solução completa para redes de supermercados',
       price: 399.90,
-      duration: 'mensal',
+      duration: 'Mensal',
       features: [
         'Tudo do Plano Premium',
         'Campanhas personalizadas',
