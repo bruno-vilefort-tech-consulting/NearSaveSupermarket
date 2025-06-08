@@ -200,21 +200,6 @@ function StaffMarketing() {
         ) : subscriptionData?.hasActiveSubscription ? (
           // Active Subscription View
           <div className="mb-8">
-            <Alert className="border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <strong>Plano Ativo:</strong> {subscriptionData.subscription?.planName} - 
-                    <span className="ml-1">R$ {subscriptionData.subscription?.price}</span>
-                  </div>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    Ativo
-                  </Badge>
-                </div>
-              </AlertDescription>
-            </Alert>
-
             {/* Current Plan Details */}
             <div className="mt-8">
               <div className="text-center mb-8">
