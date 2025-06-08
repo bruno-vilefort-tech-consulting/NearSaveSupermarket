@@ -1396,9 +1396,7 @@ export class DatabaseStorage implements IStorage {
     const validItemsQuery = await db
       .select({ 
         priceAtTime: orderItems.priceAtTime,
-        quantity: orderItems.quantity,
-        confirmationStatus: orderItems.confirmationStatus,
-        orderId: orders.id
+        quantity: orderItems.quantity
       })
       .from(orders)
       .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -1520,21 +1518,39 @@ export class DatabaseStorage implements IStorage {
     const result = [];
     
     for (const order of ordersResult) {
-      // Get order items for this order
+      // Get order items for this order (only non-removed items)
       const items = await db
         .select({
           id: orderItems.id,
           quantity: orderItems.quantity,
+          priceAtTime: orderItems.priceAtTime,
+          confirmationStatus: orderItems.confirmationStatus,
           productName: products.name,
         })
         .from(orderItems)
         .innerJoin(products, eq(orderItems.productId, products.id))
-        .where(eq(orderItems.orderId, order.id));
+        .where(
+          and(
+            eq(orderItems.orderId, order.id),
+            or(
+              eq(orderItems.confirmationStatus, "pending"),
+              eq(orderItems.confirmationStatus, "confirmed")
+            )
+          )
+        );
 
-      // Calculate net amount (gross - SaveUp commission)
-      const grossAmount = parseFloat(order.totalAmount);
+      // Calculate correct gross amount from valid items only
+      const grossAmount = items.reduce((sum, item) => {
+        return sum + (Number(item.priceAtTime) * Number(item.quantity));
+      }, 0);
+      
       const commission = grossAmount * (commercialRate / 100);
       const netAmount = grossAmount - commission;
+
+      // Skip orders with no valid items or zero amount
+      if (items.length === 0 || grossAmount <= 0) {
+        continue;
+      }
 
       // Calculate due date (paymentTerms days after completion)
       const completedDate = new Date(order.completedAt!);
@@ -1544,7 +1560,7 @@ export class DatabaseStorage implements IStorage {
       result.push({
         id: order.id,
         customerName: order.customerName,
-        totalAmount: order.totalAmount,
+        totalAmount: grossAmount.toFixed(2), // Use calculated gross amount from valid items only
         completedAt: order.completedAt!.toISOString(),
         dueDate: dueDate.toISOString(),
         netAmount: netAmount.toFixed(2),
