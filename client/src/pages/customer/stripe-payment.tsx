@@ -159,7 +159,18 @@ export default function StripePayment() {
       try {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
-        setIsCreatingPayment(false); // Não criar PaymentIntent automaticamente
+        
+        // Calcular total e criar PaymentIntent apenas UMA vez
+        const total = parsedCart.reduce((sum: number, item: CartItem) => {
+          return sum + (parseFloat(item.discountPrice) * item.quantity);
+        }, 0);
+
+        // Criar PaymentIntent apenas se não existe um flag de criação em andamento
+        const isAlreadyCreating = sessionStorage.getItem('stripe-creating');
+        if (!isAlreadyCreating) {
+          sessionStorage.setItem('stripe-creating', 'true');
+          createPaymentIntent(total);
+        }
       } catch (error) {
         console.error('Erro ao processar carrinho:', error);
         setIsCreatingPayment(false);
@@ -202,6 +213,8 @@ export default function StripePayment() {
       
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
+        // Limpa o flag de criação após sucesso
+        sessionStorage.removeItem('stripe-creating');
       } else {
         throw new Error('Client secret não retornado');
       }
@@ -209,6 +222,8 @@ export default function StripePayment() {
       console.error('Erro ao criar payment intent:', error);
       console.error('Detalhes do erro:', error instanceof Error ? error.message : 'Erro desconhecido');
       setClientSecret(""); // Reset em caso de erro
+      // Limpa o flag de criação mesmo em caso de erro para permitir nova tentativa
+      sessionStorage.removeItem('stripe-creating');
     } finally {
       setIsCreatingPayment(false);
     }
@@ -264,46 +279,17 @@ export default function StripePayment() {
               </a>
               <div>
                 <h1 className="text-lg font-bold text-eco-gray-dark">Pagamento com Cartão</h1>
-                <p className="text-sm text-eco-gray">R$ {getTotalAmount().toFixed(2).replace('.', ',')}</p>
+                <p className="text-sm text-eco-gray">Carregando...</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="max-w-md mx-auto p-4 space-y-6">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-eco-gray-dark mb-4">Resumo do Pedido</h2>
-            
-            {cartItems.map((item, index) => (
-              <div key={index} className="flex justify-between items-center py-2">
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-sm text-eco-gray">Qtd: {item.quantity}</p>
-                </div>
-                <span className="font-semibold text-eco-green">
-                  R$ {(parseFloat(item.discountPrice) * item.quantity).toFixed(2).replace('.', ',')}
-                </span>
-              </div>
-            ))}
-            
-            <div className="border-t border-eco-gray-light pt-3 mt-3">
-              <div className="flex justify-between">
-                <span className="text-lg font-semibold text-eco-gray-dark">Total</span>
-                <span className="text-lg font-bold text-eco-green">
-                  R$ {getTotalAmount().toFixed(2).replace('.', ',')}
-                </span>
-              </div>
-            </div>
+        {/* Loading Content */}
+        <div className="max-w-md mx-auto p-4">
+          <div className="h-screen flex items-center justify-center">
+            <div className="animate-spin w-8 h-8 border-4 border-eco-green border-t-transparent rounded-full" aria-label="Loading"/>
           </div>
-
-          <button
-            onClick={() => createPaymentIntent(getTotalAmount())}
-            disabled={isCreatingPayment}
-            className="w-full bg-eco-green hover:bg-eco-green-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-xl transition-colors"
-          >
-            {isCreatingPayment ? 'Processando...' : 'Iniciar Pagamento'}
-          </button>
         </div>
       </div>
     );
