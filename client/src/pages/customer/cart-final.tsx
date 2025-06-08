@@ -95,7 +95,7 @@ export default function CartFinal() {
               <ArrowLeft className="h-6 w-6 text-eco-gray-dark hover:text-eco-blue transition-colors" />
             </a>
             <div>
-              <h1 className="text-lg font-bold text-eco-gray-dark">Revisar Pedido</h1>
+              <h1 className="text-lg font-bold text-eco-gray-dark">Carrinho</h1>
               <p className="text-sm text-eco-gray">{getTotalItems()} {getTotalItems() === 1 ? 'item' : 'itens'}</p>
             </div>
           </div>
