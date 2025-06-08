@@ -87,6 +87,9 @@ function StaffRegister() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      cnpj: '',
+    },
   });
 
   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
