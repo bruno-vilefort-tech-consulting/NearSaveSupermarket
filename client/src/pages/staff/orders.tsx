@@ -11,6 +11,7 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { OrderCard } from "@/components/order/order-card";
 
 interface OrderItem {
   id: number;
@@ -303,188 +304,14 @@ function StaffOrders() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Pedido</TableHead>
-                      <TableHead>Cliente</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Método</TableHead>
-                      <TableHead>Total</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredOrders.map((order) => (
-                      <TableRow key={order.id} className="hover:bg-gray-50">
-                        <TableCell className="font-medium">#{order.id}</TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{order.customerName}</div>
-                            {order.customerEmail && (
-                              <div className="text-sm text-gray-500">{order.customerEmail}</div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>{getStatusBadge(order.status)}</TableCell>
-                        <TableCell>{getFulfillmentMethodBadge(order.fulfillmentMethod)}</TableCell>
-                        <TableCell className="font-medium">{formatCurrency(order.totalAmount)}</TableCell>
-                        <TableCell>{formatDate(order.createdAt)}</TableCell>
-                        <TableCell>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedOrder(order)}
-                                className="flex items-center space-x-1"
-                              >
-                                <Eye size={14} />
-                                <span>Ver</span>
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-4xl">
-                              <DialogHeader>
-                                <DialogTitle>Detalhes do Pedido #{order.id}</DialogTitle>
-                              </DialogHeader>
-                              
-                              {selectedOrder && (
-                                <div className="space-y-6">
-                                  {/* Customer Info */}
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <Card>
-                                      <CardHeader>
-                                        <CardTitle className="text-lg flex items-center space-x-2">
-                                          <User className="h-5 w-5" />
-                                          <span>Informações do Cliente</span>
-                                        </CardTitle>
-                                      </CardHeader>
-                                      <CardContent className="space-y-3">
-                                        <div className="flex items-center space-x-2">
-                                          <User className="h-4 w-4 text-gray-500" />
-                                          <span className="font-medium">{selectedOrder.customerName}</span>
-                                        </div>
-                                        {selectedOrder.customerEmail && (
-                                          <div className="flex items-center space-x-2">
-                                            <Mail className="h-4 w-4 text-gray-500" />
-                                            <span className="text-sm">{selectedOrder.customerEmail}</span>
-                                          </div>
-                                        )}
-                                        {selectedOrder.customerPhone && (
-                                          <div className="flex items-center space-x-2">
-                                            <Phone className="h-4 w-4 text-gray-500" />
-                                            <span className="text-sm">{selectedOrder.customerPhone}</span>
-                                          </div>
-                                        )}
-                                        {selectedOrder.deliveryAddress && (
-                                          <div className="flex items-start space-x-2">
-                                            <MapPin className="h-4 w-4 text-gray-500 mt-1" />
-                                            <span className="text-sm">{selectedOrder.deliveryAddress}</span>
-                                          </div>
-                                        )}
-                                      </CardContent>
-                                    </Card>
-
-                                    <Card>
-                                      <CardHeader>
-                                        <CardTitle className="text-lg flex items-center space-x-2">
-                                          <Package className="h-5 w-5" />
-                                          <span>Status do Pedido</span>
-                                        </CardTitle>
-                                      </CardHeader>
-                                      <CardContent className="space-y-3">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-sm font-medium">Status:</span>
-                                          {getStatusBadge(selectedOrder.status)}
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                          <span className="text-sm font-medium">Método:</span>
-                                          {getFulfillmentMethodBadge(selectedOrder.fulfillmentMethod)}
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                          <Calendar className="h-4 w-4 text-gray-500" />
-                                          <span className="text-sm">Criado em {formatDate(selectedOrder.createdAt)}</span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                          <DollarSign className="h-4 w-4 text-gray-500" />
-                                          <span className="text-sm font-bold">{formatCurrency(selectedOrder.totalAmount)}</span>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </div>
-
-                                  {/* Order Items */}
-                                  <Card>
-                                    <CardHeader>
-                                      <CardTitle className="text-lg">Itens do Pedido</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <Table>
-                                        <TableHeader>
-                                          <TableRow>
-                                            <TableHead>Produto</TableHead>
-                                            <TableHead>Categoria</TableHead>
-                                            <TableHead>Quantidade</TableHead>
-                                            <TableHead>Preço Unitário</TableHead>
-                                            <TableHead>Total</TableHead>
-                                          </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                          {selectedOrder.orderItems.map((item) => (
-                                            <TableRow key={item.id}>
-                                              <TableCell>
-                                                <div className="flex items-center space-x-3">
-                                                  {item.product.imageUrl && (
-                                                    <img 
-                                                      src={item.product.imageUrl} 
-                                                      alt={item.product.name}
-                                                      className="h-10 w-10 rounded object-cover"
-                                                    />
-                                                  )}
-                                                  <div>
-                                                    <div className="font-medium">{item.product.name}</div>
-                                                    {item.product.description && (
-                                                      <div className="text-sm text-gray-500">{item.product.description}</div>
-                                                    )}
-                                                  </div>
-                                                </div>
-                                              </TableCell>
-                                              <TableCell>
-                                                <Badge variant="outline">{item.product.category}</Badge>
-                                              </TableCell>
-                                              <TableCell>{item.quantity}</TableCell>
-                                              <TableCell>{formatCurrency(item.priceAtTime)}</TableCell>
-                                              <TableCell className="font-medium">
-                                                {formatCurrency((parseFloat(item.priceAtTime) * item.quantity).toString())}
-                                              </TableCell>
-                                            </TableRow>
-                                          ))}
-                                        </TableBody>
-                                      </Table>
-                                    </CardContent>
-                                  </Card>
-
-                                  {selectedOrder.notes && (
-                                    <Card>
-                                      <CardHeader>
-                                        <CardTitle className="text-lg">Observações</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <p className="text-sm">{selectedOrder.notes}</p>
-                                      </CardContent>
-                                    </Card>
-                                  )}
-                                </div>
-                              )}
-                            </DialogContent>
-                          </Dialog>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div className="space-y-4">
+                {filteredOrders.map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    canEditStatus={true}
+                  />
+                ))}
               </div>
             )}
           </CardContent>
