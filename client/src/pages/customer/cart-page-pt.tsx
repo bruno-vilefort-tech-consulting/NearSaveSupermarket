@@ -126,7 +126,7 @@ export default function CartPagePt() {
               </div>
             </div>
 
-            <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">SEU CARRINHO ESTÁ VAZIO - v2024</h2>
+            <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">SEU CARRINHO ESTÁ VAZIO - PORTUGUÊS v2025</h2>
             <p className="text-eco-gray mb-6">Adicione produtos para começar suas compras sustentáveis agora</p>
             <Link href="/customer">
               <Button className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors">
