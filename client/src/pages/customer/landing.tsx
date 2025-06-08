@@ -4,6 +4,7 @@ import { ShoppingCart, Users, Leaf, Globe, ChevronDown, Recycle, Heart, Trending
 import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
+import shoppingBagsImage from "@assets/20250608_0826_Sacolas Coloridas Lúdicas_remix_01jx7mjsn4f01rf04wn53p95v1_1749382175534.png";
 
 export default function CustomerLanding() {
   const { t, setLanguage } = useLanguage();
@@ -50,7 +51,14 @@ export default function CustomerLanding() {
         </div>
       </div>
 
-
+      {/* Ilustração das Sacolas Coloridas */}
+      <div className="flex justify-center items-center my-8">
+        <img 
+          src={shoppingBagsImage} 
+          alt="Sacolas de compras coloridas" 
+          className="w-64 h-auto max-w-full object-contain drop-shadow-lg"
+        />
+      </div>
 
       {/* CTA Buttons */}
       <div className="flex flex-col gap-3 justify-center items-center w-full max-w-xs mx-auto">
