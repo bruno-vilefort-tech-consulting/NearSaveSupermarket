@@ -70,10 +70,6 @@ function ValorAReceber() {
     },
   });
 
-  const totalPending = pendingPayments.reduce((sum: number, payment: PendingPayment) => 
-    sum + parseFloat(payment.netAmount), 0
-  );
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
@@ -104,6 +100,10 @@ function ValorAReceber() {
       </div>
     );
   }
+
+  const totalPending = pendingPayments.reduce((sum: number, payment: PendingPayment) => 
+    sum + parseFloat(payment.netAmount), 0
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
