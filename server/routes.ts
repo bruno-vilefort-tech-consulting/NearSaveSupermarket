@@ -3456,8 +3456,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin protected routes would go here (for future development)
-  // Examples: /api/admin/customers, /api/admin/supermarkets, /api/admin/orders
+  // CNPJ validation route
+  app.get("/api/staff/validate-cnpj/:cnpj", async (req, res) => {
+    try {
+      const { cnpj } = req.params;
+      
+      if (!cnpj) {
+        return res.status(400).json({ message: "CNPJ é obrigatório" });
+      }
+
+      // Remove formatting from CNPJ
+      const cleanCnpj = cnpj.replace(/[^\d]/g, '');
+      
+      if (cleanCnpj.length !== 14) {
+        return res.status(400).json({ message: "CNPJ deve ter 14 dígitos" });
+      }
+
+      const existingStaff = await storage.getStaffUserByCnpj(cleanCnpj);
+      
+      if (existingStaff) {
+        return res.json({ 
+          available: false, 
+          message: `CNPJ já cadastrado. Status: ${existingStaff.approvalStatus}`,
+          status: existingStaff.approvalStatus
+        });
+      }
+
+      res.json({ 
+        available: true, 
+        message: "CNPJ disponível para cadastro" 
+      });
+    } catch (error: any) {
+      console.error("Erro ao validar CNPJ:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Admin routes for supermarket approval
+  app.get("/api/admin/pending-supermarkets", async (req, res) => {
+    try {
+      const pendingStaff = await storage.getPendingStaffUsers();
+      
+      // Remove passwords from response
+      const sanitizedStaff = pendingStaff.map(staff => {
+        const { password, ...staffWithoutPassword } = staff;
+        return staffWithoutPassword;
+      });
+      
+      res.json(sanitizedStaff);
+    } catch (error: any) {
+      console.error("Erro ao buscar supermercados pendentes:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  app.post("/api/admin/approve-supermarket/:staffId", async (req, res) => {
+    try {
+      const { staffId } = req.params;
+      const { adminId } = req.body;
+      
+      if (!staffId || !adminId) {
+        return res.status(400).json({ message: "Staff ID e Admin ID são obrigatórios" });
+      }
+
+      const approvedStaff = await storage.approveStaffUser(parseInt(staffId), parseInt(adminId));
+      
+      if (!approvedStaff) {
+        return res.status(404).json({ message: "Supermercado não encontrado" });
+      }
+
+      // Remove password from response
+      const { password, ...staffResponse } = approvedStaff;
+      
+      res.json({ 
+        message: "Supermercado aprovado com sucesso",
+        staff: staffResponse
+      });
+    } catch (error: any) {
+      console.error("Erro ao aprovar supermercado:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  app.post("/api/admin/reject-supermarket/:staffId", async (req, res) => {
+    try {
+      const { staffId } = req.params;
+      const { adminId, reason } = req.body;
+      
+      if (!staffId || !adminId || !reason) {
+        return res.status(400).json({ message: "Staff ID, Admin ID e motivo são obrigatórios" });
+      }
+
+      const rejectedStaff = await storage.rejectStaffUser(parseInt(staffId), parseInt(adminId), reason);
+      
+      if (!rejectedStaff) {
+        return res.status(404).json({ message: "Supermercado não encontrado" });
+      }
+
+      // Remove password from response
+      const { password, ...staffResponse } = rejectedStaff;
+      
+      res.json({ 
+        message: "Supermercado rejeitado",
+        staff: staffResponse
+      });
+    } catch (error: any) {
+      console.error("Erro ao rejeitar supermercado:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

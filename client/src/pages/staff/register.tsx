@@ -78,6 +78,8 @@ function StaffRegister() {
   const [registerError, setRegisterError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [cnpjValue, setCnpjValue] = useState("");
+  const [cnpjError, setCnpjError] = useState("");
+  const [isCheckingCnpj, setIsCheckingCnpj] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -92,16 +94,57 @@ function StaffRegister() {
     },
   });
 
+  const checkCnpjAvailability = async (cnpj: string) => {
+    if (cnpj.length !== 14) return;
+    
+    setIsCheckingCnpj(true);
+    setCnpjError("");
+    
+    try {
+      const response = await fetch(`/api/staff/validate-cnpj/${cnpj}`);
+      const data = await response.json();
+      
+      if (!data.available) {
+        if (data.status === 'pending') {
+          setCnpjError("Este CNPJ já está cadastrado e aguarda aprovação.");
+        } else if (data.status === 'approved') {
+          setCnpjError("Este CNPJ já está cadastrado e aprovado.");
+        } else if (data.status === 'rejected') {
+          setCnpjError("Este CNPJ foi rejeitado anteriormente. Entre em contato com o suporte.");
+        } else {
+          setCnpjError("Este CNPJ já está cadastrado.");
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao validar CNPJ:", error);
+    } finally {
+      setIsCheckingCnpj(false);
+    }
+  };
+
   const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^\d]/g, '');
     const formattedValue = formatCNPJ(value);
     setCnpjValue(formattedValue);
     setValue('cnpj', value); // Store only numbers for validation
+    
+    // Check CNPJ availability after formatting
+    if (value.length === 14) {
+      checkCnpjAvailability(value);
+    } else {
+      setCnpjError("");
+    }
   };
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setRegisterError("");
+
+      // Check if there's a CNPJ error before submitting
+      if (cnpjError) {
+        setRegisterError("Corrija os erros antes de prosseguir.");
+        return;
+      }
       
       const { confirmPassword, ...submitData } = data;
       
@@ -115,14 +158,14 @@ function StaffRegister() {
       setIsSuccess(true);
       
       toast({
-        title: "Cadastro realizado com sucesso!",
-        description: "Agora você pode fazer login com suas credenciais.",
+        title: "Cadastro realizado!",
+        description: "Seu supermercado foi cadastrado e aguarda aprovação do administrador.",
       });
 
-      // Redirect to login after 2 seconds
+      // Redirect to landing page after 3 seconds
       setTimeout(() => {
-        setLocation("/staff");
-      }, 2000);
+        setLocation("/supermercado");
+      }, 3000);
       
     } catch (error: any) {
       console.error("Register error:", error);

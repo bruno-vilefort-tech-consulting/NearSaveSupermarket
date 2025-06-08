@@ -259,12 +259,12 @@ export class DatabaseStorage implements IStorage {
 
   // Staff approval operations
   async getPendingStaffUsers(): Promise<StaffUser[]> {
-    const staffUsers = await db
+    const pendingStaff = await db
       .select()
       .from(staffUsers)
       .where(eq(staffUsers.approvalStatus, 'pending'))
       .orderBy(desc(staffUsers.createdAt));
-    return staffUsers;
+    return pendingStaff;
   }
 
   async approveStaffUser(staffId: number, adminId: number): Promise<StaffUser | undefined> {
