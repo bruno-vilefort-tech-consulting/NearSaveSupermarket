@@ -1690,6 +1690,7 @@ export class DatabaseStorage implements IStorage {
     longitude: string | null;
     productCount: number;
     hasPromotions: boolean;
+    isSponsored: boolean;
   }>> {
     try {
       const result = await db.execute(sql`
@@ -1699,18 +1700,25 @@ export class DatabaseStorage implements IStorage {
           s.address,
           s.latitude::text as latitude,
           s.longitude::text as longitude,
-          s.is_sponsored,
           COUNT(CASE WHEN p.is_active = 1 THEN p.id END) as product_count,
-          COUNT(CASE WHEN p.is_active = 1 AND p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions
+          COUNT(CASE WHEN p.is_active = 1 AND p.discount_price IS NOT NULL AND p.discount_price < p.original_price THEN 1 END) > 0 as has_promotions,
+          CASE 
+            WHEN ms.id IS NOT NULL AND ms.expires_at > NOW() THEN 1 
+            ELSE 0 
+          END as is_sponsored
         FROM staff_users s
         LEFT JOIN products p ON s.id = p.created_by_staff
+        LEFT JOIN marketing_subscriptions ms ON s.id = ms.staff_id AND ms.expires_at > NOW()
         WHERE s.company_name IS NOT NULL 
           AND s.latitude IS NOT NULL 
           AND s.longitude IS NOT NULL
           AND s.is_active = 1
           AND s.approval_status = 'approved'
-        GROUP BY s.id, s.company_name, s.address, s.latitude, s.longitude, s.is_sponsored
-        ORDER BY s.is_sponsored DESC, s.company_name ASC
+        GROUP BY s.id, s.company_name, s.address, s.latitude, s.longitude, ms.id, ms.expires_at
+        HAVING COUNT(CASE WHEN p.is_active = 1 THEN p.id END) > 0
+        ORDER BY 
+          CASE WHEN ms.id IS NOT NULL AND ms.expires_at > NOW() THEN 0 ELSE 1 END,
+          s.company_name ASC
       `);
 
       return result.rows.map((row: any) => ({
