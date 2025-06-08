@@ -10,6 +10,10 @@ interface CartItem {
   imageUrl?: string;
   expirationDate: string;
   supermarketName?: string;
+  createdBy?: {
+    supermarketName?: string;
+    supermarketAddress?: string;
+  };
 }
 
 interface CustomerInfo {
@@ -22,9 +26,9 @@ export default function CartFinal() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
-    fullName: 'Antonio Alves',
-    email: 'antonio.alves@gmail.com',
-    phone: '(34) 99999-9999'
+    fullName: '',
+    email: '',
+    phone: ''
   });
   const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'delivery'>('pickup');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -42,6 +46,23 @@ export default function CartFinal() {
         setCartItems([]);
       }
     }
+
+    // Carregar dados do cliente do localStorage
+    const savedCustomerInfo = localStorage.getItem('customerInfo');
+    if (savedCustomerInfo) {
+      try {
+        const customerData = JSON.parse(savedCustomerInfo);
+        console.log('🛒 Dados do cliente carregados:', customerData);
+        setCustomerInfo({
+          fullName: customerData.fullName || customerData.name || '',
+          email: customerData.email || '',
+          phone: customerData.phone || ''
+        });
+      } catch (error) {
+        console.error('🛒 Erro ao carregar dados do cliente:', error);
+      }
+    }
+    
     setLoading(false);
   }, []);
 
