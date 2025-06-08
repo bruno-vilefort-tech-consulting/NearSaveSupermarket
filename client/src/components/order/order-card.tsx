@@ -303,10 +303,11 @@ export function OrderCard({ order, canEditStatus = false }: OrderCardProps) {
   };
 
   const canConfirmOrder = () => {
-    // Pedido pode ser confirmado se estiver com status "pending" ou "awaiting_payment" 
-    // e tiver pagamento aprovado (PIX ou Stripe)
-    return (order.status === "pending" || order.status === "awaiting_payment") && 
-           (order.externalReference || order.pixPaymentId);
+    // Pedido pode ser confirmado se estiver com status "pending" 
+    // Para pedidos sem pagamento online, também permitir confirmação
+    return order.status === "pending" || 
+           (order.status === "confirmed" && 
+            order.orderItems.some(item => !item.confirmationStatus || item.confirmationStatus === 'pending'));
   };
 
   const handleConfirmOrder = () => {
