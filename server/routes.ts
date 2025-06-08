@@ -3803,6 +3803,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Marketing activation endpoint
+  app.post("/api/staff/marketing/activate", async (req, res) => {
+    try {
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Staff ID required" 
+        });
+      }
+
+      const { planId } = req.body;
+      if (!planId) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Plan ID is required" 
+        });
+      }
+
+      // Validate plan exists
+      const validPlans = ['basic', 'premium', 'enterprise'];
+      if (!validPlans.includes(planId)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid plan selected" 
+        });
+      }
+
+      // Get staff user to verify they exist
+      const staffUser = await storage.getStaffUserById(parseInt(staffId));
+      if (!staffUser) {
+        return res.status(404).json({ 
+          success: false, 
+          message: "Staff user not found" 
+        });
+      }
+
+      // For now, we'll just log the activation (in a real system, this would handle billing)
+      console.log(`🎯 [MARKETING] Staff ${staffId} (${staffUser.companyName}) activated plan: ${planId}`);
+
+      // In a real implementation, you would:
+      // 1. Check current account balance/receivables
+      // 2. Deduct the plan cost or create an invoice
+      // 3. Update the staff user's marketing plan status
+      // 4. Set plan expiration date
+      // 5. Enable marketing features
+
+      res.json({ 
+        success: true, 
+        message: `Plano ${planId} ativado com sucesso`,
+        planId,
+        activatedAt: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("Error activating marketing plan:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to activate plan" 
+      });
+    }
+  });
+
   // Admin authentication routes
   app.post("/api/admin/login", async (req, res) => {
     try {
