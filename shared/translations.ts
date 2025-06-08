@@ -805,7 +805,7 @@ export const translations: Record<Language, TranslationKeys> = {
 
     // Landing Page
     'landing.title': 'SaveUp',
-    'landing.subtitle': 'Conectando supermercados e consumidores para reduzir o desperdício de alimentos',
+    'landing.subtitle': 'Plataforma sustentável para compras inteligentes',
     'landing.customerButton': 'Cliente - Consumidor',
     'landing.staffButton': 'Staff do Supermercado',
     'landing.footer': 'Menos desperdício, mais valor. Uma iniciativa sustentável da UP Brasil',
@@ -1261,7 +1261,7 @@ export const translations: Record<Language, TranslationKeys> = {
 
     // Landing Page
     'landing.title': 'SaveUp',
-    'landing.subtitle': 'Connecting supermarkets and consumers to reduce food waste',
+    'landing.subtitle': 'Sustainable platform for smart shopping',
     'landing.customerButton': 'Customer - Consumer',
     'landing.staffButton': 'Supermarket Staff',
     'landing.footer': 'Less waste, more value. A sustainable initiative by UP Brasil',

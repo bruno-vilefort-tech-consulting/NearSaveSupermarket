@@ -105,17 +105,13 @@ export default function CustomerLanding() {
         </svg>
       </div>
 
-      {/* Subtítulo e CTA */}
+      {/* CTA Buttons */}
       <div className="space-y-6">
-        <p className="text-xl text-eco-gray max-w-2xl mx-auto leading-relaxed">
-          {t('landing.subtitle')}
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col gap-4 justify-center items-center w-full max-w-md mx-auto">
           <Button
             onClick={handleLogin}
             size="lg"
-            className="bg-eco-green hover:bg-eco-green-dark text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            className="w-full bg-eco-green hover:bg-eco-green-dark text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
             {t('auth.login')}
           </Button>
@@ -123,7 +119,7 @@ export default function CustomerLanding() {
             onClick={handleRegister}
             variant="outline"
             size="lg"
-            className="border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
             {t('customer.register')}
           </Button>
@@ -208,103 +204,57 @@ export default function CustomerLanding() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-eco-gray-light to-white">
+    <div className="h-screen bg-gradient-to-b from-eco-gray-light to-white flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-eco-green rounded-full flex items-center justify-center">
-              <Leaf className="text-white" size={20} />
-            </div>
-            <span className="text-eco-gray-dark font-semibold">{t('landing.title')}</span>
+      <div className="flex justify-between items-center p-4">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-eco-green rounded-full flex items-center justify-center">
+            <Leaf className="text-white" size={20} />
           </div>
+          <span className="text-eco-gray-dark font-semibold">{t('landing.title')}</span>
+        </div>
+        
+        {/* Language Selector */}
+        <div className="relative" ref={languageMenuRef}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+            className="flex items-center space-x-2 text-eco-gray hover:text-eco-gray-dark"
+          >
+            <Globe size={16} />
+            <span className="text-sm">{t('common.language')}</span>
+            <ChevronDown size={14} />
+          </Button>
           
-          {/* Language Selector */}
-          <div className="relative" ref={languageMenuRef}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-              className="flex items-center space-x-2 text-eco-gray hover:text-eco-gray-dark"
-            >
-              <Globe size={16} />
-              <span className="text-sm">{t('common.language')}</span>
-              <ChevronDown size={14} />
-            </Button>
-            
-            {isLanguageMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-eco-gray-light z-50">
-                <button
-                  onClick={() => {
-                    setLanguage('pt');
-                    setIsLanguageMenuOpen(false);
-                  }}
-                  className="w-full px-4 py-2 text-left hover:bg-eco-gray-light rounded-t-lg transition-colors"
-                >
-                  🇧🇷 Português
-                </button>
-                <button
-                  onClick={() => {
-                    setLanguage('en');
-                    setIsLanguageMenuOpen(false);
-                  }}
-                  className="w-full px-4 py-2 text-left hover:bg-eco-gray-light rounded-b-lg transition-colors"
-                >
-                  🇺🇸 English
-                </button>
-              </div>
-            )}
-          </div>
+          {isLanguageMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-eco-gray-light z-50">
+              <button
+                onClick={() => {
+                  setLanguage('pt-BR');
+                  setIsLanguageMenuOpen(false);
+                }}
+                className="w-full px-4 py-2 text-left hover:bg-eco-gray-light rounded-t-lg transition-colors"
+              >
+                🇧🇷 Português
+              </button>
+              <button
+                onClick={() => {
+                  setLanguage('en-US');
+                  setIsLanguageMenuOpen(false);
+                }}
+                className="w-full px-4 py-2 text-left hover:bg-eco-gray-light rounded-b-lg transition-colors"
+              >
+                🇺🇸 English
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 space-y-20">
-        {/* Hero Section */}
+      <div className="flex-1 flex flex-col justify-center items-center px-4">
         <ModernHeroSection />
-        
-        {/* Features Section */}
-        <div className="space-y-12">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-eco-gray-dark mb-4">
-              {t('landing.featuresTitle')}
-            </h2>
-            <p className="text-eco-gray text-lg max-w-2xl mx-auto">
-              {t('landing.featuresSubtitle')}
-            </p>
-          </div>
-          <FeatureCards />
-        </div>
-        
-        {/* Stats Section */}
-        <StatsSection />
-        
-        {/* Call to Action */}
-        <div className="text-center space-y-6 py-16">
-          <h2 className="text-3xl font-bold text-eco-gray-dark">
-            {t('landing.ctaTitle')}
-          </h2>
-          <p className="text-eco-gray text-lg max-w-2xl mx-auto">
-            {t('landing.ctaSubtitle')}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
-              onClick={handleRegister}
-              size="lg"
-              className="bg-eco-green hover:bg-eco-green-dark text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-            >
-              {t('customer.register')}
-            </Button>
-            <Button
-              onClick={handleLogin}
-              variant="outline"
-              size="lg"
-              className="border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-            >
-              {t('auth.login')}
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );
