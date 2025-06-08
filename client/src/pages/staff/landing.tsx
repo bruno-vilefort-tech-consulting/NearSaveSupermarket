@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
+import shoppingBagsImage from "@assets/20250608_0832_Fundo Transparente_remix_01jx7mygx5e83sfwrt5bjztmnn_1749384214861.png";
 
 function StaffLanding() {
   const [, setLocation] = useLocation();
@@ -15,6 +16,15 @@ function StaffLanding() {
           <p className="text-2xl font-bold text-gray-800">
             Supermercados
           </p>
+        </div>
+
+        {/* Shopping Bags Image */}
+        <div className="flex justify-center py-4">
+          <img 
+            src={shoppingBagsImage} 
+            alt="Sacolas coloridas de compras" 
+            className="w-32 h-32 object-contain"
+          />
         </div>
 
         {/* Action Buttons */}
