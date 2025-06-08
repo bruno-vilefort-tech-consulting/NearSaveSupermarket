@@ -35,6 +35,7 @@ import StaffLogin from "@/pages/staff/login";
 import StaffRegister from "@/pages/staff/register";
 import StaffDashboard from "@/pages/staff/dashboard";
 import StaffProducts from "@/pages/staff/products";
+import StaffOrders from "@/pages/staff/orders";
 
 // Admin App Pages
 import AdminLogin from "@/pages/admin/login";
@@ -79,6 +80,7 @@ function Router() {
       <Route path="/staff/register" component={StaffRegister} />
       <Route path="/staff/dashboard" component={StaffDashboard} />
       <Route path="/staff/products" component={StaffProducts} />
+      <Route path="/staff/orders" component={StaffOrders} />
       
       {/* Staff App Routes (Brazilian Portuguese URLs) */}
       <Route path="/supermercado" component={StaffLanding} />
@@ -87,6 +89,8 @@ function Router() {
       <Route path="/supermercado/dashboard" component={StaffDashboard} />
       <Route path="/supermercado/products" component={StaffProducts} />
       <Route path="/supermercado/produtos" component={StaffProducts} />
+      <Route path="/supermercado/orders" component={StaffOrders} />
+      <Route path="/supermercado/pedidos" component={StaffOrders} />
       
       {/* Admin App Routes */}
       <Route path="/admin" component={AdminLogin} />
