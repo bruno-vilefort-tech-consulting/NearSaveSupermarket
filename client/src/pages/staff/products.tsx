@@ -230,6 +230,25 @@ function StaffProducts() {
   });
 
   const handleCreateProduct = () => {
+    // Validar campos obrigatórios
+    if (!productData.name.trim()) {
+      toast({
+        title: "Erro de validação",
+        description: "Nome do produto é obrigatório",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!productData.expirationDate.trim()) {
+      toast({
+        title: "Erro de validação", 
+        description: "Data de validade é obrigatória",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const data = {
       ...productData,
       originalPrice: parseFloat(productData.originalPrice),

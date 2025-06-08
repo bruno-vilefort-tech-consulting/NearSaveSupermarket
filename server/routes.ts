@@ -272,11 +272,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Staff ID required" });
       }
 
+      // Validar e formatar a data de expiração
+      if (!req.body.expirationDate || req.body.expirationDate.trim() === '') {
+        return res.status(400).json({ message: "Data de validade é obrigatória" });
+      }
+
       const productData = insertProductSchema.parse({
         ...req.body,
         originalPrice: req.body.originalPrice.toString(),
         discountPrice: req.body.discountPrice.toString(),
         quantity: parseInt(req.body.quantity),
+        expirationDate: req.body.expirationDate, // Garantir que a data não seja vazia
         isActive: 1, // Set as active by default for new products
       });
 
