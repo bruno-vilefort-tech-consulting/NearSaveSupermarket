@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Calendar, CreditCard, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, BarChart3, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -116,7 +116,7 @@ function ValorAReceber() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div className="bg-eco-green/10 p-2 rounded-full">
-                <CreditCard className="h-6 w-6 text-eco-green" />
+                <BarChart3 className="h-6 w-6 text-eco-green" />
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
@@ -136,7 +136,7 @@ function ValorAReceber() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <CreditCard className="h-5 w-5" />
+              <BarChart3 className="h-5 w-5" />
               <span>Resumo dos Pagamentos da SaveUp</span>
             </CardTitle>
           </CardHeader>
@@ -175,7 +175,7 @@ function ValorAReceber() {
           <CardContent>
             {pendingPayments.length === 0 ? (
               <div className="text-center py-12">
-                <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum pagamento pendente</h3>
                 <p className="text-gray-500">
                   Todos os seus pedidos foram pagos pela SaveUp.
