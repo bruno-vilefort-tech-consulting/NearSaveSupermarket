@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, type StaffUser, staffUsers } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
@@ -3244,7 +3244,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Staff sponsorship management
-  app.patch("/api/staff/sponsorship", async (req, res) => {
+  app.patch("/api/staff/sponsorship/update", async (req, res) => {
     try {
       const staffId = req.headers['x-staff-id'] || req.headers['staff-id'];
       
@@ -3256,11 +3256,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (typeof isSponsored !== "boolean") {
         return res.status(400).json({ message: "Status de patrocínio deve ser verdadeiro ou falso" });
-      }
-
-      const staff = await db.select().from(staffUsers).where(eq(staffUsers.id, Number(staffId))).limit(1);
-      if (!staff.length) {
-        return res.status(404).json({ message: "Staff não encontrado" });
       }
 
       await storage.updateStaffSponsorshipStatus(Number(staffId), isSponsored);

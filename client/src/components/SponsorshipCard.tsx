@@ -19,7 +19,7 @@ export function SponsorshipCard({ isSponsored = false, companyName = "Seu Superm
 
   const sponsorshipMutation = useMutation({
     mutationFn: async (newStatus: boolean) => {
-      const response = await apiRequest("PATCH", "/api/staff/sponsorship", {
+      const response = await apiRequest("PATCH", "/api/staff/sponsorship/update", {
         isSponsored: newStatus
       });
       return response.json();

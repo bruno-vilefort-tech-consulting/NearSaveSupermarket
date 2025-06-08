@@ -20,7 +20,7 @@ export default function Dashboard() {
   });
 
   const { data: sponsorshipData, isLoading: sponsorshipLoading } = useQuery({
-    queryKey: ["/api/staff/sponsorship"],
+    queryKey: ["/api/staff/sponsorship/status"],
     enabled: isStaffAuthenticated,
   });
 
