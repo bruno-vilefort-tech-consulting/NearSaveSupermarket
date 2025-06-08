@@ -1233,15 +1233,25 @@ export class DatabaseStorage implements IStorage {
     console.log(`✅ AUTHORIZED: Staff ${changedBy} updating order ${id} from ${currentOrder.status} to ${status}`);
     
     try {
+      // Preparar atualizações do pedido
+      const updateData: any = { 
+        status, 
+        lastManualStatus: status,
+        lastManualUpdate: new Date(),
+        updatedAt: new Date() 
+      };
+
+      // Se o pedido está sendo completado, definir status de pagamento ao supermercado
+      if (status === 'completed') {
+        updateData.supermarketPaymentStatus = 'aguardando_pagamento';
+        updateData.supermarketPaymentAmount = currentOrder.totalAmount;
+        console.log(`💰 PAGAMENTO SUPERMERCADO: Pedido ${id} completado - definindo status pagamento para 'aguardando_pagamento'`);
+      }
+
       // Fazer a atualização e salvar como último status manual
       const [order] = await db
         .update(orders)
-        .set({ 
-          status, 
-          lastManualStatus: status,
-          lastManualUpdate: new Date(),
-          updatedAt: new Date() 
-        })
+        .set(updateData)
         .where(eq(orders.id, id))
         .returning();
       

@@ -141,6 +141,11 @@ export const orders = pgTable("orders", {
   refundStatus: varchar("refund_status", { length: 50 }),
   refundDate: timestamp("refund_date"),
   refundReason: text("refund_reason"),
+  // Payment to supermarket status fields
+  supermarketPaymentStatus: varchar("supermarket_payment_status", { length: 50 }).default("pending"), // pending, awaiting_payment, advance_payment, payment_completed
+  supermarketPaymentAmount: numeric("supermarket_payment_amount", { precision: 10, scale: 2 }),
+  supermarketPaymentDate: timestamp("supermarket_payment_date"),
+  supermarketPaymentNotes: text("supermarket_payment_notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
