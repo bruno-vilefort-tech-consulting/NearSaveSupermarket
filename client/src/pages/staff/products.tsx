@@ -843,6 +843,18 @@ function StaffProducts() {
                     setIsCreating(false);
                     setIsEditing(false);
                     setSelectedProduct(null);
+                    setSelectedFile(null);
+                    setImagePreview(null);
+                    setProductData({
+                      name: "",
+                      description: "",
+                      category: "",
+                      originalPrice: "",
+                      discountPrice: "",
+                      quantity: "",
+                      expirationDate: "",
+                      imageUrl: ""
+                    });
                   }}
                 >
                   Cancelar
