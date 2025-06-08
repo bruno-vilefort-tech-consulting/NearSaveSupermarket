@@ -86,6 +86,7 @@ function Router() {
       <Route path="/supermercado" component={StaffLanding} />
       <Route path="/supermercado/register" component={StaffRegister} />
       <Route path="/supermercado/login" component={StaffLogin} />
+      <Route path="/supermercado/dashboard" component={StaffDashboard} />
       <Route path="/administrador" component={AdminLogin} />
       
       {/* Terms and Conditions - Public access */}
