@@ -221,14 +221,14 @@ function StaffDashboard() {
               <BarChart3 className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-blue-500">
                 {staffUser.approvalStatus === 'approved' 
                   ? `R$ ${(stats?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
                   : 'R$ 0,00'
                 }
               </div>
               <p className="text-xs text-muted-foreground">
-                {staffUser.approvalStatus === 'approved' ? 'Total do mês' : 'Requer aprovação'}
+                {staffUser.approvalStatus === 'approved' ? 'Total' : 'Requer aprovação'}
               </p>
             </CardContent>
           </Card>
