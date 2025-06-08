@@ -132,7 +132,9 @@ export default function MarketingConfirmation() {
           'X-Staff-Id': staffData?.id?.toString() || '',
         },
         body: JSON.stringify({
-          planId: selectedPlan.id
+          planId: selectedPlan.id,
+          planName: selectedPlan.name,
+          price: selectedPlan.price
         })
       });
 
