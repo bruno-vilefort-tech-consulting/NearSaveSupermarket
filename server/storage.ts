@@ -1392,9 +1392,11 @@ export class DatabaseStorage implements IStorage {
 
     const commercialRate = Number(staffInfo?.commercialRate || 5.00); // Default 5% if not found
 
-    const [revenueResult] = await db
+    // Get unique completed orders that contain this staff's products
+    const completedOrdersQuery = await db
       .select({ 
-        total: sql<number>`COALESCE(SUM(CAST(${orders.totalAmount} AS DECIMAL)), 0)` 
+        orderId: orders.id,
+        totalAmount: orders.totalAmount
       })
       .from(orders)
       .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
@@ -1404,9 +1406,13 @@ export class DatabaseStorage implements IStorage {
           eq(products.createdByStaff, staffId),
           eq(orders.status, "completed")
         )
-      );
+      )
+      .groupBy(orders.id, orders.totalAmount);
 
-    const grossRevenue = Number(revenueResult.total || 0);
+    // Calculate total revenue from unique orders
+    const grossRevenue = completedOrdersQuery.reduce((sum, order) => {
+      return sum + Number(order.totalAmount);
+    }, 0);
     const commission = grossRevenue * (commercialRate / 100);
     const netRevenue = grossRevenue - commission;
 

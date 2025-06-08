@@ -40,9 +40,12 @@ function StaffDashboard() {
       if (!response.ok) {
         throw new Error("Failed to fetch stats");
       }
-      return response.json();
+      const data = await response.json();
+      console.log("📊 Stats recebidas:", data);
+      return data;
     },
     enabled: !!staffUser?.id && staffUser.approvalStatus === 'approved',
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   useEffect(() => {
