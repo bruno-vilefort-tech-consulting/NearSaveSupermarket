@@ -207,9 +207,6 @@ function StaffMarketing() {
                   <div>
                     <strong>Plano Ativo:</strong> {subscriptionData.subscription?.planName} - 
                     <span className="ml-1">R$ {subscriptionData.subscription?.price}</span>
-                    <div className="text-sm mt-1">
-                      Expira em: {subscriptionData.subscription?.expiresAt ? new Date(subscriptionData.subscription.expiresAt).toLocaleDateString('pt-BR') : 'N/A'}
-                    </div>
                   </div>
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
                     Ativo
