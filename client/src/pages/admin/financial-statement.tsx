@@ -49,7 +49,12 @@ function AdminFinancialStatement() {
   const { data: financialData = [], isLoading } = useQuery<FinancialItem[]>({
     queryKey: ["/api/admin/financial-statement"],
     retry: false,
+    staleTime: 0, // Force fresh data
+    cacheTime: 0, // Don't cache
   });
+
+  // Debug log
+  console.log('📊 Admin Financial Data:', financialData);
 
   const filteredData = financialData.filter(item =>
     item.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
