@@ -30,6 +30,18 @@ export default function CartPagePt() {
   const [customerInfo, setCustomerInfo] = useState<any>(null);
 
   useEffect(() => {
+    // Force clear any translation cache
+    localStorage.removeItem('language-cache');
+    localStorage.removeItem('translation-cache');
+    sessionStorage.removeItem('cart-cache');
+    
+    // Force reload if still showing cached content
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.get('v')) {
+      window.location.search = '?v=' + Date.now();
+      return;
+    }
+    
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       setCartItems(JSON.parse(savedCart));
@@ -39,6 +51,9 @@ export default function CartPagePt() {
     if (savedCustomer) {
       setCustomerInfo(JSON.parse(savedCustomer));
     }
+    
+    // Debug log to verify component is loading
+    console.log('🛒 CartPagePt v2024 loaded successfully');
   }, []);
 
   const updateQuantity = (id: number, newQuantity: number) => {
@@ -111,8 +126,8 @@ export default function CartPagePt() {
               </div>
             </div>
 
-            <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">SEU CARRINHO ESTÁ VAZIO</h2>
-            <p className="text-eco-gray mb-6">Adicione produtos para começar suas compras sustentáveis</p>
+            <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">SEU CARRINHO ESTÁ VAZIO - v2024</h2>
+            <p className="text-eco-gray mb-6">Adicione produtos para começar suas compras sustentáveis agora</p>
             <Link href="/customer">
               <Button className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors">
                 CONTINUAR COMPRANDO
