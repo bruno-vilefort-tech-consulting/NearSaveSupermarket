@@ -74,20 +74,46 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         console.log('Pagamento Stripe bem-sucedido');
         
-        // CORRIGIDO: Pedido já foi criado antes do PaymentIntent
-        // Apenas confirmar o pagamento no backend
+        // Criar o pedido após pagamento bem-sucedido
         try {
-          console.log('🎯 Confirmando pagamento Stripe bem-sucedido');
-          const orderId = localStorage.getItem('currentOrderId');
+          console.log('🎯 Criando pedido após pagamento bem-sucedido');
+          const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+          const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
           
-          if (orderId) {
+          const orderData = {
+            customerName: customerInfo.fullName || '',
+            customerEmail: customerInfo.email || '',
+            customerPhone: customerInfo.phone || '',
+            fulfillmentMethod: 'pickup',
+            items: cartItems.map((item: any) => ({
+              productId: item.id,
+              quantity: item.quantity,
+              priceAtTime: item.discountPrice
+            })),
+            paymentIntentId: paymentIntent.id,
+            totalAmount: totalAmount.toString()
+          };
+
+          const createOrderResponse = await fetch('/api/customer/orders', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+          });
+
+          if (createOrderResponse.ok) {
+            const newOrder = await createOrderResponse.json();
+            console.log('✅ Pedido criado com sucesso:', newOrder.id);
+            
+            // Confirmar o pagamento no backend
             const confirmResponse = await fetch('/api/payments/stripe/confirm', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                orderId: parseInt(orderId),
+                orderId: newOrder.id,
                 paymentIntentId: paymentIntent.id,
                 amount: totalAmount
               })
@@ -98,14 +124,15 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
               // Limpar dados temporários
               localStorage.removeItem('cart');
               localStorage.removeItem('currentOrderId');
+              localStorage.setItem('lastOrderId', newOrder.id.toString());
             } else {
               console.error('⚠️ Erro ao confirmar pagamento no backend');
             }
           } else {
-            console.error('❌ Order ID não encontrado no localStorage');
+            console.error('❌ Erro ao criar pedido');
           }
         } catch (error) {
-          console.error('❌ Erro ao confirmar pagamento:', error);
+          console.error('❌ Erro ao processar pedido:', error);
         }
         
         window.location.href = '/payment-success';
