@@ -22,39 +22,49 @@ interface CartItem {
   };
 }
 
+function ForcePortugueseCart() {
+  // Force Portuguese rendering with no translation dependencies
+  return (
+    <div className="min-h-screen bg-eco-gray-light">
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <Link href="/customer">
+              <ArrowLeft className="h-6 w-6 text-eco-gray" />
+            </Link>
+            <div className="ml-4">
+              <h1 className="text-lg font-bold text-eco-gray-dark">CARRINHO DE COMPRAS - FORÇA PORTUGUÊS</h1>
+              <p className="text-sm text-eco-gray">0 itens</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto p-4 pt-8">
+        <div className="text-center">
+          <div className="mb-4">
+            <div className="w-16 h-16 bg-eco-orange-light rounded-full mx-auto flex items-center justify-center">
+              <span className="text-2xl">🛒</span>
+            </div>
+          </div>
+
+          <h2 className="text-xl font-semibold mb-2 text-eco-gray-dark">SEU CARRINHO ESTÁ VAZIO - FORÇADO PORTUGUÊS</h2>
+          <p className="text-eco-gray mb-6">Adicione produtos para começar suas compras sustentáveis</p>
+          <Link href="/customer">
+            <Button className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 rounded-xl transition-colors">
+              CONTINUAR COMPRANDO
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CartPagePt() {
-  const [, setLocation] = useLocation();
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [deliveryType, setDeliveryType] = useState("pickup");
-  const [deliveryAddress, setDeliveryAddress] = useState("");
-  const [customerInfo, setCustomerInfo] = useState<any>(null);
-
-  useEffect(() => {
-    // Force clear any translation cache
-    localStorage.removeItem('language-cache');
-    localStorage.removeItem('translation-cache');
-    sessionStorage.removeItem('cart-cache');
-    
-    // Force document language to Portuguese
-    document.documentElement.lang = 'pt-BR';
-    document.title = 'Carrinho - SaveUp';
-    
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
-    }
-
-    const savedCustomer = localStorage.getItem('customerInfo');
-    if (savedCustomer) {
-      setCustomerInfo(JSON.parse(savedCustomer));
-    }
-    
-    // Debug log to verify component is loading
-    console.log('🛒 CartPagePt PORTUGUESE v2024 loaded successfully');
-    console.log('🔍 Current URL:', window.location.href);
-    console.log('🔍 Component name: CartPagePt');
-    console.log('🔍 Document title:', document.title);
-  }, []);
+  // Force Portuguese rendering - no dependencies
+  console.log('🛒 FORÇANDO CARRINHO EM PORTUGUÊS - v2025');
+  return <ForcePortugueseCart />;
 
   const updateQuantity = (id: number, newQuantity: number) => {
     if (newQuantity <= 0) {
