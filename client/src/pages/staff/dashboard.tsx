@@ -235,7 +235,7 @@ function StaffDashboard() {
             <CardContent>
               <div className="text-2xl font-bold text-blue-500">
                 {staffUser.approvalStatus === 'approved' 
-                  ? `R$ ${(stats?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                  ? `R$ ${(stats?.totalRevenue || 0).toFixed(2).replace('.', ',')}`
                   : 'R$ 0,00'
                 }
               </div>
