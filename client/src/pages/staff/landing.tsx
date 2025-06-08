@@ -23,7 +23,7 @@ function StaffLanding() {
           <img 
             src={shoppingBagsImage} 
             alt="Sacolas coloridas de compras" 
-            className="w-32 h-32 object-contain"
+            className="w-48 h-48 object-contain"
           />
         </div>
 
