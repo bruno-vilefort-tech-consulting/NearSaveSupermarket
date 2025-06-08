@@ -29,17 +29,14 @@ interface SponsorshipPlan {
   popularity: string;
 }
 
-interface MarketingSubscription {
-  id: number;
-  staffId: number;
-  planId: string;
-  planName: string;
-  price: string;
-  status: string;
-  activatedAt: string;
-  expiresAt: string;
-  createdAt: string;
-  updatedAt: string;
+interface SubscriptionResponse {
+  hasActiveSubscription: boolean;
+  subscription?: {
+    id: number;
+    planName: string;
+    price: string;
+    expiresAt: string;
+  };
 }
 
 function StaffMarketing() {
@@ -47,7 +44,7 @@ function StaffMarketing() {
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
 
   // Check for existing marketing subscription
-  const { data: subscriptionData, isLoading: subscriptionLoading } = useQuery({
+  const { data: subscriptionData, isLoading: subscriptionLoading } = useQuery<SubscriptionResponse>({
     queryKey: ['/api/staff/marketing-subscription'],
     enabled: !!staffUser?.id,
   });
@@ -68,7 +65,6 @@ function StaffMarketing() {
     }
   }, [setLocation]);
 
-  // Mock sponsorship plans - in a real app, this would come from the API
   const sponsorshipPlans: SponsorshipPlan[] = [
     {
       id: 'basic',
@@ -209,10 +205,10 @@ function StaffMarketing() {
               <AlertDescription className="text-green-800">
                 <div className="flex items-center justify-between">
                   <div>
-                    <strong>Plano Ativo:</strong> {subscriptionData.subscription.planName} - 
-                    <span className="ml-1">R$ {subscriptionData.subscription.price}</span>
+                    <strong>Plano Ativo:</strong> {subscriptionData.subscription?.planName} - 
+                    <span className="ml-1">R$ {subscriptionData.subscription?.price}</span>
                     <div className="text-sm mt-1">
-                      Expira em: {new Date(subscriptionData.subscription.expiresAt).toLocaleDateString('pt-BR')}
+                      Expira em: {subscriptionData.subscription?.expiresAt ? new Date(subscriptionData.subscription.expiresAt).toLocaleDateString('pt-BR') : 'N/A'}
                     </div>
                   </div>
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
