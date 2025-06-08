@@ -61,19 +61,19 @@ export default function CustomerLanding() {
       </div>
 
       {/* CTA Buttons */}
-      <div className="flex flex-col gap-3 justify-center items-center w-full max-w-xs mx-auto px-4">
+      <div className="flex flex-col gap-4 justify-center items-center w-full max-w-xs mx-auto px-4">
         <Button
           onClick={handleLogin}
-          size="default"
-          className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white px-6 py-3.5 text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
+          size="lg"
+          className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
         >
           {t('auth.login')}
         </Button>
         <Button
           onClick={handleRegister}
           variant="outline"
-          size="default"
-          className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-6 py-3.5 text-base font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
+          size="lg"
+          className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white py-4 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
         >
           {t('customer.register')}
         </Button>
