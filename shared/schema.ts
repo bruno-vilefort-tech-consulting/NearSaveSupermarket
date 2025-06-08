@@ -305,8 +305,8 @@ export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 export type AdminUser = typeof adminUsers.$inferSelect;
 
 // Extended types for API responses
-export type ProductWithCreator = Omit<Product, 'createdBy'> & {
-  createdBy: User;
+export type ProductWithCreator = Product & {
+  createdBy?: User | StaffUser | null;
 };
 
 export type OrderWithItems = Order & {

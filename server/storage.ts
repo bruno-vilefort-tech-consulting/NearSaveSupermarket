@@ -415,7 +415,8 @@ export class DatabaseStorage implements IStorage {
       expirationDate: result.expirationDate,
       imageUrl: result.imageUrl,
       isActive: result.isActive,
-      createdBy: result.createdByUser,
+      createdBy: result.products.createdBy,
+      createdByStaff: result.products.createdByStaff,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
     }));
