@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ShoppingCart, Users, Leaf, Globe, ChevronDown, Recycle, Heart, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect, useRef } from "react";
+import VersionDisplay from "@/components/VersionDisplay";
 
 export default function Landing() {
   const { t, setLanguage } = useLanguage();
@@ -196,6 +197,9 @@ export default function Landing() {
           <span>Menos desperdício, mais sustentabilidade</span>
         </div>
       </div>
+      
+      {/* Version Display */}
+      <VersionDisplay />
     </div>
   );
 }
