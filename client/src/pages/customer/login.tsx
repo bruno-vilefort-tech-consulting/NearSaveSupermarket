@@ -49,7 +49,7 @@ export default function CustomerLogin() {
     onSuccess: (data) => {
       localStorage.setItem('customerInfo', JSON.stringify(data));
       setErrorMessage(""); // Limpar qualquer erro
-      navigate("/");
+      navigate("/home");
     },
     onError: (error: any) => {
       let errorMsg = "Email ou senha incorretos. Verifique suas credenciais e tente novamente.";

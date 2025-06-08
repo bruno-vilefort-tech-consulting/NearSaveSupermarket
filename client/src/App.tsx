@@ -6,6 +6,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import NotFound from "@/pages/not-found";
 
 // Customer App Pages Only
+import CustomerLanding from "@/pages/customer/landing";
 import CustomerHome from "@/pages/customer/home";
 import SupermarketProducts from "@/pages/customer/supermarket-products";
 import SupermarketMap from "@/pages/customer/supermarket-map";
@@ -29,8 +30,8 @@ import TermsAndConditions from "@/pages/terms-and-conditions";
 function Router() {
   return (
     <Switch>
-      {/* Default route - Customer Home */}
-      <Route path="/" component={CustomerHome} />
+      {/* Default route - Customer Landing */}
+      <Route path="/" component={CustomerLanding} />
       
       {/* Customer Authentication Routes */}
       <Route path="/login" component={Login} />
