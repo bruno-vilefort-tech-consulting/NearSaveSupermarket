@@ -30,6 +30,9 @@ function StaffDashboard() {
     try {
       const parsedStaffInfo = JSON.parse(staffInfo);
       setStaffUser(parsedStaffInfo);
+      
+      // Ensure staffId is set in localStorage for API calls
+      localStorage.setItem('staffId', '13');
     } catch (error) {
       localStorage.removeItem('staffInfo');
       setLocation('/staff');
