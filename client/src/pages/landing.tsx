@@ -40,6 +40,9 @@ export default function Landing() {
           <div className="flex justify-center">
             <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
           </div>
+          <div className="flex justify-center mt-2">
+            <span className="bg-gray-500 text-white text-[8px] font-medium px-2 py-1 rounded">Versão Beta</span>
+          </div>
         </div>
       </div>
 
