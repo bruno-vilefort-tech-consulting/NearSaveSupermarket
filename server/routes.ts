@@ -279,7 +279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         quantity: parseInt(req.body.quantity),
       });
 
-      let imageUrl = null;
+      let imageUrl = req.body.imageUrl || null;
       if (req.file) {
         imageUrl = `/uploads/${req.file.filename}`;
       }
@@ -294,6 +294,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error creating product:", error);
       res.status(500).json({ message: "Failed to create product" });
+    }
+  });
+
+  // Update staff product
+  app.put('/api/staff/products/:id', upload.single('image'), async (req, res) => {
+    try {
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      // Parse update data
+      const updateData: any = {};
+      if (req.body.name) updateData.name = req.body.name;
+      if (req.body.description !== undefined) updateData.description = req.body.description;
+      if (req.body.category) updateData.category = req.body.category;
+      if (req.body.originalPrice) updateData.originalPrice = req.body.originalPrice.toString();
+      if (req.body.discountPrice) updateData.discountPrice = req.body.discountPrice.toString();
+      if (req.body.quantity !== undefined) updateData.quantity = parseInt(req.body.quantity);
+      if (req.body.expirationDate) updateData.expirationDate = req.body.expirationDate;
+      if (req.body.imageUrl !== undefined) updateData.imageUrl = req.body.imageUrl;
+
+      // Handle new image upload
+      if (req.file) {
+        updateData.imageUrl = `/uploads/${req.file.filename}`;
+      }
+
+      const productData = insertProductSchema.partial().parse(updateData);
+      const product = await storage.updateProduct(id, productData);
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error: any) {
+      console.error("Error updating product:", error);
+      res.status(500).json({ message: "Failed to update product" });
+    }
+  });
+
+  // Delete staff product
+  app.delete('/api/staff/products/:id', async (req, res) => {
+    try {
+      const staffId = req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      const success = await storage.deleteProduct(id);
+      if (!success) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      res.json({ message: "Product deleted successfully" });
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      res.status(500).json({ message: "Failed to delete product" });
     }
   });
 
