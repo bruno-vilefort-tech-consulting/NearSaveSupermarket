@@ -42,6 +42,10 @@ export default function CustomerPayment() {
   // Processar pagamento e criar pedido
   const processPaymentMutation = useMutation({
     mutationFn: async (data: { method: string; cardData?: any }) => {
+      console.log('🎯 Iniciando processamento de pagamento');
+      console.log('📋 Dados do pedido:', orderData);
+      console.log('💳 Método de pagamento:', data.method);
+      
       // Criar o pedido primeiro
       const response = await fetch("/api/public/orders", {
         method: "POST",
@@ -51,11 +55,16 @@ export default function CustomerPayment() {
         },
       });
       
+      console.log('📡 Status da resposta:', response.status);
+      
       if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ Erro na criação do pedido:', response.status, errorText);
+        throw new Error(`Error: ${response.status} - ${errorText}`);
       }
       
       const order = await response.json();
+      console.log('✅ Pedido criado com sucesso:', order);
       
       // Se é PIX, redirecionar para página PIX
       if (data.method === 'pix') {
@@ -140,11 +149,12 @@ export default function CustomerPayment() {
         navigate("/customer");
       }, 3000);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('❌ Erro completo ao processar pagamento:', error);
       setIsProcessing(false);
       toast({
         title: t('payment.paymentError'),
-        description: t('payment.tryAgain'),
+        description: error.message || t('payment.tryAgain'),
         variant: "destructive",
       });
     },

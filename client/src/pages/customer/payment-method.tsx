@@ -35,27 +35,33 @@ export default function PaymentMethod() {
   };
 
   const handleContinuePayment = async () => {
-    console.log('Continuando para pagamento:', paymentMethod);
+    console.log('🎯 Continuando para pagamento:', paymentMethod);
     
     if (paymentMethod === 'pix') {
       try {
         // Primeiro criar o pedido
         const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
+        console.log('👤 Customer Info:', customerInfo);
+        console.log('🛒 Cart Items:', cartItems);
+        console.log('💰 Total Amount:', getTotalAmount());
         
         const orderData = {
           customerName: customerInfo.fullName || 'Cliente',
           customerEmail: customerInfo.email,
           customerPhone: customerInfo.phone,
+          fulfillmentMethod: 'pickup',
+          totalAmount: getTotalAmount().toFixed(2),
+          paymentMethod: 'pix',
           items: cartItems.map(item => ({
             productId: item.id,
             quantity: item.quantity,
             priceAtTime: item.discountPrice
-          })),
-          totalAmount: getTotalAmount().toFixed(2),
-          paymentMethod: 'pix'
+          }))
         };
 
-        const response = await fetch('/api/orders/create-public', {
+        console.log('📦 Order Data to send:', orderData);
+
+        const response = await fetch('/api/public/orders', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -63,11 +69,16 @@ export default function PaymentMethod() {
           body: JSON.stringify(orderData)
         });
 
+        console.log('📡 Response status:', response.status);
+
         if (!response.ok) {
-          throw new Error('Erro ao criar pedido');
+          const errorText = await response.text();
+          console.error('❌ Erro na resposta:', response.status, errorText);
+          throw new Error(`Erro ao criar pedido: ${response.status} - ${errorText}`);
         }
 
         const order = await response.json();
+        console.log('✅ Pedido criado com sucesso:', order);
         
         // Redirecionar para PIX com o ID do pedido
         window.location.href = `/pix-payment/${order.id}`;
