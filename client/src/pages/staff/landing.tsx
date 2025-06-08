@@ -12,7 +12,7 @@ function StaffLanding() {
           <h1 className="text-4xl font-bold text-eco-green">
             SaveUp
           </h1>
-          <p className="text-gray-600 text-sm">
+          <p className="text-2xl font-bold text-gray-800">
             Supermercados
           </p>
         </div>
