@@ -73,6 +73,44 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
         });
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         console.log('Pagamento Stripe bem-sucedido');
+        
+        // Criar o pedido após pagamento bem-sucedido
+        try {
+          const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
+          
+          const orderData = {
+            customerName: customerInfo.fullName || 'Cliente',
+            customerEmail: customerInfo.email,
+            customerPhone: customerInfo.phone,
+            items: cartItems.map(item => ({
+              productId: item.id,
+              quantity: item.quantity,
+              priceAtTime: item.discountPrice
+            })),
+            totalAmount: getTotalAmount().toFixed(2),
+            paymentMethod: 'card',
+            externalReference: paymentIntent.id
+          };
+
+          const createOrderResponse = await fetch('/api/orders/create-public', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData)
+          });
+
+          if (createOrderResponse.ok) {
+            console.log('Pedido criado com sucesso após pagamento Stripe');
+            // Limpar carrinho
+            localStorage.removeItem('cart');
+          } else {
+            console.error('Erro ao criar pedido após pagamento:', await createOrderResponse.text());
+          }
+        } catch (error) {
+          console.error('Erro ao criar pedido após pagamento Stripe:', error);
+        }
+        
         window.location.href = '/payment-success';
       }
     } catch (err) {
