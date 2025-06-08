@@ -4069,6 +4069,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Marketing sponsorship routes
+  app.post("/api/staff/marketing/activate", async (req, res) => {
+    try {
+      const staffId = req.headers['x-staff-id'];
+      
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff authentication required" });
+      }
+
+      const { planId } = req.body;
+      
+      if (!planId) {
+        return res.status(400).json({ message: "Plan ID is required" });
+      }
+
+      // For now, we'll simulate the activation process
+      // In a real implementation, this would integrate with a payment processor
+      console.log(`Marketing sponsorship activation requested by staff ${staffId} for plan ${planId}`);
+      
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Return success response
+      res.json({
+        success: true,
+        message: "Plano de patrocínio ativado com sucesso!",
+        planId,
+        activationDate: new Date(),
+        status: "active"
+      });
+    } catch (error) {
+      console.error("Error activating marketing sponsorship:", error);
+      res.status(500).json({ message: "Failed to activate sponsorship plan" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
