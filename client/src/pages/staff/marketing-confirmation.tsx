@@ -196,7 +196,7 @@ export default function MarketingConfirmation() {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
                   {selectedPlan.recommended && <Star className="h-5 w-5 fill-current" style={{ color: 'hsl(var(--eco-orange))' }} />}
-                  Plano {selectedPlan.name}
+                  {selectedPlan.name}
                 </CardTitle>
                 <Badge 
                   variant={selectedPlan.recommended ? "default" : "secondary"}
