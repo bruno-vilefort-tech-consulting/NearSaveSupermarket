@@ -30,6 +30,7 @@ import Terms from "@/pages/terms";
 import TermsAndConditions from "@/pages/terms-and-conditions";
 
 // Staff App Pages
+import StaffLanding from "@/pages/staff/landing";
 import StaffLogin from "@/pages/staff/login";
 import StaffRegister from "@/pages/staff/register";
 import StaffDashboard from "@/pages/staff/dashboard";
@@ -70,7 +71,7 @@ function Router() {
       <Route path="/eco-points" component={EcoPoints} />
       
       {/* Staff App Routes */}
-      <Route path="/staff" component={StaffLogin} />
+      <Route path="/staff" component={StaffLanding} />
       <Route path="/staff/login" component={StaffLogin} />
       <Route path="/staff/register" component={StaffRegister} />
       <Route path="/staff/dashboard" component={StaffDashboard} />
@@ -82,7 +83,7 @@ function Router() {
       
       {/* Friendly Routes */}
       <Route path="/cliente" component={CustomerLanding} />
-      <Route path="/supermercado" component={StaffLogin} />
+      <Route path="/supermercado" component={StaffLanding} />
       <Route path="/administrador" component={AdminLogin} />
       
       {/* Terms and Conditions - Public access */}
