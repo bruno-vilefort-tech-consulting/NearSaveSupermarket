@@ -43,7 +43,7 @@ export default function PaymentSuccess() {
         {/* Action Buttons */}
         <div className="space-y-3">
           <a 
-            href="/customer/home" 
+            href="/home" 
             className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-4 px-4 rounded-xl transition-colors flex items-center justify-center"
           >
             <Home className="h-5 w-5 mr-2" />
@@ -51,7 +51,7 @@ export default function PaymentSuccess() {
           </a>
           
           <a 
-            href="/customer/orders" 
+            href="/orders" 
             className="w-full bg-white hover:bg-eco-sage-light text-eco-gray-dark font-semibold py-4 px-4 rounded-xl transition-colors border border-eco-gray-light flex items-center justify-center"
           >
             <Package className="h-5 w-5 mr-2" />
