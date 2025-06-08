@@ -52,11 +52,11 @@ export default function CustomerCardPayment() {
         setOrderData(finalOrderData);
       } else {
         console.log('No saved order data found, redirecting to cart');
-        navigate("/cart");
+        navigate("/customer/cart");
       }
     } else {
       console.log('Missing URL params, redirecting to cart');
-      navigate("/cart");
+      navigate("/customer/cart");
     }
   }, [navigate]);
 

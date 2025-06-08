@@ -360,7 +360,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/cart")}
+                onClick={() => navigate("/customer/cart")}
                 className="relative border-eco-gray text-eco-gray-dark hover:bg-eco-gray hover:text-white"
               >
                 <ShoppingCart size={16} className="mr-2" />
@@ -411,7 +411,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/cart")}
+                onClick={() => navigate("/customer/cart")}
                 className="relative border-eco-gray text-eco-gray-dark hover:bg-eco-gray hover:text-white"
               >
                 <ShoppingCart size={16} />
@@ -505,7 +505,7 @@ export default function CustomerHome() {
                   variant="ghost"
                   className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-orange-light"
                   onClick={() => {
-                    navigate("/cart");
+                    navigate("/customer/cart");
                     setIsMobileMenuOpen(false);
                   }}
                 >

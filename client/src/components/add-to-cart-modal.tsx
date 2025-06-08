@@ -35,17 +35,10 @@ export function AddToCartModal({ product, isOpen, onClose, onAddToCart }: AddToC
   if (!product) return null;
 
   const handleAddToCart = () => {
-    console.log('🚀 AddToCart clicked - redirecting to Portuguese cart');
-    console.log('🔍 Current location before redirect:', window.location.href);
+    console.log('🚀 AddToCart clicked - adding product to cart');
     onAddToCart(product, quantity);
     setQuantity(1);
     onClose();
-    
-    // Force redirect to Portuguese cart page
-    setTimeout(() => {
-      console.log('🎯 Forcing redirect to /customer/cart');
-      window.location.href = '/customer/cart?v=' + Date.now();
-    }, 100);
   };
 
   const getDaysUntilExpiration = (expirationDate: string) => {

@@ -21,7 +21,7 @@ export default function CustomerPaymentNew() {
       setOrderData(JSON.parse(savedOrderData));
     } else {
       // Se não há dados do pedido, voltar para o carrinho
-      navigate("/cart");
+      navigate("/customer/cart");
     }
   }, [navigate]);
 
