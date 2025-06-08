@@ -334,7 +334,8 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
   };
 
   return (
-    <Card className="w-full shadow-md hover:shadow-lg transition-shadow duration-200 bg-white border-eco-green-light">
+    <>
+      <Card className="w-full shadow-md hover:shadow-lg transition-shadow duration-200 bg-white border-eco-green-light">
       <CardContent className="p-4 space-y-4">
         {/* Header do Pedido */}
         <div className="flex items-center justify-between">
@@ -606,6 +607,16 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
           </div>
         )}
       </CardContent>
-    </Card>
+      </Card>
+      
+      {/* Supermarket Location Modal */}
+      {order.supermarketName && (
+        <SupermarketLocationModal
+          isOpen={showLocationModal}
+          onClose={() => setShowLocationModal(false)}
+          supermarketName={order.supermarketName}
+        />
+      )}
+    </>
   );
 }
