@@ -62,6 +62,7 @@ function Router() {
       
       {/* Customer App Routes */}
       <Route path="/customer" component={CustomerHome} />
+      <Route path="/customer/products" component={CustomerHome} />
       <Route path="/home" component={CustomerHome} />
       <Route path="/supermarket/:id/products" component={SupermarketProducts} />
       <Route path="/supermarket-map" component={SupermarketMap} />

@@ -220,13 +220,25 @@ export default function StripePayment() {
 
   const createPaymentIntent = async (amount: number) => {
     try {
-      console.log('Criando payment intent para valor:', amount);
+      console.log('🔄 Iniciando criação do PaymentIntent para valor:', amount);
       
       const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
       const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
       
+      console.log('📋 Customer Info:', customerInfo);
+      console.log('🛒 Cart Items:', cartItems);
+      
       // Criar hash único do carrinho para cache
       const cartHash = btoa(JSON.stringify(cartItems.map((item: any) => `${item.id}-${item.quantity}`)));
+      console.log('🔑 Cart Hash:', cartHash);
+      
+      const requestBody = {
+        amount: amount,
+        cartHash: cartHash,
+        customerEmail: customerInfo.email || ""
+      };
+      
+      console.log('📤 Enviando request para Stripe:', requestBody);
       
       // Usar endpoint com cache para evitar duplicações no Stripe
       const response = await fetch("/api/payments/stripe/create-payment-intent", {
@@ -234,12 +246,10 @@ export default function StripePayment() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          amount: amount,
-          cartHash: cartHash,
-          customerEmail: customerInfo.email || ""
-        })
+        body: JSON.stringify(requestBody)
       });
+      
+      console.log('📥 Response status:', response.status, response.statusText);
       
       if (!response.ok) {
         const errorData = await response.json();
