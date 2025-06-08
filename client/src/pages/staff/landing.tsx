@@ -32,17 +32,17 @@ function StaffLanding() {
           <Button 
             size="lg"
             className="w-full bg-eco-green hover:bg-eco-green/90 text-white py-4 text-lg font-medium"
-            onClick={() => setLocation("/staff/register")}
+            onClick={() => setLocation("/staff/login")}
           >
-            Cadastre-se
+            Entrar
           </Button>
           <Button 
             variant="outline" 
             size="lg"
             className="w-full border-eco-green text-eco-green hover:bg-eco-green hover:text-white py-4 text-lg"
-            onClick={() => setLocation("/staff/login")}
+            onClick={() => setLocation("/staff/register")}
           >
-            Entrar
+            Cadastre-se
           </Button>
         </div>
       </div>
