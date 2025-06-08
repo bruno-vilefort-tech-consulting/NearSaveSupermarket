@@ -159,13 +159,7 @@ export default function StripePayment() {
       try {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
-        
-        // Calcula o total e cria o payment intent
-        const total = parsedCart.reduce((sum: number, item: CartItem) => {
-          return sum + (parseFloat(item.discountPrice) * item.quantity);
-        }, 0);
-
-        createPaymentIntent(total);
+        setIsCreatingPayment(false); // Não criar PaymentIntent automaticamente
       } catch (error) {
         console.error('Erro ao processar carrinho:', error);
         setIsCreatingPayment(false);
@@ -270,21 +264,46 @@ export default function StripePayment() {
               </a>
               <div>
                 <h1 className="text-lg font-bold text-eco-gray-dark">Pagamento com Cartão</h1>
-                <p className="text-sm text-eco-gray">Erro ao carregar</p>
+                <p className="text-sm text-eco-gray">R$ {getTotalAmount().toFixed(2).replace('.', ',')}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Error Content */}
-        <div className="max-w-md mx-auto p-4">
-          <div className="bg-white rounded-lg shadow-sm border border-eco-gray-light p-6 text-center">
-            <h2 className="text-lg font-semibold text-eco-gray-dark mb-2">Erro ao Carregar Pagamento</h2>
-            <p className="text-eco-gray mb-4">Não foi possível inicializar o pagamento. Tente novamente.</p>
-            <a href="/customer/payment-method" className="inline-block bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 px-4 rounded-xl transition-colors">
-              Voltar
-            </a>
+        {/* Content */}
+        <div className="max-w-md mx-auto p-4 space-y-6">
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-eco-gray-dark mb-4">Resumo do Pedido</h2>
+            
+            {cartItems.map((item, index) => (
+              <div key={index} className="flex justify-between items-center py-2">
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-eco-gray">Qtd: {item.quantity}</p>
+                </div>
+                <span className="font-semibold text-eco-green">
+                  R$ {(parseFloat(item.discountPrice) * item.quantity).toFixed(2).replace('.', ',')}
+                </span>
+              </div>
+            ))}
+            
+            <div className="border-t border-eco-gray-light pt-3 mt-3">
+              <div className="flex justify-between">
+                <span className="text-lg font-semibold text-eco-gray-dark">Total</span>
+                <span className="text-lg font-bold text-eco-green">
+                  R$ {getTotalAmount().toFixed(2).replace('.', ',')}
+                </span>
+              </div>
+            </div>
           </div>
+
+          <button
+            onClick={() => createPaymentIntent(getTotalAmount())}
+            disabled={isCreatingPayment}
+            className="w-full bg-eco-green hover:bg-eco-green-dark disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-4 px-4 rounded-xl transition-colors"
+          >
+            {isCreatingPayment ? 'Processando...' : 'Iniciar Pagamento'}
+          </button>
         </div>
       </div>
     );
