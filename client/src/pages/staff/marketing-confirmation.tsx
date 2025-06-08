@@ -29,32 +29,30 @@ export default function MarketingConfirmation() {
   // Plans data (same as marketing page)
   const plans: SponsorshipPlan[] = [
     {
-      id: 'basico',
+      id: 'basic',
       name: 'Básico',
-      description: 'Ideal para supermercados iniciantes que querem aumentar sua visibilidade',
-      price: 99.90,
+      description: 'Ideal para supermercados que estão começando',
+      price: 299,
       duration: '30 dias',
       features: [
         'Destaque na busca por 30 dias',
-        'Badge "Patrocinado" nos produtos',
-        'Prioridade nos resultados de pesquisa',
-        'Relatório básico de engajamento'
+        'Badge de "Patrocinado"',
+        'Relatórios básicos de performance'
       ],
       popularity: 'Mais popular'
     },
     {
       id: 'premium',
       name: 'Premium',
-      description: 'Para supermercados que buscam máxima exposição e crescimento acelerado',
-      price: 249.90,
-      duration: '30 dias',
+      description: 'Para supermercados que querem mais visibilidade',
+      price: 699,
+      duration: '90 dias',
       features: [
-        'Todos os benefícios do plano Básico',
-        'Destaque premium no topo da tela inicial',
-        'Banner promocional personalizado',
-        'Notificações push para clientes próximos',
-        'Relatório detalhado de performance',
-        'Suporte prioritário'
+        'Destaque na busca por 90 dias',
+        'Badge de "Premium"',
+        'Posição prioritária nos resultados',
+        'Relatórios detalhados',
+        'Suporte dedicado'
       ],
       recommended: true,
       popularity: 'Recomendado'
@@ -62,38 +60,49 @@ export default function MarketingConfirmation() {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      description: 'Solução completa para redes de supermercados e grandes estabelecimentos',
-      price: 499.90,
-      duration: '30 dias',
+      description: 'Solução completa para grandes redes',
+      price: 1499,
+      duration: '180 dias',
       features: [
-        'Todos os benefícios do plano Premium',
-        'Campanha personalizada de marketing',
-        'Gerenciamento dedicado de conta',
-        'Analytics avançados e insights de mercado',
-        'Integração com sistemas externos',
-        'Promoções exclusivas destacadas',
-        'Suporte 24/7'
+        'Destaque na busca por 180 dias',
+        'Badge de "Enterprise"',
+        'Posição premium nos resultados',
+        'Relatórios avançados',
+        'Suporte 24/7',
+        'Campanhas personalizadas',
+        'Segmentação avançada de clientes'
       ],
-      popularity: 'Profissional'
+      popularity: 'Para empresas'
     }
   ];
 
-  const selectedPlan = plans.find(plan => plan.id === params?.planId);
-
-  if (!match || !selectedPlan) {
+  if (!match || !params?.planId) {
     return (
-      <div className="container mx-auto p-6 max-w-2xl">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <XCircle className="h-16 w-16 text-red-500 mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Plano não encontrado</h2>
-            <p className="text-gray-600 mb-6">O plano selecionado não existe ou não está disponível.</p>
-            <Button onClick={() => setLocation('/supermercado/marketing')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar para Marketing
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--eco-cream))' }}>
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+            Plano não encontrado
+          </h2>
+          <Button onClick={() => setLocation('/supermercado/marketing')}>
+            Voltar para Marketing
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const selectedPlan = plans.find(plan => plan.id === params.planId);
+  if (!selectedPlan) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--eco-cream))' }}>
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+            Plano inválido
+          </h2>
+          <Button onClick={() => setLocation('/supermercado/marketing')}>
+            Voltar para Marketing
+          </Button>
+        </div>
       </div>
     );
   }
@@ -155,216 +164,232 @@ export default function MarketingConfirmation() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleCancel}
-          className="text-gray-600 hover:text-gray-800"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Confirmação de Ativação</h1>
-          <p className="text-gray-600">Revise os detalhes do seu plano antes de confirmar</p>
+    <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--eco-cream))' }}>
+      <div className="container mx-auto p-6 max-w-4xl">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleCancel}
+            className="hover:bg-[hsl(var(--eco-green-light))] text-[hsl(var(--eco-green))]"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+              Confirmação de Ativação
+            </h1>
+            <p style={{ color: 'hsl(var(--eco-gray))' }}>
+              Revise os detalhes do seu plano antes de confirmar
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Plan Details */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                {selectedPlan.recommended && <Star className="h-5 w-5 text-yellow-500 fill-current" />}
-                Plano {selectedPlan.name}
-              </CardTitle>
-              <Badge variant={selectedPlan.recommended ? "default" : "secondary"}>
-                {selectedPlan.popularity}
-              </Badge>
-            </div>
-            <CardDescription>{selectedPlan.description}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between text-lg">
-              <span className="font-medium">Valor:</span>
-              <span className="font-bold text-green-600">R$ {selectedPlan.price.toFixed(2)}</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="font-medium">Duração:</span>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-500" />
-                <span>{selectedPlan.duration}</span>
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Plan Details */}
+          <Card className="border-[hsl(var(--eco-gray-light))] shadow-md">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                  {selectedPlan.recommended && <Star className="h-5 w-5 fill-current" style={{ color: 'hsl(var(--eco-orange))' }} />}
+                  Plano {selectedPlan.name}
+                </CardTitle>
+                <Badge 
+                  variant={selectedPlan.recommended ? "default" : "secondary"}
+                  className={selectedPlan.recommended 
+                    ? "bg-[hsl(var(--eco-orange))] text-white hover:bg-[hsl(var(--eco-orange-dark))]" 
+                    : "bg-[hsl(var(--eco-sage-light))] text-[hsl(var(--eco-sage-dark))]"
+                  }
+                >
+                  {selectedPlan.popularity}
+                </Badge>
               </div>
-            </div>
+              <CardDescription style={{ color: 'hsl(var(--eco-gray))' }}>
+                {selectedPlan.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between text-lg">
+                <span className="font-medium" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                  Valor:
+                </span>
+                <span className="font-bold" style={{ color: 'hsl(var(--eco-green))' }}>
+                  R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="font-medium" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                  Duração:
+                </span>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" style={{ color: 'hsl(var(--eco-gray))' }} />
+                  <span style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                    {selectedPlan.duration}
+                  </span>
+                </div>
+              </div>
 
-            <Separator />
+              <Separator />
 
-            <div>
-              <h4 className="font-medium mb-3">Benefícios inclusos:</h4>
-              <ul className="space-y-2">
-                {selectedPlan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
+              <div>
+                <h4 className="font-medium mb-3" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                  Recursos Inclusos:
+                </h4>
+                <ul className="space-y-2">
+                  {selectedPlan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: 'hsl(var(--eco-green))' }} />
+                      <span className="text-sm" style={{ color: 'hsl(var(--eco-gray))' }}>
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Agreement and Payment */}
-        <Card>
+          {/* Payment Information */}
+          <Card className="border-[hsl(var(--eco-gray-light))] shadow-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                <CreditCard className="h-5 w-5" />
+                Informações de Pagamento
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'hsl(var(--eco-blue-light))', borderLeft: '4px solid hsl(var(--eco-blue))' }}>
+                <h4 className="font-semibold mb-2" style={{ color: 'hsl(var(--eco-blue-dark))' }}>
+                  Forma de Pagamento
+                </h4>
+                <p className="text-sm" style={{ color: 'hsl(var(--eco-blue-dark))' }}>
+                  Dedução automática do saldo em contas a receber
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span style={{ color: 'hsl(var(--eco-gray))' }}>
+                    Subtotal:
+                  </span>
+                  <span style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                    R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <Separator />
+                <div className="flex justify-between text-lg font-semibold">
+                  <span style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                    Total:
+                  </span>
+                  <span style={{ color: 'hsl(var(--eco-green))' }}>
+                    R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-6 p-3 rounded-lg" style={{ backgroundColor: 'hsl(var(--eco-sage-light))' }}>
+                <p className="text-xs" style={{ color: 'hsl(var(--eco-sage-dark))' }}>
+                  O valor será processado automaticamente após a confirmação. 
+                  Você receberá um comprovante por email.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Agreement Terms */}
+        <Card className="mt-8 border-[hsl(var(--eco-gray-light))] shadow-md">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Termos de Pagamento
+            <CardTitle className="flex items-center gap-2" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+              <CheckCircle className="h-5 w-5" />
+              Termos de Ativação do Plano
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium text-blue-900 mb-2">Como funciona o pagamento:</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• O valor será deduzido automaticamente do seu saldo a receber</li>
-                <li>• A cobrança será processada imediatamente após confirmação</li>
-                <li>• O plano será ativado instantaneamente</li>
-                <li>• Você pode acompanhar o saldo em "Gestão Financeira"</li>
-              </ul>
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="font-medium text-yellow-900 mb-2">Importante:</h4>
-              <ul className="text-sm text-yellow-800 space-y-1">
-                <li>• Certifique-se de ter saldo suficiente em contas a receber</li>
-                <li>• O plano não pode ser cancelado após ativação</li>
-                <li>• A renovação é manual ao final do período</li>
-                <li>• Suporte disponível durante todo o período</li>
-              </ul>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span>Valor do plano:</span>
-                <span>R$ {selectedPlan.price.toFixed(2)}</span>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'hsl(var(--eco-blue-light))', borderLeft: '4px solid hsl(var(--eco-blue))' }}>
+                <h4 className="font-semibold mb-2" style={{ color: 'hsl(var(--eco-blue-dark))' }}>
+                  Condições de Pagamento
+                </h4>
+                <ul className="text-sm space-y-1" style={{ color: 'hsl(var(--eco-blue-dark))' }}>
+                  <li>• O valor do plano será automaticamente deduzido do seu saldo em contas a receber</li>
+                  <li>• A cobrança será processada imediatamente após a confirmação</li>
+                  <li>• Em caso de saldo insuficiente, será gerada uma fatura para pagamento</li>
+                </ul>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span>Taxa de processamento:</span>
-                <span>R$ 0,00</span>
+              
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'hsl(var(--eco-orange-light))', borderLeft: '4px solid hsl(var(--eco-orange))' }}>
+                <h4 className="font-semibold mb-2" style={{ color: 'hsl(var(--eco-orange-dark))' }}>
+                  Termos de Uso
+                </h4>
+                <ul className="text-sm space-y-1" style={{ color: 'hsl(var(--eco-orange-dark))' }}>
+                  <li>• O plano terá vigência conforme a duração especificada</li>
+                  <li>• Os benefícios serão aplicados em até 24 horas após a ativação</li>
+                  <li>• Cancelamentos devem ser solicitados com 30 dias de antecedência</li>
+                  <li>• O uso deve estar em conformidade com as políticas da plataforma</li>
+                </ul>
               </div>
-              <Separator />
-              <div className="flex items-center justify-between font-medium">
-                <span>Total a ser deduzido:</span>
-                <span className="text-lg text-green-600">R$ {selectedPlan.price.toFixed(2)}</span>
-              </div>
-            </div>
 
-            <div className="bg-gray-50 border rounded-lg p-4">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  required 
-                  className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              <div className="flex items-start space-x-3 pt-4">
+                <Checkbox 
+                  id="agreement" 
+                  checked={agreementChecked}
+                  onCheckedChange={(checked) => setAgreementChecked(!!checked)}
+                  className="mt-1"
                 />
-                <span className="text-sm text-gray-700">
-                  Concordo com os termos de uso e confirmo que tenho saldo suficiente 
-                  em contas a receber para cobrir o valor de <strong>R$ {selectedPlan.price.toFixed(2)}</strong>. 
-                  Entendo que esta cobrança será processada imediatamente.
-                </span>
-              </label>
+                <label 
+                  htmlFor="agreement" 
+                  className="text-sm leading-relaxed cursor-pointer"
+                  style={{ color: 'hsl(var(--eco-gray-dark))' }}
+                >
+                  Eu li e concordo com os termos de ativação do plano. Autorizo a dedução do valor 
+                  <strong style={{ color: 'hsl(var(--eco-green))' }}>
+                    {' '}R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}{' '}
+                  </strong> 
+                  do meu saldo em contas a receber ou a geração de fatura caso o saldo seja insuficiente.
+                </label>
+              </div>
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Agreement Terms */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5" />
-            Termos de Ativação do Plano
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-              <h4 className="font-semibold text-blue-900 mb-2">Condições de Pagamento</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• O valor do plano será automaticamente deduzido do seu saldo em contas a receber</li>
-                <li>• A cobrança será processada imediatamente após a confirmação</li>
-                <li>• Em caso de saldo insuficiente, será gerada uma fatura para pagamento</li>
-              </ul>
-            </div>
-            
-            <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
-              <h4 className="font-semibold text-yellow-900 mb-2">Termos de Uso</h4>
-              <ul className="text-sm text-yellow-800 space-y-1">
-                <li>• O plano terá vigência conforme a duração especificada</li>
-                <li>• Os benefícios serão aplicados em até 24 horas após a ativação</li>
-                <li>• Cancelamentos devem ser solicitados com 30 dias de antecedência</li>
-                <li>• O uso deve estar em conformidade com as políticas da plataforma</li>
-              </ul>
-            </div>
-
-            <div className="flex items-start space-x-3 pt-4">
-              <Checkbox 
-                id="agreement" 
-                checked={agreementChecked}
-                onCheckedChange={(checked) => setAgreementChecked(!!checked)}
-                className="mt-1"
-              />
-              <label 
-                htmlFor="agreement" 
-                className="text-sm leading-relaxed cursor-pointer"
-              >
-                Eu li e concordo com os termos de ativação do plano. Autorizo a dedução do valor 
-                <strong> R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong> 
-                do meu saldo em contas a receber ou a geração de fatura caso o saldo seja insuficiente.
-              </label>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Action Buttons */}
-      <div className="flex gap-4 mt-8 justify-center">
-        <Button 
-          variant="outline" 
-          size="lg"
-          onClick={handleCancel}
-          disabled={isProcessing}
-          className="min-w-32"
-        >
-          Cancelar
-        </Button>
-        <Button 
-          size="lg"
-          onClick={handleConfirmActivation}
-          disabled={isProcessing || !agreementChecked}
-          className={`min-w-32 ${
-            agreementChecked 
-              ? 'bg-green-600 hover:bg-green-700' 
-              : 'bg-gray-400 cursor-not-allowed'
-          }`}
-        >
-          {isProcessing ? (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Processando...
-            </div>
-          ) : (
-            <>
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Confirmar Ativação
-            </>
-          )}
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-8 justify-center">
+          <Button 
+            variant="outline" 
+            size="lg"
+            onClick={handleCancel}
+            disabled={isProcessing}
+            className="min-w-32 border-[hsl(var(--eco-gray-light))] text-[hsl(var(--eco-gray-dark))] hover:bg-[hsl(var(--eco-gray-light))]"
+          >
+            Cancelar
+          </Button>
+          <Button 
+            size="lg"
+            onClick={handleConfirmActivation}
+            disabled={isProcessing || !agreementChecked}
+            className={`min-w-32 ${
+              agreementChecked 
+                ? 'bg-[hsl(var(--eco-green))] hover:bg-[hsl(var(--eco-green-dark))] text-white' 
+                : 'bg-[hsl(var(--eco-gray-light))] text-[hsl(var(--eco-gray))] cursor-not-allowed'
+            }`}
+          >
+            {isProcessing ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Processando...
+              </div>
+            ) : (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Confirmar Ativação
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

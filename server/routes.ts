@@ -3832,7 +3832,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get staff user to verify they exist
-      const staffUser = await storage.getStaffUserById(parseInt(staffId));
+      const staffUser = await storage.getStaffUserByEmail(staffId);
       if (!staffUser) {
         return res.status(404).json({ 
           success: false, 
