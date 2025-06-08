@@ -310,7 +310,7 @@ export default function CartFinal() {
                 </div>
               </div>
               
-              <a href="/order-review">
+              <a href="/customer/payment-method">
                 <button className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl transition-colors">
                   Finalizar Pedido
                 </button>
