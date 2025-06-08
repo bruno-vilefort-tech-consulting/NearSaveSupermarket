@@ -106,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staff registration route
   app.post('/api/staff/register', async (req, res) => {
     try {
-      const { latitude, longitude, ...otherData } = req.body;
+      const { latitude, longitude, isSponsored, ...otherData } = req.body;
       const staffData = insertStaffUserSchema.parse(otherData);
       
       // Check if email already exists
@@ -127,9 +127,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         longitude: longitude ? longitude.toString() : null
       });
       
+      // Set sponsorship status if requested during registration
+      if (isSponsored) {
+        await storage.updateStaffSponsorshipStatus(newStaffUser.id, true);
+      }
+      
       // Return user without password
       const { password, ...staffUserResponse } = newStaffUser;
-      res.status(201).json(staffUserResponse);
+      res.status(201).json({
+        ...staffUserResponse,
+        isSponsored: isSponsored || false
+      });
     } catch (error: any) {
       console.error("Error creating staff user:", error);
       res.status(500).json({ message: "Erro ao criar conta do supermercado" });
