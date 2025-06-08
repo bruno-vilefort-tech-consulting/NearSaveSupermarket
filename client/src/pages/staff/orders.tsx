@@ -284,6 +284,28 @@ function StaffOrders() {
         </div>
       </header>
 
+      {/* New Order Alert Banner */}
+      {hasNewOrders && (
+        <div className="bg-red-500 text-white py-3 px-4 animate-pulse">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <BellRing className="h-6 w-6 animate-bounce" />
+              <div>
+                <div className="font-bold">🚨 NOVO PEDIDO RECEBIDO!</div>
+                <div className="text-sm">Verifique os pedidos pendentes abaixo</div>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={() => setHasNewOrders(false)}
+              className="text-white hover:bg-red-600 p-2"
+            >
+              ✕
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
