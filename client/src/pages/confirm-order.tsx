@@ -127,7 +127,7 @@ export default function ConfirmOrderPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/staff/orders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
-      navigate("/orders");
+      navigate("/supermercado/orders");
     },
     onError: (error: Error) => {
       toast({
@@ -210,7 +210,7 @@ export default function ConfirmOrderPage() {
           <p className="text-eco-gray">Pedido não encontrado</p>
           <Button 
             variant="outline" 
-            onClick={() => navigate("/orders")}
+            onClick={() => navigate("/supermercado/orders")}
             className="mt-4"
           >
             Voltar aos Pedidos
