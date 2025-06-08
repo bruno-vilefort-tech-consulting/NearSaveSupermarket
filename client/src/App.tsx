@@ -10,7 +10,7 @@ import CustomerLanding from "@/pages/customer/landing";
 import CustomerHome from "@/pages/customer/home";
 import SupermarketProducts from "@/pages/customer/supermarket-products";
 import SupermarketMap from "@/pages/customer/supermarket-map";
-import ShoppingCart from "@/pages/customer/shopping-cart";
+import CarrinhoFinal from "@/pages/customer/carrinho-final";
 import CustomerOrders from "@/pages/customer/orders";
 import OrderReview from "@/pages/customer/order-review";
 import CustomerPaymentFixed from "@/pages/customer/payment-fixed";
@@ -44,8 +44,8 @@ function Router() {
       <Route path="/home" component={CustomerHome} />
       <Route path="/supermarket/:id/products" component={SupermarketProducts} />
       <Route path="/supermarket-map" component={SupermarketMap} />
-      <Route path="/cart" component={ShoppingCart} />
-      <Route path="/customer/cart" component={ShoppingCart} />
+      <Route path="/cart" component={CarrinhoFinal} />
+      <Route path="/customer/cart" component={CarrinhoFinal} />
       <Route path="/order-review" component={OrderReview} />
       <Route path="/payment" component={CustomerPaymentFixed} />
       <Route path="/pix-payment/:orderId" component={PixPaymentFixed} />

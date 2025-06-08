@@ -6,7 +6,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CartItem {
   id: number;
@@ -23,8 +22,7 @@ interface CartItem {
   };
 }
 
-export default function ShoppingCart() {
-  const { language, t } = useLanguage();
+export default function CarrinhoFinal() {
   const [, setLocation] = useLocation();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [deliveryType, setDeliveryType] = useState("pickup");
@@ -143,7 +141,6 @@ export default function ShoppingCart() {
       </div>
 
       <div className="max-w-md mx-auto p-4">
-        {/* Items do carrinho */}
         <div className="space-y-4 mb-6">
           {cartItems.map((item) => (
             <div key={item.id} className="bg-white rounded-xl p-4 shadow-sm">
@@ -213,7 +210,6 @@ export default function ShoppingCart() {
           ))}
         </div>
 
-        {/* Método de entrega */}
         <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
           <h3 className="font-medium text-eco-gray-dark mb-3">MÉTODO DE ENTREGA</h3>
           <RadioGroup value={deliveryType} onValueChange={setDeliveryType}>
@@ -243,7 +239,6 @@ export default function ShoppingCart() {
           )}
         </div>
 
-        {/* Total */}
         <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
           <div className="flex justify-between items-center mb-2">
             <span className="text-eco-gray">Subtotal</span>
@@ -255,7 +250,6 @@ export default function ShoppingCart() {
           </div>
         </div>
 
-        {/* Botão finalizar */}
         <Button
           onClick={proceedToReview}
           className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-3 rounded-xl"
