@@ -234,14 +234,22 @@ export default function CustomerHome() {
     ).length;
   }, [orders]);
 
-  // Filtrar supermercados por proximidade (20km) e termo de busca
+  // Filtrar supermercados por proximidade (100km) e termo de busca
   const filteredSupermarkets = React.useMemo(() => {
-    if (!supermarkets || !Array.isArray(supermarkets)) return [];
+    console.log('Dados dos supermercados:', supermarkets);
+    
+    if (!supermarkets || !Array.isArray(supermarkets)) {
+      console.log('Supermercados não disponíveis ou não é array');
+      return [];
+    }
     
     let filtered = supermarkets as SupermarketWithLocation[];
+    console.log('Total de supermercados:', filtered.length);
     
-    // Se temos localização do usuário, filtrar por proximidade
+    // Se temos localização do usuário, calcular distâncias e ordenar
     if (userLocation && locationPermission === 'granted') {
+      console.log('Localização do usuário:', userLocation);
+      
       filtered = filtered
         .map((supermarket: SupermarketWithLocation) => {
           if (supermarket.latitude && supermarket.longitude) {
@@ -251,13 +259,16 @@ export default function CustomerHome() {
               parseFloat(supermarket.latitude),
               parseFloat(supermarket.longitude)
             );
+            console.log(`Distância para ${supermarket.name}: ${distance?.toFixed(2)}km`);
             return { ...supermarket, distance };
           }
           return supermarket;
         })
         .filter((supermarket: SupermarketWithLocation) => {
-          // Mostrar apenas supermercados dentro de 20km
-          return !supermarket.distance || supermarket.distance <= 20;
+          // Mostrar supermercados dentro de 100km para testes
+          const keep = !supermarket.distance || supermarket.distance <= 100;
+          console.log(`${supermarket.name} ${keep ? 'incluído' : 'filtrado'} - distância: ${supermarket.distance?.toFixed(2)}km`);
+          return keep;
         })
         .sort((a: SupermarketWithLocation, b: SupermarketWithLocation) => {
           // Ordenar por distância (mais próximos primeiro)
@@ -275,6 +286,7 @@ export default function CustomerHome() {
       );
     }
     
+    console.log('Supermercados filtrados final:', filtered.length);
     return filtered;
   }, [supermarkets, userLocation, locationPermission, searchTerm]);
 
@@ -583,7 +595,7 @@ export default function CustomerHome() {
                 <span className="text-eco-blue-dark font-medium">Ativar localização para supermercados próximos</span>
               </div>
               <p className="text-sm text-eco-blue-dark">
-                Para ver apenas supermercados próximos (20km), você precisa:
+                Para ver apenas supermercados próximos (50km), você precisa:
               </p>
               <ul className="text-sm text-eco-blue-dark list-disc list-inside space-y-1">
                 <li>Clicar no ícone 🔒 ou ⓘ ao lado da URL no navegador</li>
