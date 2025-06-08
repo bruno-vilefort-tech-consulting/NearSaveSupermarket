@@ -55,6 +55,11 @@ export interface IStorage {
   createCustomer(customer: InsertCustomer): Promise<Customer>;
   validateCustomer(email: string, password: string): Promise<Customer | undefined>;
   
+  // Admin user operations
+  getAdminUserByEmail(email: string): Promise<AdminUser | undefined>;
+  createAdminUser(adminUser: InsertAdminUser): Promise<AdminUser>;
+  validateAdminUser(email: string, password: string): Promise<AdminUser | undefined>;
+  
   // Product operations
   getProducts(filters?: { category?: string; isActive?: boolean }): Promise<ProductWithCreator[]>;
   getProduct(id: number): Promise<ProductWithCreator | undefined>;
@@ -1675,6 +1680,38 @@ export class DatabaseStorage implements IStorage {
       .where(eq(staffUsers.id, staffId));
     
     console.log(`✅ [SPONSORSHIP] Staff ${staffId} patrocínio atualizado para: ${isSponsored ? 'ATIVO' : 'INATIVO'}`);
+  }
+
+  // Admin user operations
+  async getAdminUserByEmail(email: string): Promise<AdminUser | undefined> {
+    const [adminUser] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
+    return adminUser;
+  }
+
+  async createAdminUser(adminUserData: InsertAdminUser): Promise<AdminUser> {
+    const hashedPassword = await bcrypt.hash(adminUserData.password, 10);
+    const [adminUser] = await db
+      .insert(adminUsers)
+      .values({
+        ...adminUserData,
+        password: hashedPassword,
+      })
+      .returning();
+    return adminUser;
+  }
+
+  async validateAdminUser(email: string, password: string): Promise<AdminUser | undefined> {
+    const adminUser = await this.getAdminUserByEmail(email);
+    if (!adminUser || !adminUser.isActive) {
+      return undefined;
+    }
+
+    const isValid = await bcrypt.compare(password, adminUser.password);
+    if (!isValid) {
+      return undefined;
+    }
+
+    return adminUser;
   }
 }
 

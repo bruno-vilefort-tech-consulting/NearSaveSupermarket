@@ -3431,7 +3431,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin authentication routes
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email e senha são obrigatórios" });
+      }
 
+      const adminUser = await storage.validateAdminUser(email, password);
+      
+      if (!adminUser) {
+        return res.status(401).json({ message: "Credenciais inválidas" });
+      }
+
+      // Remove password from response
+      const { password: _, ...adminResponse } = adminUser;
+      
+      res.json(adminResponse);
+    } catch (error: any) {
+      console.error("Erro no login do administrador:", error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
+  // Admin protected routes would go here (for future development)
+  // Examples: /api/admin/customers, /api/admin/supermarkets, /api/admin/orders
 
   const httpServer = createServer(app);
   return httpServer;
