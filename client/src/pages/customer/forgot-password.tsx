@@ -32,7 +32,7 @@ export default function ForgotPassword() {
 
   const forgotPasswordMutation = useMutation({
     mutationFn: async (data: ForgotPasswordFormData) => {
-      const response = await apiRequest("POST", "/api/customer/forgot-password", data);
+      const response = await apiRequest("POST", "/api/forgot-password", data);
       return response.json();
     },
     onSuccess: (data) => {
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
         title: t('auth.emailSentSuccess'),
         description: t('auth.emailSentDesc'),
       });
-      navigate("/customer/login");
+      navigate("/login");
     },
     onError: (error: any) => {
       toast({
@@ -115,7 +115,7 @@ export default function ForgotPassword() {
 
             <div className="text-center mt-6">
               <button
-                onClick={() => navigate("/customer/login")}
+                onClick={() => navigate("/login")}
                 className="text-eco-blue hover:text-eco-blue-dark font-medium transition-colors"
               >
                 {t('auth.backToLogin')}

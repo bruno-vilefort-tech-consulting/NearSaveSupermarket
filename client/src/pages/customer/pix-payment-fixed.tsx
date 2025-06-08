@@ -7,7 +7,7 @@ import { Copy, CheckCircle, Clock, X, ArrowLeft, ExternalLink } from 'lucide-rea
 
 export default function PixPaymentFixed() {
   const [, setLocation] = useLocation();
-  const [match, params] = useRoute('/customer/pix-payment/:orderId');
+  const [match, params] = useRoute('/pix-payment/:orderId');
   const [orderData, setOrderData] = useState<any>(null);
   const [pixData, setPixData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<string>('awaiting_payment');
@@ -20,7 +20,7 @@ export default function PixPaymentFixed() {
 
   useEffect(() => {
     if (!orderId) {
-      setLocation('/customer/orders');
+      setLocation('/orders');
       return;
     }
 
@@ -141,7 +141,7 @@ export default function PixPaymentFixed() {
 
         // Redirecionar para a página de pedidos após 2 segundos
         setTimeout(() => {
-          setLocation('/customer/orders');
+          setLocation('/orders');
         }, 2000);
         
         return; // Parar execução desta função
@@ -226,7 +226,7 @@ export default function PixPaymentFixed() {
   const handleGoBack = () => {
     // Limpar dados do PIX ao voltar e ir para pedidos
     localStorage.removeItem('pixPaymentData');
-    setLocation('/customer/orders');
+    setLocation('/orders');
   };
 
 

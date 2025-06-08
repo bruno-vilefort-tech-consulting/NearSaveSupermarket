@@ -200,7 +200,7 @@ export default function CustomerCart() {
     localStorage.setItem('orderReview', JSON.stringify(orderData));
     
     // Redirecionar para tela de revisão do pedido
-    navigate('/customer/order-review');
+    navigate('/order-review');
   };
 
   if (cartItems.length === 0) {

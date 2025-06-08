@@ -43,7 +43,7 @@ export default function CustomerLogin() {
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
       setErrorMessage(""); // Limpar erro anterior
-      const response = await apiRequest("POST", "/api/customer/login", data);
+      const response = await apiRequest("POST", "/api/login", data);
       return response.json();
     },
     onSuccess: (data) => {
@@ -159,7 +159,7 @@ export default function CustomerLogin() {
                 <div className="text-right">
                   <button
                     type="button"
-                    onClick={() => navigate("/customer/forgot-password")}
+                    onClick={() => navigate("/forgot-password")}
                     className="text-sm text-eco-blue hover:text-eco-blue-dark font-medium transition-colors"
                   >
                     {t('auth.forgotPassword')}
@@ -185,7 +185,7 @@ export default function CustomerLogin() {
               <Button
                 variant="outline"
                 className="w-full border-eco-blue text-eco-blue hover:bg-eco-blue-light hover:text-eco-blue-dark font-semibold py-3 rounded-xl transition-colors"
-                onClick={() => navigate("/customer/register")}
+                onClick={() => navigate("/register")}
               >
                 {t('customer.register')}
               </Button>

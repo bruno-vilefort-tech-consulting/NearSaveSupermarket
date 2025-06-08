@@ -52,11 +52,11 @@ export default function CustomerCardPayment() {
         setOrderData(finalOrderData);
       } else {
         console.log('No saved order data found, redirecting to cart');
-        navigate("/customer/cart");
+        navigate("/cart");
       }
     } else {
       console.log('Missing URL params, redirecting to cart');
-      navigate("/customer/cart");
+      navigate("/cart");
     }
   }, [navigate]);
 
@@ -131,7 +131,7 @@ export default function CustomerCardPayment() {
         
         // Redirecionar após 3 segundos
         setTimeout(() => {
-          navigate("/customer/orders");
+          navigate("/orders");
         }, 3000);
       } else {
         toast({
@@ -223,7 +223,7 @@ export default function CustomerCardPayment() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-          <Link href="/customer/payment">
+          <Link href="/payment">
             <ArrowLeft className="h-6 w-6 text-gray-600" />
           </Link>
           <div className="ml-4">

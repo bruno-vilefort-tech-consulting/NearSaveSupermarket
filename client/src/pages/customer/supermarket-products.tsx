@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, ShoppingCart, ArrowLeft, Package, MapPin, Clock, Leaf, AlertTriangle } from "lucide-react";
-import { AddToCartModal } from "@/components/customer/add-to-cart-modal";
+import { AddToCartModal } from "@/components/add-to-cart-modal";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface Product {
@@ -64,7 +64,7 @@ export default function SupermarketProducts() {
   }, []);
 
   const { data: products, isLoading } = useQuery({
-    queryKey: [`/api/customer/supermarket/${id}/products`],
+    queryKey: [`/api/supermarket/${id}/products`],
   });
 
   const filteredProducts = (products || []).filter((product: Product) => {
@@ -229,7 +229,7 @@ export default function SupermarketProducts() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate("/customer/cart")}
+              onClick={() => navigate("/cart")}
               className="relative flex-shrink-0 ml-3 border-eco-orange text-eco-orange hover:bg-eco-orange hover:text-white"
             >
               <ShoppingCart size={16} className="mr-1" />

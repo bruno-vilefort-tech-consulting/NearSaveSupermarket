@@ -7,7 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 
 export default function PaymentSuccess() {
   const [, setLocation] = useLocation();
-  const [match, params] = useRoute('/customer/payment-success');
+  const [match, params] = useRoute('/payment-success');
   const [orderData, setOrderData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -99,7 +99,7 @@ export default function PaymentSuccess() {
 
               <div className="space-y-3">
                 <Button 
-                  onClick={() => setLocation('/customer/orders')}
+                  onClick={() => setLocation('/orders')}
                   className="w-full bg-eco-green hover:bg-eco-green/90"
                 >
                   <Package className="w-4 h-4 mr-2" />

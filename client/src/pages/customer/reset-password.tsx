@@ -30,7 +30,7 @@ export default function ResetPassword() {
         description: "Link de redefinição inválido ou expirado.",
         variant: "destructive",
       });
-      setLocation("/customer/login");
+      setLocation("/login");
     }
   }, [toast, setLocation]);
 
@@ -67,7 +67,7 @@ export default function ResetPassword() {
     setIsLoading(true);
 
     try {
-      await apiRequest("POST", "/api/customer/reset-password", {
+      await apiRequest("POST", "/api/reset-password", {
         token,
         newPassword
       });
@@ -79,7 +79,7 @@ export default function ResetPassword() {
 
       // Redirect to login page after success
       setTimeout(() => {
-        setLocation("/customer/login");
+        setLocation("/login");
       }, 2000);
 
     } catch (error: any) {
@@ -187,7 +187,7 @@ export default function ResetPassword() {
           <div className="mt-6 text-center">
             <Button
               variant="link"
-              onClick={() => setLocation("/customer/login")}
+              onClick={() => setLocation("/login")}
               className="text-green-600 hover:text-green-700"
             >
               Voltar para o Login

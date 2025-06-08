@@ -202,7 +202,7 @@ export default function CustomerHome() {
   };
 
   const { data: supermarkets, isLoading } = useQuery({
-    queryKey: ["/api/customer/supermarkets-with-locations"],
+    queryKey: ["/api/supermarkets-with-locations"],
   });
 
   // Query para buscar pedidos do cliente
@@ -279,7 +279,7 @@ export default function CustomerHome() {
   }, [supermarkets, userLocation, locationPermission, searchTerm]);
 
   const handleSupermarketClick = (supermarketId: number, supermarketName: string) => {
-    navigate(`/customer/supermarket/${supermarketId}/products?name=${encodeURIComponent(supermarketName)}`);
+    navigate(`/supermarket/${supermarketId}/products?name=${encodeURIComponent(supermarketName)}`);
   };
 
   if (isLoading) {
@@ -314,7 +314,7 @@ export default function CustomerHome() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate("/customer/eco-points")}
+                onClick={() => navigate("/eco-points")}
                 className="bg-eco-green-light border-eco-green text-eco-green-dark hover:bg-eco-green hover:text-white"
               >
                 <Award size={16} className="mr-1" />
@@ -459,7 +459,7 @@ export default function CustomerHome() {
                   variant="ghost"
                   className="w-full justify-start text-left h-12 text-eco-gray-dark hover:bg-eco-green-light"
                   onClick={() => {
-                    navigate("/customer/eco-points");
+                    navigate("/eco-points");
                     setIsMobileMenuOpen(false);
                   }}
                 >
@@ -556,7 +556,7 @@ export default function CustomerHome() {
                 </div>
               </div>
               <Button
-                onClick={() => navigate("/customer/eco-points")}
+                onClick={() => navigate("/eco-points")}
                 className="bg-eco-blue hover:bg-eco-blue-dark text-white"
               >
                 {t('customer.learnMore')}

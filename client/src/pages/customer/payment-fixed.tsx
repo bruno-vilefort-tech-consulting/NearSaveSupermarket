@@ -18,7 +18,7 @@ export default function CustomerPaymentFixed() {
     if (savedOrderData) {
       setOrderData(JSON.parse(savedOrderData));
     } else {
-      navigate("/customer/cart");
+      navigate("/cart");
     }
   }, [navigate]);
 
@@ -52,7 +52,7 @@ export default function CustomerPaymentFixed() {
       localStorage.setItem('pixData', JSON.stringify(pixData));
       console.log('PIX data saved to localStorage:', pixData);
       
-      const pixRoute = `/customer/pix-payment/${result.tempOrderId}`;
+      const pixRoute = `/pix-payment/${result.tempOrderId}`;
       console.log('Redirecting to PIX page:', pixRoute);
       navigate(pixRoute);
     } catch (error) {
@@ -80,7 +80,7 @@ export default function CustomerPaymentFixed() {
       <div className="max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-center justify-center mb-8 relative">
-          <Link href="/customer/cart">
+          <Link href="/cart">
             <Button 
               variant="ghost" 
               size="icon" 
@@ -201,7 +201,7 @@ export default function CustomerPaymentFixed() {
           
           {/* Stripe Card Payment Button */}
           <Button
-            onClick={() => navigate(`/customer/stripe-checkout/${orderData.id}`)}
+            onClick={() => navigate(`/stripe-checkout/${orderData.id}`)}
             disabled={isProcessing}
             className="w-full bg-blue-600 hover:bg-blue-700 py-4 text-sm font-semibold shadow-lg rounded-xl text-white"
             size="lg"

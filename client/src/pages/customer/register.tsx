@@ -119,7 +119,7 @@ export default function CustomerRegister() {
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
       const { confirmPassword, acceptTerms, ...registerData } = data;
-      const response = await apiRequest("POST", "/api/customer/register", registerData);
+      const response = await apiRequest("POST", "/api/register", registerData);
       return response.json();
     },
     onSuccess: (data) => {
@@ -127,7 +127,7 @@ export default function CustomerRegister() {
         title: t('auth.registerSuccess'),
         description: t('auth.registerSuccessDescription'),
       });
-      navigate("/customer/login");
+      navigate("/login");
     },
     onError: (error: any) => {
       toast({
@@ -442,7 +442,7 @@ export default function CustomerRegister() {
               <p className="text-sm text-eco-gray">
                 {t('customer.alreadyHaveAccount')}{" "}
                 <button
-                  onClick={() => navigate("/customer/login")}
+                  onClick={() => navigate("/login")}
                   className="text-eco-blue hover:text-eco-blue-dark font-medium transition-colors"
                 >
                   {t('auth.login')}
@@ -455,7 +455,7 @@ export default function CustomerRegister() {
         {/* Voltar */}
         <div className="text-center mt-6">
           <button
-            onClick={() => navigate("/customer/login")}
+            onClick={() => navigate("/login")}
             className="inline-flex items-center space-x-2 text-eco-gray hover:text-eco-gray-dark transition-colors"
           >
             <ArrowLeft size={16} />

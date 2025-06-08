@@ -31,7 +31,7 @@ interface OrderData {
 
 export default function PixPayment() {
   const [, setLocation] = useLocation();
-  const [match, params] = useRoute('/customer/pix-payment/:orderId');
+  const [match, params] = useRoute('/pix-payment/:orderId');
   const [pixData, setPixData] = useState<PixPaymentData | null>(null);
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
@@ -47,7 +47,7 @@ export default function PixPayment() {
 
   useEffect(() => {
     if (!orderId || hasInitialized) {
-      if (!orderId) setLocation('/customer/home');
+      if (!orderId) setLocation('/home');
       return;
     }
 
@@ -68,7 +68,7 @@ export default function PixPayment() {
             description: "O tempo para pagamento expirou. Retornando ao início.",
             variant: "destructive",
           });
-          setTimeout(() => setLocation('/customer/home'), 3000);
+          setTimeout(() => setLocation('/home'), 3000);
           return 0;
         }
         return prev - 1;
@@ -100,7 +100,7 @@ export default function PixPayment() {
           description: "Dados do pedido não encontrados",
           variant: "destructive",
         });
-        setLocation('/customer/home');
+        setLocation('/home');
         return;
       }
 
@@ -173,7 +173,7 @@ export default function PixPayment() {
           
           // Redirect to orders page immediately
           setTimeout(() => {
-            setLocation('/customer/orders');
+            setLocation('/orders');
           }, 1500);
           
           return; // Para a execução desta função
@@ -260,7 +260,7 @@ export default function PixPayment() {
           <CardContent className="p-6 text-center">
             <p className="text-gray-600">Erro ao carregar dados do pagamento</p>
             <Button 
-              onClick={() => setLocation('/customer/home')} 
+              onClick={() => setLocation('/home')} 
               className="mt-4"
               variant="outline"
             >
@@ -280,7 +280,7 @@ export default function PixPayment() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setLocation('/customer/cart')}
+            onClick={() => setLocation('/cart')}
             className="mr-4"
           >
             <ArrowLeft className="w-4 h-4" />

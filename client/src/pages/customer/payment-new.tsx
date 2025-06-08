@@ -21,7 +21,7 @@ export default function CustomerPaymentNew() {
       setOrderData(JSON.parse(savedOrderData));
     } else {
       // Se não há dados do pedido, voltar para o carrinho
-      navigate("/customer/cart");
+      navigate("/cart");
     }
   }, [navigate]);
 
@@ -50,8 +50,8 @@ export default function CustomerPaymentNew() {
       console.log('PIX data saved to localStorage:', pixData);
       
       // Redirecionar para página PIX com tempOrderId
-      console.log('Redirecting to PIX page:', `/customer/pix-payment/${result.tempOrderId}`);
-      navigate(`/customer/pix-payment/${result.tempOrderId}`);
+      console.log('Redirecting to PIX page:', `/pix-payment/${result.tempOrderId}`);
+      navigate(`/pix-payment/${result.tempOrderId}`);
       
       return result;
     },
@@ -87,7 +87,7 @@ export default function CustomerPaymentNew() {
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <Link href="/customer/cart">
+          <Link href="/cart">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>

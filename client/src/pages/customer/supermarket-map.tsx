@@ -86,7 +86,7 @@ export default function SupermarketMap() {
   }, [isMobile]);
 
   const { data: supermarkets = [] } = useQuery({
-    queryKey: ['/api/customer/supermarkets/map'],
+    queryKey: ['/api/supermarkets/map'],
   });
 
   const validSupermarkets = (supermarkets as SupermarketLocation[]).filter((s: SupermarketLocation) => 
@@ -156,7 +156,7 @@ export default function SupermarketMap() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setLocation('/customer/home')}
+            onClick={() => setLocation('/home')}
             className="flex items-center gap-2 text-eco-gray hover:text-eco-gray-dark hover:bg-eco-gray-light"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -236,7 +236,7 @@ export default function SupermarketMap() {
                   </div>
 
                   <Button
-                    onClick={() => setLocation(`/customer/supermarket/${supermarket.id}/products`)}
+                    onClick={() => setLocation(`/supermarket/${supermarket.id}/products`)}
                     className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-semibold rounded-xl transition-colors"
                     size="sm"
                   >

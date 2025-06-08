@@ -38,7 +38,7 @@ export default function OrderReview() {
       setOrderData(JSON.parse(savedOrderReview));
     } else {
       // Se não há dados de revisão, volta para o carrinho
-      navigate('/customer/cart');
+      navigate('/cart');
     }
   }, [navigate]);
 
@@ -92,7 +92,7 @@ export default function OrderReview() {
         }));
 
         // Redirecionar para tela de pagamento PIX
-        navigate(`/customer/pix-payment/${result.orderId}`);
+        navigate(`/pix-payment/${result.orderId}`);
       } else if (paymentMethod === 'card') {
         // Criar pedido com status awaiting_payment para Stripe
         const response = await fetch('/api/public/orders', {
@@ -127,7 +127,7 @@ export default function OrderReview() {
         localStorage.removeItem('orderReview');
 
         // Redirecionar para checkout Stripe
-        navigate(`/customer/stripe-checkout/${result.id}`);
+        navigate(`/stripe-checkout/${result.id}`);
       }
       
     } catch (error) {
@@ -172,7 +172,7 @@ export default function OrderReview() {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-          <Link href="/customer/cart">
+          <Link href="/cart">
             <ArrowLeft className="h-6 w-6 text-eco-gray" />
           </Link>
           <h1 className="ml-4 text-lg font-bold text-eco-gray-dark">Revisar Pedido</h1>
@@ -372,7 +372,7 @@ export default function OrderReview() {
         <Button 
           variant="outline"
           className="w-full border-eco-green text-eco-green hover:bg-eco-green-light"
-          onClick={() => navigate('/customer/cart')}
+          onClick={() => navigate('/cart')}
           disabled={isProcessing}
         >
           Voltar ao Carrinho

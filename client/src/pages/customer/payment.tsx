@@ -35,7 +35,7 @@ export default function CustomerPayment() {
       setOrderData(JSON.parse(savedOrderData));
     } else {
       // Se não há dados do pedido, voltar para o carrinho
-      navigate("/customer/cart");
+      navigate("/cart");
     }
   }, [navigate]);
 
@@ -80,8 +80,8 @@ export default function CustomerPayment() {
         console.log('Order data saved to localStorage:', orderDataForPix);
         
         // Redirecionar para página PIX
-        console.log('Redirecting to PIX page:', `/customer/pix-payment/${order.id}`);
-        navigate(`/customer/pix-payment/${order.id}`);
+        console.log('Redirecting to PIX page:', `/pix-payment/${order.id}`);
+        navigate(`/pix-payment/${order.id}`);
         return { success: true, order, redirect: 'pix' };
       }
       
@@ -108,8 +108,8 @@ export default function CustomerPayment() {
         console.log('Order data saved to localStorage for card payment:', orderDataForCard);
         
         // Redirecionar para página de cartão
-        console.log('Redirecting to card payment page:', `/customer/card-payment?order=${order.id}&amount=${orderData.totalAmount}`);
-        navigate(`/customer/card-payment?order=${order.id}&amount=${orderData.totalAmount}`);
+        console.log('Redirecting to card payment page:', `/card-payment?order=${order.id}&amount=${orderData.totalAmount}`);
+        navigate(`/card-payment?order=${order.id}&amount=${orderData.totalAmount}`);
         return { success: true, order, redirect: 'card' };
       }
       
@@ -216,7 +216,7 @@ export default function CustomerPayment() {
     <div className="min-h-screen bg-eco-gray-light">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center">
-          <Link href="/customer/cart">
+          <Link href="/cart">
             <ArrowLeft className="h-6 w-6 text-eco-gray" />
           </Link>
           <div className="ml-4">

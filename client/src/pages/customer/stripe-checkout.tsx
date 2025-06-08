@@ -43,7 +43,7 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/customer/payment-success?orderId=${orderId}`,
+          return_url: `${window.location.origin}/payment-success?orderId=${orderId}`,
         },
         redirect: 'if_required'
       });
@@ -80,7 +80,7 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
               title: "Pagamento Aprovado!",
               description: "Redirecionando para confirmação...",
             });
-            setLocation(`/customer/payment-success?orderId=${orderId}`);
+            setLocation(`/payment-success?orderId=${orderId}`);
           } else {
             throw new Error('Erro ao confirmar pagamento no servidor');
           }
@@ -91,7 +91,7 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
             description: "Pagamento aprovado, mas houve erro na confirmação. Entre em contato se necessário.",
             variant: "destructive",
           });
-          setLocation(`/customer/payment-success?orderId=${orderId}`);
+          setLocation(`/payment-success?orderId=${orderId}`);
         }
       } else {
         console.log('⏳ Pagamento em processamento...', paymentIntent?.status);
@@ -127,7 +127,7 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation(`/customer/checkout?orderId=${orderId}`)}
+              onClick={() => setLocation(`/checkout?orderId=${orderId}`)}
               className="p-2"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -201,7 +201,7 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
                     type="button"
                     variant="outline"
                     className="w-full"
-                    onClick={() => setLocation(`/customer/checkout?orderId=${orderId}`)}
+                    onClick={() => setLocation(`/checkout?orderId=${orderId}`)}
                     disabled={isProcessing}
                   >
                     Voltar
@@ -225,7 +225,7 @@ const CheckoutForm = ({ orderId, amount, customerEmail, orderData }: CheckoutFor
 };
 
 export default function StripeCheckout() {
-  const [match, params] = useRoute('/customer/stripe-checkout/:orderId');
+  const [match, params] = useRoute('/stripe-checkout/:orderId');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState("");
