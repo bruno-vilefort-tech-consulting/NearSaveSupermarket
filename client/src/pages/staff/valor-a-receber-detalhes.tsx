@@ -78,11 +78,11 @@ function ValorAReceberDetalhes() {
 
   const getStatusBadge = (daysUntilDue: number) => {
     if (daysUntilDue < 0) {
-      return <Badge variant="destructive">Vencido</Badge>;
+      return <Badge className="bg-red-500 hover:bg-red-600 text-white">Vencido</Badge>;
     } else if (daysUntilDue <= 3) {
-      return <Badge className="bg-yellow-500 hover:bg-yellow-600">Vence em breve</Badge>;
+      return <Badge className="bg-eco-orange hover:bg-eco-orange text-white">Vence em breve</Badge>;
     } else {
-      return <Badge className="bg-green-500 hover:bg-green-600">No prazo</Badge>;
+      return <Badge className="bg-eco-sage hover:bg-eco-sage text-white">No prazo</Badge>;
     }
   };
 
