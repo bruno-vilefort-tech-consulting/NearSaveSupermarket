@@ -51,8 +51,8 @@ export default function CustomerLanding() {
       </div>
 
       {/* Ilustração das Sacolas */}
-      <div className="flex justify-center items-center">
-        <svg viewBox="0 0 150 80" className="w-[22rem] h-auto mx-auto">
+      <div className="flex justify-center items-center mb-8">
+        <svg viewBox="0 0 150 80" className="w-[20rem] h-auto">
           {/* Definições de gradientes */}
           <defs>
             <linearGradient id="greenBagGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -102,24 +102,22 @@ export default function CustomerLanding() {
       </div>
 
       {/* CTA Buttons */}
-      <div className="space-y-6">
-        <div className="flex flex-col gap-3 justify-center items-center w-full max-w-xs mx-auto">
-          <Button
-            onClick={handleLogin}
-            size="default"
-            className="w-full bg-eco-green hover:bg-eco-green-dark text-white px-6 py-3 text-base font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
-          >
-            {t('auth.login')}
-          </Button>
-          <Button
-            onClick={handleRegister}
-            variant="outline"
-            size="default"
-            className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-6 py-3 text-base font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
-          >
-            {t('customer.register')}
-          </Button>
-        </div>
+      <div className="flex flex-col gap-3 justify-center items-center w-full max-w-xs mx-auto">
+        <Button
+          onClick={handleLogin}
+          size="default"
+          className="w-full bg-eco-green hover:bg-eco-green-dark text-white px-6 py-3 text-base font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+        >
+          {t('auth.login')}
+        </Button>
+        <Button
+          onClick={handleRegister}
+          variant="outline"
+          size="default"
+          className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white px-6 py-3 text-base font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+        >
+          {t('customer.register')}
+        </Button>
       </div>
     </div>
   );
