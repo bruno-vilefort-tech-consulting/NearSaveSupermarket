@@ -25,6 +25,7 @@ interface SupermarketWithLocation {
   longitude: string | null;
   productCount: number;
   hasPromotions: boolean;
+  isSponsored: boolean;
   distance?: number;
 }
 
@@ -652,19 +653,35 @@ export default function CustomerHome() {
             filteredSupermarkets.map((supermarket: SupermarketWithLocation) => (
               <Card
                 key={supermarket.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-eco-green bg-white"
+                className={`hover:shadow-lg transition-shadow cursor-pointer border-l-4 bg-white ${
+                  supermarket.isSponsored ? 'border-l-eco-orange' : 'border-l-eco-green'
+                }`}
                 onClick={() => handleSupermarketClick(supermarket.id, supermarket.name)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-eco-blue-light rounded-lg flex items-center justify-center">
-                        <Store className="text-eco-blue" size={24} />
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                        supermarket.isSponsored ? 'bg-eco-orange-light' : 'bg-eco-blue-light'
+                      }`}>
+                        <Store className={`${
+                          supermarket.isSponsored ? 'text-eco-orange' : 'text-eco-blue'
+                        }`} size={24} />
                       </div>
-                      <div>
-                        <CardTitle className="text-lg font-semibold text-eco-gray-dark">
-                          {supermarket.name}
-                        </CardTitle>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg font-semibold text-eco-gray-dark">
+                            {supermarket.name}
+                          </CardTitle>
+                          {supermarket.isSponsored && (
+                            <Badge 
+                              variant="secondary" 
+                              className="ml-2 bg-eco-orange-light text-eco-orange text-xs px-2 py-1 border-eco-orange"
+                            >
+                              Patrocinado
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center text-sm text-eco-gray mt-1">
                           <MapPin size={14} className="mr-1" />
                           {supermarket.address}

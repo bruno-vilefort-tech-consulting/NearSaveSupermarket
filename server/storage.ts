@@ -1427,7 +1427,8 @@ export class DatabaseStorage implements IStorage {
         latitude: row.latitude,
         longitude: row.longitude,
         productCount: parseInt(row.product_count || '0'),
-        hasPromotions: row.has_promotions || false
+        hasPromotions: row.has_promotions || false,
+        isSponsored: row.is_sponsored === 1
       }));
     } catch (error) {
       console.error('Error in getSupermarketsWithLocations:', error);
