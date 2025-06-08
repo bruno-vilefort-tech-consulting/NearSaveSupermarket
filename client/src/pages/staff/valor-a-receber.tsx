@@ -39,9 +39,45 @@ interface PendingPayment {
   }[];
 }
 
+interface FinancialTransaction {
+  id: number;
+  orderId: number;
+  customerName: string;
+  customerEmail: string;
+  totalAmount: string;
+  netAmount: string;
+  commercialRate: string;
+  rateAmount: string;
+  status: 'pending' | 'paid' | 'overdue' | 'cancelled';
+  paymentMethod: 'credit_card' | 'pix' | 'cash';
+  completedAt: string;
+  dueDate: string;
+  paidAt?: string;
+  orderItems: Array<{
+    productName: string;
+    quantity: number;
+    unitPrice: string;
+    totalPrice: string;
+  }>;
+}
+
+interface FinancialSummary {
+  totalPending: number;
+  totalReceived: number;
+  totalOverdue: number;
+  pendingCount: number;
+  receivedCount: number;
+  overdueCount: number;
+  averageTicket: number;
+  monthlyRevenue: number;
+}
+
 function ValorAReceber() {
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
   const [, setLocation] = useLocation();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedTransaction, setSelectedTransaction] = useState<FinancialTransaction | null>(null);
 
   useEffect(() => {
     const staffInfo = localStorage.getItem('staffInfo');
@@ -59,6 +95,40 @@ function ValorAReceber() {
     }
   }, [setLocation]);
 
+  // Query for financial summary data
+  const { data: financialSummary, isLoading: summaryLoading } = useQuery<FinancialSummary>({
+    queryKey: ["/api/staff/financial-summary", staffUser?.id],
+    enabled: !!staffUser?.id,
+    queryFn: async () => {
+      const response = await fetch('/api/staff/financial-summary', {
+        headers: {
+          'x-staff-id': staffUser!.id.toString()
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    },
+  });
+
+  // Query for detailed transactions
+  const { data: transactions = [], isLoading: transactionsLoading } = useQuery<FinancialTransaction[]>({
+    queryKey: ["/api/staff/financial-transactions", staffUser?.id],
+    enabled: !!staffUser?.id,
+    queryFn: async () => {
+      const response = await fetch('/api/staff/financial-transactions', {
+        headers: {
+          'x-staff-id': staffUser!.id.toString()
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    },
+  });
+
   const { data: pendingPayments = [], isLoading } = useQuery({
     queryKey: ["/api/staff/pending-payments", staffUser?.id],
     enabled: !!staffUser?.id,
@@ -75,9 +145,21 @@ function ValorAReceber() {
     },
   });
 
-  const totalPending = pendingPayments.reduce((sum: number, payment: PendingPayment) => 
-    sum + parseFloat(payment.netAmount), 0
-  );
+  // Filter transactions based on search and status
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesSearch = transaction.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transaction.orderId.toString().includes(searchTerm);
+    const matchesStatus = statusFilter === "all" || transaction.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const formatCurrency = (value: number | string) => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(numValue);
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -92,17 +174,36 @@ function ValorAReceber() {
     return diffDays;
   };
 
-  const getStatusBadge = (daysUntilDue: number) => {
-    if (daysUntilDue < 0) {
-      return <Badge variant="destructive">Pagamento Atrasado</Badge>;
-    } else if (daysUntilDue <= 2) {
-      return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Próximo ao Prazo</Badge>;
-    } else {
-      return <Badge variant="outline">Dentro do Prazo</Badge>;
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      'pending': { variant: 'secondary' as const, label: 'Pendente', color: 'bg-yellow-100 text-yellow-800' },
+      'paid': { variant: 'default' as const, label: 'Pago', color: 'bg-green-100 text-green-800' },
+      'overdue': { variant: 'destructive' as const, label: 'Atrasado', color: '' },
+      'cancelled': { variant: 'outline' as const, label: 'Cancelado', color: 'bg-gray-100 text-gray-800' }
+    };
+    
+    const statusInfo = statusMap[status as keyof typeof statusMap] || { variant: 'outline' as const, label: status, color: '' };
+    return (
+      <Badge variant={statusInfo.variant} className={statusInfo.color}>
+        {statusInfo.label}
+      </Badge>
+    );
+  };
+
+  const getPaymentMethodIcon = (method: string) => {
+    switch (method) {
+      case 'credit_card':
+        return '💳';
+      case 'pix':
+        return '🔲';
+      case 'cash':
+        return '💵';
+      default:
+        return '💰';
     }
   };
 
-  if (isLoading || !staffUser) {
+  if (isLoading || summaryLoading || transactionsLoading || !staffUser) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
