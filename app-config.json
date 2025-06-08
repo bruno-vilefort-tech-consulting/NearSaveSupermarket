@@ -12,6 +12,12 @@
       "theme": "blue", 
       "entry": "apps/staff/src/main.tsx",
       "routes": "/staff"
+    },
+    "admin": {
+      "name": "SaveUp Admin",
+      "theme": "purple",
+      "entry": "apps/admin/src/main.tsx", 
+      "routes": "/admin"
     }
   }
 }
