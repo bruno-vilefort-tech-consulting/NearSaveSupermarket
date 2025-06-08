@@ -296,6 +296,24 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
     }
   };
 
+  const getRefundReasonText = (reason: string) => {
+    switch (reason) {
+      case 'staff_cancellation_remaining': return 'Cancelamento pelo estabelecimento';
+      case 'customer_cancellation': return 'Cancelamento pelo cliente';
+      case 'payment_failed': return 'Falha no pagamento';
+      case 'duplicate_charge': return 'Cobrança duplicada';
+      case 'requested_by_customer': return 'Solicitado pelo cliente';
+      case 'fraudulent': return 'Transação fraudulenta';
+      case 'subscription_canceled': return 'Assinatura cancelada';
+      case 'product_unacceptable': return 'Produto inaceitável';
+      case 'product_not_received': return 'Produto não recebido';
+      case 'unrecognized': return 'Transação não reconhecida';
+      case 'credit_not_processed': return 'Crédito não processado';
+      case 'general': return 'Motivo geral';
+      default: return reason;
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending': return <Clock className="h-4 w-4" />;
@@ -457,9 +475,6 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
                   {(() => {
                     const isFullRefund = parseFloat(order.refundAmount) === parseFloat(order.totalAmount);
                     const refundType = isFullRefund ? 'Total' : 'Parcial';
-                    
-                    if (order.pixPaymentId) return `Estorno ${refundType} PIX`;
-                    if (order.externalReference) return `Estorno ${refundType} Stripe`;
                     return `Estorno ${refundType}`;
                   })()}
                 </h5>
@@ -501,7 +516,7 @@ export function CustomerOrderCard({ order }: CustomerOrderCardProps) {
                   <div className="flex justify-between">
                     <span className="text-eco-gray">Motivo:</span>
                     <span className="font-medium text-eco-gray-dark text-right max-w-[60%]">
-                      {order.refundReason}
+                      {getRefundReasonText(order.refundReason)}
                     </span>
                   </div>
                 )}
