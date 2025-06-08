@@ -76,8 +76,12 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
         
         // Criar o pedido após pagamento bem-sucedido
         try {
+          console.log('🎯 Iniciando criação de pedido após pagamento Stripe bem-sucedido');
           const customerInfo = JSON.parse(localStorage.getItem('customerInfo') || '{}');
           const savedCart = localStorage.getItem('cart');
+          
+          console.log('👤 Customer Info:', customerInfo);
+          console.log('🛒 Saved Cart:', savedCart);
           
           if (savedCart) {
             const parsedCart = JSON.parse(savedCart);
@@ -86,17 +90,19 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
               customerName: customerInfo.fullName || 'Cliente',
               customerEmail: customerInfo.email,
               customerPhone: customerInfo.phone,
+              fulfillmentMethod: 'pickup',
+              totalAmount: totalAmount.toFixed(2),
+              paymentMethod: 'stripe',
               items: parsedCart.map((item: any) => ({
                 productId: item.id,
                 quantity: item.quantity,
                 priceAtTime: item.discountPrice
-              })),
-              totalAmount: totalAmount.toFixed(2),
-              paymentMethod: 'card',
-              externalReference: paymentIntent.id
+              }))
             };
 
-            const createOrderResponse = await fetch('/api/orders/create-public', {
+            console.log('📦 Order Data to send:', orderData);
+
+            const createOrderResponse = await fetch('/api/public/orders', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -104,17 +110,44 @@ const CheckoutForm = ({ totalAmount }: { totalAmount: number }) => {
               body: JSON.stringify(orderData)
             });
 
+            console.log('📡 Response status:', createOrderResponse.status);
+
             if (createOrderResponse.ok) {
-              console.log('Pedido criado com sucesso após pagamento Stripe');
+              const responseData = await createOrderResponse.json();
+              console.log('✅ Pedido criado com sucesso após pagamento Stripe:', responseData);
+              
+              // Atualizar o pedido com a referência do Stripe
+              try {
+                const updateResponse = await fetch(`/api/orders/${responseData.id}/external-reference`, {
+                  method: 'PATCH',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    externalReference: paymentIntent.id
+                  })
+                });
+                
+                if (updateResponse.ok) {
+                  console.log('✅ Referência do Stripe adicionada ao pedido');
+                } else {
+                  console.error('⚠️ Erro ao adicionar referência do Stripe ao pedido');
+                }
+              } catch (updateError) {
+                console.error('⚠️ Erro ao atualizar referência do pedido:', updateError);
+              }
+              
               // Limpar carrinho
               localStorage.removeItem('cart');
             } else {
               const errorText = await createOrderResponse.text();
-              console.error('Erro ao criar pedido após pagamento:', createOrderResponse.status, errorText);
+              console.error('❌ Erro ao criar pedido após pagamento:', createOrderResponse.status, errorText);
             }
+          } else {
+            console.error('❌ Carrinho não encontrado no localStorage');
           }
         } catch (error) {
-          console.error('Erro ao criar pedido após pagamento Stripe:', error);
+          console.error('❌ Erro ao criar pedido após pagamento Stripe:', error);
         }
         
         window.location.href = '/payment-success';
