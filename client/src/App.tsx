@@ -34,6 +34,7 @@ import StaffLanding from "@/pages/staff/landing";
 import StaffLogin from "@/pages/staff/login";
 import StaffRegister from "@/pages/staff/register";
 import StaffDashboard from "@/pages/staff/dashboard";
+import StaffProducts from "@/pages/staff/products";
 
 // Admin App Pages
 import AdminLogin from "@/pages/admin/login";
@@ -77,6 +78,7 @@ function Router() {
       <Route path="/staff/login" component={StaffLogin} />
       <Route path="/staff/register" component={StaffRegister} />
       <Route path="/staff/dashboard" component={StaffDashboard} />
+      <Route path="/staff/products" component={StaffProducts} />
       
       {/* Admin App Routes */}
       <Route path="/admin" component={AdminLogin} />
