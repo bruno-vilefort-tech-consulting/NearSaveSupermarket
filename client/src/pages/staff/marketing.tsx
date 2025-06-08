@@ -115,7 +115,7 @@ function StaffMarketing() {
   ];
 
   const handlePlanSelection = (plan: SponsorshipPlan) => {
-    setLocation(`/staff/marketing-confirmation?planId=${plan.id}&planName=${encodeURIComponent(plan.name)}&price=${plan.price}&duration=${encodeURIComponent(plan.duration)}`);
+    setLocation(`/supermercado/marketing/confirmacao/${plan.id}?planName=${encodeURIComponent(plan.name)}&price=${plan.price}&duration=${encodeURIComponent(plan.duration)}`);
   };
 
   if (!staffUser) {
