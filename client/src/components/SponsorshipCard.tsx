@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,11 @@ export function SponsorshipCard({ isSponsored = false, companyName = "Seu Superm
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Sync local state with prop changes
+  useEffect(() => {
+    setLocalSponsored(isSponsored);
+  }, [isSponsored]);
+
   const sponsorshipMutation = useMutation({
     mutationFn: async (newStatus: boolean) => {
       const response = await apiRequest("PATCH", "/api/staff/sponsorship/update", {
@@ -32,6 +37,7 @@ export function SponsorshipCard({ isSponsored = false, companyName = "Seu Superm
       });
       // Invalidate relevant queries to update the UI
       queryClient.invalidateQueries({ queryKey: ["/api/staff/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/staff/sponsorship/status"] });
     },
     onError: (error: any) => {
       toast({
