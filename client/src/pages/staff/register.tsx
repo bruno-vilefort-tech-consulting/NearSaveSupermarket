@@ -251,14 +251,22 @@ function StaffRegister() {
                   id="cnpj"
                   type="text"
                   placeholder="00.000.000/0000-00"
-                  className="pl-10"
+                  className={`pl-10 ${cnpjError ? 'border-red-500' : ''}`}
                   value={cnpjValue}
                   onChange={handleCnpjChange}
                   maxLength={18}
                 />
+                {isCheckingCnpj && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full" />
+                  </div>
+                )}
               </div>
               {errors.cnpj && (
                 <p className="text-sm text-red-600">{errors.cnpj.message}</p>
+              )}
+              {cnpjError && (
+                <p className="text-sm text-red-600">{cnpjError}</p>
               )}
             </div>
 

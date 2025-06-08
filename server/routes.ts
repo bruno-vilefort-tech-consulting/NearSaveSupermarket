@@ -105,6 +105,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Also serve static files normally for other cases
   app.use("/uploads", express.static(uploadDir));
 
+  // CNPJ validation route
+  app.get('/api/staff/validate-cnpj/:cnpj', async (req, res) => {
+    try {
+      const { cnpj } = req.params;
+      
+      if (!cnpj || cnpj.length !== 14) {
+        return res.status(400).json({ message: "CNPJ inválido" });
+      }
+
+      const existingStaff = await storage.getStaffUserByCnpj(cnpj);
+      
+      if (existingStaff) {
+        return res.json({
+          available: false,
+          status: existingStaff.approvalStatus,
+          message: "CNPJ já cadastrado"
+        });
+      }
+      
+      res.json({
+        available: true,
+        message: "CNPJ disponível"
+      });
+    } catch (error: any) {
+      console.error("Error validating CNPJ:", error);
+      res.status(500).json({ message: "Erro ao validar CNPJ" });
+    }
+  });
+
   // Staff registration route
   app.post('/api/staff/register', async (req, res) => {
     try {
@@ -116,17 +145,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (existingStaff) {
         return res.status(400).json({ message: "Email já está cadastrado" });
       }
+
+      // Check if CNPJ already exists
+      const existingCnpj = await storage.getStaffUserByCnpj(staffData.cnpj);
+      if (existingCnpj) {
+        return res.status(400).json({ message: "CNPJ já está cadastrado" });
+      }
       
       // Hash password
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(staffData.password, saltRounds);
       
-      // Create staff user with location data
+      // Create staff user with location data and pending status
       const newStaffUser = await storage.createStaffUser({
         ...staffData,
         password: hashedPassword,
         latitude: latitude ? latitude.toString() : null,
-        longitude: longitude ? longitude.toString() : null
+        longitude: longitude ? longitude.toString() : null,
+        approvalStatus: 'pending' // All new registrations start as pending
       });
       
       // Set sponsorship status if requested during registration
