@@ -68,7 +68,7 @@ function AdminSupermarkets() {
     }
   }, [setLocation]);
 
-  const { data: supermarkets, isLoading } = useQuery({
+  const { data: supermarkets = [], isLoading, refetch } = useQuery<Supermarket[]>({
     queryKey: ["/api/admin/supermarkets"],
     retry: false,
   });

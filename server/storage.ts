@@ -1739,6 +1739,18 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(staffUsers).orderBy(staffUsers.createdAt);
   }
 
+  async updateStaffData(staffId: number, updateData: Partial<StaffUser>): Promise<void> {
+    await db
+      .update(staffUsers)
+      .set({
+        ...updateData,
+        updatedAt: new Date()
+      })
+      .where(eq(staffUsers.id, staffId));
+    
+    console.log(`✅ [STAFF UPDATE] Staff ${staffId} atualizado com dados:`, updateData);
+  }
+
   // Admin user operations
   async getAdminUserByEmail(email: string): Promise<AdminUser | undefined> {
     const [adminUser] = await db.select().from(adminUsers).where(eq(adminUsers.email, email));
