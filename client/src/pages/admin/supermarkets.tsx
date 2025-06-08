@@ -6,11 +6,36 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Store, ArrowLeft, Plus, Edit, MapPin, CreditCard, Building, CheckCircle, XCircle } from "lucide-react";
+import { Store, ArrowLeft, Plus, Edit, MapPin, CreditCard, Building, CheckCircle, XCircle, Receipt, Eye, DollarSign, Calendar } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+interface FinancialItem {
+  orderId: number;
+  customerName: string;
+  customerEmail: string | null;
+  supermarketId: number;
+  supermarketName: string;
+  orderTotal: string;
+  commercialRate: string;
+  rateAmount: string;
+  amountToReceive: string;
+  orderDate: Date | null;
+  paymentTerms: number;
+  paymentDate: Date;
+  status: string;
+  items: Array<{
+    productName: string;
+    quantity: number;
+    unitPrice: string;
+    totalPrice: string;
+  }>;
+}
 
 interface Supermarket {
   id: number;
@@ -247,6 +272,10 @@ function AdminSupermarkets() {
                     <CheckCircle className="h-4 w-4" />
                     <span>Aprovação</span>
                   </TabsTrigger>
+                  <TabsTrigger value="financial" className="flex items-center space-x-2">
+                    <Receipt className="h-4 w-4" />
+                    <span>Extrato Financeiro</span>
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="general" className="mt-6">
@@ -419,6 +448,10 @@ function AdminSupermarkets() {
                     </CardContent>
                   </Card>
                 </TabsContent>
+
+                <TabsContent value="financial" className="mt-6">
+                  <FinancialStatementTab supermarketId={selectedSupermarket?.id || 0} />
+                </TabsContent>
               </Tabs>
             </div>
           </div>
@@ -530,6 +563,267 @@ function AdminSupermarkets() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Component for Financial Statement Tab
+function FinancialStatementTab({ supermarketId }: { supermarketId: number }) {
+  const [selectedOrder, setSelectedOrder] = useState<FinancialItem | null>(null);
+
+  const { data: financialData = [], isLoading } = useQuery<FinancialItem[]>({
+    queryKey: ["/api/admin/financial-statement", supermarketId],
+    retry: false,
+  });
+
+  // Filter data for this specific supermarket
+  const supermarketData = financialData.filter(item => item.supermarketId === supermarketId);
+
+  const formatCurrency = (value: string) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(parseFloat(value));
+  };
+
+  const formatDate = (date: Date | string) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    return format(dateObj, 'dd/MM/yyyy', { locale: ptBR });
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      'completed': { variant: 'default' as const, label: 'Concluído' },
+      'payment_confirmed': { variant: 'default' as const, label: 'Pagamento Confirmado' },
+      'prepared': { variant: 'secondary' as const, label: 'Preparado' },
+      'shipped': { variant: 'secondary' as const, label: 'Enviado' },
+      'picked_up': { variant: 'default' as const, label: 'Retirado' }
+    };
+    
+    const statusInfo = statusMap[status as keyof typeof statusMap] || { variant: 'outline' as const, label: status };
+    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+  };
+
+  const totalRevenue = supermarketData.reduce((sum, item) => sum + parseFloat(item.orderTotal), 0);
+  const totalCommission = supermarketData.reduce((sum, item) => sum + parseFloat(item.rateAmount), 0);
+  const totalToReceive = supermarketData.reduce((sum, item) => sum + parseFloat(item.amountToReceive), 0);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(totalRevenue.toString())}</div>
+            <p className="text-xs text-muted-foreground">Total de vendas processadas</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Comissão SaveUp</CardTitle>
+            <Receipt className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">{formatCurrency(totalCommission.toString())}</div>
+            <p className="text-xs text-muted-foreground">Taxa comercial descontada</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Valor a Receber</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{formatCurrency(totalToReceive.toString())}</div>
+            <p className="text-xs text-muted-foreground">Valor líquido do supermercado</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Orders Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Pedidos Financeiros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {supermarketData.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Receipt className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p>Nenhum pedido encontrado para este supermercado</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Pedido</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Data Pedido</TableHead>
+                    <TableHead>Data Pagamento</TableHead>
+                    <TableHead>Valor Total</TableHead>
+                    <TableHead>Taxa (%)</TableHead>
+                    <TableHead>Comissão</TableHead>
+                    <TableHead>A Receber</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {supermarketData.map((item) => (
+                    <TableRow key={item.orderId}>
+                      <TableCell className="font-medium">#{item.orderId}</TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{item.customerName}</div>
+                          {item.customerEmail && (
+                            <div className="text-sm text-gray-500">{item.customerEmail}</div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{item.orderDate ? formatDate(item.orderDate) : '-'}</TableCell>
+                      <TableCell>{formatDate(item.paymentDate)}</TableCell>
+                      <TableCell className="font-medium text-green-600">
+                        {formatCurrency(item.orderTotal)}
+                      </TableCell>
+                      <TableCell>{item.commercialRate}%</TableCell>
+                      <TableCell className="font-medium text-purple-600">
+                        {formatCurrency(item.rateAmount)}
+                      </TableCell>
+                      <TableCell className="font-medium text-blue-600">
+                        {formatCurrency(item.amountToReceive)}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(item.status)}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedOrder(item)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Ver
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Detalhes do Pedido #{selectedOrder.orderId}</h2>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedOrder(null)}
+                >
+                  Fechar
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Informações do Cliente</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div><strong>Nome:</strong> {selectedOrder.customerName}</div>
+                    <div><strong>Email:</strong> {selectedOrder.customerEmail || 'Não informado'}</div>
+                    <div><strong>Status:</strong> {getStatusBadge(selectedOrder.status)}</div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Informações Financeiras</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div><strong>Taxa Comercial:</strong> {selectedOrder.commercialRate}%</div>
+                    <div><strong>Prazo Pagamento:</strong> {selectedOrder.paymentTerms} dias</div>
+                    <div><strong>Data Pagamento:</strong> {formatDate(selectedOrder.paymentDate)}</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Resumo Financeiro</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {formatCurrency(selectedOrder.orderTotal)}
+                      </div>
+                      <div className="text-sm text-gray-600">Valor Total do Pedido</div>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {formatCurrency(selectedOrder.rateAmount)}
+                      </div>
+                      <div className="text-sm text-gray-600">Comissão SaveUp</div>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {formatCurrency(selectedOrder.amountToReceive)}
+                      </div>
+                      <div className="text-sm text-gray-600">Valor a Receber</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="text-lg">Itens do Pedido</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Produto</TableHead>
+                        <TableHead>Quantidade</TableHead>
+                        <TableHead>Valor Unitário</TableHead>
+                        <TableHead>Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedOrder.items.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{item.productName}</TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
+                          <TableCell className="font-medium">{formatCurrency(item.totalPrice)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
