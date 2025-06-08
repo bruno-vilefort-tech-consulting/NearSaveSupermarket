@@ -52,15 +52,24 @@ export default function StaffSettings() {
   });
 
   // Get staff user data
-  const { data: staffUser, isLoading } = useQuery<StaffUser>({
+  const { data: staffUser, isLoading, error } = useQuery<StaffUser>({
     queryKey: ['/api/staff/me'],
     queryFn: async () => {
-      const email = localStorage.getItem('staffEmail');
+      const staffInfo = localStorage.getItem('staffInfo');
+      if (!staffInfo) throw new Error('No staff info found');
+      
+      const parsedStaffInfo = JSON.parse(staffInfo);
+      const email = parsedStaffInfo.email;
+      
       if (!email) throw new Error('No staff email found');
       const response = await fetch(`/api/staff/me?email=${encodeURIComponent(email)}`);
-      if (!response.ok) throw new Error('Failed to fetch user data');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch user data');
+      }
       return response.json();
-    }
+    },
+    retry: false
   });
 
   // Update form when data loads
@@ -184,10 +193,29 @@ export default function StaffSettings() {
     changePasswordMutation.mutate(passwordForm);
   };
 
-  if (isLoading || !staffUser) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (error || !staffUser) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Erro ao carregar dados</h2>
+          <p className="text-gray-600 mb-4">
+            {error?.message || 'Não foi possível carregar seus dados. Faça login novamente.'}
+          </p>
+          <button 
+            onClick={() => window.location.href = '/supermercado/login'}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+          >
+            Ir para Login
+          </button>
+        </div>
       </div>
     );
   }
