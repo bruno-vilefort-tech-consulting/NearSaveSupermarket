@@ -5,77 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SaveUp - Cliente</title>
-    <style>
-      body {
-        font-family: system-ui, -apple-system, sans-serif;
-        margin: 0;
-        padding: 40px;
-        background: #f5f7fa;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .container {
-        max-width: 600px;
-        text-align: center;
-      }
-      h1 {
-        color: #1e2832;
-        margin-bottom: 30px;
-      }
-      .app-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        margin-top: 40px;
-      }
-      .app-card {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        text-decoration: none;
-        color: inherit;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-      .app-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-      }
-      .app-title {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
-      .staff { color: #3B82F6; }
-      .customer { color: #16A34A; }
-      .app-description {
-        color: #64748B;
-        font-size: 14px;
-      }
-    </style>
   </head>
   <body>
-    <div class="container">
-      <h1>SaveUp Platform</h1>
-      <p>Choose your application:</p>
-      
-      <div class="app-grid">
-        <a href="/staff" class="app-card">
-          <div class="app-title staff">Staff App</div>
-          <div class="app-description">
-            Manage products, orders, and supermarket operations
-          </div>
-        </a>
-        
-        <a href="/customer" class="app-card">
-          <div class="app-title customer">Customer App</div>
-          <div class="app-description">
-            Browse products, place orders, and earn eco points
-          </div>
-        </a>
-      </div>
-    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
