@@ -84,6 +84,8 @@ function Router() {
       {/* Friendly Routes */}
       <Route path="/cliente" component={CustomerLanding} />
       <Route path="/supermercado" component={StaffLanding} />
+      <Route path="/supermercado/register" component={StaffRegister} />
+      <Route path="/supermercado/login" component={StaffLogin} />
       <Route path="/administrador" component={AdminLogin} />
       
       {/* Terms and Conditions - Public access */}
