@@ -98,13 +98,26 @@ export default function StripePayment() {
 
   const createPaymentIntent = async (amount: number) => {
     try {
+      console.log('Criando payment intent para valor:', amount);
       const response = await apiRequest("POST", "/api/create-payment-intent", { 
         amount: amount 
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
-      setClientSecret(data.clientSecret);
+      console.log('Payment intent criado:', data.clientSecret ? 'Sucesso' : 'Falha');
+      
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+      } else {
+        throw new Error('Client secret não retornado');
+      }
     } catch (error) {
       console.error('Erro ao criar payment intent:', error);
+      setClientSecret(""); // Reset em caso de erro
     } finally {
       setIsCreatingPayment(false);
     }
@@ -120,7 +133,7 @@ export default function StripePayment() {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  if (isCreatingPayment || !clientSecret) {
+  if (isCreatingPayment) {
     return (
       <div className="min-h-screen bg-eco-sage-light">
         {/* Header */}
@@ -142,6 +155,38 @@ export default function StripePayment() {
         <div className="max-w-md mx-auto p-4">
           <div className="h-screen flex items-center justify-center">
             <div className="animate-spin w-8 h-8 border-4 border-eco-green border-t-transparent rounded-full" aria-label="Loading"/>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!clientSecret) {
+    return (
+      <div className="min-h-screen bg-eco-sage-light">
+        {/* Header */}
+        <div className="bg-white shadow-sm">
+          <div className="max-w-md mx-auto">
+            <div className="flex items-center p-4">
+              <a href="/customer/payment-method" className="mr-4">
+                <ArrowLeft className="h-6 w-6 text-eco-gray-dark hover:text-eco-blue transition-colors" />
+              </a>
+              <div>
+                <h1 className="text-lg font-bold text-eco-gray-dark">Pagamento com Cartão</h1>
+                <p className="text-sm text-eco-gray">Erro ao carregar</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Error Content */}
+        <div className="max-w-md mx-auto p-4">
+          <div className="bg-white rounded-lg shadow-sm border border-eco-gray-light p-6 text-center">
+            <h2 className="text-lg font-semibold text-eco-gray-dark mb-2">Erro ao Carregar Pagamento</h2>
+            <p className="text-eco-gray mb-4">Não foi possível inicializar o pagamento. Tente novamente.</p>
+            <a href="/customer/payment-method" className="inline-block bg-eco-green hover:bg-eco-green-dark text-white font-semibold py-2 px-4 rounded-xl transition-colors">
+              Voltar
+            </a>
           </div>
         </div>
       </div>
