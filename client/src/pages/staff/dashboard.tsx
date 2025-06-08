@@ -96,14 +96,24 @@ function StaffDashboard() {
                 <p className="text-sm text-gray-600">Painel do Supermercado</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={handleLogout}
-              className="flex items-center space-x-2"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Sair</span>
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button 
+                variant="ghost" 
+                onClick={() => setLocation('/supermercado/configuracoes')}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+              >
+                <Settings className="h-4 w-4" />
+                <span>Configurações</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="flex items-center space-x-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sair</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -242,16 +252,16 @@ function StaffDashboard() {
                 ? 'hover:shadow-md cursor-pointer' 
                 : 'opacity-50 cursor-not-allowed'
             }`} 
-            onClick={() => staffUser.approvalStatus === 'approved' && setLocation('/supermercado/configuracoes')}
+            onClick={() => staffUser.approvalStatus === 'approved' && setLocation('/supermercado/valor-a-receber')}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Configurações</CardTitle>
-              <Settings className="h-4 w-4 text-gray-600" />
+              <CardTitle className="text-sm font-medium">Valores Recebidos</CardTitle>
+              <DollarSign className="h-4 w-4 text-gray-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">-</div>
               <p className="text-xs text-muted-foreground">
-                {staffUser.approvalStatus === 'approved' ? 'Configurar conta' : 'Requer aprovação'}
+                {staffUser.approvalStatus === 'approved' ? 'Ver pagamentos' : 'Requer aprovação'}
               </p>
             </CardContent>
           </Card>
