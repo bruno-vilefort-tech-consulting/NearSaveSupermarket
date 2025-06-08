@@ -22,7 +22,7 @@ interface CartItem {
   };
 }
 
-export default function CarrinhoFinal() {
+export default function CartPagePt() {
   const [, setLocation] = useLocation();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [deliveryType, setDeliveryType] = useState("pickup");
