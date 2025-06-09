@@ -4,6 +4,7 @@ import { ShoppingCart, Users, Leaf, Globe, ChevronDown, Recycle, Heart, Trending
 import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect, useRef } from "react";
 import VersionDisplay from "@/components/VersionDisplay";
+import deliveryImage from "@assets/20250608_2055_Entregador em Lambreta_remix_01jx8ze4m4f5a9s66kt9rnn9eb_1749427224219.png";
 
 export default function Landing() {
   const { t, setLanguage } = useLanguage();
@@ -47,59 +48,13 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Ilustração do Carrinho */}
-      <div className="flex justify-center">
-        <svg viewBox="0 0 300 200" className="w-[40rem] h-auto">
-          {/* Definições de gradientes */}
-          <defs>
-            <linearGradient id="cartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(210 65% 40%)" />
-              <stop offset="100%" stopColor="hsl(210 70% 30%)" />
-            </linearGradient>
-            <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(25 95% 55%)" />
-              <stop offset="100%" stopColor="hsl(25 95% 45%)" />
-            </linearGradient>
-            <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(160 60% 30%)" />
-              <stop offset="100%" stopColor="hsl(160 65% 25%)" />
-            </linearGradient>
-          </defs>
-
-          {/* Carrinho principal */}
-          <rect x="80" y="100" width="80" height="50" rx="8" fill="url(#cartGradient)" />
-          <rect x="85" y="85" width="70" height="20" rx="5" fill="url(#cartGradient)" opacity="0.8" />
-          
-          {/* Alça do carrinho */}
-          <rect x="70" y="90" width="15" height="35" rx="3" fill="url(#cartGradient)" />
-          
-          {/* Rodas */}
-          <circle cx="95" cy="165" r="12" fill="hsl(0 0% 30%)" />
-          <circle cx="95" cy="165" r="8" fill="hsl(0 0% 20%)" />
-          <circle cx="145" cy="165" r="12" fill="hsl(0 0% 30%)" />
-          <circle cx="145" cy="165" r="8" fill="hsl(0 0% 20%)" />
-          
-          {/* Produtos no carrinho */}
-          <rect x="90" y="90" width="15" height="20" rx="3" fill="url(#orangeGradient)" />
-          <rect x="110" y="95" width="15" height="15" rx="3" fill="url(#greenGradient)" />
-          <rect x="130" y="88" width="15" height="22" rx="3" fill="url(#cartGradient)" />
-          
-          {/* Folhas decorativas */}
-          <path d="M200 60 Q205 55 210 60 Q205 65 200 60" fill="url(#greenGradient)" opacity="0.7" />
-          <path d="M220 80 Q225 75 230 80 Q225 85 220 80" fill="url(#greenGradient)" opacity="0.6" />
-          <path d="M40 70 Q45 65 50 70 Q45 75 40 70" fill="url(#greenGradient)" opacity="0.5" />
-          
-          {/* Símbolo de reciclagem */}
-          <g transform="translate(200, 120)">
-            <path d="M0 0 Q-8 -8 0 -16 Q8 -8 0 0" fill="url(#greenGradient)" opacity="0.8" />
-            <path d="M12 8 Q20 0 12 -8 Q4 0 12 8" fill="url(#greenGradient)" opacity="0.8" />
-            <path d="M-12 8 Q-20 0 -12 -8 Q-4 0 -12 8" fill="url(#greenGradient)" opacity="0.8" />
-          </g>
-          
-          {/* Corações flutuantes */}
-          <path d="M50 40 Q45 35 40 40 Q45 45 50 40 Q55 35 60 40 Q55 45 50 40" fill="url(#orangeGradient)" opacity="0.6" />
-          <path d="M240 50 Q235 45 230 50 Q235 55 240 50 Q245 45 250 50 Q245 55 240 50" fill="url(#orangeGradient)" opacity="0.5" />
-        </svg>
+      {/* Delivery Image */}
+      <div className="flex justify-center py-4">
+        <img 
+          src={deliveryImage} 
+          alt="Entregador em lambreta SaveUp" 
+          className="w-64 h-64 object-contain"
+        />
       </div>
       
       {/* Marketing Tagline */}

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import shoppingBagsImage from "@assets/20250608_0832_Fundo Transparente_remix_01jx7mygx5e83sfwrt5bjztmnn_1749384214861.png";
+import deliveryImage from "@assets/20250608_2055_Entregador em Lambreta_remix_01jx8ze4m4f5a9s66kt9rnn9eb_1749427224219.png";
 
 function StaffLanding() {
   const [, setLocation] = useLocation();
@@ -18,11 +18,11 @@ function StaffLanding() {
           </p>
         </div>
 
-        {/* Shopping Bags Image */}
+        {/* Delivery Image */}
         <div className="flex justify-center py-4">
           <img 
-            src={shoppingBagsImage} 
-            alt="Sacolas coloridas de compras" 
+            src={deliveryImage} 
+            alt="Entregador em lambreta" 
             className="w-48 h-48 object-contain"
           />
         </div>
