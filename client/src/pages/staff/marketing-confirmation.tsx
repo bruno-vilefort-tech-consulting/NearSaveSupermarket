@@ -8,6 +8,14 @@ import { CheckCircle, XCircle, ArrowLeft, CreditCard, Calendar, Star } from 'luc
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useQueryClient } from '@tanstack/react-query';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Initialize Stripe
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+}
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface SponsorshipPlan {
   id: string;
@@ -20,11 +28,129 @@ interface SponsorshipPlan {
   popularity: string;
 }
 
+// Payment form component with Stripe
+function PaymentForm({ selectedPlan, onPaymentSuccess, onPaymentError, isProcessing, setIsProcessing }: {
+  selectedPlan: SponsorshipPlan;
+  onPaymentSuccess: () => void;
+  onPaymentError: (error: string) => void;
+  isProcessing: boolean;
+  setIsProcessing: (processing: boolean) => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const { toast } = useToast();
+
+  const handlePayment = async () => {
+    if (!stripe || !elements) {
+      onPaymentError("Stripe não está carregado corretamente");
+      return;
+    }
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      onPaymentError("Elemento do cartão não encontrado");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const staffInfo = localStorage.getItem('staffInfo');
+      const staffData = staffInfo ? JSON.parse(staffInfo) : null;
+
+      // Create payment intent for marketing subscription
+      const response = await fetch('/api/staff/marketing/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Staff-Id': staffData?.id?.toString() || '',
+        },
+        body: JSON.stringify({
+          planId: selectedPlan.id,
+          planName: selectedPlan.name,
+          price: selectedPlan.price
+        })
+      });
+
+      const { clientSecret } = await response.json();
+
+      if (!clientSecret) {
+        throw new Error('Não foi possível criar a intenção de pagamento');
+      }
+
+      // Confirm payment with Stripe
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: staffData?.companyName || 'Supermercado',
+            email: staffData?.email || '',
+          },
+        },
+      });
+
+      if (error) {
+        onPaymentError(error.message || 'Erro no pagamento');
+      } else if (paymentIntent?.status === 'succeeded') {
+        onPaymentSuccess();
+      } else {
+        onPaymentError('Pagamento não foi processado corretamente');
+      }
+    } catch (error: any) {
+      onPaymentError(error.message || 'Erro interno do servidor');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="p-4 border border-gray-200 rounded-lg">
+        <h3 className="font-medium mb-3" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+          Informações do Cartão
+        </h3>
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': {
+                  color: '#aab7c4',
+                },
+              },
+            },
+          }}
+        />
+      </div>
+      
+      <Button 
+        onClick={handlePayment}
+        disabled={!stripe || isProcessing}
+        className="w-full bg-eco-green hover:bg-eco-green-dark text-white"
+      >
+        {isProcessing ? (
+          <div className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            Processando Pagamento...
+          </div>
+        ) : (
+          <>
+            <CreditCard className="h-4 w-4 mr-2" />
+            Pagar R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
 export default function MarketingConfirmation() {
   const [, setLocation] = useLocation();
   const [match, params] = useRoute('/supermercado/marketing/confirmacao/:planId');
   const [isProcessing, setIsProcessing] = useState(false);
   const [agreementChecked, setAgreementChecked] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -111,7 +237,7 @@ export default function MarketingConfirmation() {
     );
   }
 
-  const handleConfirmActivation = async () => {
+  const handleConfirmActivation = () => {
     if (!agreementChecked) {
       toast({
         title: "Confirmação Necessária",
@@ -121,53 +247,31 @@ export default function MarketingConfirmation() {
       return;
     }
 
-    setIsProcessing(true);
+    setShowPaymentForm(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    toast({
+      title: "Pagamento Realizado com Sucesso!",
+      description: `O plano ${selectedPlan.name} foi ativado. Sua campanha de marketing está ativa.`,
+    });
     
-    try {
-      const staffInfo = localStorage.getItem('staffInfo');
-      const staffData = staffInfo ? JSON.parse(staffInfo) : null;
-      
-      const response = await fetch('/api/staff/marketing/activate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Staff-Id': staffData?.id?.toString() || '',
-        },
-        body: JSON.stringify({
-          planId: selectedPlan.id,
-          planName: selectedPlan.name,
-          price: selectedPlan.price
-        })
-      });
+    // Invalidate marketing subscription cache to ensure fresh data
+    queryClient.invalidateQueries({ queryKey: ['/api/staff/marketing-subscription'] });
+    
+    // Small delay to ensure cache invalidation before redirect
+    setTimeout(() => {
+      setLocation('/supermercado/marketing');
+    }, 1000);
+  };
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        toast({
-          title: "Plano Ativado com Sucesso!",
-          description: `O plano ${selectedPlan.name} foi ativado. O valor será deduzido do seu contas a receber.`,
-        });
-        
-        // Invalidate marketing subscription cache to ensure fresh data
-        queryClient.invalidateQueries({ queryKey: ['/api/staff/marketing-subscription'] });
-        
-        // Small delay to ensure cache invalidation before redirect
-        setTimeout(() => {
-          setLocation('/supermercado/marketing');
-        }, 500);
-      } else {
-        throw new Error(result.message || 'Erro ao ativar plano');
-      }
-    } catch (error: any) {
-      console.error('Error activating plan:', error);
-      toast({
-        title: "Erro na Ativação",
-        description: error.message || "Não foi possível ativar o plano. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+  const handlePaymentError = (error: string) => {
+    toast({
+      title: "Falha no Pagamento",
+      description: error || "Não foi possível processar o pagamento. Tente novamente.",
+      variant: "destructive",
+    });
+    setShowPaymentForm(false);
   };
 
   const handleCancel = () => {
@@ -277,7 +381,7 @@ export default function MarketingConfirmation() {
                   Forma de Pagamento
                 </h4>
                 <p className="text-sm" style={{ color: 'hsl(var(--eco-blue-dark))' }}>
-                  Dedução automática do saldo em contas a receber
+                  Pagamento seguro via cartão de crédito
                 </p>
               </div>
 
@@ -303,8 +407,8 @@ export default function MarketingConfirmation() {
 
               <div className="mt-6 p-3 rounded-lg" style={{ backgroundColor: 'hsl(var(--eco-sage-light))' }}>
                 <p className="text-xs" style={{ color: 'hsl(var(--eco-sage-dark))' }}>
-                  O valor será processado automaticamente após a confirmação. 
-                  Você receberá um comprovante por email.
+                  O pagamento será processado de forma segura via Stripe. 
+                  Você receberá um comprovante por email após a confirmação.
                 </p>
               </div>
             </CardContent>
@@ -344,25 +448,42 @@ export default function MarketingConfirmation() {
                 </ul>
               </div>
 
-              <div className="flex items-start space-x-3 pt-4">
-                <Checkbox 
-                  id="agreement" 
-                  checked={agreementChecked}
-                  onCheckedChange={(checked) => setAgreementChecked(!!checked)}
-                  className="mt-1"
-                />
-                <label 
-                  htmlFor="agreement" 
-                  className="text-sm leading-relaxed cursor-pointer"
-                  style={{ color: 'hsl(var(--eco-gray-dark))' }}
-                >
-                  Eu li e concordo com os termos de ativação do plano. Autorizo a dedução do valor 
-                  <strong style={{ color: 'hsl(var(--eco-green))' }}>
-                    {' '}R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}{' '}
-                  </strong> 
-                  do meu saldo em contas a receber ou a geração de fatura caso o saldo seja insuficiente.
-                </label>
-              </div>
+              {!showPaymentForm ? (
+                <div className="flex items-start space-x-3 pt-4">
+                  <Checkbox 
+                    id="agreement" 
+                    checked={agreementChecked}
+                    onCheckedChange={(checked) => setAgreementChecked(!!checked)}
+                    className="mt-1"
+                  />
+                  <label 
+                    htmlFor="agreement" 
+                    className="text-sm leading-relaxed cursor-pointer"
+                    style={{ color: 'hsl(var(--eco-gray-dark))' }}
+                  >
+                    Eu li e concordo com os termos de ativação do plano. Autorizo o pagamento via cartão de crédito no valor de 
+                    <strong style={{ color: 'hsl(var(--eco-green))' }}>
+                      {' '}R$ {selectedPlan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}{' '}
+                    </strong> 
+                    para ativação da campanha de marketing.
+                  </label>
+                </div>
+              ) : (
+                <div className="pt-4">
+                  <h4 className="font-semibold mb-4" style={{ color: 'hsl(var(--eco-gray-dark))' }}>
+                    Finalize o Pagamento
+                  </h4>
+                  <Elements stripe={stripePromise}>
+                    <PaymentForm
+                      selectedPlan={selectedPlan}
+                      onPaymentSuccess={handlePaymentSuccess}
+                      onPaymentError={handlePaymentError}
+                      isProcessing={isProcessing}
+                      setIsProcessing={setIsProcessing}
+                    />
+                  </Elements>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
