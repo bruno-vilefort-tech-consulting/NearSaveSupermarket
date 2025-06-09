@@ -2688,18 +2688,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate email content
       const emailContent = generatePasswordResetEmail(resetLink, customer.fullName);
       
-      // For development - log the reset link instead of sending email
-      console.log('='.repeat(60));
-      console.log('🔑 PASSWORD RESET LINK FOR:', customer.email);
-      console.log('🔗 Link:', resetLink);
-      console.log('⏰ Expires at:', expiresAt.toLocaleString());
-      console.log('='.repeat(60));
-      
-      // Return success message (in production, would send email)
-      res.json({ 
-        message: "Link de redefinição de senha foi gerado. Verifique o console do servidor para o link de teste.",
-        resetLink: resetLink // Only for development
+      // Send password reset email
+      const emailSent = await sendEmail({
+        to: customer.email,
+        from: process.env.SENDGRID_VERIFIED_SENDER || 'noreply@saveup.eco.br',
+        subject: emailContent.subject,
+        text: emailContent.text,
+        html: emailContent.html
       });
+
+      if (!emailSent) {
+        console.error('Failed to send password reset email to:', customer.email);
+        // Log the link as fallback for development
+        console.log('='.repeat(60));
+        console.log('🔑 FALLBACK PASSWORD RESET LINK FOR:', customer.email);
+        console.log('🔗 Link:', resetLink);
+        console.log('⏰ Expires at:', expiresAt.toLocaleString());
+        console.log('='.repeat(60));
+        
+        return res.status(500).json({ 
+          message: "Erro ao enviar email. Entre em contato com o suporte.",
+          fallbackLink: resetLink // Only for development/testing
+        });
+      }
+
+      console.log('Password reset email sent successfully to:', customer.email);
+      res.json({ message: "Instruções para redefinir sua senha foram enviadas para seu email." });
     } catch (error) {
       console.error("Error in forgot password:", error);
       res.status(500).json({ message: "Erro ao processar solicitação" });
@@ -2781,7 +2795,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email
       const emailSent = await sendEmail({
         to: email,
-        from: 'neves.isabel.cristina@gmail.com',
+        from: process.env.SENDGRID_VERIFIED_SENDER || 'noreply@saveup.eco.br',
         subject: emailContent.subject,
         text: emailContent.text,
         html: emailContent.html
