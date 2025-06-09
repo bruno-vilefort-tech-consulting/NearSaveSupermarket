@@ -53,7 +53,7 @@ export default function Landing() {
         <img 
           src={deliveryImage} 
           alt="Entregador em lambreta SaveUp" 
-          className="w-[32rem] h-[32rem] object-contain"
+          className="w-96 h-96 object-contain"
         />
       </div>
       
