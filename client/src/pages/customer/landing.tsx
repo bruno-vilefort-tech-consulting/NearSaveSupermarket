@@ -39,14 +39,14 @@ export default function CustomerLanding() {
       {/* Logo e Título Principal */}
       <div className="space-y-4 md:space-y-6">
         <div className="space-y-2 md:space-y-3">
-          <h1 className="text-3xl md:text-5xl font-bold text-eco-gray-dark tracking-tight">
+          <h1 className="text-5xl md:text-8xl font-bold text-eco-gray-dark tracking-tight">
             {t('landing.title')}
           </h1>
           <div className="flex justify-center">
-            <span className="text-eco-orange text-[10px] font-bold">By Up Brasil</span>
+            <span className="text-eco-orange text-[15px] font-bold">By Up Brasil</span>
           </div>
           <div className="flex justify-center mt-2">
-            <span className="bg-gray-500 text-white text-[8px] font-medium px-2 py-1 rounded">Versão Beta</span>
+            <span className="bg-gray-500 text-white text-[12px] font-medium px-3 py-1.5 rounded">Versão Beta</span>
           </div>
         </div>
       </div>
