@@ -334,17 +334,27 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
         const product = products[i];
         
         try {
-          await apiRequest('POST', '/api/products', {
-            name: product.nome,
-            description: product.descricao,
-            category: product.categoria,
-            originalPrice: product.precoOriginal.toString(),
-            discountPrice: product.precoDesconto.toString(),
-            quantity: product.quantidade,
-            expirationDate: product.dataVencimento,
-            imageUrl: product.imagemUrl || null,
-            createdByStaff: staffId
+          const response = await fetch('/api/staff/products', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Staff-Id': staffId.toString()
+            },
+            body: JSON.stringify({
+              name: product.nome,
+              description: product.descricao,
+              category: product.categoria,
+              originalPrice: product.precoOriginal.toString(),
+              discountPrice: product.precoDesconto.toString(),
+              quantity: product.quantidade,
+              expirationDate: product.dataVencimento,
+              imageUrl: product.imagemUrl || null
+            })
           });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
           
           successCount++;
         } catch (error) {
