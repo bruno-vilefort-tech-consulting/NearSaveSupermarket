@@ -51,7 +51,7 @@ export default function Landing() {
       {/* Delivery Image */}
       <div className="flex justify-center py-4">
         <img 
-          src={deliveryImage} 
+          src={deliveryImage}
           alt="Entregador em lambreta SaveUp" 
           className="w-96 h-96 object-contain"
         />
