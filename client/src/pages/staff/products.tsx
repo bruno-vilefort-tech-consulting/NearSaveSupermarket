@@ -8,13 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, Plus, Edit, Trash2, ArrowLeft, Search, Eye, Calendar, DollarSign, Milk, Beef, Fish, Apple, Carrot, Wheat, Coffee, Droplets, Wine, Snowflake, Sparkles, Upload, X, Image } from "lucide-react";
+import { Package, Plus, Edit, Trash2, ArrowLeft, Search, Eye, Calendar, DollarSign, Milk, Beef, Fish, Apple, Carrot, Wheat, Coffee, Droplets, Wine, Snowflake, Sparkles, Upload, X, Image, FileSpreadsheet } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import ImportExcelModal from "@/components/ImportExcelModal";
 
 interface Product {
   id: number;
@@ -63,6 +64,7 @@ function StaffProducts() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -423,13 +425,23 @@ function StaffProducts() {
                 <p className="text-sm text-gray-600">{staffUser.companyName}</p>
               </div>
             </div>
-            <Button 
-              onClick={() => setIsCreating(true)}
-              className="bg-eco-green hover:bg-eco-green/90"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Produto
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                onClick={() => setIsImportModalOpen(true)}
+                variant="outline"
+                className="border-eco-green text-eco-green hover:bg-eco-green hover:text-white"
+              >
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Importar Excel
+              </Button>
+              <Button 
+                onClick={() => setIsCreating(true)}
+                className="bg-eco-green hover:bg-eco-green/90"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Produto
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -974,6 +986,16 @@ function StaffProducts() {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Import Excel Modal */}
+        <ImportExcelModal
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["/api/staff/products"] });
+            setIsImportModalOpen(false);
+          }}
+        />
       </main>
     </div>
   );
