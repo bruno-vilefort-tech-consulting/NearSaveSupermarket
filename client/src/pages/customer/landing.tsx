@@ -35,37 +35,37 @@ export default function CustomerLanding() {
   }, []);
 
   const ModernHeroSection = () => (
-    <div className="relative text-center space-y-4 md:space-y-8">
+    <div className="relative text-center space-y-3 sm:space-y-6 px-2">
       {/* Logo e Título Principal */}
-      <div className="space-y-4 md:space-y-6">
-        <div className="space-y-2 md:space-y-3">
-          <h1 className="text-5xl md:text-8xl font-bold text-eco-gray-dark tracking-tight">
+      <div className="space-y-2 sm:space-y-4">
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold text-eco-gray-dark tracking-tight leading-tight">
             {t('landing.title')}
           </h1>
           <div className="flex justify-center">
-            <span className="text-eco-orange text-[15px] font-bold">By Up Brasil</span>
+            <span className="text-eco-orange text-sm sm:text-[15px] font-bold">By Up Brasil</span>
           </div>
-          <div className="flex justify-center mt-2">
-            <span className="bg-gray-500 text-white text-[12px] font-medium px-3 py-1.5 rounded">Versão Beta</span>
+          <div className="flex justify-center mt-1">
+            <span className="bg-gray-500 text-white text-[10px] sm:text-[12px] font-medium px-2 sm:px-3 py-1 sm:py-1.5 rounded">Versão Beta</span>
           </div>
         </div>
       </div>
 
       {/* Delivery Image */}
-      <div className="flex justify-center items-center my-4 md:my-8">
+      <div className="flex justify-center items-center my-3 sm:my-6">
         <img 
           src={deliveryImage} 
           alt="Entregador em lambreta SaveUp" 
-          className="w-72 md:w-96 h-auto max-w-full object-contain drop-shadow-lg"
+          className="w-56 sm:w-72 md:w-96 h-auto max-w-[90vw] object-contain drop-shadow-lg"
         />
       </div>
 
       {/* CTA Buttons */}
-      <div className="flex flex-col gap-4 justify-center items-center w-full max-w-xs mx-auto px-4">
+      <div className="flex flex-col gap-3 sm:gap-4 justify-center items-center w-full max-w-xs mx-auto px-4">
         <Button
           onClick={handleLogin}
           size="lg"
-          className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
+          className="w-full bg-gradient-to-r from-eco-green to-eco-green-dark hover:from-eco-green-dark hover:to-eco-green text-white py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
         >
           {t('auth.login')}
         </Button>
@@ -73,7 +73,7 @@ export default function CustomerLanding() {
           onClick={handleRegister}
           variant="outline"
           size="lg"
-          className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white py-4 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
+          className="w-full border-2 border-eco-green text-eco-green hover:bg-eco-green hover:text-white py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 ease-in-out"
         >
           {t('customer.register')}
         </Button>
@@ -157,30 +157,30 @@ export default function CustomerLanding() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-eco-gray-light to-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-eco-gray-light to-white flex flex-col overflow-x-hidden">
       {/* Header */}
-      <div className="flex justify-end items-center p-4">
+      <div className="flex justify-end items-center p-2 sm:p-4">
         {/* Language Selector */}
         <div className="relative" ref={languageMenuRef}>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-            className="flex items-center space-x-2 text-eco-gray hover:text-eco-gray-dark"
+            className="flex items-center space-x-1 sm:space-x-2 text-eco-gray hover:text-eco-gray-dark text-xs sm:text-sm"
           >
-            <Globe size={16} />
-            <span className="text-sm">{t('common.language')}</span>
-            <ChevronDown size={14} />
+            <Globe size={14} className="sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-sm">{t('common.language')}</span>
+            <ChevronDown size={12} className="sm:w-3.5 sm:h-3.5" />
           </Button>
           
           {isLanguageMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-eco-gray-light z-50">
+            <div className="absolute right-0 mt-2 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-eco-gray-light z-50">
               <button
                 onClick={() => {
                   setLanguage('pt-BR');
                   setIsLanguageMenuOpen(false);
                 }}
-                className="w-full px-4 py-2 text-left hover:bg-eco-gray-light rounded-t-lg transition-colors"
+                className="w-full px-3 sm:px-4 py-2 text-left hover:bg-eco-gray-light rounded-t-lg transition-colors text-sm"
               >
                 🇧🇷 Português
               </button>
@@ -189,7 +189,7 @@ export default function CustomerLanding() {
                   setLanguage('en-US');
                   setIsLanguageMenuOpen(false);
                 }}
-                className="w-full px-4 py-2 text-left hover:bg-eco-gray-light rounded-b-lg transition-colors"
+                className="w-full px-3 sm:px-4 py-2 text-left hover:bg-eco-gray-light rounded-b-lg transition-colors text-sm"
               >
                 🇺🇸 English
               </button>
@@ -199,7 +199,7 @@ export default function CustomerLanding() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-center items-center px-4 py-8">
+      <div className="flex-1 flex flex-col justify-center items-center px-2 sm:px-4 py-4 sm:py-8 min-h-0">
         <ModernHeroSection />
       </div>
     </div>
