@@ -49,9 +49,10 @@ export default function ForgotPassword() {
       return result;
     },
     onSuccess: (data) => {
+      console.log('✅ Email enviado com sucesso:', data);
       toast({
-        title: t('auth.emailSentSuccess'),
-        description: t('auth.emailSentDesc'),
+        title: "Email enviado!",
+        description: "Verifique sua caixa de entrada para instruções de redefinição de senha.",
       });
       navigate("/login");
     },
