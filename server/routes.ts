@@ -3912,6 +3912,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: 'marketing_subscription'
         },
         description: `Plano de Marketing: ${planName}`,
+        automatic_payment_methods: {
+          enabled: true,
+        },
       });
 
       console.log(`💳 STRIPE: Payment intent criado para staff ${staffId}, plano ${planName}, valor R$ ${price}`);

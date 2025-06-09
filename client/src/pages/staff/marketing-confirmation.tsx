@@ -15,7 +15,9 @@ import { loadStripe } from '@stripe/stripe-js';
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
 }
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY, {
+  locale: 'pt-BR',
+});
 
 interface SponsorshipPlan {
   id: string;
@@ -145,6 +147,7 @@ function PaymentForm({ selectedPlan, onPaymentSuccess, onPaymentError, isProcess
                 },
               },
             },
+            hidePostalCode: true,
           }}
         />
       </div>
