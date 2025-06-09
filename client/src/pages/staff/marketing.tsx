@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Rocket, ArrowLeft, Star, Target, TrendingUp, Calendar, MapPin, Users, DollarSign, CheckCircle, X } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Rocket, ArrowLeft, Star, Target, TrendingUp, Calendar, MapPin, Users, DollarSign, CheckCircle, X, AlertTriangle } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -44,6 +45,7 @@ interface SubscriptionResponse {
 function StaffMarketing() {
   const [, setLocation] = useLocation();
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -145,9 +147,12 @@ function StaffMarketing() {
   });
 
   const handleCancelCampaign = () => {
-    if (confirm("Tem certeza que deseja cancelar sua campanha de marketing? Esta ação não pode ser desfeita.")) {
-      cancelCampaignMutation.mutate();
-    }
+    setShowCancelDialog(true);
+  };
+
+  const confirmCancelCampaign = () => {
+    cancelCampaignMutation.mutate();
+    setShowCancelDialog(false);
   };
 
   const handlePlanSelection = (plan: SponsorshipPlan) => {
@@ -583,6 +588,84 @@ function StaffMarketing() {
           </Card>
         </div>
       </main>
+
+      {/* Modal de Cancelamento de Campanha */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent className="sm:max-w-[425px]" style={{ backgroundColor: 'hsl(var(--eco-cream))' }}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2" style={{ color: 'hsl(var(--eco-red))' }}>
+              <AlertTriangle className="h-5 w-5" />
+              Cancelar Campanha de Marketing
+            </DialogTitle>
+            <DialogDescription style={{ color: 'hsl(var(--eco-gray))' }}>
+              Tem certeza que deseja cancelar sua campanha de marketing ativa?
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <div className="bg-white p-4 rounded-lg border border-eco-gray-light space-y-3">
+              {subscriptionData?.subscription && (
+                <>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Plano Atual:</span>
+                    <span style={{ color: 'hsl(var(--eco-green))' }}>
+                      {subscriptionData.subscription.planName}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Valor Mensal:</span>
+                    <span className="font-semibold">
+                      R$ {parseFloat(subscriptionData.subscription.price).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Expira em:</span>
+                    <span>
+                      {new Date(subscriptionData.subscription.expiresAt).toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <div className="flex items-center gap-2 text-orange-800 font-medium mb-2">
+                <AlertTriangle className="h-4 w-4" />
+                Importante
+              </div>
+              <p className="text-sm text-orange-700">
+                • O cancelamento será efetivo imediatamente<br/>
+                • Seu supermercado perderá a visibilidade premium<br/>
+                • Esta ação não pode ser desfeita
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowCancelDialog(false)}
+              className="flex-1 border-eco-green text-eco-green hover:bg-eco-green-light"
+            >
+              Manter Campanha
+            </Button>
+            <Button 
+              onClick={confirmCancelCampaign}
+              disabled={cancelCampaignMutation.isPending}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+            >
+              {cancelCampaignMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Cancelando...
+                </div>
+              ) : (
+                "Sim, Cancelar"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
