@@ -2688,22 +2688,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate email content
       const emailContent = generatePasswordResetEmail(resetLink, customer.fullName);
       
-      // Send email
-      const emailSent = await sendEmail({
-        to: customer.email,
-        from: 'noreply@gmail.com',
-        subject: emailContent.subject,
-        text: emailContent.text,
-        html: emailContent.html
+      // For development - log the reset link instead of sending email
+      console.log('='.repeat(60));
+      console.log('🔑 PASSWORD RESET LINK FOR:', customer.email);
+      console.log('🔗 Link:', resetLink);
+      console.log('⏰ Expires at:', expiresAt.toLocaleString());
+      console.log('='.repeat(60));
+      
+      // Return success message (in production, would send email)
+      res.json({ 
+        message: "Link de redefinição de senha foi gerado. Verifique o console do servidor para o link de teste.",
+        resetLink: resetLink // Only for development
       });
-
-      if (!emailSent) {
-        console.error('Failed to send password reset email to:', customer.email);
-        return res.status(500).json({ message: "Erro ao enviar email. Verifique sua configuração do SendGrid." });
-      }
-
-      console.log('Password reset email sent successfully to:', customer.email);
-      res.json({ message: "Instruções para redefinir sua senha foram enviadas para seu email." });
     } catch (error) {
       console.error("Error in forgot password:", error);
       res.status(500).json({ message: "Erro ao processar solicitação" });
@@ -2785,7 +2781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send email
       const emailSent = await sendEmail({
         to: email,
-        from: 'noreply@gmail.com',
+        from: 'neves.isabel.cristina@gmail.com',
         subject: emailContent.subject,
         text: emailContent.text,
         html: emailContent.html

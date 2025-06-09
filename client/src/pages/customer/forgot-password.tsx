@@ -49,12 +49,19 @@ export default function ForgotPassword() {
       return result;
     },
     onSuccess: (data) => {
-      console.log('✅ Email enviado com sucesso:', data);
+      console.log('✅ Reset link gerado:', data);
       toast({
-        title: "Email enviado!",
-        description: "Verifique sua caixa de entrada para instruções de redefinição de senha.",
+        title: "Link de reset gerado!",
+        description: data.resetLink ? `Link: ${data.resetLink}` : "Verifique o console do servidor para o link de teste.",
+        duration: 10000,
       });
-      navigate("/login");
+      
+      // Show the reset link in an alert for easy access
+      if (data.resetLink) {
+        setTimeout(() => {
+          alert(`Link de reset: ${data.resetLink}\n\nClique OK e cole este link no navegador.`);
+        }, 1000);
+      }
     },
     onError: (error: any) => {
       toast({
