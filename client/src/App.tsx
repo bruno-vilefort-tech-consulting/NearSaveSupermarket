@@ -28,6 +28,7 @@ import ForgotPassword from "@/pages/customer/forgot-password";
 import ResetPassword from "@/pages/customer/reset-password";
 import Terms from "@/pages/terms";
 import TermsAndConditions from "@/pages/terms-and-conditions";
+import AccessLinks from "@/pages/access-links";
 
 // Staff App Pages
 import StaffLanding from "@/pages/staff/landing";
@@ -128,6 +129,7 @@ function Router() {
       {/* Terms and Conditions - Public access */}
       <Route path="/terms" component={Terms} />
       <Route path="/terms-and-conditions" component={TermsAndConditions} />
+      <Route path="/access-links" component={AccessLinks} />
       
       <Route component={NotFound} />
     </Switch>
