@@ -3,9 +3,9 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
 import { db } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and, or } from "drizzle-orm";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, insertMarketingSubscriptionSchema, type StaffUser, staffUsers } from "@shared/schema";
+import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCustomerSchema, insertPushSubscriptionSchema, insertMarketingSubscriptionSchema, type StaffUser, staffUsers, orders, orderItems, products } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, cancelPixPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
@@ -47,7 +47,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2024-06-20",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -270,7 +270,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stats,
         debugInfo: {
           validItems: validItemsQuery,
-          includedOrderIds: [...new Set(validItemsQuery.map(item => item.orderId))],
+          includedOrderIds: Array.from(new Set(validItemsQuery.map(item => item.orderId))),
           includesOrder281: validItemsQuery.some(item => item.orderId === 281)
         }
       });
