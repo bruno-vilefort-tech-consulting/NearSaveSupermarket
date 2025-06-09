@@ -167,11 +167,21 @@ export default function CustomerRegister() {
     // Verificar se o formulário é válido
     if (!form.formState.isValid) {
       console.log('❌ Formulário inválido, erros:', form.formState.errors);
-      toast({
-        title: "Erro no formulário",
-        description: "Por favor, corrija os erros destacados em vermelho.",
-        variant: "destructive",
-      });
+      
+      // Verificar se o problema é apenas os termos não aceitos
+      if (!data.acceptTerms && Object.keys(form.formState.errors).length === 0) {
+        toast({
+          title: "Aceite os termos",
+          description: "Você precisa aceitar os Termos e Condições para se cadastrar.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro no formulário",
+          description: "Por favor, corrija os erros destacados em vermelho.",
+          variant: "destructive",
+        });
+      }
       return;
     }
     
