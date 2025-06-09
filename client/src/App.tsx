@@ -64,6 +64,7 @@ function Router() {
       <Route path="/register" component={CustomerRegister} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/customer/reset-password" component={ResetPassword} />
       
       {/* Customer App Routes */}
       <Route path="/customer" component={CustomerHome} />
