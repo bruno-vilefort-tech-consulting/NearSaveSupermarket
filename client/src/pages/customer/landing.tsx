@@ -4,7 +4,7 @@ import { ShoppingCart, Users, Leaf, Globe, ChevronDown, Recycle, Heart, Trending
 import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import shoppingBagsImage from "@assets/20250608_0832_Fundo Transparente_remix_01jx7mygx5e83sfwrt5bjztmnn_1749382406471.png";
+import deliveryImage from "@assets/20250608_2055_Entregador em Lambreta_remix_01jx8ze4m4f5a9s66kt9rnn9eb_1749427224219.png";
 
 export default function CustomerLanding() {
   const { t, setLanguage } = useLanguage();
@@ -51,12 +51,12 @@ export default function CustomerLanding() {
         </div>
       </div>
 
-      {/* Ilustração das Sacolas Coloridas */}
+      {/* Delivery Image */}
       <div className="flex justify-center items-center my-4 md:my-8">
         <img 
-          src={shoppingBagsImage} 
-          alt="Sacolas de compras coloridas" 
-          className="w-48 md:w-64 h-auto max-w-full object-contain drop-shadow-lg"
+          src={deliveryImage} 
+          alt="Entregador em lambreta SaveUp" 
+          className="w-72 md:w-96 h-auto max-w-full object-contain drop-shadow-lg"
         />
       </div>
 
