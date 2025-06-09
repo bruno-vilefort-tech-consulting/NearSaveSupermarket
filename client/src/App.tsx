@@ -30,6 +30,7 @@ import ResetPassword from "@/pages/customer/reset-password";
 import Terms from "@/pages/terms";
 import TermsAndConditions from "@/pages/terms-and-conditions";
 import AccessLinks from "@/pages/access-links";
+import TestePWA from "@/pages/teste-pwa";
 
 // Staff App Pages
 import StaffLanding from "@/pages/staff/landing";
@@ -131,6 +132,7 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/terms-and-conditions" component={TermsAndConditions} />
       <Route path="/access-links" component={AccessLinks} />
+      <Route path="/teste-pwa" component={TestePWA} />
       
       <Route component={NotFound} />
     </Switch>
