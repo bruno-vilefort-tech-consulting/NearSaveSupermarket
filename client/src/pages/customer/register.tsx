@@ -134,6 +134,13 @@ export default function CustomerRegister() {
       try {
         const response = await apiRequest("POST", "/api/customer/register", registerData);
         console.log('📥 Resposta da API:', response.status, response.statusText);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.log('❌ Erro retornado pelo servidor:', errorData);
+          throw new Error(errorData.message || 'Erro no servidor');
+        }
+        
         const result = await response.json();
         console.log('📥 Dados retornados:', result);
         return result;
