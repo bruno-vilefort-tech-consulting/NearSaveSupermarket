@@ -3871,9 +3871,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Marketing activation endpoint
   app.post("/api/staff/marketing/activate", async (req, res) => {
     try {
-      const staffId = parseInt(req.headers['x-staff-id'] as string);
+      // Accept both header formats for compatibility
+      const staffIdHeader = req.headers['x-staff-id'] || req.headers['X-Staff-Id'];
+      const staffId = parseInt(staffIdHeader as string);
       
-      if (!staffId) {
+      console.log('Marketing activation request:', { 
+        staffIdHeader, 
+        staffId, 
+        body: req.body 
+      });
+      
+      if (!staffId || isNaN(staffId)) {
+        console.log('Staff ID validation failed:', { staffIdHeader, staffId });
         return res.status(401).json({ 
           success: false, 
           message: "Staff ID not found" 
@@ -3882,10 +3891,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { planId, planName, price } = req.body;
       
-      if (!planId || !planName || !price) {
+      console.log('Plan data validation:', { planId, planName, price });
+      
+      if (!planId || !planName || price === undefined || price === null) {
+        console.log('Plan data validation failed:', { planId, planName, price });
         return res.status(400).json({ 
           success: false, 
-          message: "Plan data is required" 
+          message: "Dados do plano são obrigatórios (planId, planName, price)" 
         });
       }
 
