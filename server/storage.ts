@@ -1367,6 +1367,7 @@ export class DatabaseStorage implements IStorage {
     activeProducts: number;
     pendingOrders: number;
     totalRevenue: number;
+    activeCampaigns: number;
   }> {
     const [activeProductsResult] = await db
       .select({ count: sql<number>`count(*)` })
@@ -1433,10 +1434,22 @@ export class DatabaseStorage implements IStorage {
     const commission = grossRevenue * (commercialRate / 100);
     const netRevenue = grossRevenue - commission;
 
+    // Count active marketing campaigns for this staff
+    const [activeCampaignsResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(marketingSubscriptions)
+      .where(
+        and(
+          eq(marketingSubscriptions.staffId, staffId),
+          eq(marketingSubscriptions.status, "active")
+        )
+      );
+
     return {
       activeProducts: Number(activeProductsResult.count),
       pendingOrders: Number(pendingOrdersCount),
       totalRevenue: Number(netRevenue),
+      activeCampaigns: Number(activeCampaignsResult.count),
     };
   }
 

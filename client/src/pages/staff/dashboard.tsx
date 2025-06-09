@@ -20,6 +20,7 @@ interface StaffStats {
   activeProducts: number;
   pendingOrders: number;
   totalRevenue: number;
+  activeCampaigns: number;
 }
 
 function StaffDashboard() {
@@ -259,7 +260,7 @@ function StaffDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600">
-                {staffUser.approvalStatus === 'approved' ? '3' : '0'}
+                {staffUser.approvalStatus === 'approved' ? (stats?.activeCampaigns || 0) : 0}
               </div>
               <p className="text-xs text-muted-foreground">
                 {staffUser.approvalStatus === 'approved' ? 'Campanhas ativas' : 'Requer aprovação'}
