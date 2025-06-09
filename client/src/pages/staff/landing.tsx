@@ -23,7 +23,7 @@ function StaffLanding() {
           <img 
             src={deliveryImage} 
             alt="Entregador em lambreta" 
-            className="w-48 h-48 object-contain"
+            className="w-96 h-96 object-contain"
           />
         </div>
 
