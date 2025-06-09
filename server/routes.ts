@@ -3699,6 +3699,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get supermarkets for map display
+  app.get("/api/customer/supermarkets/map", async (req, res) => {
+    try {
+      const supermarkets = await storage.getSupermarketsWithLocations();
+      console.log(`📍 [MAP] Returning ${supermarkets.length} supermarkets with locations`);
+      res.json(supermarkets);
+    } catch (error: any) {
+      console.error('Erro ao buscar supermercados para mapa:', error);
+      res.status(500).json({ message: "Erro interno do servidor" });
+    }
+  });
+
   // Get supermarket location by name
   app.get("/api/customer/supermarket/location/:name", async (req, res) => {
     try {

@@ -87,6 +87,9 @@ export default function SupermarketMap() {
 
   const { data: supermarkets = [] } = useQuery({
     queryKey: ['/api/customer/supermarkets/map'],
+    staleTime: 0, // Force fresh data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const validSupermarkets = (supermarkets as SupermarketLocation[]).filter((s: SupermarketLocation) => 
