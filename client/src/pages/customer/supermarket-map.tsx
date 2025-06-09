@@ -86,7 +86,7 @@ export default function SupermarketMap() {
   }, [isMobile]);
 
   const { data: supermarkets = [] } = useQuery({
-    queryKey: ['/api/supermarkets/map'],
+    queryKey: ['/api/customer/supermarkets/map'],
   });
 
   const validSupermarkets = (supermarkets as SupermarketLocation[]).filter((s: SupermarketLocation) => 
