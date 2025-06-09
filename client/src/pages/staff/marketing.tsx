@@ -50,9 +50,11 @@ function StaffMarketing() {
   const queryClient = useQueryClient();
 
   // Check for existing marketing subscription
-  const { data: subscriptionData, isLoading: subscriptionLoading } = useQuery<SubscriptionResponse>({
+  const { data: subscriptionData, isLoading: subscriptionLoading, refetch: refetchSubscription } = useQuery<SubscriptionResponse>({
     queryKey: ['/api/staff/marketing-subscription'],
     enabled: !!staffUser?.id,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10000, // Refetch every 10 seconds
   });
 
   useEffect(() => {
@@ -70,6 +72,18 @@ function StaffMarketing() {
       setLocation('/staff');
     }
   }, [setLocation]);
+
+  // Force refresh when page gains focus to ensure updated data
+  useEffect(() => {
+    const handleFocus = () => {
+      if (staffUser?.id) {
+        refetchSubscription();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [staffUser?.id, refetchSubscription]);
 
   const sponsorshipPlans: SponsorshipPlan[] = [
     {

@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { CheckCircle, XCircle, ArrowLeft, CreditCard, Calendar, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface SponsorshipPlan {
   id: string;
@@ -25,6 +26,7 @@ export default function MarketingConfirmation() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [agreementChecked, setAgreementChecked] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Plans data (matching marketing page exactly)
   const plans: SponsorshipPlan[] = [
@@ -146,8 +148,13 @@ export default function MarketingConfirmation() {
           description: `O plano ${selectedPlan.name} foi ativado. O valor será deduzido do seu contas a receber.`,
         });
         
-        // Redirect to marketing page or dashboard
-        setLocation('/supermercado/marketing');
+        // Invalidate marketing subscription cache to ensure fresh data
+        queryClient.invalidateQueries({ queryKey: ['/api/staff/marketing-subscription'] });
+        
+        // Small delay to ensure cache invalidation before redirect
+        setTimeout(() => {
+          setLocation('/supermercado/marketing');
+        }, 500);
       } else {
         throw new Error(result.message || 'Erro ao ativar plano');
       }
