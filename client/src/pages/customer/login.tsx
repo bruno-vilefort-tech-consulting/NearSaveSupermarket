@@ -159,7 +159,11 @@ export default function CustomerLogin() {
                 <div className="text-right">
                   <button
                     type="button"
-                    onClick={() => navigate("/forgot-password")}
+                    onClick={() => {
+                      console.log('🔄 Botão "Esqueci minha senha" clicado');
+                      console.log('🔄 Navegando para /forgot-password');
+                      navigate("/forgot-password");
+                    }}
                     className="text-sm text-eco-blue hover:text-eco-blue-dark font-medium transition-colors"
                   >
                     {t('auth.forgotPassword')}

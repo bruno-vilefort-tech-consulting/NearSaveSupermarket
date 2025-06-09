@@ -23,6 +23,8 @@ export default function ForgotPassword() {
   const { toast } = useToast();
   const { t } = useLanguage();
 
+  console.log('🔄 Página de esqueci senha carregada');
+
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -32,8 +34,19 @@ export default function ForgotPassword() {
 
   const forgotPasswordMutation = useMutation({
     mutationFn: async (data: ForgotPasswordFormData) => {
-      const response = await apiRequest("POST", "/api/forgot-password", data);
-      return response.json();
+      console.log('🔄 Enviando solicitação de reset de senha para:', data.email);
+      const response = await apiRequest("POST", "/api/customer/forgot-password", data);
+      console.log('📥 Resposta do servidor:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.log('❌ Erro:', errorData);
+        throw new Error(errorData.message || 'Erro no servidor');
+      }
+      
+      const result = await response.json();
+      console.log('✅ Sucesso:', result);
+      return result;
     },
     onSuccess: (data) => {
       toast({
