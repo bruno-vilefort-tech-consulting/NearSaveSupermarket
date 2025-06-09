@@ -59,12 +59,12 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 }
 
 export function generatePasswordResetEmail(resetLink: string, customerName: string): { subject: string; text: string; html: string } {
-  const subject = "Redefinição de Senha - EcoMart";
+  const subject = "Redefinição de Senha - SaveUp";
   
   const text = `
 Olá ${customerName},
 
-Você solicitou a redefinição de sua senha no EcoMart.
+Você solicitou a redefinição de sua senha no SaveUp.
 
 Para criar uma nova senha, clique no link abaixo:
 ${resetLink}
@@ -74,14 +74,14 @@ Este link é válido por 1 hora.
 Se você não solicitou esta redefinição, ignore este email.
 
 Atenciosamente,
-Equipe EcoMart
+Equipe SaveUp
   `;
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">EcoMart</h1>
-        <p style="color: #d1fae5; margin: 10px 0 0 0;">Menos desperdício, mais valor</p>
+        <h1 style="color: white; margin: 0; font-size: 28px;">SaveUp</h1>
+        <p style="color: #d1fae5; margin: 10px 0 0 0;">Economize mais, desperdice menos</p>
       </div>
       
       <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-radius: 0 0 10px 10px;">
@@ -92,7 +92,7 @@ Equipe EcoMart
         </p>
         
         <p style="color: #6b7280; line-height: 1.6; margin-bottom: 25px;">
-          Você solicitou a redefinição de sua senha no EcoMart. Para criar uma nova senha, clique no botão abaixo:
+          Você solicitou a redefinição de sua senha no SaveUp. Para criar uma nova senha, clique no botão abaixo:
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
@@ -117,7 +117,7 @@ Equipe EcoMart
         
         <p style="color: #9ca3af; font-size: 12px; text-align: center;">
           Atenciosamente,<br>
-          <strong>Equipe EcoMart</strong><br>
+          <strong>Equipe SaveUp</strong><br>
           Uma iniciativa sustentável da UP Brasil
         </p>
       </div>
@@ -128,12 +128,12 @@ Equipe EcoMart
 }
 
 export function generateStaffPasswordResetEmail(resetLink: string, companyName: string): { subject: string; text: string; html: string } {
-  const subject = "Redefinição de Senha - EcoMart Supermercado";
+  const subject = "Redefinição de Senha - SaveUp Supermercado";
   
   const text = `
 Olá ${companyName},
 
-Você solicitou a redefinição de senha para sua conta de supermercado no EcoMart.
+Você solicitou a redefinição de senha para sua conta de supermercado no SaveUp.
 
 Para criar uma nova senha, clique no link abaixo:
 ${resetLink}
@@ -143,13 +143,13 @@ Este link é válido por 1 hora.
 Se você não solicitou esta redefinição, ignore este email.
 
 Atenciosamente,
-Equipe EcoMart
+Equipe SaveUp
   `;
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">EcoMart</h1>
+        <h1 style="color: white; margin: 0; font-size: 28px;">SaveUp</h1>
         <p style="color: #d1fae5; margin: 10px 0 0 0;">Painel do Supermercado</p>
       </div>
       
@@ -161,7 +161,7 @@ Equipe EcoMart
         </p>
         
         <p style="color: #6b7280; line-height: 1.6; margin-bottom: 25px;">
-          Você solicitou a redefinição de senha para sua conta de supermercado no EcoMart. Para criar uma nova senha, clique no botão abaixo:
+          Você solicitou a redefinição de senha para sua conta de supermercado no SaveUp. Para criar uma nova senha, clique no botão abaixo:
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
@@ -186,7 +186,7 @@ Equipe EcoMart
         
         <p style="color: #9ca3af; font-size: 12px; text-align: center;">
           Atenciosamente,<br>
-          <strong>Equipe EcoMart</strong><br>
+          <strong>Equipe SaveUp</strong><br>
           Painel do Supermercado
         </p>
       </div>
