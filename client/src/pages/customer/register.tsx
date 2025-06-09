@@ -114,7 +114,13 @@ export default function CustomerRegister() {
       confirmPassword: "",
       acceptTerms: false,
     },
+    mode: "onChange",
   });
+
+  // Debug form state
+  console.log('🟡 Form errors:', form.formState.errors);
+  console.log('🟡 Form isValid:', form.formState.isValid);
+  console.log('🟡 Form values:', form.watch());
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
@@ -208,7 +214,11 @@ export default function CustomerRegister() {
           
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={(e) => {
+                console.log('🔴 Form submit interceptado');
+                console.log('🔍 Event:', e);
+                return form.handleSubmit(onSubmit)(e);
+              }} className="space-y-4">
                 <FormField
                   control={form.control}
                   name="cpf"
