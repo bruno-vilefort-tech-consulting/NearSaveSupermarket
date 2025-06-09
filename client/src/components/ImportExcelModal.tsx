@@ -47,12 +47,12 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
       {
         nome: 'INSTRUÇÕES DE PREENCHIMENTO',
         descricao: 'Apague esta linha e preencha os dados dos produtos abaixo',
-        categoria: 'Data: formato DD/MM/AAAA ou AAAA-MM-DD',
-        precoOriginal: 'Apenas números (ex: 25.90)',
-        precoDesconto: 'Menor que preço original',
-        quantidade: 'Números inteiros',
-        dataVencimento: 'Data futura válida',
-        imagemUrl: 'URL da imagem (opcional)'
+        categoria: 'OBRIGATÓRIO: Use categorias válidas',
+        precoOriginal: 'OBRIGATÓRIO: Apenas números (ex: 25.90)',
+        precoDesconto: 'OBRIGATÓRIO: Menor que preço original',
+        quantidade: 'OBRIGATÓRIO: Números inteiros positivos',
+        dataVencimento: 'OBRIGATÓRIO: Formato DD/MM/YYYY (ex: 31/12/2025)',
+        imagemUrl: 'OPCIONAL: URL da imagem do produto'
       }
     ];
 
@@ -84,7 +84,7 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
         precoOriginal: 4.50,
         precoDesconto: 3.99,
         quantidade: 100,
-        dataVencimento: '2025-07-20',
+        dataVencimento: '20/07/2025',
         imagemUrl: ''
       }
     ];
@@ -152,7 +152,7 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
         validationErrors.push({ row: rowNumber, field: 'precoDesconto', message: 'Preço desconto não pode ser maior que preço original' });
       }
 
-      // Date validation
+      // Date validation - ONLY DD/MM/YYYY format
       if (row.dataVencimento) {
         let dateValue = row.dataVencimento;
         let parsedDate: Date | null = null;
@@ -165,26 +165,32 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
         } else {
           const dateStr = dateValue.toString().trim();
           
-          // Try different date formats
-          // Format DD/MM/YYYY or DD/MM/YY
-          const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})$/;
+          // ONLY accept DD/MM/YYYY format
+          const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
           const ddmmMatch = dateStr.match(ddmmyyyyRegex);
           
           if (ddmmMatch) {
             const [, day, month, year] = ddmmMatch;
-            let fullYear = parseInt(year);
-            if (fullYear < 100) {
-              fullYear += fullYear < 50 ? 2000 : 1900; // 50+ = 19xx, <50 = 20xx
+            const dayNum = parseInt(day);
+            const monthNum = parseInt(month);
+            const yearNum = parseInt(year);
+            
+            // Validate day and month ranges
+            if (dayNum >= 1 && dayNum <= 31 && monthNum >= 1 && monthNum <= 12) {
+              parsedDate = new Date(yearNum, monthNum - 1, dayNum);
+              
+              // Check if the date is valid (handles invalid dates like 31/02/2025)
+              if (parsedDate.getDate() !== dayNum || 
+                  parsedDate.getMonth() !== monthNum - 1 || 
+                  parsedDate.getFullYear() !== yearNum) {
+                parsedDate = null;
+              }
             }
-            parsedDate = new Date(fullYear, parseInt(month) - 1, parseInt(day));
-          } else {
-            // Try ISO format (YYYY-MM-DD) or other standard formats
-            parsedDate = new Date(dateStr);
           }
         }
         
         if (!parsedDate || isNaN(parsedDate.getTime())) {
-          validationErrors.push({ row: rowNumber, field: 'dataVencimento', message: 'Data de vencimento inválida (use formato DD/MM/YYYY ou YYYY-MM-DD)' });
+          validationErrors.push({ row: rowNumber, field: 'dataVencimento', message: 'Data de vencimento inválida. Use apenas o formato DD/MM/YYYY (ex: 31/12/2025)' });
         } else {
           // Check if date is not in the past
           const today = new Date();
@@ -212,19 +218,27 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
         } else {
           const dateStr = dateValue.toString().trim();
           
-          // Try DD/MM/YYYY format first
-          const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})$/;
+          // ONLY accept DD/MM/YYYY format
+          const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
           const ddmmMatch = dateStr.match(ddmmyyyyRegex);
           
           if (ddmmMatch) {
             const [, day, month, year] = ddmmMatch;
-            let fullYear = parseInt(year);
-            if (fullYear < 100) {
-              fullYear += fullYear < 50 ? 2000 : 1900;
+            const dayNum = parseInt(day);
+            const monthNum = parseInt(month);
+            const yearNum = parseInt(year);
+            
+            // Validate day and month ranges
+            if (dayNum >= 1 && dayNum <= 31 && monthNum >= 1 && monthNum <= 12) {
+              parsedDate = new Date(yearNum, monthNum - 1, dayNum);
+              
+              // Check if the date is valid (handles invalid dates like 31/02/2025)
+              if (parsedDate.getDate() !== dayNum || 
+                  parsedDate.getMonth() !== monthNum - 1 || 
+                  parsedDate.getFullYear() !== yearNum) {
+                parsedDate = null;
+              }
             }
-            parsedDate = new Date(fullYear, parseInt(month) - 1, parseInt(day));
-          } else {
-            parsedDate = new Date(dateStr);
           }
         }
         
