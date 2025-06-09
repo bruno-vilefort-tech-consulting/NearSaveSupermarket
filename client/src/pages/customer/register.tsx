@@ -98,7 +98,10 @@ export default function CustomerRegister() {
     acceptTerms: z.boolean().refine(val => val === true, {
       message: t('validation.acceptTerms'),
     }),
-  }).refine((data) => data.password === data.confirmPassword, {
+  }).refine((data) => {
+    console.log('🔍 Validando senhas:', { password: data.password, confirmPassword: data.confirmPassword, match: data.password === data.confirmPassword });
+    return data.password === data.confirmPassword;
+  }, {
     message: t('validation.passwordMismatch'),
     path: ["confirmPassword"],
   });
@@ -160,7 +163,27 @@ export default function CustomerRegister() {
   const onSubmit = (data: RegisterFormData) => {
     console.log('🚀 Iniciando cadastro com dados:', data);
     console.log('🔍 Endpoint sendo usado:', '/api/customer/register');
-    registerMutation.mutate(data);
+    
+    // Verificar se o formulário é válido
+    if (!form.formState.isValid) {
+      console.log('❌ Formulário inválido, erros:', form.formState.errors);
+      toast({
+        title: "Erro no formulário",
+        description: "Por favor, corrija os erros destacados em vermelho.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Preparar dados para envio
+    const submitData = {
+      ...data,
+      cpf: data.cpf.replace(/[^\d]/g, ''), // Remove formatação do CPF
+      phone: data.phone.replace(/[^\d]/g, ''), // Remove formatação do telefone
+    };
+    
+    console.log('📤 Dados preparados para envio:', submitData);
+    registerMutation.mutate(submitData);
   };
 
   const formatCPF = (value: string) => {
