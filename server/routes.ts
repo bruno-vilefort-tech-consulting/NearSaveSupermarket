@@ -876,7 +876,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               await storage.updateOrderRefund(parseInt(orderId), {
                 pixRefundId: refund.id, // Using this field for Stripe refund ID
                 refundAmount: (alreadyRefunded + remainingAmount).toString(),
-                refundStatus: refund.status,
+                refundStatus: refund.status || 'processing',
                 refundDate: new Date(),
                 refundReason: reason || 'Cancelamento solicitado pelo cliente'
               });
