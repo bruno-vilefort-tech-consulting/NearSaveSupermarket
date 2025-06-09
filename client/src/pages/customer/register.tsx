@@ -118,11 +118,23 @@ export default function CustomerRegister() {
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
+      console.log('📤 Dados do formulário antes do processamento:', data);
       const { confirmPassword, acceptTerms, ...registerData } = data;
-      const response = await apiRequest("POST", "/api/customer/register", registerData);
-      return response.json();
+      console.log('📤 Dados enviados para API:', registerData);
+      
+      try {
+        const response = await apiRequest("POST", "/api/customer/register", registerData);
+        console.log('📥 Resposta da API:', response.status, response.statusText);
+        const result = await response.json();
+        console.log('📥 Dados retornados:', result);
+        return result;
+      } catch (error) {
+        console.error('❌ Erro na requisição:', error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
+      console.log('✅ Cadastro realizado com sucesso:', data);
       toast({
         title: t('auth.registerSuccess'),
         description: t('auth.registerSuccessDescription'),
@@ -130,15 +142,18 @@ export default function CustomerRegister() {
       navigate("/login");
     },
     onError: (error: any) => {
+      console.error('❌ Erro no cadastro:', error);
       toast({
         title: t('auth.registerError'),
-        description: t('auth.registerErrorDescription'),
+        description: error.message || t('auth.registerErrorDescription'),
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: RegisterFormData) => {
+    console.log('🚀 Iniciando cadastro com dados:', data);
+    console.log('🔍 Endpoint sendo usado:', '/api/customer/register');
     registerMutation.mutate(data);
   };
 
