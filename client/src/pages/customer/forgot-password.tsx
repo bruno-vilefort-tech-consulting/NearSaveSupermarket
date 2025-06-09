@@ -50,17 +50,28 @@ export default function ForgotPassword() {
     },
     onSuccess: (data) => {
       console.log('✅ Reset link gerado:', data);
-      toast({
-        title: "Link de reset gerado!",
-        description: data.resetLink ? `Link: ${data.resetLink}` : "Verifique o console do servidor para o link de teste.",
-        duration: 10000,
-      });
       
-      // Show the reset link in an alert for easy access
       if (data.resetLink) {
+        // Show success toast with clickable link
+        toast({
+          title: "Link de reset gerado!",
+          description: "Clique no link que aparecerá no alerta para redefinir sua senha.",
+          duration: 8000,
+        });
+        
+        // Show the reset link in an alert for easy access
         setTimeout(() => {
-          alert(`Link de reset: ${data.resetLink}\n\nClique OK e cole este link no navegador.`);
-        }, 1000);
+          const shouldOpen = window.confirm(`Link de reset gerado com sucesso!\n\nDeseja abrir o link agora?\n\n${data.resetLink}`);
+          if (shouldOpen) {
+            window.open(data.resetLink, '_blank');
+          }
+        }, 500);
+      } else {
+        toast({
+          title: "Link gerado!",
+          description: "Verifique o console do servidor para o link de teste.",
+          duration: 8000,
+        });
       }
     },
     onError: (error: any) => {
