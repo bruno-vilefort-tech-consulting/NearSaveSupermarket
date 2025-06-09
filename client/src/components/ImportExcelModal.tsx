@@ -43,6 +43,19 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
   const { toast } = useToast();
 
   const downloadTemplate = () => {
+    const instructions = [
+      {
+        nome: 'INSTRUÇÕES DE PREENCHIMENTO',
+        descricao: 'Apague esta linha e preencha os dados dos produtos abaixo',
+        categoria: 'Data: formato DD/MM/AAAA ou AAAA-MM-DD',
+        precoOriginal: 'Apenas números (ex: 25.90)',
+        precoDesconto: 'Menor que preço original',
+        quantidade: 'Números inteiros',
+        dataVencimento: 'Data futura válida',
+        imagemUrl: 'URL da imagem (opcional)'
+      }
+    ];
+
     const template = [
       {
         nome: 'Arroz Branco 5kg',
@@ -51,7 +64,7 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
         precoOriginal: 25.90,
         precoDesconto: 22.90,
         quantidade: 50,
-        dataVencimento: '2025-12-31',
+        dataVencimento: '31/12/2025',
         imagemUrl: 'https://exemplo.com/arroz.jpg'
       },
       {
@@ -61,15 +74,50 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
         precoOriginal: 8.50,
         precoDesconto: 7.90,
         quantidade: 30,
-        dataVencimento: '2026-01-15',
+        dataVencimento: '15/01/2026',
+        imagemUrl: ''
+      },
+      {
+        nome: 'Leite Integral 1L',
+        descricao: 'Leite integral pasteurizado',
+        categoria: 'Laticínios',
+        precoOriginal: 4.50,
+        precoDesconto: 3.99,
+        quantidade: 100,
+        dataVencimento: '2025-07-20',
         imagemUrl: ''
       }
     ];
 
-    const ws = XLSX.utils.json_to_sheet(template);
+    const allData = [...instructions, ...template];
+    const ws = XLSX.utils.json_to_sheet(allData);
+    
+    // Set column widths for better readability
+    ws['!cols'] = [
+      { wch: 20 }, // nome
+      { wch: 30 }, // descricao
+      { wch: 15 }, // categoria
+      { wch: 12 }, // precoOriginal
+      { wch: 12 }, // precoDesconto
+      { wch: 10 }, // quantidade
+      { wch: 15 }, // dataVencimento
+      { wch: 25 }  // imagemUrl
+    ];
+
+    // Style the instruction row
+    const instructionCells = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1'];
+    instructionCells.forEach(cell => {
+      if (ws[cell]) {
+        ws[cell].s = {
+          fill: { fgColor: { rgb: "FFFF00" } }, // Yellow background
+          font: { bold: true }
+        };
+      }
+    });
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
-    XLSX.writeFile(wb, 'template_produtos.xlsx');
+    XLSX.writeFile(wb, 'template_produtos_saveup.xlsx');
   };
 
   const validateProducts = (data: any[]): { products: ProductRow[], errors: ValidationError[] } => {
@@ -106,15 +154,84 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
 
       // Date validation
       if (row.dataVencimento) {
-        const date = new Date(row.dataVencimento);
-        if (isNaN(date.getTime())) {
-          validationErrors.push({ row: rowNumber, field: 'dataVencimento', message: 'Data de vencimento inválida (use formato YYYY-MM-DD)' });
+        let dateValue = row.dataVencimento;
+        let parsedDate: Date | null = null;
+        
+        // Handle Excel date serial numbers
+        if (typeof dateValue === 'number') {
+          // Excel stores dates as serial numbers starting from 1900-01-01
+          const excelEpoch = new Date(1900, 0, 1);
+          parsedDate = new Date(excelEpoch.getTime() + (dateValue - 1) * 24 * 60 * 60 * 1000);
+        } else {
+          const dateStr = dateValue.toString().trim();
+          
+          // Try different date formats
+          // Format DD/MM/YYYY or DD/MM/YY
+          const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})$/;
+          const ddmmMatch = dateStr.match(ddmmyyyyRegex);
+          
+          if (ddmmMatch) {
+            const [, day, month, year] = ddmmMatch;
+            let fullYear = parseInt(year);
+            if (fullYear < 100) {
+              fullYear += fullYear < 50 ? 2000 : 1900; // 50+ = 19xx, <50 = 20xx
+            }
+            parsedDate = new Date(fullYear, parseInt(month) - 1, parseInt(day));
+          } else {
+            // Try ISO format (YYYY-MM-DD) or other standard formats
+            parsedDate = new Date(dateStr);
+          }
+        }
+        
+        if (!parsedDate || isNaN(parsedDate.getTime())) {
+          validationErrors.push({ row: rowNumber, field: 'dataVencimento', message: 'Data de vencimento inválida (use formato DD/MM/YYYY ou YYYY-MM-DD)' });
+        } else {
+          // Check if date is not in the past
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          parsedDate.setHours(0, 0, 0, 0);
+          
+          if (parsedDate < today) {
+            validationErrors.push({ row: rowNumber, field: 'dataVencimento', message: 'Data de vencimento não pode estar no passado' });
+          }
         }
       }
 
       // If no errors for this row, add to valid products
       const hasErrors = validationErrors.some(error => error.row === rowNumber);
       if (!hasErrors) {
+        // Format date properly using the same parsing logic
+        let formattedDate = '';
+        let dateValue = row.dataVencimento;
+        let parsedDate: Date | null = null;
+        
+        if (typeof dateValue === 'number') {
+          // Convert Excel serial number to proper date
+          const excelEpoch = new Date(1900, 0, 1);
+          parsedDate = new Date(excelEpoch.getTime() + (dateValue - 1) * 24 * 60 * 60 * 1000);
+        } else {
+          const dateStr = dateValue.toString().trim();
+          
+          // Try DD/MM/YYYY format first
+          const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})$/;
+          const ddmmMatch = dateStr.match(ddmmyyyyRegex);
+          
+          if (ddmmMatch) {
+            const [, day, month, year] = ddmmMatch;
+            let fullYear = parseInt(year);
+            if (fullYear < 100) {
+              fullYear += fullYear < 50 ? 2000 : 1900;
+            }
+            parsedDate = new Date(fullYear, parseInt(month) - 1, parseInt(day));
+          } else {
+            parsedDate = new Date(dateStr);
+          }
+        }
+        
+        if (parsedDate && !isNaN(parsedDate.getTime())) {
+          formattedDate = parsedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+        }
+
         validProducts.push({
           nome: row.nome.toString().trim(),
           descricao: row.descricao ? row.descricao.toString().trim() : '',
@@ -122,7 +239,7 @@ export default function ImportExcelModal({ isOpen, onClose, onSuccess }: ImportE
           precoOriginal: Number(row.precoOriginal),
           precoDesconto: Number(row.precoDesconto),
           quantidade: Number(row.quantidade),
-          dataVencimento: row.dataVencimento.toString(),
+          dataVencimento: formattedDate,
           imagemUrl: row.imagemUrl ? row.imagemUrl.toString().trim() : ''
         });
       }
