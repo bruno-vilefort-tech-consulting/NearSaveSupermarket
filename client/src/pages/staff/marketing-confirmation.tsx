@@ -92,7 +92,32 @@ function PaymentForm({ selectedPlan, onPaymentSuccess, onPaymentError, isProcess
       if (error) {
         onPaymentError(error.message || 'Erro no pagamento');
       } else if (paymentIntent?.status === 'succeeded') {
-        onPaymentSuccess();
+        // Payment successful, now activate the marketing campaign
+        try {
+          const activationResponse = await fetch('/api/staff/marketing/activate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Staff-Id': staffData?.id?.toString() || '',
+            },
+            body: JSON.stringify({
+              planId: selectedPlan.id,
+              planName: selectedPlan.name,
+              price: selectedPlan.price,
+              paymentIntentId: paymentIntent.id
+            })
+          });
+
+          const activationResult = await activationResponse.json();
+
+          if (activationResponse.ok && activationResult.success) {
+            onPaymentSuccess();
+          } else {
+            throw new Error(activationResult.message || 'Erro ao ativar campanha');
+          }
+        } catch (activationError: any) {
+          onPaymentError(`Pagamento realizado, mas houve erro na ativação: ${activationError.message}`);
+        }
       } else {
         onPaymentError('Pagamento não foi processado corretamente');
       }
@@ -489,39 +514,56 @@ export default function MarketingConfirmation() {
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 mt-8 justify-center">
-          <Button 
-            variant="outline" 
-            size="lg"
-            onClick={handleCancel}
-            disabled={isProcessing}
-            className="min-w-32 border-[hsl(var(--eco-gray-light))] text-[hsl(var(--eco-gray-dark))] hover:bg-[hsl(var(--eco-gray-light))]"
-          >
-            Cancelar
-          </Button>
-          <Button 
-            size="lg"
-            onClick={handleConfirmActivation}
-            disabled={isProcessing || !agreementChecked}
-            className={`min-w-32 ${
-              agreementChecked 
-                ? 'bg-[hsl(var(--eco-green))] hover:bg-[hsl(var(--eco-green-dark))] text-white' 
-                : 'bg-[hsl(var(--eco-gray-light))] text-[hsl(var(--eco-gray))] cursor-not-allowed'
-            }`}
-          >
-            {isProcessing ? (
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Processando...
-              </div>
-            ) : (
-              <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Confirmar Ativação
-              </>
-            )}
-          </Button>
-        </div>
+        {!showPaymentForm && (
+          <div className="flex gap-4 mt-8 justify-center">
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={handleCancel}
+              disabled={isProcessing}
+              className="min-w-32 border-[hsl(var(--eco-gray-light))] text-[hsl(var(--eco-gray-dark))] hover:bg-[hsl(var(--eco-gray-light))]"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              size="lg"
+              onClick={handleConfirmActivation}
+              disabled={isProcessing || !agreementChecked}
+              className={`min-w-32 ${
+                agreementChecked 
+                  ? 'bg-[hsl(var(--eco-green))] hover:bg-[hsl(var(--eco-green-dark))] text-white' 
+                  : 'bg-[hsl(var(--eco-gray-light))] text-[hsl(var(--eco-gray))] cursor-not-allowed'
+              }`}
+            >
+              {isProcessing ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Processando...
+                </div>
+              ) : (
+                <>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Ir para Pagamento
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+        
+        {showPaymentForm && (
+          <div className="flex gap-4 mt-8 justify-center">
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => setShowPaymentForm(false)}
+              disabled={isProcessing}
+              className="min-w-32 border-[hsl(var(--eco-gray-light))] text-[hsl(var(--eco-gray-dark))] hover:bg-[hsl(var(--eco-gray-light))]"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

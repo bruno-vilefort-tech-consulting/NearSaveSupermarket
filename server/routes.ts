@@ -3868,6 +3868,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Marketing payment intent creation for Stripe
+  app.post("/api/staff/marketing/create-payment-intent", async (req, res) => {
+    try {
+      const staffIdHeader = req.headers['x-staff-id'] || req.headers['X-Staff-Id'];
+      const staffId = parseInt(staffIdHeader as string);
+      
+      if (!staffId || isNaN(staffId)) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Staff ID not found" 
+        });
+      }
+
+      const { planId, planName, price } = req.body;
+      
+      if (!planId || !planName || price === undefined || price === null) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Dados do plano obrigatórios (planId, planName, price)" 
+        });
+      }
+
+      // Check if staff already has an active subscription
+      const existingSubscription = await storage.getActiveMarketingSubscriptionByStaffId(staffId);
+      
+      if (existingSubscription) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Você já possui um plano de marketing ativo",
+          subscription: existingSubscription
+        });
+      }
+
+      // Create payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(price * 100), // Convert to cents
+        currency: "brl",
+        metadata: {
+          staffId: staffId.toString(),
+          planId,
+          planName,
+          type: 'marketing_subscription'
+        },
+        description: `Plano de Marketing: ${planName}`,
+      });
+
+      console.log(`💳 STRIPE: Payment intent criado para staff ${staffId}, plano ${planName}, valor R$ ${price}`);
+
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error: any) {
+      console.error("Error creating marketing payment intent:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Erro ao criar intenção de pagamento" 
+      });
+    }
+  });
+
   // Marketing activation endpoint
   app.post("/api/staff/marketing/activate", async (req, res) => {
     try {
