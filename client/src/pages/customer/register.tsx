@@ -438,11 +438,38 @@ export default function CustomerRegister() {
                             {...field}
                             type="password"
                             placeholder={t('auth.confirmPassword')}
-                            className="pl-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green"
+                            className={`pl-10 pr-10 border-eco-gray-light focus:border-eco-green focus:ring-eco-green ${
+                              form.formState.errors.confirmPassword ? 'border-red-500' : ''
+                            }`}
                           />
+                          {form.watch("password") && form.watch("confirmPassword") && (
+                            <div className="absolute right-3 top-3">
+                              {form.watch("password") === form.watch("confirmPassword") ? (
+                                <Check className="h-4 w-4 text-eco-green" />
+                              ) : (
+                                <X className="h-4 w-4 text-red-500" />
+                              )}
+                            </div>
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />
+                      {form.formState.errors.confirmPassword && (
+                        <div className="mt-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              form.setValue("password", "");
+                              form.setValue("confirmPassword", "");
+                            }}
+                            className="text-xs"
+                          >
+                            Limpar senhas e tentar novamente
+                          </Button>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />
