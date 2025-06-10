@@ -26,9 +26,9 @@
   <body>
     <div id="root"></div>
     <script>
-      // Fallback error handling
+      // Fallback error handling for production
       window.addEventListener('error', function(e) {
-        console.error('Error loading app:', e.error);
+        console.error('App loading error:', e.error);
       });
       
       // Check if React root mounts correctly
@@ -36,9 +36,9 @@
         const root = document.getElementById('root');
         if (!root.hasChildNodes()) {
           console.error('React app failed to mount');
-          root.innerHTML = '<div style="padding: 20px; text-align: center;"><h1>SaveUp</h1><p>Loading...</p></div>';
+          root.innerHTML = '<div style="padding: 20px; text-align: center; font-family: Arial;"><h1 style="color: #22c55e;">SaveUp</h1><p>Carregando aplicação...</p><p style="font-size: 14px; color: #666;">Se esta mensagem persistir, recarregue a página.</p></div>';
         }
-      }, 3000);
+      }, 5000);
     </script>
   </body>
 </html>

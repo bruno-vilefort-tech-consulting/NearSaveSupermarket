@@ -2,8 +2,8 @@
 
 echo "🚀 Starting deployment process..."
 
-# Use the existing fix if build fails, otherwise build fresh
-echo "📦 Attempting to build the application..."
+# Build the application with timeout
+echo "📦 Building the application..."
 timeout 60s npm run build || {
     echo "⚠️ Build timed out or failed, using existing build files..."
     if [ ! -d "dist/public" ]; then
@@ -11,6 +11,10 @@ timeout 60s npm run build || {
         exit 1
     fi
 }
+
+# Run pre-deployment fix
+echo "🔧 Running pre-deployment fixes..."
+node pre-deploy.js
 
 # Ensure public directory setup
 echo "📂 Setting up static files..."
