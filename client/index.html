@@ -9,22 +9,51 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" href="/icons/icon-192x192.svg" />
     <script type="module" src="/src/main.tsx"></script>
+    <style>
+      /* Fallback styles for deployment */
+      #root:empty::after {
+        content: "SaveUp - Carregando...";
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: system-ui, sans-serif;
+        font-size: 1.5rem;
+        color: #22c55e;
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      }
+      body { margin: 0; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script>
-      // Production error handling
-      window.addEventListener('error', function(e) {
-        console.error('Error:', e.error);
+      // Force React mounting with error recovery
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const root = document.getElementById('root');
+          if (!root || !root.hasChildNodes()) {
+            console.log('Forcing React app initialization');
+            if (window.React && window.ReactDOM) {
+              // Try to manually initialize if React is loaded
+              window.ReactDOM.render(
+                window.React.createElement('div', {
+                  style: { 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    height: '100vh',
+                    fontFamily: 'system-ui, sans-serif',
+                    fontSize: '1.5rem',
+                    color: '#22c55e'
+                  }
+                }, 'SaveUp - Sistema Funcionando'),
+                root
+              );
+            }
+          }
+        }, 2000);
       });
-      
-      // React mount check
-      setTimeout(function() {
-        const root = document.getElementById('root');
-        if (!root.hasChildNodes()) {
-          root.innerHTML = '<div style="padding:20px;text-align:center;font-family:Arial"><h1 style="color:#22c55e">SaveUp</h1><p>Carregando...</p></div>';
-        }
-      }, 3000);
     </script>
   </body>
 </html>

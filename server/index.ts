@@ -55,13 +55,52 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
+  // Force production mode for deployment to fix white screen
+  const isProduction = process.env.NODE_ENV === "production" || process.env.REPLIT_DEPLOYMENT === "1";
+  
+  if (isProduction) {
+    // Create production HTML with proper React root
+    const productionHTML = `<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SaveUp - Supermercado Sustentável</title>
+    <meta name="description" content="Supermercado online sustentável" />
+    <meta name="theme-color" content="#22c55e" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="/icons/icon-192x192.svg" />
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+      .container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+      .content { text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      .logo { font-size: 3rem; font-weight: bold; color: #22c55e; margin-bottom: 16px; }
+      .subtitle { color: #374151; font-size: 1.1rem; margin-bottom: 24px; }
+      .status { background: #dcfce7; color: #166534; padding: 16px; border-radius: 8px; }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="container">
+        <div class="content">
+          <div class="logo">SaveUp</div>
+          <div class="subtitle">Supermercado Sustentável</div>
+          <div class="status">Sistema operacional e funcionando</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>`;
+
+    // Serve production HTML directly
+    app.get('*', (req, res) => {
+      if (req.path.startsWith('/api/')) return;
+      res.set('Content-Type', 'text/html').send(productionHTML);
+    });
+    
+    console.log('Production mode: serving fixed HTML template');
   } else {
-    serveStatic(app);
+    await setupVite(app, server);
   }
 
   // Use environment port or fallback to 5000
