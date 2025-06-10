@@ -55,8 +55,11 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // Force production for deployment when NODE_ENV=production is set
-  const isProductionDeploy = process.env.NODE_ENV === "production";
+  // Only use production mode for actual deployment (not development)
+  const isProductionDeploy = process.env.NODE_ENV === "production" && 
+                            (process.env.REPLIT_DEPLOYMENT === "1" ||
+                             process.env.RAILWAY_ENVIRONMENT_NAME ||
+                             process.argv.includes('--production'));
   
   if (isProductionDeploy) {
     console.log('PRODUCTION MODE: Serving deployment-ready HTML');
@@ -206,9 +209,33 @@ app.use((req, res, next) => {
   </body>
 </html>`;
 
-    // Serve static files first (for assets)
-    app.use(express.static('public'));
-    app.use(express.static('client/public'));
+    // Configure proper MIME types for JavaScript modules
+    app.use((req, res, next) => {
+      if (req.path.endsWith('.js')) {
+        res.set('Content-Type', 'application/javascript');
+      } else if (req.path.endsWith('.mjs')) {
+        res.set('Content-Type', 'application/javascript');
+      } else if (req.path.endsWith('.json')) {
+        res.set('Content-Type', 'application/json');
+      }
+      next();
+    });
+
+    // Serve static files with proper headers
+    app.use(express.static('public', {
+      setHeaders: (res, path) => {
+        if (path.endsWith('.js') || path.endsWith('.mjs')) {
+          res.set('Content-Type', 'application/javascript');
+        }
+      }
+    }));
+    app.use(express.static('client/public', {
+      setHeaders: (res, path) => {
+        if (path.endsWith('.js') || path.endsWith('.mjs')) {
+          res.set('Content-Type', 'application/javascript');
+        }
+      }
+    }));
     
     // Handle all routes with production HTML
     app.get('*', (req, res, next) => {
