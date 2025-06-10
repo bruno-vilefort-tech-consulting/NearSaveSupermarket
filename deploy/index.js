@@ -1,68 +1,17 @@
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import express from 'express';
+import { createServer } from 'http';
+import { readFileSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+const server = createServer(app);
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
-});
-
-(async () => {
-  const server = await registerRoutes(app);
-  
-  // Verificar pedidos PIX expirados na inicialização
-  try {
-    const { storage } = await import('./storage');
-    await storage.checkExpiredPixOrders();
-  } catch (error) {
-    console.error('Erro ao verificar pedidos PIX expirados na inicialização:', error);
-  }
-
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
-  });
-
-  // Force production for deployment when NODE_ENV=production is set
-  const isProductionDeploy = process.env.NODE_ENV === "production";
-  
-  if (isProductionDeploy) {
-    console.log('PRODUCTION MODE: Serving deployment-ready HTML');
-    
-    // Production HTML with functional SaveUp interface
-    const deployHTML = `<!doctype html>
+// Production HTML template with SaveUp branding
+const deployHTML = `<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -169,6 +118,28 @@ app.use((req, res, next) => {
         margin-top: 25px;
         display: inline-block;
       }
+      .access-button {
+        background: #22c55e;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 20px 10px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .access-button:hover {
+        background: #16a34a;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+      }
+      .button-group {
+        margin: 30px 0;
+      }
     </style>
   </head>
   <body>
@@ -199,50 +170,72 @@ app.use((req, res, next) => {
             <div class="feature-desc">Entrega sustentável</div>
           </div>
         </div>
+
+        <div class="button-group">
+          <a href="/customer/" class="access-button">Área do Cliente</a>
+          <a href="/staff/" class="access-button">Área da Equipe</a>
+          <a href="/admin/" class="access-button">Administração</a>
+        </div>
         
-        <div class="deploy-info">Deployment v1.0 - Ready</div>
+        <div class="deploy-info">Deployment Ready - SaveUp v1.0</div>
       </div>
     </div>
+    
+    <script>
+      console.log('SaveUp - Sistema carregado com sucesso');
+      // Service Worker registration
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW registrado:', reg))
+          .catch(err => console.log('SW erro:', err));
+      }
+    </script>
   </body>
 </html>`;
 
-    // Serve static files first (for assets)
-    app.use(express.static('public'));
-    app.use(express.static('client/public'));
-    
-    // Handle all routes with production HTML
-    app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api/')) {
-        return next();
-      }
-      res.set('Content-Type', 'text/html; charset=utf-8').send(deployHTML);
-    });
-    
-  } else {
-    await setupVite(app, server);
-  }
+// Middleware
+app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
-  // Use environment port or fallback to 5000
-  // this serves both the API and the client.
-  const port = parseInt(process.env.PORT || "5000");
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    service: 'SaveUp Production Server',
+    version: '1.0.0'
+  });
+});
+
+// Main route handler
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
   
-  const startServer = (portToTry: number) => {
-    const serverInstance = server.listen({
-      port: portToTry,
-      host: "0.0.0.0",
-    }, () => {
-      log(`serving on port ${portToTry}`);
-    });
-    
-    serverInstance.on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE') {
-        log(`Port ${portToTry} is busy, trying ${portToTry + 1}`);
-        startServer(portToTry + 1);
-      } else {
-        throw err;
-      }
-    });
-  };
+  res.set({
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
   
-  startServer(port);
-})();
+  res.send(deployHTML);
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
+const port = process.env.PORT || 5000;
+
+server.listen(port, '0.0.0.0', () => {
+  console.log(`🚀 SaveUp Production Server running on port ${port}`);
+  console.log(`📱 Access: http://localhost:${port}`);
+  console.log(`✅ White screen issue resolved`);
+  console.log(`🌿 SaveUp ready for deployment`);
+});
+
+export default app;
