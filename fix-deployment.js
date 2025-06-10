@@ -77,6 +77,36 @@ if (fs.existsSync('dist/public/assets')) {
   console.log('✅ Copied assets');
 }
 
+// Fix dist/public/index.html as well (critical for production server)
+if (fs.existsSync('dist/public')) {
+  fs.writeFileSync('dist/public/index.html', htmlContent);
+  
+  // Copy PWA files to dist/public
+  const pwFiles = ['manifest.json', 'sw.js', 'clear-cache.js'];
+  pwFiles.forEach(file => {
+    const src = path.join('client/public', file);
+    const dest = path.join('dist/public', file);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, dest);
+    }
+  });
+  
+  // Copy icons to dist/public
+  if (fs.existsSync('client/public/icons')) {
+    if (!fs.existsSync('dist/public/icons')) {
+      fs.mkdirSync('dist/public/icons', { recursive: true });
+    }
+    const icons = fs.readdirSync('client/public/icons');
+    icons.forEach(icon => {
+      fs.copyFileSync(
+        path.join('client/public/icons', icon),
+        path.join('dist/public/icons', icon)
+      );
+    });
+  }
+  console.log('✅ Fixed dist/public files');
+}
+
 // Copy PWA files
 if (fs.existsSync('client/public')) {
   const pwFiles = ['manifest.json', 'sw.js', 'clear-cache.js'];
