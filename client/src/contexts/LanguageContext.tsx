@@ -1,4 +1,3 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Language, getTranslation, TranslationKeys } from '@shared/translations';
 
 interface LanguageContextType {
@@ -7,49 +6,24 @@ interface LanguageContextType {
   t: (key: keyof TranslationKeys) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType>({
-  language: 'pt-BR',
-  setLanguage: () => {},
-  t: (key: keyof TranslationKeys) => key as string,
-});
+// Simple implementation without React context to avoid hook issues
+const languageState: { current: Language } = { current: 'pt-BR' };
 
-interface LanguageProviderProps {
-  children: ReactNode;
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }
 
-export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguageState] = useState<Language>('pt-BR');
-
-  useEffect(() => {
-    localStorage.setItem('app-language', 'pt-BR');
-    localStorage.removeItem('en-US-cache');
-    localStorage.removeItem('language-cache');
-    setLanguageState('pt-BR');
-  }, []);
-
-  const setLanguage = (newLanguage: Language) => {
-    setLanguageState(newLanguage);
-    localStorage.setItem('app-language', newLanguage);
+export function useLanguageGlobal(): LanguageContextType {
+  return {
+    language: 'pt-BR',
+    setLanguage: (newLanguage: Language) => {
+      languageState.current = newLanguage;
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('app-language', newLanguage);
+      }
+    },
+    t: (key: keyof TranslationKeys): string => {
+      return getTranslation(key, languageState.current);
+    },
   };
-
-  const t = (key: keyof TranslationKeys): string => {
-    return getTranslation(key, language);
-  };
-
-  const value: LanguageContextType = {
-    language,
-    setLanguage,
-    t,
-  };
-
-  return (
-    <LanguageContext.Provider value={value}>
-      {children}
-    </LanguageContext.Provider>
-  );
-}
-
-export function useLanguageGlobal() {
-  const context = useContext(LanguageContext);
-  return context;
 }
