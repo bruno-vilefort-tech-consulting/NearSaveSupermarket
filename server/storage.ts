@@ -402,12 +402,11 @@ export class DatabaseStorage implements IStorage {
         imageUrl: products.imageUrl,
         isActive: products.isActive,
         createdBy: products.createdBy,
+        createdByStaff: products.createdByStaff,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
-        createdByUser: users,
       })
       .from(products)
-      .innerJoin(users, eq(products.createdBy, users.id))
       .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(products.createdAt));
 
@@ -424,8 +423,8 @@ export class DatabaseStorage implements IStorage {
       expirationDate: result.expirationDate,
       imageUrl: result.imageUrl,
       isActive: result.isActive,
-      createdBy: result.products.createdBy,
-      createdByStaff: result.products.createdByStaff,
+      createdBy: result.createdBy,
+      createdByStaff: result.createdByStaff,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt,
     }));
