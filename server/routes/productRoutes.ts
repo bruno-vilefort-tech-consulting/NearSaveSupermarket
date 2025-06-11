@@ -1,31 +1,45 @@
 import { Router } from "express";
 import { ProductController } from "../controllers/ProductController";
+import { isAuthenticated } from "../replitAuth";
+import multer from "multer";
+import path from "path";
+
+const uploadDir = path.join(process.cwd(), "uploads");
+const upload = multer({
+  dest: uploadDir,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
 
 const router = Router();
 const productController = new ProductController();
 
-// GET /api/products - Get all products
-router.get("/", productController.getAllProducts);
+// Public routes
+router.get("/public", productController.getPublicProducts);
 
-// GET /api/products/:id - Get product by ID
-router.get("/:id", productController.getProductById);
-
-// POST /api/products - Create new product
-router.post("/", productController.createProduct);
-
-// PUT /api/products/:id - Update product
-router.put("/:id", productController.updateProduct);
-
-// DELETE /api/products/:id - Delete product
+// Authenticated routes
+router.get("/", isAuthenticated, productController.getAllProducts);
+router.get("/:id", isAuthenticated, productController.getProductById);
+router.post("/", isAuthenticated, upload.single("image"), productController.createProduct);
+router.put("/:id", isAuthenticated, upload.single("image"), productController.updateProduct);
 router.delete("/:id", productController.deleteProduct);
 
-// GET /api/products/category/:category - Get products by category
+// Category routes
 router.get("/category/:category", productController.getProductsByCategory);
 
-// GET /api/products/admin/missing-images - Get products with missing images
+// Admin routes
 router.get("/admin/missing-images", productController.getMissingImages);
 
-// POST /api/products/:id/upload-image - Upload product image
-router.post("/:id/upload-image", productController.uploadProductImage);
+// Staff specific routes
+router.get("/staff", productController.getStaffProducts);
+router.post("/staff", upload.single("image"), productController.createStaffProduct);
+router.put("/staff/:id", upload.single("image"), productController.updateStaffProduct);
+router.delete("/staff/:id", productController.deleteStaffProduct);
 
 export default router;
