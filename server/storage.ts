@@ -72,7 +72,7 @@ export interface IStorage {
   // Product operations
   getProducts(filters?: { category?: string; isActive?: boolean }): Promise<ProductWithCreator[]>;
   getProduct(id: number): Promise<ProductWithCreator | undefined>;
-  createProduct(product: InsertProduct): Promise<Product>;
+  createProduct(product: InsertProduct & { createdBy: string }): Promise<Product>;
   updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: number): Promise<boolean>;
   
@@ -471,7 +471,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async createProduct(productData: InsertProduct): Promise<Product> {
+  async createProduct(productData: InsertProduct & { createdBy: string }): Promise<Product> {
     const [product] = await db
       .insert(products)
       .values(productData)
