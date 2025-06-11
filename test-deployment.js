@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import fs from 'fs';
+const http = require('http');
 
 console.log('Testando deployment real...');
 
@@ -62,6 +63,68 @@ testServer.stderr.on('data', (data) => {
 function testDeployment() {
   console.log('\n4. Testando resposta HTTP...');
   
+  const testRequests = [
+    { path: '/', expectedType: 'text/html' },
+    { path: '/assets/index-pVnDco9F.js', expectedType: 'application/javascript' },
+    { path: '/assets/index-DNmSrJ1o.css', expectedType: 'text/css' },
+    { path: '/manifest.json', expectedType: 'application/json' },
+    { path: '/icons/icon-192x192.svg', expectedType: 'image/svg+xml' }
+  ];
+
+  async function testServer() {
+    console.log('🧪 Testando servidor de produção...\n');
+    
+    for (const test of testRequests) {
+      try {
+        const options = {
+          hostname: 'localhost',
+          port: 5000,
+          path: test.path,
+          method: 'GET'
+        };
+
+        const result = await new Promise((resolve, reject) => {
+          const req = http.request(options, (res) => {
+            const contentType = res.headers['content-type'] || '';
+            const status = res.statusCode;
+            
+            resolve({
+              path: test.path,
+              status,
+              contentType,
+              expected: test.expectedType,
+              success: contentType.includes(test.expectedType) && status === 200
+            });
+          });
+
+          req.on('error', (err) => {
+            reject(err);
+          });
+
+          req.setTimeout(5000, () => {
+            req.destroy();
+            reject(new Error('Timeout'));
+          });
+
+          req.end();
+        });
+
+        const icon = result.success ? '✅' : '❌';
+        console.log(`${icon} ${result.path}`);
+        console.log(`   Status: ${result.status}`);
+        console.log(`   Content-Type: ${result.contentType}`);
+        console.log(`   Expected: ${result.expected}`);
+        console.log('');
+
+      } catch (error) {
+        console.log(`❌ ${test.path}`);
+        console.log(`   Error: ${error.message}`);
+        console.log('');
+      }
+    }
+  }
+
+  // Aguardar o servidor inicializar
   import('http').then(({ default: http }) => {
     const req = http.request({
       hostname: 'localhost',
