@@ -1,325 +1,206 @@
 import { db } from "../db";
-import { orders, orderItems, products, staffUsers, type Order, type InsertOrder, type InsertOrderItem, type OrderWithItems } from "@shared/schema";
-import { eq, desc, and, lte, sql } from "drizzle-orm";
+import { orders, orderItems, products, staffUsers, eq, desc, and, sql } from "@shared/schema";
+import { type Order, type InsertOrder, type OrderItem, type InsertOrderItem, type OrderWithItems } from "@shared/schema";
 import { IOrderStorage } from "./types";
 
 export class OrderStorage implements IOrderStorage {
-  async getOrders(filters?: { status?: string }): Promise<OrderWithItems[]> {
-    let conditions = [];
-    
-    if (filters?.status) {
-      conditions.push(eq(orders.status, filters.status));
-    }
-
-    const results = await db
-      .select({
-        id: orders.id,
-        status: orders.status,
-        customerName: orders.customerName,
-        customerEmail: orders.customerEmail,
-        customerPhone: orders.customerPhone,
-        deliveryAddress: orders.deliveryAddress,
-        totalAmount: orders.totalAmount,
-        createdAt: orders.createdAt,
-        updatedAt: orders.updatedAt,
-        externalReference: orders.externalReference,
-        pixPaymentId: orders.pixPaymentId,
-        pixCopyPaste: orders.pixCopyPaste,
-        pixExpirationDate: orders.pixExpirationDate,
-        pixRefundId: orders.pixRefundId,
-        refundAmount: orders.refundAmount,
-        refundStatus: orders.refundStatus,
-        refundDate: orders.refundDate,
-        refundReason: orders.refundReason,
-        lastManualStatus: orders.lastManualStatus,
-        lastManualUpdate: orders.lastManualUpdate,
-        notes: orders.notes,
-        supermarketId: orders.supermarketId,
-        supermarketPaymentStatus: orders.supermarketPaymentStatus,
-        supermarketPaymentNotes: orders.supermarketPaymentNotes,
-        orderItems: sql`json_agg(json_build_object(
-          'id', ${orderItems.id},
-          'orderId', ${orderItems.orderId},
-          'productId', ${orderItems.productId},
-          'quantity', ${orderItems.quantity},
-          'priceAtTime', ${orderItems.priceAtTime},
-          'confirmationStatus', ${orderItems.confirmationStatus},
-          'createdAt', ${orderItems.createdAt},
-          'product', json_build_object(
-            'id', ${products.id},
-            'name', ${products.name},
-            'description', ${products.description},
-            'category', ${products.category},
-            'originalPrice', ${products.originalPrice},
-            'discountPrice', ${products.discountPrice},
-            'quantity', ${products.quantity},
-            'expirationDate', ${products.expirationDate},
-            'imageUrl', ${products.imageUrl},
-            'isActive', ${products.isActive},
-            'createdBy', ${products.createdBy},
-            'createdByStaff', ${products.createdByStaff},
-            'createdAt', ${products.createdAt},
-            'updatedAt', ${products.updatedAt}
-          )
-        ))`.as('orderItems')
-      })
-      .from(orders)
-      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .leftJoin(products, eq(orderItems.productId, products.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .groupBy(orders.id)
-      .orderBy(desc(orders.createdAt));
-
-    return results as OrderWithItems[];
-  }
-
-  async getOrdersByStaff(staffId: number, filters?: { status?: string }): Promise<OrderWithItems[]> {
-    let conditions = [eq(orders.supermarketId, staffId)];
-    
-    if (filters?.status) {
-      conditions.push(eq(orders.status, filters.status));
-    }
-
-    const results = await db
-      .select({
-        id: orders.id,
-        status: orders.status,
-        customerName: orders.customerName,
-        customerEmail: orders.customerEmail,
-        customerPhone: orders.customerPhone,
-        deliveryAddress: orders.deliveryAddress,
-        totalAmount: orders.totalAmount,
-        createdAt: orders.createdAt,
-        updatedAt: orders.updatedAt,
-        externalReference: orders.externalReference,
-        pixPaymentId: orders.pixPaymentId,
-        pixCopyPaste: orders.pixCopyPaste,
-        pixExpirationDate: orders.pixExpirationDate,
-        pixRefundId: orders.pixRefundId,
-        refundAmount: orders.refundAmount,
-        refundStatus: orders.refundStatus,
-        refundDate: orders.refundDate,
-        refundReason: orders.refundReason,
-        lastManualStatus: orders.lastManualStatus,
-        lastManualUpdate: orders.lastManualUpdate,
-        notes: orders.notes,
-        supermarketId: orders.supermarketId,
-        supermarketPaymentStatus: orders.supermarketPaymentStatus,
-        supermarketPaymentNotes: orders.supermarketPaymentNotes,
-        orderItems: sql`json_agg(json_build_object(
-          'id', ${orderItems.id},
-          'orderId', ${orderItems.orderId},
-          'productId', ${orderItems.productId},
-          'quantity', ${orderItems.quantity},
-          'priceAtTime', ${orderItems.priceAtTime},
-          'confirmationStatus', ${orderItems.confirmationStatus},
-          'createdAt', ${orderItems.createdAt},
-          'product', json_build_object(
-            'id', ${products.id},
-            'name', ${products.name},
-            'description', ${products.description},
-            'category', ${products.category},
-            'originalPrice', ${products.originalPrice},
-            'discountPrice', ${products.discountPrice},
-            'quantity', ${products.quantity},
-            'expirationDate', ${products.expirationDate},
-            'imageUrl', ${products.imageUrl},
-            'isActive', ${products.isActive},
-            'createdBy', ${products.createdBy},
-            'createdByStaff', ${products.createdByStaff},
-            'createdAt', ${products.createdAt},
-            'updatedAt', ${products.updatedAt}
-          )
-        ))`.as('orderItems')
-      })
-      .from(orders)
-      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .leftJoin(products, eq(orderItems.productId, products.id))
-      .where(and(...conditions))
-      .groupBy(orders.id)
-      .orderBy(desc(orders.createdAt));
-
-    return results as OrderWithItems[];
-  }
-
-  async getOrder(id: number): Promise<OrderWithItems | undefined> {
-    const [result] = await db
-      .select({
-        id: orders.id,
-        status: orders.status,
-        customerName: orders.customerName,
-        customerEmail: orders.customerEmail,
-        customerPhone: orders.customerPhone,
-        deliveryAddress: orders.deliveryAddress,
-        totalAmount: orders.totalAmount,
-        createdAt: orders.createdAt,
-        updatedAt: orders.updatedAt,
-        externalReference: orders.externalReference,
-        pixPaymentId: orders.pixPaymentId,
-        pixCopyPaste: orders.pixCopyPaste,
-        pixExpirationDate: orders.pixExpirationDate,
-        pixRefundId: orders.pixRefundId,
-        refundAmount: orders.refundAmount,
-        refundStatus: orders.refundStatus,
-        refundDate: orders.refundDate,
-        refundReason: orders.refundReason,
-        lastManualStatus: orders.lastManualStatus,
-        lastManualUpdate: orders.lastManualUpdate,
-        notes: orders.notes,
-        supermarketId: orders.supermarketId,
-        supermarketPaymentStatus: orders.supermarketPaymentStatus,
-        supermarketPaymentNotes: orders.supermarketPaymentNotes,
-        orderItems: sql`json_agg(json_build_object(
-          'id', ${orderItems.id},
-          'orderId', ${orderItems.orderId},
-          'productId', ${orderItems.productId},
-          'quantity', ${orderItems.quantity},
-          'priceAtTime', ${orderItems.priceAtTime},
-          'confirmationStatus', ${orderItems.confirmationStatus},
-          'createdAt', ${orderItems.createdAt},
-          'product', json_build_object(
-            'id', ${products.id},
-            'name', ${products.name},
-            'description', ${products.description},
-            'category', ${products.category},
-            'originalPrice', ${products.originalPrice},
-            'discountPrice', ${products.discountPrice},
-            'quantity', ${products.quantity},
-            'expirationDate', ${products.expirationDate},
-            'imageUrl', ${products.imageUrl},
-            'isActive', ${products.isActive},
-            'createdBy', ${products.createdBy},
-            'createdByStaff', ${products.createdByStaff},
-            'createdAt', ${products.createdAt},
-            'updatedAt', ${products.updatedAt}
-          )
-        ))`.as('orderItems')
-      })
-      .from(orders)
-      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .leftJoin(products, eq(orderItems.productId, products.id))
-      .where(eq(orders.id, id))
-      .groupBy(orders.id);
-
-    return result as OrderWithItems | undefined;
-  }
-
-  async getOrdersByPhone(phone: string): Promise<OrderWithItems[]> {
-    const results = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.customerPhone, phone))
-      .orderBy(desc(orders.createdAt));
-
-    return results as OrderWithItems[];
-  }
-
-  async getOrdersByEmail(email: string): Promise<OrderWithItems[]> {
-    const results = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.customerEmail, email))
-      .orderBy(desc(orders.createdAt));
-
-    return results as OrderWithItems[];
-  }
-
-  async getOrderByExternalReference(externalReference: string): Promise<Order | undefined> {
-    const [order] = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.externalReference, externalReference));
-    return order;
-  }
-
-  async createOrder(orderData: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
+  async createOrder(orderData: InsertOrder, items: InsertOrderItem[]): Promise<OrderWithItems> {
     const [order] = await db
       .insert(orders)
       .values(orderData)
       .returning();
 
-    await db
+    const createdItems = await db
       .insert(orderItems)
-      .values(items.map(item => ({ ...item, orderId: order.id })));
-
-    return order;
-  }
-
-  async createOrderAwaitingPayment(orderData: InsertOrder, items: InsertOrderItem[], pixData: {
-    pixPaymentId: string;
-    pixCopyPaste: string;
-    pixExpirationDate: Date;
-  }): Promise<Order> {
-    const [order] = await db
-      .insert(orders)
-      .values({
-        ...orderData,
-        pixPaymentId: pixData.pixPaymentId,
-        pixCopyPaste: pixData.pixCopyPaste,
-        pixExpirationDate: pixData.pixExpirationDate,
-      })
+      .values(items.map(item => ({ ...item, orderId: order.id })))
       .returning();
 
-    await db
-      .insert(orderItems)
-      .values(items.map(item => ({ ...item, orderId: order.id })));
+    const orderWithItems = await db
+      .select()
+      .from(orders)
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(orders.id, order.id));
 
-    return order;
+    return {
+      ...order,
+      orderItems: createdItems.map(item => ({
+        ...item,
+        product: orderWithItems.find(owi => owi.order_items?.id === item.id)?.products || {} as any
+      }))
+    } as OrderWithItems;
   }
 
-  async updateOrderPaymentStatus(id: number, status: 'payment_confirmed' | 'payment_failed'): Promise<Order | undefined> {
-    const [order] = await db
-      .update(orders)
-      .set({
-        status,
-        updatedAt: new Date(),
-      })
-      .where(eq(orders.id, id))
-      .returning();
-    return order;
+  async getOrdersByCustomer(customerEmail: string, options?: { status?: string }): Promise<OrderWithItems[]> {
+    let conditions = [eq(orders.customerEmail, customerEmail)];
+    
+    if (options?.status) {
+      conditions.push(eq(orders.status, options.status));
+    }
+
+    const results = await db
+      .select()
+      .from(orders)
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(and(...conditions))
+      .orderBy(desc(orders.createdAt));
+
+    const ordersMap = new Map<number, OrderWithItems>();
+    
+    results.forEach(result => {
+      const order = result.orders;
+      const item = result.order_items;
+      const product = result.products;
+
+      if (!ordersMap.has(order.id)) {
+        ordersMap.set(order.id, {
+          ...order,
+          orderItems: []
+        } as OrderWithItems);
+      }
+
+      if (item && product) {
+        ordersMap.get(order.id)!.orderItems.push({
+          ...item,
+          product
+        } as any);
+      }
+    });
+
+    return Array.from(ordersMap.values());
+  }
+
+  async getOrdersByStaff(staffId: number, options?: { status?: string }): Promise<OrderWithItems[]> {
+    let conditions = [eq(orders.createdByStaff, staffId)];
+    
+    if (options?.status) {
+      conditions.push(eq(orders.status, options.status));
+    }
+
+    const results = await db
+      .select()
+      .from(orders)
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(and(...conditions))
+      .orderBy(desc(orders.createdAt));
+
+    const ordersMap = new Map<number, OrderWithItems>();
+    
+    results.forEach(result => {
+      const order = result.orders;
+      const item = result.order_items;
+      const product = result.products;
+
+      if (!ordersMap.has(order.id)) {
+        ordersMap.set(order.id, {
+          ...order,
+          orderItems: []
+        } as OrderWithItems);
+      }
+
+      if (item && product) {
+        ordersMap.get(order.id)!.orderItems.push({
+          ...item,
+          product
+        } as any);
+      }
+    });
+
+    return Array.from(ordersMap.values());
+  }
+
+  async getOrderById(id: number): Promise<OrderWithItems | undefined> {
+    const results = await db
+      .select()
+      .from(orders)
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(orders.id, id));
+
+    if (results.length === 0) return undefined;
+
+    const order = results[0].orders;
+    const items = results
+      .filter(r => r.order_items && r.products)
+      .map(r => ({
+        ...r.order_items!,
+        product: r.products!
+      }));
+
+    return {
+      ...order,
+      orderItems: items
+    } as OrderWithItems;
   }
 
   async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
     const [order] = await db
       .update(orders)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    return order;
+  }
+
+  async updateOrderPaymentInfo(id: number, paymentData: {
+    pixPaymentId?: string;
+    pixCopyPaste?: string;
+    pixExpirationDate?: Date;
+    paymentMethod?: string;
+    paymentStatus?: string;
+  }): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
       .set({
-        status,
-        updatedAt: new Date(),
+        ...paymentData,
+        updatedAt: new Date()
       })
       .where(eq(orders.id, id))
       .returning();
     return order;
   }
 
-  async updateOrderItemConfirmationStatus(itemId: number, status: 'confirmed' | 'removed' | 'pending'): Promise<void> {
-    await db
-      .update(orderItems)
-      .set({ confirmationStatus: status })
-      .where(eq(orderItems.id, itemId));
-  }
+  async getAllOrders(options?: { status?: string; page?: number; limit?: number }): Promise<OrderWithItems[]> {
+    let conditions = [];
+    
+    if (options?.status) {
+      conditions.push(eq(orders.status, options.status));
+    }
 
-  async updateOrderExternalReference(orderId: number, externalReference: string): Promise<void> {
-    await db
-      .update(orders)
-      .set({
-        externalReference,
-        updatedAt: new Date(),
-      })
-      .where(eq(orders.id, orderId));
-  }
+    const results = await db
+      .select()
+      .from(orders)
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(orders.createdAt))
+      .limit(options?.limit || 50)
+      .offset(((options?.page || 1) - 1) * (options?.limit || 50));
 
-  async checkExpiredPixOrders(): Promise<void> {
-    await db
-      .update(orders)
-      .set({
-        status: 'cancelled',
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(orders.status, 'awaiting_payment'),
-          lte(orders.pixExpirationDate, new Date())
-        )
-      );
+    const ordersMap = new Map<number, OrderWithItems>();
+    
+    results.forEach(result => {
+      const order = result.orders;
+      const item = result.order_items;
+      const product = result.products;
+
+      if (!ordersMap.has(order.id)) {
+        ordersMap.set(order.id, {
+          ...order,
+          orderItems: []
+        } as OrderWithItems);
+      }
+
+      if (item && product) {
+        ordersMap.get(order.id)!.orderItems.push({
+          ...item,
+          product
+        } as any);
+      }
+    });
+
+    return Array.from(ordersMap.values());
   }
 }
