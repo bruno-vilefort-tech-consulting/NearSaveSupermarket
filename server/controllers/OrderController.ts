@@ -1,79 +1,129 @@
 import { Request, Response } from "express";
-import { BaseController } from "./BaseController";
 import { OrderService } from "../services/OrderService";
+import { insertOrderSchema } from "@shared/schema";
 
-const orderService = new OrderService();
+export class OrderController {
+  private orderService: OrderService;
 
-export class OrderController extends BaseController {
-  
-  getAllOrders = this.asyncHandler(async (req: Request, res: Response) => {
-    const orders = await orderService.getAllOrders();
-    this.handleSuccess(res, orders);
-  });
+  constructor() {
+    this.orderService = new OrderService();
+  }
 
-  getOrderById = this.asyncHandler(async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    const order = await orderService.getOrderById(id);
-    
-    if (!order) {
-      return this.handleError(res, new Error("Order not found"), 404);
+  getAllOrders = async (req: Request, res: Response) => {
+    try {
+      const { status } = req.query;
+      const filters = status ? { status: status as string } : undefined;
+      const orders = await this.orderService.getAllOrders(filters);
+      res.json(orders);
+    } catch (error: any) {
+      console.error("Error getting orders:", error);
+      res.status(500).json({ error: error.message });
     }
-    
-    this.handleSuccess(res, order);
-  });
+  };
 
-  getOrdersByCustomerEmail = this.asyncHandler(async (req: Request, res: Response) => {
-    const email = req.params.email;
-    const orders = await orderService.getOrdersByCustomerEmail(email);
-    this.handleSuccess(res, orders);
-  });
-
-  createOrder = this.asyncHandler(async (req: Request, res: Response) => {
-    const missing = this.validateRequired(req, ['customerName', 'totalAmount', 'fulfillmentMethod']);
-    if (missing.length > 0) {
-      return this.handleError(res, new Error(`Missing required fields: ${missing.join(', ')}`), 400);
+  getOrderStats = async (req: Request, res: Response) => {
+    try {
+      const stats = await this.orderService.getOrderStatistics();
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Error getting order stats:", error);
+      res.status(500).json({ error: error.message });
     }
+  };
 
-    const order = await orderService.createOrder(req.body);
-    this.handleSuccess(res, order, 201);
-  });
-
-  updateOrderStatus = this.asyncHandler(async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-    const { status } = req.body;
-    
-    if (!status) {
-      return this.handleError(res, new Error("Status is required"), 400);
+  getOrdersByStatus = async (req: Request, res: Response) => {
+    try {
+      const { status } = req.params;
+      const orders = await this.orderService.getOrdersByStatus(status);
+      res.json(orders);
+    } catch (error: any) {
+      console.error("Error getting orders by status:", error);
+      res.status(500).json({ error: error.message });
     }
+  };
 
-    const order = await orderService.updateOrderStatus(id, status);
-    
-    if (!order) {
-      return this.handleError(res, new Error("Order not found"), 404);
+  getOrdersByDateRange = async (req: Request, res: Response) => {
+    try {
+      const { startDate, endDate } = req.query;
+      if (!startDate || !endDate) {
+        return res.status(400).json({ error: "Start date and end date are required" });
+      }
+      const orders = await this.orderService.getOrdersByDateRange(
+        startDate as string, 
+        endDate as string
+      );
+      res.json(orders);
+    } catch (error: any) {
+      console.error("Error getting orders by date range:", error);
+      res.status(500).json({ error: error.message });
     }
-    
-    this.handleSuccess(res, order);
-  });
+  };
 
-  getOrdersByStatus = this.asyncHandler(async (req: Request, res: Response) => {
-    const status = req.params.status;
-    const orders = await orderService.getOrdersByStatus(status);
-    this.handleSuccess(res, orders);
-  });
-
-  getOrdersByDateRange = this.asyncHandler(async (req: Request, res: Response) => {
-    const { startDate, endDate } = req.query;
-    
-    if (!startDate || !endDate) {
-      return this.handleError(res, new Error("Start date and end date are required"), 400);
+  getOrderById = async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid order ID" });
+      }
+      const order = await this.orderService.getOrderById(id);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error: any) {
+      console.error("Error getting order by ID:", error);
+      res.status(500).json({ error: error.message });
     }
-    
-    const orders = await orderService.getOrdersByDateRange(startDate as string, endDate as string);
-    this.handleSuccess(res, orders);
-  });
+  };
 
-  getOrderStats = this.asyncHandler(async (req: Request, res: Response) => {
-    const stats = await orderService.calculateOrderStats();
-    this.handleSuccess(res, stats);
-  });
+  getOrdersByCustomerEmail = async (req: Request, res: Response) => {
+    try {
+      const { email } = req.params;
+      const orders = await this.orderService.getOrdersByCustomerEmail(email);
+      res.json(orders);
+    } catch (error: any) {
+      console.error("Error getting orders by customer email:", error);
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  createOrder = async (req: Request, res: Response) => {
+    try {
+      const { orderData, items } = req.body;
+      if (!orderData || !items || !Array.isArray(items)) {
+        return res.status(400).json({ error: "Order data and items are required" });
+      }
+      
+      const order = await this.orderService.createOrder(orderData, items);
+      res.status(201).json(order);
+    } catch (error: any) {
+      console.error("Error creating order:", error);
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  updateOrderStatus = async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid order ID" });
+      }
+      
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+
+      const order = await this.orderService.updateOrderStatus(id, status);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      
+      res.json(order);
+    } catch (error: any) {
+      console.error("Error updating order status:", error);
+      res.status(500).json({ error: error.message });
+    }
+  };
 }

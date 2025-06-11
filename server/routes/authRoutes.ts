@@ -144,7 +144,7 @@ router.post("/customer/forgot-password", async (req, res) => {
     await storage.createPasswordResetToken({
       email,
       token: resetToken,
-      expiresAt: expiresAt.toISOString()
+      expiresAt: expiresAt
     });
 
     const resetLink = `${process.env.APP_URL}/reset-password?token=${resetToken}`;

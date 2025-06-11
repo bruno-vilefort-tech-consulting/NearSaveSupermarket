@@ -30,8 +30,8 @@ export class ProductService extends BaseService {
       // Ensure required fields are set with proper defaults
       const dataWithDefaults = {
         ...productData,
-        createdBy: productData.createdBy || null,
-        createdByStaff: productData.createdByStaff || null,
+        createdBy: productData.createdBy || undefined,
+        createdByStaff: productData.createdByStaff || undefined,
         isActive: productData.isActive ?? 1
       };
       

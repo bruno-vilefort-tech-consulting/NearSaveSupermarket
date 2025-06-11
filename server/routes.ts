@@ -9,6 +9,7 @@ import { insertProductSchema, insertOrderSchema, insertStaffUserSchema, insertCu
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "./sendgrid";
 import { createPixPayment, getPaymentStatus, createCardPayment, createPixRefund, checkRefundStatus, cancelPixPayment, type CardPaymentData, type PixPaymentData } from "./mercadopago";
 import { sendPushNotification, sendOrderStatusNotification, sendEcoPointsNotification, getVapidPublicKey } from "./push-service";
+import { setupModularRoutes } from "./routes/index";
 import Stripe from "stripe";
 
 // Declaração global para armazenar pedidos temporários
@@ -63,6 +64,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Auth middleware
   await setupAuth(app);
+  
+  // Setup modular routes (Quick Wins architecture improvement)
+  setupModularRoutes(app);
+  console.log('✅ Modular routes integrated successfully');
 
   // Serve uploaded files with fallback for missing images
   app.get("/uploads/:filename", (req, res) => {

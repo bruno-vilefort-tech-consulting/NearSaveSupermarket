@@ -48,10 +48,10 @@ export class OrderService extends BaseService {
     }
   }
 
-  async createOrder(orderData: Partial<InsertOrder>): Promise<Order> {
+  async createOrder(orderData: Partial<InsertOrder>, items: any[] = []): Promise<Order> {
     try {
       const validatedData = insertOrderSchema.parse(orderData);
-      return await this.storage.createOrder(validatedData);
+      return await this.storage.createOrder(validatedData, items);
     } catch (error) {
       this.handleError(error, "OrderService.createOrder");
     }
