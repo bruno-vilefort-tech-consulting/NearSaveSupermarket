@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Language, getTranslation, TranslationKeys } from '@shared/translations';
 
 interface LanguageContextType {
@@ -7,7 +7,11 @@ interface LanguageContextType {
   t: (key: keyof TranslationKeys) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType>({
+  language: 'pt-BR',
+  setLanguage: () => {},
+  t: (key: keyof TranslationKeys) => key as string,
+});
 
 interface LanguageProviderProps {
   children: ReactNode;
@@ -16,23 +20,18 @@ interface LanguageProviderProps {
 export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>('pt-BR');
 
-  // Force Portuguese language always
   useEffect(() => {
-    // Force Portuguese and clear any English cache
     localStorage.setItem('app-language', 'pt-BR');
     localStorage.removeItem('en-US-cache');
     localStorage.removeItem('language-cache');
     setLanguageState('pt-BR');
-    console.log('🔧 FORÇANDO IDIOMA PORTUGUÊS NO CONTEXTO');
   }, []);
 
-  // Save language to localStorage when it changes
   const setLanguage = (newLanguage: Language) => {
     setLanguageState(newLanguage);
     localStorage.setItem('app-language', newLanguage);
   };
 
-  // Translation function
   const t = (key: keyof TranslationKeys): string => {
     return getTranslation(key, language);
   };
@@ -50,13 +49,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   );
 }
 
-export function useLanguage() {
+export function useLanguageGlobal() {
   const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
   return context;
 }
-
-// Keep backwards compatibility
-export const useLanguageGlobal = useLanguage;
