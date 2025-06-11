@@ -1,3 +1,7 @@
+// Export all types first
+export * from "./types";
+
+// Import storage implementations
 import { UserStorage } from "./users";
 import { StaffStorage } from "./staff";
 import { CustomerStorage } from "./customers";

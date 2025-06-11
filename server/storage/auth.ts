@@ -1,7 +1,6 @@
 import { db } from "../db";
-import { passwordResetTokens, customers, staffUsers, type PasswordResetToken, type InsertPasswordResetToken } from "@shared/schema";
-import { eq, lt } from "drizzle-orm";
-import bcrypt from "bcrypt";
+import { passwordResetTokens, type PasswordResetToken, type InsertPasswordResetToken } from "@shared/schema";
+import { eq, and, gt } from "drizzle-orm";
 import { IAuthStorage } from "./types";
 
 export class AuthStorage implements IAuthStorage {
@@ -17,65 +16,56 @@ export class AuthStorage implements IAuthStorage {
     const [resetToken] = await db
       .select()
       .from(passwordResetTokens)
-      .where(eq(passwordResetTokens.token, token));
+      .where(and(
+        eq(passwordResetTokens.token, token),
+        eq(passwordResetTokens.used, 0),
+        gt(passwordResetTokens.expiresAt, new Date())
+      ));
     return resetToken;
   }
 
-  async markTokenAsUsed(token: string): Promise<void> {
+  async markPasswordResetTokenAsUsed(id: number): Promise<void> {
     await db
       .update(passwordResetTokens)
-      .set({ isUsed: true })
-      .where(eq(passwordResetTokens.token, token));
+      .set({
+        used: 1,
+        updatedAt: new Date()
+      })
+      .where(eq(passwordResetTokens.id, id));
+  }
+
+  async validatePasswordResetToken(token: string, email: string): Promise<PasswordResetToken | null> {
+    const [resetToken] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(and(
+        eq(passwordResetTokens.token, token),
+        eq(passwordResetTokens.email, email),
+        eq(passwordResetTokens.used, 0),
+        gt(passwordResetTokens.expiresAt, new Date())
+      ));
+
+    return resetToken || null;
   }
 
   async cleanupExpiredTokens(): Promise<void> {
     await db
-      .delete(passwordResetTokens)
-      .where(lt(passwordResetTokens.expiresAt, new Date()));
-  }
-
-  async updateCustomerPassword(email: string, newPassword: string): Promise<void> {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await db
-      .update(customers)
+      .update(passwordResetTokens)
       .set({
-        password: hashedPassword,
+        used: 1,
         updatedAt: new Date()
       })
-      .where(eq(customers.email, email));
+      .where(and(
+        eq(passwordResetTokens.used, 0),
+        gt(new Date(), passwordResetTokens.expiresAt)
+      ));
   }
 
-  async createStaffPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken> {
-    const [token] = await db
-      .insert(passwordResetTokens)
-      .values(tokenData)
-      .returning();
-    return token;
-  }
-
-  async getStaffPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
-    const [resetToken] = await db
+  async getTokensByEmail(email: string): Promise<PasswordResetToken[]> {
+    const tokens = await db
       .select()
       .from(passwordResetTokens)
-      .where(eq(passwordResetTokens.token, token));
-    return resetToken;
-  }
-
-  async markStaffTokenAsUsed(token: string): Promise<void> {
-    await db
-      .update(passwordResetTokens)
-      .set({ isUsed: true })
-      .where(eq(passwordResetTokens.token, token));
-  }
-
-  async updateStaffPassword(email: string, newPassword: string): Promise<void> {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await db
-      .update(staffUsers)
-      .set({
-        password: hashedPassword,
-        updatedAt: new Date()
-      })
-      .where(eq(staffUsers.email, email));
+      .where(eq(passwordResetTokens.email, email));
+    return tokens;
   }
 }

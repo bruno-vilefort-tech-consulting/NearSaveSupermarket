@@ -1,6 +1,7 @@
 import { db } from "../db";
-import { orders, orderItems, products, staffUsers, eq, desc, and, sql } from "@shared/schema";
+import { orders, orderItems, products, staffUsers } from "@shared/schema";
 import { type Order, type InsertOrder, type OrderItem, type InsertOrderItem, type OrderWithItems } from "@shared/schema";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { IOrderStorage } from "./types";
 
 export class OrderStorage implements IOrderStorage {
