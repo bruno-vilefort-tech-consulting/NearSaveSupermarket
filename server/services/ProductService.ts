@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 
 type Product = typeof products.$inferSelect;
+type InsertProduct = typeof products.$inferInsert;
 
 export class ProductService extends BaseService {
   
@@ -24,19 +25,28 @@ export class ProductService extends BaseService {
     }
   }
 
-  async createProduct(productData: any): Promise<Product> {
+  async createProduct(productData: Partial<InsertProduct>): Promise<Product> {
     try {
-      const validatedData = insertProductSchema.parse(productData);
+      // Ensure required fields are set with proper defaults
+      const dataWithDefaults = {
+        ...productData,
+        createdBy: productData.createdBy || null,
+        createdByStaff: productData.createdByStaff || null,
+        isActive: productData.isActive ?? 1
+      };
+      
+      const validatedData = insertProductSchema.parse(dataWithDefaults);
       return await this.storage.createProduct(validatedData);
     } catch (error) {
       this.handleError(error, "ProductService.createProduct");
     }
   }
 
-  async updateProduct(id: number, productData: any): Promise<Product> {
+  async updateProduct(id: number, productData: Partial<InsertProduct>): Promise<Product | undefined> {
     try {
       const validatedData = insertProductSchema.partial().parse(productData);
-      return await this.storage.updateProduct(id, validatedData);
+      const updatedProduct = await this.storage.updateProduct(id, validatedData);
+      return updatedProduct;
     } catch (error) {
       this.handleError(error, "ProductService.updateProduct");
     }

@@ -250,7 +250,6 @@ export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  createdBy: true,
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({

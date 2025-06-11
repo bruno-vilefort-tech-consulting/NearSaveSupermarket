@@ -1,7 +1,10 @@
 import { BaseService } from "./BaseService";
-import { insertOrderSchema, type Order, orders, orderItems, customers } from "@shared/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { insertOrderSchema, orders, orderItems } from "@shared/schema";
+import { eq, sql } from "drizzle-orm";
 import { sendOrderStatusNotification, sendEcoPointsNotification } from "../push-service";
+
+type Order = typeof orders.$inferSelect;
+type InsertOrder = typeof orders.$inferInsert;
 
 export class OrderService extends BaseService {
   
@@ -13,9 +16,9 @@ export class OrderService extends BaseService {
     }
   }
 
-  async getOrderById(id: number): Promise<Order | null> {
+  async getOrderById(id: number): Promise<Order | undefined> {
     try {
-      return await this.storage.getOrderById(id);
+      return await this.storage.getOrder(id);
     } catch (error) {
       this.handleError(error, "OrderService.getOrderById");
     }
@@ -26,22 +29,7 @@ export class OrderService extends BaseService {
       console.log(`🔍 MONITORING: Querying orders for email ${email}`);
       
       const ordersResult = await this.db
-        .select({
-          id: orders.id,
-          customerName: orders.customerName,
-          customerEmail: orders.customerEmail,
-          customerPhone: orders.customerPhone,
-          customerAddress: orders.customerAddress,
-          items: orders.items,
-          total: orders.total,
-          status: orders.status,
-          paymentMethod: orders.paymentMethod,
-          paymentId: orders.paymentId,
-          ecoPoints: orders.ecoPoints,
-          supermarketId: orders.supermarketId,
-          createdAt: orders.createdAt,
-          updatedAt: orders.updatedAt
-        })
+        .select()
         .from(orders)
         .where(eq(orders.customerEmail, email))
         .orderBy(sql`${orders.createdAt} DESC`);
@@ -60,7 +48,7 @@ export class OrderService extends BaseService {
     }
   }
 
-  async createOrder(orderData: any): Promise<Order> {
+  async createOrder(orderData: Partial<InsertOrder>): Promise<Order> {
     try {
       const validatedData = insertOrderSchema.parse(orderData);
       return await this.storage.createOrder(validatedData);
@@ -69,28 +57,16 @@ export class OrderService extends BaseService {
     }
   }
 
-  async updateOrderStatus(id: number, status: string, updatedBy?: string): Promise<Order> {
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
     try {
-      const order = await this.storage.updateOrder(id, { 
-        status, 
-        updatedAt: new Date().toISOString() 
-      });
+      const order = await this.storage.updateOrderStatus(id, status);
 
-      // Send push notification for status updates
-      if (order.customerEmail) {
+      if (order && order.customerEmail) {
         await sendOrderStatusNotification(
           order.customerEmail,
           order.id,
           status
         ).catch(err => console.log('Push notification failed:', err));
-      }
-
-      // Award eco points for completed orders
-      if (status === 'completed' && order.ecoPoints && order.ecoPoints > 0) {
-        await sendEcoPointsNotification(
-          order.customerEmail,
-          order.ecoPoints
-        ).catch(err => console.log('Eco points notification failed:', err));
       }
 
       return order;
@@ -112,6 +88,7 @@ export class OrderService extends BaseService {
     try {
       const allOrders = await this.storage.getOrders();
       return allOrders.filter(order => {
+        if (!order.createdAt) return false;
         const orderDate = new Date(order.createdAt);
         return orderDate >= new Date(startDate) && orderDate <= new Date(endDate);
       });
@@ -137,7 +114,7 @@ export class OrderService extends BaseService {
         cancelled: allOrders.filter(o => o.status.includes('cancelled')).length,
         totalRevenue: allOrders
           .filter(o => o.status === 'completed')
-          .reduce((sum, o) => sum + o.total, 0)
+          .reduce((sum, o) => sum + parseFloat(o.totalAmount), 0)
       };
     } catch (error) {
       this.handleError(error, "OrderService.calculateOrderStats");
