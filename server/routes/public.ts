@@ -278,6 +278,17 @@ export function registerPublicRoutes(app: Express) {
     }
   });
 
+  // Customer Routes - Get supermarkets for map display
+  app.get("/api/customer/supermarkets/map", async (req, res) => {
+    try {
+      const supermarkets = await storage.getSupermarketsWithLocations();
+      res.json(supermarkets);
+    } catch (error) {
+      console.error("Error fetching supermarkets for map:", error);
+      res.status(500).json({ message: "Erro ao buscar supermercados para o mapa" });
+    }
+  });
+
   // Customer Routes - Get customer orders
   app.get("/api/customer/orders", async (req, res) => {
     try {

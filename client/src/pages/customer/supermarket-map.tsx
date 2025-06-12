@@ -98,6 +98,11 @@ export default function SupermarketMap() {
     !isNaN(parseFloat(s.longitude.toString()))
   );
 
+  // Debug logs
+  console.log('Supermarkets received:', supermarkets);
+  console.log('Valid supermarkets:', validSupermarkets);
+  console.log('Total supermarkets:', supermarkets.length, 'Valid:', validSupermarkets.length);
+
   const createIcon = (hasPromotions: boolean, productCount: number) => {
     // EcoMart color palette - Orange for supermarket markers
     const baseColor = '#FF7F00'; // eco-orange
