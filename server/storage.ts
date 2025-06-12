@@ -164,6 +164,19 @@ export class DatabaseStorage implements IStorage {
     return customer;
   }
 
+  async validateCustomer(email: string, password: string): Promise<Customer | undefined> {
+    const [customer] = await db.select().from(customers).where(eq(customers.email, email));
+    if (!customer || !customer.password) return undefined;
+
+    try {
+      const isValid = await bcrypt.compare(password, customer.password);
+      return isValid ? customer : undefined;
+    } catch (error) {
+      console.error("Error validating customer password:", error);
+      return undefined;
+    }
+  }
+
   // Product operations
   async getProducts(filters?: any): Promise<ProductWithCreator[]> {
     const results = await db
