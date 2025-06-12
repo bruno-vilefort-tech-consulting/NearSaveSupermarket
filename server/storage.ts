@@ -58,6 +58,8 @@ export interface IStorage {
   createCustomer(customerData: InsertCustomer): Promise<Customer>;
   updateCustomer(id: number, updates: Partial<InsertCustomer>): Promise<Customer | undefined>;
   validateCustomer(email: string, password: string): Promise<Customer | undefined>;
+  getSupermarketsWithLocations(): Promise<Array<{ id: number; name: string; address: string; latitude: string | null; longitude: string | null; productCount: number; hasPromotions: boolean; }>>;
+  getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]>;
   
   // Product operations
   getProducts(filters?: any): Promise<ProductWithCreator[]>;
@@ -175,6 +177,61 @@ export class DatabaseStorage implements IStorage {
       console.error("Error validating customer password:", error);
       return undefined;
     }
+  }
+
+  async getSupermarketsWithLocations(): Promise<Array<{
+    id: number;
+    name: string;
+    address: string;
+    latitude: string | null;
+    longitude: string | null;
+    productCount: number;
+    hasPromotions: boolean;
+  }>> {
+    const result = await db
+      .select({
+        id: staffUsers.id,
+        name: staffUsers.companyName,
+        address: staffUsers.address,
+        latitude: staffUsers.latitude,
+        longitude: staffUsers.longitude,
+        productCount: count(products.id),
+      })
+      .from(staffUsers)
+      .leftJoin(products, eq(products.createdByStaff, staffUsers.id))
+      .where(eq(staffUsers.isActive, 1))
+      .groupBy(
+        staffUsers.id,
+        staffUsers.companyName,
+        staffUsers.address,
+        staffUsers.latitude,
+        staffUsers.longitude
+      );
+
+    return result.map(row => ({
+      id: row.id,
+      name: row.name || 'Supermercado',
+      address: row.address || 'Endereço não informado',
+      latitude: row.latitude,
+      longitude: row.longitude,
+      productCount: row.productCount,
+      hasPromotions: row.productCount > 0,
+    }));
+  }
+
+  async getProductsBySupermarket(staffId: number): Promise<ProductWithCreator[]> {
+    const results = await db
+      .select()
+      .from(products)
+      .leftJoin(users, eq(products.createdBy, users.id))
+      .leftJoin(staffUsers, eq(products.createdByStaff, staffUsers.id))
+      .where(eq(products.createdByStaff, staffId))
+      .orderBy(desc(products.createdAt));
+
+    return results.map(result => ({
+      ...result.products,
+      createdBy: result.users || result.staff_users || null
+    })) as ProductWithCreator[];
   }
 
   // Product operations

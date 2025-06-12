@@ -250,4 +250,54 @@ export function registerPublicRoutes(app: Express) {
       res.status(500).json({ message: "Failed to create order" });
     }
   });
+
+  // Customer Routes - Get supermarkets with locations for proximity filtering
+  app.get("/api/customer/supermarkets-with-locations", async (req, res) => {
+    try {
+      const supermarkets = await storage.getSupermarketsWithLocations();
+      res.json(supermarkets);
+    } catch (error) {
+      console.error("Error fetching supermarkets with locations:", error);
+      res.status(500).json({ message: "Erro ao buscar supermercados com localizações" });
+    }
+  });
+
+  // Customer Routes - Get products by supermarket
+  app.get("/api/customer/supermarket/:id/products", async (req, res) => {
+    try {
+      const staffId = parseInt(req.params.id);
+      if (isNaN(staffId)) {
+        return res.status(400).json({ message: "ID inválido" });
+      }
+
+      const products = await storage.getProductsBySupermarket(staffId);
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching supermarket products:", error);
+      res.status(500).json({ message: "Erro ao buscar produtos do supermercado" });
+    }
+  });
+
+  // Customer Routes - Get customer orders
+  app.get("/api/customer/orders", async (req, res) => {
+    try {
+      const { phone, email } = req.query;
+      
+      if (!phone && !email) {
+        return res.status(400).json({ message: "Telefone ou email é obrigatório" });
+      }
+
+      let orders;
+      if (email) {
+        orders = await storage.getOrdersByEmail(email as string);
+      } else {
+        orders = await storage.getOrdersByPhone(phone as string);
+      }
+
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching customer orders:", error);
+      res.status(500).json({ message: "Erro ao buscar pedidos do cliente" });
+    }
+  });
 }
