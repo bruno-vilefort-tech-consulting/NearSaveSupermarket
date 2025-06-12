@@ -234,6 +234,21 @@ export class DatabaseStorage implements IStorage {
     })) as ProductWithCreator[];
   }
 
+  async getProductsByStaff(staffId: number): Promise<ProductWithCreator[]> {
+    const results = await db
+      .select()
+      .from(products)
+      .leftJoin(users, eq(products.createdBy, users.id))
+      .leftJoin(staffUsers, eq(products.createdByStaff, staffUsers.id))
+      .where(eq(products.createdByStaff, staffId))
+      .orderBy(desc(products.createdAt));
+
+    return results.map(result => ({
+      ...result.products,
+      createdBy: result.users || result.staff_users || null
+    })) as ProductWithCreator[];
+  }
+
   // Product operations
   async getProducts(filters?: any): Promise<ProductWithCreator[]> {
     const results = await db
