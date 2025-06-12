@@ -1,7 +1,69 @@
 import type { Express } from "express";
 import { storage } from "../storage";
+import crypto from "crypto";
 
 export function registerPublicRoutes(app: Express) {
+  // Customer login endpoint
+  app.post("/api/customer/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email e senha são obrigatórios" });
+      }
+
+      const customer = await storage.validateCustomer(email, password);
+      if (!customer) {
+        return res.status(401).json({ message: "Email ou senha incorretos" });
+      }
+
+      // Remove password from response
+      const { password: _, ...customerResponse } = customer;
+      res.json(customerResponse);
+    } catch (error) {
+      console.error("Error during customer login:", error);
+      res.status(500).json({ message: "Erro no login" });
+    }
+  });
+
+  // Customer forgot password endpoint
+  app.post("/api/customer/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email é obrigatório" });
+      }
+
+      const customer = await storage.getCustomerByEmail(email);
+      if (!customer) {
+        // For security, don't reveal if email exists or not
+        return res.json({ message: "Se o email existir, você receberá instruções para redefinir sua senha." });
+      }
+
+      // Generate secure token
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 1); // Token expires in 1 hour
+
+      // Save token to database
+      await storage.createPasswordResetToken({
+        email: customer.email,
+        token: resetToken,
+        expiresAt: expiresAt,
+        type: 'customer'
+      });
+
+      // TODO: Send email with reset token
+      console.log(`Password reset token for ${email}: ${resetToken}`);
+      
+      res.json({ message: "Se o email existir, você receberá instruções para redefinir sua senha." });
+    } catch (error) {
+      console.error("Error during customer forgot password:", error);
+      res.status(500).json({ message: "Erro no processo de recuperação de senha" });
+    }
+  });
+
   // Public product routes for customers
   app.get("/api/public/products", async (req, res) => {
     try {

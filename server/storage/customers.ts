@@ -25,10 +25,15 @@ export class CustomerStorage implements ICustomerStorage {
 
   async validateCustomer(email: string, password: string): Promise<Customer | undefined> {
     const [customer] = await db.select().from(customers).where(eq(customers.email, email));
-    if (!customer || customer.isActive !== 1) return undefined;
+    if (!customer || customer.isActive !== 1 || !customer.password) return undefined;
 
-    const isValid = await bcrypt.compare(password, customer.password);
-    return isValid ? customer : undefined;
+    try {
+      const isValid = await bcrypt.compare(password, customer.password);
+      return isValid ? customer : undefined;
+    } catch (error) {
+      console.error("Error validating customer password:", error);
+      return undefined;
+    }
   }
 
   async getSupermarketsWithProducts(): Promise<Array<{

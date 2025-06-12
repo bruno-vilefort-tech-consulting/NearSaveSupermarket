@@ -57,6 +57,7 @@ export interface IStorage {
   getCustomerByEmail(email: string): Promise<Customer | undefined>;
   createCustomer(customerData: InsertCustomer): Promise<Customer>;
   updateCustomer(id: number, updates: Partial<InsertCustomer>): Promise<Customer | undefined>;
+  validateCustomer(email: string, password: string): Promise<Customer | undefined>;
   
   // Product operations
   getProducts(filters?: any): Promise<ProductWithCreator[]>;
