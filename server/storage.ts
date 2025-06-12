@@ -71,6 +71,8 @@ export interface IStorage {
   getOrderById(id: number): Promise<OrderWithItems | undefined>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   getAllOrders(options?: { status?: string }): Promise<OrderWithItems[]>;
+  getOrdersByEmail(email: string): Promise<OrderWithItems[]>;
+  getOrder(id: number): Promise<OrderWithItems | undefined>;
   
   // Other operations
   createEcoAction(actionData: InsertEcoAction): Promise<EcoAction>;
@@ -288,6 +290,20 @@ export class DatabaseStorage implements IStorage {
     return results.map(order => ({ ...order, orderItems: [] })) as OrderWithItems[];
   }
 
+  async getOrdersByEmail(email: string): Promise<OrderWithItems[]> {
+    const results = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.customerEmail, email))
+      .orderBy(desc(orders.createdAt));
+
+    return results.map(order => ({ ...order, orderItems: [] })) as OrderWithItems[];
+  }
+
+  async getOrder(id: number): Promise<OrderWithItems | undefined> {
+    return this.getOrderById(id);
+  }
+
   // Eco actions
   async createEcoAction(actionData: InsertEcoAction): Promise<EcoAction> {
     const [action] = await db.insert(ecoActions).values(actionData).returning();
@@ -298,7 +314,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(ecoActions)
-      .where(eq(ecoActions.userEmail, userEmail))
+      .where(eq(ecoActions.customerEmail, userEmail))
       .orderBy(desc(ecoActions.createdAt));
   }
 
@@ -324,17 +340,20 @@ export class DatabaseStorage implements IStorage {
     // Update expired PIX orders to "expired" status
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
     
-    await db
-      .update(orders)
-      .set({ 
-        status: "expired",
-        updatedAt: new Date()
-      })
-      .where(and(
-        eq(orders.paymentMethod, "pix"),
-        eq(orders.status, "awaiting_payment"),
-        lt(orders.createdAt, thirtyMinutesAgo)
-      ));
+    try {
+      await db
+        .update(orders)
+        .set({ 
+          status: "expired"
+        })
+        .where(and(
+          eq(orders.status, "awaiting_payment"),
+          isNotNull(orders.pixPaymentId),
+          lt(orders.createdAt, thirtyMinutesAgo)
+        ));
+    } catch (error) {
+      console.error('Error updating expired PIX orders:', error);
+    }
   }
 }
 
