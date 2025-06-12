@@ -149,26 +149,20 @@ export function registerStaffRoutes(app: Express) {
     }
   });
 
-  // Staff products routes - direct database query to bypass storage issues
+  // Staff products routes
   app.get('/api/staff/products', async (req, res) => {
     try {
-      const staffId = req.query.staffId || '1'; // Default to staff ID 1 for testing
+      // Get staff ID from query parameter or session
+      const staffId = req.query.staffId || req.get('X-Staff-Id');
+      if (!staffId) {
+        return res.status(401).json({ message: "Staff ID required" });
+      }
       
-      // Import database and schema directly
-      const { db } = require("../db");
-      const { products } = require("@shared/schema");
-      const { eq, desc } = require("drizzle-orm");
-      
-      const results = await db
-        .select()
-        .from(products)
-        .where(eq(products.createdByStaff, parseInt(staffId as string)))
-        .orderBy(desc(products.createdAt));
-      
-      res.json(results);
+      const products = await storage.getProductsByStaff(parseInt(staffId as string));
+      res.json(products);
     } catch (error: any) {
       console.error("Error fetching products:", error);
-      res.status(500).json({ message: "Failed to fetch products", error: error.message });
+      res.status(500).json({ message: "Failed to fetch products" });
     }
   });
 
