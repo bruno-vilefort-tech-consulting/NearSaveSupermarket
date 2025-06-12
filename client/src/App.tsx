@@ -72,6 +72,7 @@ function Router() {
       <Route path="/home" component={CustomerHome} />
       <Route path="/supermarket/:id/products" component={SupermarketProducts} />
       <Route path="/supermarket-map" component={SupermarketMap} />
+      <Route path="/map" component={SupermarketMap} />
       <Route path="/customer/cart" component={CartFinal} />
       <Route path="/cart" component={CartFinal} />
       <Route path="/customer/payment-method" component={PaymentMethod} />
