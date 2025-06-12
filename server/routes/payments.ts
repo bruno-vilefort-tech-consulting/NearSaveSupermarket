@@ -546,7 +546,7 @@ export function registerPaymentRoutes(app: Express) {
         customerName: customerData.customerName,
         customerEmail: customerData.customerEmail,
         customerPhone: customerData.customerPhone,
-        status: "payment_confirmed", // Já confirmado
+        status: "pending", // Pendente para processamento pelo supermercado
         fulfillmentMethod: orderData.fulfillmentMethod || "pickup",
         deliveryAddress: orderData.deliveryAddress || null,
         totalAmount: orderData.totalAmount,
