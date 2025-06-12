@@ -98,6 +98,9 @@ export interface IStorage {
   
   // Product operations for staff
   getProductsByStaff(staffId: number): Promise<ProductWithCreator[]>;
+  
+  // Payment operations for staff
+  getPendingPaymentsForStaff(staffId: number): Promise<any[]>;
 }
 
 // Implementation using the original storage logic with modular organization
@@ -539,6 +542,37 @@ export class DatabaseStorage implements IStorage {
         pendingOrders: 0,
         totalRevenue: 0
       };
+    }
+  }
+
+  // Payment operations for staff
+  async getPendingPaymentsForStaff(staffId: number): Promise<any[]> {
+    try {
+      // Get orders with pending payments for this staff's products
+      const pendingOrders = await db
+        .select({
+          orderId: orders.id,
+          customerEmail: orders.customerEmail,
+          totalAmount: orders.totalAmount,
+          status: orders.status,
+          paymentMethod: orders.paymentMethod,
+          createdAt: orders.createdAt,
+          pixPaymentId: orders.pixPaymentId
+        })
+        .from(orders)
+        .where(and(
+          or(
+            eq(orders.status, 'awaiting_payment'),
+            eq(orders.status, 'pending')
+          ),
+          sql`EXISTS (SELECT 1 FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = orders.id AND p.created_by_staff = ${staffId})`
+        ))
+        .orderBy(desc(orders.createdAt));
+
+      return pendingOrders;
+    } catch (error) {
+      console.error('Error fetching pending payments for staff:', error);
+      return [];
     }
   }
 }
