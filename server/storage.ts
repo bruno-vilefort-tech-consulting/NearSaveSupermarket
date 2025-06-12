@@ -83,6 +83,21 @@ export interface IStorage {
   createPasswordResetToken(tokenData: InsertPasswordResetToken): Promise<PasswordResetToken>;
   getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   checkExpiredPixOrders(): Promise<void>;
+  
+  // Statistics operations
+  getStatsForStaff(staffId: number): Promise<{
+    activeProducts: number;
+    pendingOrders: number;
+    totalRevenue: number;
+  }>;
+  getStats(): Promise<{
+    activeProducts: number;
+    pendingOrders: number;
+    totalRevenue: number;
+  }>;
+  
+  // Product operations for staff
+  getProductsByStaff(staffId: number): Promise<ProductWithCreator[]>;
 }
 
 // Implementation using the original storage logic with modular organization
@@ -439,6 +454,91 @@ export class DatabaseStorage implements IStorage {
         ));
     } catch (error) {
       console.error('Error updating expired PIX orders:', error);
+    }
+  }
+
+  // Statistics methods for staff dashboard
+  async getStatsForStaff(staffId: number): Promise<{
+    activeProducts: number;
+    pendingOrders: number;
+    totalRevenue: number;
+  }> {
+    try {
+      // Count active products for this staff
+      const activeProductsResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(products)
+        .where(and(
+          eq(products.createdByStaff, staffId),
+          eq(products.isActive, 1)
+        ));
+      
+      // Count pending orders for this staff
+      const pendingOrdersResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(orders)
+        .where(and(
+          eq(orders.status, 'pending'),
+          sql`EXISTS (SELECT 1 FROM products p WHERE p.created_by_staff = ${staffId} AND p.id IN (SELECT product_id FROM order_items WHERE order_id = orders.id))`
+        ));
+      
+      // Calculate total revenue for this staff
+      const revenueResult = await db
+        .select({ total: sql<number>`COALESCE(SUM(orders.total_amount), 0)` })
+        .from(orders)
+        .where(and(
+          eq(orders.status, 'completed'),
+          sql`EXISTS (SELECT 1 FROM products p WHERE p.created_by_staff = ${staffId} AND p.id IN (SELECT product_id FROM order_items WHERE order_id = orders.id))`
+        ));
+
+      return {
+        activeProducts: activeProductsResult[0]?.count || 0,
+        pendingOrders: pendingOrdersResult[0]?.count || 0,
+        totalRevenue: Number(revenueResult[0]?.total || 0)
+      };
+    } catch (error) {
+      console.error('Error fetching staff stats:', error);
+      return {
+        activeProducts: 0,
+        pendingOrders: 0,
+        totalRevenue: 0
+      };
+    }
+  }
+
+  async getStats(): Promise<{
+    activeProducts: number;
+    pendingOrders: number;
+    totalRevenue: number;
+  }> {
+    try {
+      const activeProductsResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(products)
+        .where(eq(products.isActive, 1));
+      
+      const pendingOrdersResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(orders)
+        .where(eq(orders.status, 'pending'));
+      
+      const revenueResult = await db
+        .select({ total: sql<number>`COALESCE(SUM(total_amount), 0)` })
+        .from(orders)
+        .where(eq(orders.status, 'completed'));
+
+      return {
+        activeProducts: activeProductsResult[0]?.count || 0,
+        pendingOrders: pendingOrdersResult[0]?.count || 0,
+        totalRevenue: Number(revenueResult[0]?.total || 0)
+      };
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      return {
+        activeProducts: 0,
+        pendingOrders: 0,
+        totalRevenue: 0
+      };
     }
   }
 }
