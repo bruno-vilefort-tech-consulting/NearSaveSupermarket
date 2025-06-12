@@ -152,13 +152,13 @@ export function registerStaffRoutes(app: Express) {
   // Staff products routes
   app.get('/api/staff/products', async (req, res) => {
     try {
-      // Get staff ID from session/token (simplified approach using header for now)
-      const staffId = req.get('X-Staff-Id');
+      // Get staff ID from query parameter or session
+      const staffId = req.query.staffId || req.get('X-Staff-Id');
       if (!staffId) {
         return res.status(401).json({ message: "Staff ID required" });
       }
       
-      const products = await storage.getProductsByStaff(parseInt(staffId));
+      const products = await storage.getProductsByStaff(parseInt(staffId as string));
       res.json(products);
     } catch (error: any) {
       console.error("Error fetching products:", error);
