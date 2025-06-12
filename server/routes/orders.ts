@@ -2,6 +2,8 @@ import type { Express } from "express";
 import { storage } from "../storage";
 import { createPixRefund, cancelPixPayment } from "../mercadopago";
 import { sendPushNotification } from "../push-service";
+import { db } from "../db";
+import { sql } from "drizzle-orm";
 import Stripe from "stripe";
 
 // Initialize Stripe
@@ -159,9 +161,10 @@ export function registerOrderRoutes(app: Express) {
         }
       }
 
-      // Atualizar status do pedido para cancelled-customer
+      // Atualizar status do pedido para cancelled-customer usando função segura
       console.log(`🔄 [CUSTOMER CANCEL] Atualizando status do pedido ${orderId} para 'cancelled-customer'`);
-      const updatedOrder = await storage.updateOrderStatus(parseInt(orderId), 'cancelled-customer');
+      await db.execute(sql`SELECT cancel_order_by_customer(${parseInt(orderId)})`);
+      const updatedOrder = await storage.getOrderById(parseInt(orderId));
       
       if (!updatedOrder) {
         throw new Error('Falha ao atualizar status do pedido');

@@ -106,6 +106,12 @@ export interface IOrderStorage {
   }): Promise<Order>;
   updateOrderPaymentStatus(id: number, status: 'payment_confirmed' | 'payment_failed'): Promise<Order | undefined>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  updateOrderRefund(id: number, refundData: {
+    refundId: string;
+    refundAmount: number;
+    refundStatus: string;
+    refundReason?: string;
+  }): Promise<Order | undefined>;
   updateOrderItemConfirmationStatus(itemId: number, status: 'confirmed' | 'removed' | 'pending'): Promise<void>;
   updateOrderExternalReference(orderId: number, externalReference: string): Promise<void>;
   checkExpiredPixOrders(): Promise<void>;

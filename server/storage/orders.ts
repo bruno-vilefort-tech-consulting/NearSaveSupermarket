@@ -163,6 +163,142 @@ export class OrderStorage implements IOrderStorage {
     return order;
   }
 
+  async updateOrderRefund(id: number, refundData: {
+    refundId: string;
+    refundAmount: number;
+    refundStatus: string;
+    refundReason?: string;
+  }): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({
+        refundId: refundData.refundId,
+        refundAmount: refundData.refundAmount.toString(),
+        refundStatus: refundData.refundStatus,
+        refundReason: refundData.refundReason,
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, id))
+      .returning();
+    return order;
+  }
+
+  async getOrders(filters?: { status?: string }): Promise<OrderWithItems[]> {
+    return this.getAllOrders(filters);
+  }
+
+  async getOrder(id: number): Promise<OrderWithItems | undefined> {
+    return this.getOrderById(id);
+  }
+
+  async getOrdersByPhone(phone: string): Promise<OrderWithItems[]> {
+    const results = await db
+      .select()
+      .from(orders)
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(orders.customerPhone, phone))
+      .orderBy(desc(orders.createdAt));
+
+    const ordersMap = new Map<number, OrderWithItems>();
+    
+    results.forEach(result => {
+      const order = result.orders;
+      const item = result.order_items;
+      const product = result.products;
+
+      if (!ordersMap.has(order.id)) {
+        ordersMap.set(order.id, {
+          ...order,
+          orderItems: []
+        } as OrderWithItems);
+      }
+
+      if (item && product) {
+        ordersMap.get(order.id)!.orderItems.push({
+          ...item,
+          product
+        } as any);
+      }
+    });
+
+    return Array.from(ordersMap.values());
+  }
+
+  async getOrdersByEmail(email: string): Promise<OrderWithItems[]> {
+    return this.getOrdersByCustomer(email);
+  }
+
+  async getOrderByExternalReference(externalReference: string): Promise<Order | undefined> {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.externalReference, externalReference));
+    return order;
+  }
+
+  async createOrderAwaitingPayment(orderData: InsertOrder, items: InsertOrderItem[], pixData: {
+    pixPaymentId: string;
+    pixCopyPaste: string;
+    pixExpirationDate: Date;
+  }): Promise<Order> {
+    const [order] = await db
+      .insert(orders)
+      .values({
+        ...orderData,
+        pixPaymentId: pixData.pixPaymentId,
+        pixCopyPaste: pixData.pixCopyPaste,
+        pixExpirationDate: pixData.pixExpirationDate,
+        status: 'awaiting_payment'
+      })
+      .returning();
+
+    await db
+      .insert(orderItems)
+      .values(items.map(item => ({ ...item, orderId: order.id })));
+
+    return order;
+  }
+
+  async updateOrderPaymentStatus(id: number, status: 'payment_confirmed' | 'payment_failed'): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ 
+        paymentStatus: status,
+        status: status === 'payment_confirmed' ? 'pending' : 'cancelled',
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, id))
+      .returning();
+    return order;
+  }
+
+  async updateOrderItemConfirmationStatus(itemId: number, status: 'confirmed' | 'removed' | 'pending'): Promise<void> {
+    await db
+      .update(orderItems)
+      .set({ confirmationStatus: status })
+      .where(eq(orderItems.id, itemId));
+  }
+
+  async updateOrderExternalReference(orderId: number, externalReference: string): Promise<void> {
+    await db
+      .update(orders)
+      .set({ externalReference })
+      .where(eq(orders.id, orderId));
+  }
+
+  async checkExpiredPixOrders(): Promise<void> {
+    await db
+      .update(orders)
+      .set({ status: 'expired' })
+      .where(
+        and(
+          eq(orders.status, 'awaiting_payment'),
+          sql`pix_expiration_date < NOW()`
+        )
+      );
+  }
+
   async getAllOrders(options?: { status?: string; page?: number; limit?: number }): Promise<OrderWithItems[]> {
     let conditions = [];
     
