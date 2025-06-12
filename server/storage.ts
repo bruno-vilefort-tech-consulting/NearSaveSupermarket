@@ -89,6 +89,7 @@ export interface IStorage {
     activeProducts: number;
     pendingOrders: number;
     totalRevenue: number;
+    pendingRevenue: number;
   }>;
   getStats(): Promise<{
     activeProducts: number;
@@ -465,6 +466,7 @@ export class DatabaseStorage implements IStorage {
     activeProducts: number;
     pendingOrders: number;
     totalRevenue: number;
+    pendingRevenue: number;
   }> {
     try {
       // Count active products for this staff
@@ -481,11 +483,11 @@ export class DatabaseStorage implements IStorage {
         .select({ count: sql<number>`count(*)` })
         .from(orders)
         .where(and(
-          eq(orders.status, 'pending'),
+          or(eq(orders.status, 'pending'), eq(orders.status, 'awaiting_payment')),
           sql`EXISTS (SELECT 1 FROM products p WHERE p.created_by_staff = ${staffId} AND p.id IN (SELECT product_id FROM order_items WHERE order_id = orders.id))`
         ));
       
-      // Calculate total revenue for this staff
+      // Calculate total revenue for this staff (completed orders)
       const revenueResult = await db
         .select({ total: sql<number>`COALESCE(SUM(orders.total_amount), 0)` })
         .from(orders)
@@ -494,17 +496,28 @@ export class DatabaseStorage implements IStorage {
           sql`EXISTS (SELECT 1 FROM products p WHERE p.created_by_staff = ${staffId} AND p.id IN (SELECT product_id FROM order_items WHERE order_id = orders.id))`
         ));
 
+      // Calculate pending revenue for this staff (pending/awaiting payment orders)
+      const pendingRevenueResult = await db
+        .select({ total: sql<number>`COALESCE(SUM(orders.total_amount), 0)` })
+        .from(orders)
+        .where(and(
+          or(eq(orders.status, 'pending'), eq(orders.status, 'awaiting_payment')),
+          sql`EXISTS (SELECT 1 FROM products p WHERE p.created_by_staff = ${staffId} AND p.id IN (SELECT product_id FROM order_items WHERE order_id = orders.id))`
+        ));
+
       return {
         activeProducts: activeProductsResult[0]?.count || 0,
         pendingOrders: pendingOrdersResult[0]?.count || 0,
-        totalRevenue: Number(revenueResult[0]?.total || 0)
+        totalRevenue: Number(revenueResult[0]?.total || 0),
+        pendingRevenue: Number(pendingRevenueResult[0]?.total || 0)
       };
     } catch (error) {
       console.error('Error fetching staff stats:', error);
       return {
         activeProducts: 0,
         pendingOrders: 0,
-        totalRevenue: 0
+        totalRevenue: 0,
+        pendingRevenue: 0
       };
     }
   }
@@ -555,7 +568,6 @@ export class DatabaseStorage implements IStorage {
           customerEmail: orders.customerEmail,
           totalAmount: orders.totalAmount,
           status: orders.status,
-          paymentMethod: orders.paymentMethod,
           createdAt: orders.createdAt,
           pixPaymentId: orders.pixPaymentId
         })
