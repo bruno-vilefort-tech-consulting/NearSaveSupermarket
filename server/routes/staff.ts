@@ -397,10 +397,8 @@ export function registerStaffRoutes(app: Express) {
         return res.status(400).json({ message: "Staff ID é obrigatório" });
       }
 
-      const orders = await storage.getOrdersForStaff(parseInt(staffId), {
-        status: status as string,
-        page: parseInt(page as string),
-        limit: parseInt(limit as string)
+      const orders = await storage.getOrdersByStaff(parseInt(staffId), {
+        status: status as string
       });
       
       res.json(orders);
@@ -424,7 +422,7 @@ export function registerStaffRoutes(app: Express) {
         return res.status(400).json({ message: "ID do pedido inválido" });
       }
 
-      const order = await storage.getOrderForStaff(parseInt(staffId), orderId);
+      const order = await storage.getOrderById(orderId);
       
       if (!order) {
         return res.status(404).json({ message: "Pedido não encontrado" });

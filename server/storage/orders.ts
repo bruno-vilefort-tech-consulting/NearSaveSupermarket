@@ -74,46 +74,54 @@ export class OrderStorage implements IOrderStorage {
 
   async getOrdersByStaff(staffId: number, options?: { status?: string }): Promise<OrderWithItems[]> {
     try {
-      // Find orders that contain products created by this staff
-      let orderConditions = [];
+      // Using raw SQL for more reliable results
+      const statusFilter = options?.status ? `AND o.status = '${options.status}'` : '';
       
-      if (options?.status) {
-        orderConditions.push(eq(orders.status, options.status));
-      }
+      const query = `
+        SELECT DISTINCT o.*, oi.id as item_id, oi.product_id, oi.quantity, oi.price_at_time, 
+               p.name as product_name, p.original_price, p.discount_price
+        FROM orders o 
+        JOIN order_items oi ON o.id = oi.order_id 
+        JOIN products p ON oi.product_id = p.id 
+        WHERE p.created_by_staff = $1 ${statusFilter}
+        ORDER BY o.created_at DESC
+      `;
 
-      const results = await db
-        .select({
-          order: orders,
-          orderItem: orderItems,
-          product: products
-        })
-        .from(orders)
-        .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
-        .innerJoin(products, eq(orderItems.productId, products.id))
-        .where(and(
-          eq(products.createdByStaff, staffId),
-          ...(orderConditions.length > 0 ? orderConditions : [])
-        ))
-        .orderBy(desc(orders.createdAt));
-
+      const result = await db.execute(sql.raw(query, [staffId]));
+      
       const ordersMap = new Map<number, OrderWithItems>();
       
-      results.forEach(result => {
-        const order = result.order;
-        const item = result.orderItem;
-        const product = result.product;
-
-        if (!ordersMap.has(order.id)) {
-          ordersMap.set(order.id, {
-            ...order,
+      result.rows.forEach((row: any) => {
+        if (!ordersMap.has(row.id)) {
+          ordersMap.set(row.id, {
+            id: row.id,
+            customerName: row.customer_name,
+            customerEmail: row.customer_email,
+            customerPhone: row.customer_phone,
+            status: row.status,
+            fulfillmentMethod: row.fulfillment_method,
+            totalAmount: row.total_amount,
+            notes: row.notes,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            deliveryAddress: row.delivery_address,
             orderItems: []
           } as OrderWithItems);
         }
 
-        if (item && product) {
-          ordersMap.get(order.id)!.orderItems.push({
-            ...item,
-            product
+        if (row.item_id) {
+          ordersMap.get(row.id)!.orderItems.push({
+            id: row.item_id,
+            orderId: row.id,
+            productId: row.product_id,
+            quantity: row.quantity,
+            priceAtTime: row.price_at_time,
+            product: {
+              id: row.product_id,
+              name: row.product_name,
+              originalPrice: row.original_price,
+              discountPrice: row.discount_price
+            }
           } as any);
         }
       });
