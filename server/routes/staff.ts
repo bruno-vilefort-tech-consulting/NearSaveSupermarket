@@ -4,6 +4,9 @@ import { insertStaffUserSchema, insertProductSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
 import { upload } from "./uploads";
 import { sendPushNotification } from "../push-service";
+import { db } from "../db";
+import { orderItems, orders } from "@shared/schema";
+import { eq, and } from "drizzle-orm";
 
 export function registerStaffRoutes(app: Express) {
   // CNPJ validation route
