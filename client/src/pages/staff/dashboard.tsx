@@ -46,7 +46,7 @@ function StaffDashboard() {
       return data;
     },
     enabled: !!staffUser?.id && staffUser.approvalStatus === 'approved',
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: false, // Disabled for better performance
   });
 
   useEffect(() => {

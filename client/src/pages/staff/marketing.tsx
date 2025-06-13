@@ -54,7 +54,7 @@ function StaffMarketing() {
     queryKey: ['/api/staff/marketing-subscription'],
     enabled: !!staffUser?.id,
     refetchOnWindowFocus: true,
-    refetchInterval: 10000, // Refetch every 10 seconds
+    refetchInterval: false, // Disabled for better performance
   });
 
   useEffect(() => {

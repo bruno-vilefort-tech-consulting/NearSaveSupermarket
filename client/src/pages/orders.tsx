@@ -25,7 +25,7 @@ export default function Orders() {
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ["/api/staff/orders", selectedStatus],
-    refetchInterval: 5000, // Auto-refresh every 5 seconds
+    refetchInterval: false, // Disabled for better performance
     queryFn: async () => {
       const url = selectedStatus 
         ? `/api/staff/orders?status=${selectedStatus}`

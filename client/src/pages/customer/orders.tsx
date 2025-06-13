@@ -43,7 +43,7 @@ export default function CustomerOrders() {
   const { data: orders = [], isLoading, error, refetch } = useQuery({
     queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
     enabled: !!(customerInfo?.email || customerInfo?.phone),
-    refetchInterval: 3000, // Auto-refresh every 3 seconds for real-time updates
+    refetchInterval: false, // Disabled for better performance
     retry: 3,
     retryDelay: 1000,
     queryFn: async () => {
