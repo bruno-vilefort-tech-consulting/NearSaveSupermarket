@@ -102,6 +102,10 @@ export interface IStorage {
   
   // Payment operations for staff
   getPendingPaymentsForStaff(staffId: number): Promise<any[]>;
+  
+  // Paginated order operations for performance
+  getOrdersByEmailPaginated(email: string, limit: number, offset: number): Promise<OrderWithItems[]>;
+  getOrdersByPhonePaginated(phone: string, limit: number, offset: number): Promise<OrderWithItems[]>;
 }
 
 // Implementation using the original storage logic with modular organization
@@ -584,6 +588,41 @@ export class DatabaseStorage implements IStorage {
       return pendingOrders;
     } catch (error) {
       console.error('Error fetching pending payments for staff:', error);
+      return [];
+    }
+  }
+
+  // Paginated order operations for better performance
+  async getOrdersByEmailPaginated(email: string, limit: number, offset: number): Promise<OrderWithItems[]> {
+    try {
+      const results = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.customerEmail, email))
+        .orderBy(desc(orders.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      return results.map(order => ({ ...order, orderItems: [] })) as OrderWithItems[];
+    } catch (error) {
+      console.error('Error fetching paginated orders by email:', error);
+      return [];
+    }
+  }
+
+  async getOrdersByPhonePaginated(phone: string, limit: number, offset: number): Promise<OrderWithItems[]> {
+    try {
+      const results = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.customerPhone, phone))
+        .orderBy(desc(orders.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      return results.map(order => ({ ...order, orderItems: [] })) as OrderWithItems[];
+    } catch (error) {
+      console.error('Error fetching paginated orders by phone:', error);
       return [];
     }
   }
