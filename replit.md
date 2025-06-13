@@ -132,6 +132,7 @@ SaveUp is a comprehensive multi-tenanted platform for sustainable supermarket op
 - June 12, 2025. Initial setup
 - June 12, 2025. Fixed staff dashboard financial metrics - corrected "Valor a Receber" to show pending revenue instead of total revenue
 - June 12, 2025. Major performance optimization - eliminated excessive refetchInterval queries, implemented intelligent preloading, added pagination, and optimized React Query configuration for 80%+ faster screen transitions
+- June 13, 2025. Fixed staff order visibility issue - corrected getOrdersByStaff query to properly show all orders containing products created by the staff member
 
 ## User Preferences
 
