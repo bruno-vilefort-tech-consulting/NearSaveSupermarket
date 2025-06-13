@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { usePreload } from "@/hooks/usePreload";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Store, Package, ShoppingCart, Settings, LogOut, DollarSign, Rocket } from "lucide-react";
@@ -26,6 +27,9 @@ interface StaffStats {
 function StaffDashboard() {
   const [, setLocation] = useLocation();
   const [staffUser, setStaffUser] = useState<StaffUser | null>(null);
+  
+  // Initialize preloading for better performance
+  usePreload();
 
   // Fetch staff statistics
   const { data: stats } = useQuery({

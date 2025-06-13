@@ -289,20 +289,23 @@ export function registerPublicRoutes(app: Express) {
     }
   });
 
-  // Customer Routes - Get customer orders
+  // Customer Routes - Get customer orders with pagination
   app.get("/api/customer/orders", async (req, res) => {
     try {
-      const { phone, email } = req.query;
+      const { phone, email, limit = '20', offset = '0' } = req.query;
       
       if (!phone && !email) {
         return res.status(400).json({ message: "Telefone ou email é obrigatório" });
       }
 
+      const limitNum = Math.min(parseInt(limit as string) || 20, 50); // Max 50 orders per request
+      const offsetNum = parseInt(offset as string) || 0;
+
       let orders;
       if (email) {
-        orders = await storage.getOrdersByEmail(email as string);
+        orders = await storage.getOrdersByEmailPaginated(email as string, limitNum, offsetNum);
       } else {
-        orders = await storage.getOrdersByPhone(phone as string);
+        orders = await storage.getOrdersByPhonePaginated(phone as string, limitNum, offsetNum);
       }
 
       res.json(orders);

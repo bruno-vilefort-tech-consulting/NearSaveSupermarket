@@ -43,40 +43,31 @@ export default function CustomerOrders() {
   const { data: orders = [], isLoading, error, refetch } = useQuery({
     queryKey: ["/api/customer/orders", customerInfo?.email, customerInfo?.phone],
     enabled: !!(customerInfo?.email || customerInfo?.phone),
-    refetchInterval: false, // Disabled for better performance
-    retry: 3,
-    retryDelay: 1000,
+    refetchInterval: false,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: 1,
+    retryDelay: 500,
     queryFn: async () => {
       try {
         const params = new URLSearchParams();
         if (customerInfo?.email) params.append('email', customerInfo.email);
         if (customerInfo?.phone) params.append('phone', customerInfo.phone);
-        
-        console.log('🔍 Buscando pedidos com:', {
-          email: customerInfo?.email,
-          phone: customerInfo?.phone,
-          fullCustomerInfo: customerInfo
-        });
+        params.append('limit', '20'); // Limit results for faster loading
         
         const response = await fetch(`/api/customer/orders?${params}`);
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Erro na API:', response.status, errorText);
-          throw new Error(`Erro ${response.status}: ${errorText}`);
+          throw new Error(`Erro ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('📦 Pedidos encontrados:', data.length, 'pedidos:', data);
         
-        // Validar estrutura dos dados
         if (!Array.isArray(data)) {
-          console.error('Dados inválidos recebidos:', data);
           throw new Error('Formato de dados inválido recebido do servidor');
         }
         
         return data;
       } catch (error) {
-        console.error('Erro completo ao buscar pedidos:', error);
+        console.error('Erro ao buscar pedidos:', error);
         throw error;
       }
     }
