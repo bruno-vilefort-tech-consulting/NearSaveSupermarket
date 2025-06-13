@@ -115,6 +115,8 @@ export interface IOrderStorage {
   updateOrderItemConfirmationStatus(itemId: number, status: 'confirmed' | 'removed' | 'pending'): Promise<void>;
   updateOrderExternalReference(orderId: number, externalReference: string): Promise<void>;
   checkExpiredPixOrders(): Promise<void>;
+  confirmOrderItem(staffId: number, orderId: number, productId: number, notes?: string): Promise<boolean>;
+  checkAllItemsConfirmed(orderId: number): Promise<boolean>;
 }
 
 // Statistics operations interface

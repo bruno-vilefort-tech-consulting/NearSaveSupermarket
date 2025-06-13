@@ -87,11 +87,19 @@ export class OrderStorage implements IOrderStorage {
         ORDER BY o.created_at DESC
       `;
 
-      const result = await db.execute(sql.raw(query, [staffId]));
+      const result = await db.execute(sql`
+        SELECT DISTINCT o.*, oi.id as item_id, oi.product_id, oi.quantity, oi.price_at_time, 
+               p.name as product_name, p.original_price, p.discount_price
+        FROM orders o 
+        JOIN order_items oi ON o.id = oi.order_id 
+        JOIN products p ON oi.product_id = p.id 
+        WHERE p.created_by_staff = ${staffId} ${sql.raw(statusFilter)}
+        ORDER BY o.created_at DESC
+      `);
       
       const ordersMap = new Map<number, OrderWithItems>();
       
-      result.rows.forEach((row: any) => {
+      result.forEach((row: any) => {
         if (!ordersMap.has(row.id)) {
           ordersMap.set(row.id, {
             id: row.id,
@@ -105,8 +113,23 @@ export class OrderStorage implements IOrderStorage {
             createdAt: row.created_at,
             updatedAt: row.updated_at,
             deliveryAddress: row.delivery_address,
+            lastManualStatus: row.last_manual_status,
+            lastManualUpdate: row.last_manual_update,
+            externalReference: row.external_reference,
+            pixPaymentId: row.pix_payment_id,
+            pixRefundId: row.pix_refund_id,
+            refundAmount: row.refund_amount,
+            refundStatus: row.refund_status,
+            refundDate: row.refund_date,
+            refundReason: row.refund_reason,
+            pixCopyPaste: row.pix_copy_paste,
+            pixExpirationDate: row.pix_expiration_date,
+            supermarketPaymentStatus: row.supermarket_payment_status,
+            supermarketPaymentAmount: row.supermarket_payment_amount,
+            supermarketPaymentDate: row.supermarket_payment_date,
+            supermarketPaymentNotes: row.supermarket_payment_notes,
             orderItems: []
-          } as OrderWithItems);
+          } as any);
         }
 
         if (row.item_id) {
@@ -360,5 +383,39 @@ export class OrderStorage implements IOrderStorage {
     });
 
     return Array.from(ordersMap.values());
+  }
+
+  async confirmOrderItem(staffId: number, orderId: number, productId: number, notes?: string): Promise<boolean> {
+    try {
+      // Update the order item confirmation status
+      await db
+        .update(orderItems)
+        .set({ 
+          confirmationStatus: 'confirmed'
+        })
+        .where(and(
+          eq(orderItems.orderId, orderId),
+          eq(orderItems.productId, productId)
+        ));
+
+      return true;
+    } catch (error) {
+      console.error('Error confirming order item:', error);
+      return false;
+    }
+  }
+
+  async checkAllItemsConfirmed(orderId: number): Promise<boolean> {
+    try {
+      const items = await db
+        .select()
+        .from(orderItems)
+        .where(eq(orderItems.orderId, orderId));
+
+      return items.every(item => item.confirmationStatus === 'confirmed');
+    } catch (error) {
+      console.error('Error checking items confirmation:', error);
+      return false;
+    }
   }
 }

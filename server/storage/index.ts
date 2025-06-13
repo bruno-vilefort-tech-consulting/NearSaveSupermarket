@@ -110,6 +110,8 @@ export class DatabaseStorage implements IStorage {
   async updateOrderItemConfirmationStatus(itemId: number, status: any) { return this.orderStorage.updateOrderItemConfirmationStatus(itemId, status); }
   async updateOrderExternalReference(orderId: number, externalReference: string) { return this.orderStorage.updateOrderExternalReference(orderId, externalReference); }
   async checkExpiredPixOrders() { return this.orderStorage.checkExpiredPixOrders(); }
+  async confirmOrderItem(staffId: number, orderId: number, productId: number, notes?: string) { return this.orderStorage.confirmOrderItem(staffId, orderId, productId, notes); }
+  async checkAllItemsConfirmed(orderId: number) { return this.orderStorage.checkAllItemsConfirmed(orderId); }
 
   // Admin operations
   async getAdminUserByEmail(email: string) { return this.adminStorage.getAdminUserByEmail(email); }

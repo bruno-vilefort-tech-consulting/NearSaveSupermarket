@@ -440,7 +440,9 @@ export function registerStaffRoutes(app: Express) {
     try {
       const staffId = req.headers['x-staff-id'] as string;
       const orderId = parseInt(req.params.id);
-      const { productId, notes } = req.body;
+      const { productId } = req.body;
+      
+      console.log(`🔄 [CONFIRM] Staff ${staffId} confirmando pedido ${orderId}, produto ${productId}`);
       
       if (!staffId) {
         return res.status(400).json({ message: "Staff ID é obrigatório" });
@@ -450,29 +452,56 @@ export function registerStaffRoutes(app: Express) {
         return res.status(400).json({ message: "ID do pedido inválido" });
       }
 
-      const result = await storage.confirmOrderItem(parseInt(staffId), orderId, productId, notes);
-      
-      if (!result) {
-        return res.status(404).json({ message: "Item do pedido não encontrado" });
+      if (!productId) {
+        return res.status(400).json({ message: "Product ID é obrigatório" });
       }
 
-      // Send push notification if all items confirmed
-      const order = await storage.getOrder(orderId);
-      if (order && order.customerEmail) {
-        const allItemsConfirmed = await storage.checkAllItemsConfirmed(orderId);
-        if (allItemsConfirmed) {
-          await sendPushNotification(order.customerEmail, {
-            title: 'Pedido Confirmado',
-            body: 'Todos os itens do seu pedido foram confirmados pelo estabelecimento.',
-            url: '/customer/orders'
-          });
+      // Direct database update for reliability
+      try {
+        await db
+          .update(orderItems)
+          .set({ confirmationStatus: 'confirmed' })
+          .where(and(
+            eq(orderItems.orderId, orderId),
+            eq(orderItems.productId, productId)
+          ));
+
+        console.log(`✅ [CONFIRM] Item confirmado: pedido ${orderId}, produto ${productId}`);
+
+        // Check if order is complete and update status
+        const allItems = await db
+          .select()
+          .from(orderItems)
+          .where(eq(orderItems.orderId, orderId));
+
+        const allConfirmed = allItems.every(item => item.confirmationStatus === 'confirmed');
+        
+        if (allConfirmed) {
+          await db
+            .update(orders)
+            .set({ 
+              status: 'ready_for_pickup',
+              lastManualStatus: 'ready_for_pickup',
+              lastManualUpdate: new Date()
+            })
+            .where(eq(orders.id, orderId));
+
+          console.log(`🎉 [CONFIRM] Pedido ${orderId} totalmente confirmado - pronto para retirada`);
         }
+
+        res.json({ 
+          message: "Item confirmado com sucesso", 
+          allConfirmed,
+          newStatus: allConfirmed ? 'ready_for_pickup' : 'pending'
+        });
+      } catch (dbError) {
+        console.error('❌ [CONFIRM] Erro no banco:', dbError);
+        res.status(500).json({ message: "Erro ao confirmar item no banco de dados" });
       }
 
-      res.json({ message: "Item confirmado com sucesso", result });
     } catch (error) {
-      console.error("Error confirming order item:", error);
-      res.status(500).json({ message: "Failed to confirm order item" });
+      console.error("❌ [CONFIRM] Erro geral:", error);
+      res.status(500).json({ message: "Erro interno ao confirmar item" });
     }
   });
 }
