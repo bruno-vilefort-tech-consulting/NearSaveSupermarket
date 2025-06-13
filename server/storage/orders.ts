@@ -73,43 +73,56 @@ export class OrderStorage implements IOrderStorage {
   }
 
   async getOrdersByStaff(staffId: number, options?: { status?: string }): Promise<OrderWithItems[]> {
-    let conditions = [eq(orders.createdByStaff, staffId)];
-    
-    if (options?.status) {
-      conditions.push(eq(orders.status, options.status));
+    try {
+      // Find orders that contain products created by this staff
+      let orderConditions = [];
+      
+      if (options?.status) {
+        orderConditions.push(eq(orders.status, options.status));
+      }
+
+      const results = await db
+        .select({
+          order: orders,
+          orderItem: orderItems,
+          product: products
+        })
+        .from(orders)
+        .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .where(and(
+          eq(products.createdByStaff, staffId),
+          ...(orderConditions.length > 0 ? orderConditions : [])
+        ))
+        .orderBy(desc(orders.createdAt));
+
+      const ordersMap = new Map<number, OrderWithItems>();
+      
+      results.forEach(result => {
+        const order = result.order;
+        const item = result.orderItem;
+        const product = result.product;
+
+        if (!ordersMap.has(order.id)) {
+          ordersMap.set(order.id, {
+            ...order,
+            orderItems: []
+          } as OrderWithItems);
+        }
+
+        if (item && product) {
+          ordersMap.get(order.id)!.orderItems.push({
+            ...item,
+            product
+          } as any);
+        }
+      });
+
+      return Array.from(ordersMap.values());
+    } catch (error) {
+      console.error('Error fetching orders by staff:', error);
+      return [];
     }
-
-    const results = await db
-      .select()
-      .from(orders)
-      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .leftJoin(products, eq(orderItems.productId, products.id))
-      .where(and(...conditions))
-      .orderBy(desc(orders.createdAt));
-
-    const ordersMap = new Map<number, OrderWithItems>();
-    
-    results.forEach(result => {
-      const order = result.orders;
-      const item = result.order_items;
-      const product = result.products;
-
-      if (!ordersMap.has(order.id)) {
-        ordersMap.set(order.id, {
-          ...order,
-          orderItems: []
-        } as OrderWithItems);
-      }
-
-      if (item && product) {
-        ordersMap.get(order.id)!.orderItems.push({
-          ...item,
-          product
-        } as any);
-      }
-    });
-
-    return Array.from(ordersMap.values());
   }
 
   async getOrderById(id: number): Promise<OrderWithItems | undefined> {
