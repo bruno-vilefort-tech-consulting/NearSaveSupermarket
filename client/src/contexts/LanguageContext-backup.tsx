@@ -47,7 +47,6 @@ const languageAPI: LanguageContextType = {
 // Simple provider that doesn't use React hooks
 export function LanguageProvider({ children }: { children: any }) {
   return children;
-
 }
 
 export function useLanguage(): LanguageContextType {
