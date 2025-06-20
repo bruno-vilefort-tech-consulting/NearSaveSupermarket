@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import * as React from 'react';
 import { Language, getTranslation, TranslationKeys } from '@shared/translations';
 
 interface LanguageContextType {
@@ -7,17 +7,17 @@ interface LanguageContextType {
   t: (key: keyof TranslationKeys) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = React.createContext<LanguageContextType | undefined>(undefined);
 
 interface LanguageProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguageState] = useState<Language>('pt-BR');
+  const [language, setLanguageState] = React.useState<Language>('pt-BR');
 
   // Force Portuguese language always
-  useEffect(() => {
+  React.useEffect(() => {
     // Force Portuguese and clear any English cache
     localStorage.setItem('app-language', 'pt-BR');
     localStorage.removeItem('en-US-cache');
@@ -51,7 +51,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 }
 
 export function useLanguage() {
-  const context = useContext(LanguageContext);
+  const context = React.useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
