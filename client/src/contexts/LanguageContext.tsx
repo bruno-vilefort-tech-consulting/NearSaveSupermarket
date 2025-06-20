@@ -9,7 +9,7 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType>({
   language: 'pt-BR',
-  setLanguage: () => {},
+  setLanguage: () => { },
   t: (key) => key as string,
 });
 

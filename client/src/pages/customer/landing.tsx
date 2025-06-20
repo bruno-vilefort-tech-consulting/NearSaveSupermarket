@@ -11,7 +11,7 @@ export default function CustomerLanding() {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const languageMenuRef = useRef<HTMLDivElement>(null);
   const [, navigate] = useLocation();
-  
+
   const handleLogin = () => {
     navigate("/login");
   };
@@ -53,9 +53,9 @@ export default function CustomerLanding() {
 
       {/* Delivery Image */}
       <div className="flex justify-center items-center my-3 sm:my-6">
-        <img 
-          src={deliveryImage} 
-          alt="Entregador em lambreta SaveUp" 
+        <img
+          src={deliveryImage}
+          alt="Entregador em lambreta SaveUp"
           className="w-56 sm:w-72 md:w-96 h-auto max-w-[90vw] object-contain drop-shadow-lg"
         />
       </div>
@@ -137,7 +137,7 @@ export default function CustomerLanding() {
             {t('landing.impactSubtitle')}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center">
             <div className="text-4xl font-bold text-eco-green mb-2">50%</div>
@@ -172,7 +172,7 @@ export default function CustomerLanding() {
             <span className="text-xs sm:text-sm">{t('common.language')}</span>
             <ChevronDown size={12} className="sm:w-3.5 sm:h-3.5" />
           </Button>
-          
+
           {isLanguageMenuOpen && (
             <div className="absolute right-0 mt-2 w-40 sm:w-48 bg-white rounded-lg shadow-lg border border-eco-gray-light z-50">
               <button
