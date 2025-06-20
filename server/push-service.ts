@@ -2,9 +2,13 @@ import webpush from 'web-push';
 import { storage } from './storage';
 
 // Configuração do web-push com chaves VAPID
+if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+  console.warn('⚠️ VAPID keys not configured. Push notifications will be disabled.');
+}
+
 const vapidKeys = {
-  publicKey: process.env.VAPID_PUBLIC_KEY || 'BHg9Q1w6hkG0ggsSsbDEGr2Ux8ncAKjKW-fi16Qki-zAcjapQCBTfbdB77OeR9L8zT_3gV-HrwAMg2N60Pa8u20',
-  privateKey: process.env.VAPID_PRIVATE_KEY || 's1neqTqX3BQnCvNVq-n6nGU_6oPwimK6o-9d3z50peM'
+  publicKey: process.env.VAPID_PUBLIC_KEY || '',
+  privateKey: process.env.VAPID_PRIVATE_KEY || ''
 };
 
 webpush.setVapidDetails(
@@ -125,5 +129,8 @@ export async function sendEcoPointsNotification(
 }
 
 export function getVapidPublicKey(): string {
+  if (!vapidKeys.publicKey) {
+    throw new Error('VAPID_PUBLIC_KEY environment variable is not configured');
+  }
   return vapidKeys.publicKey;
 }
