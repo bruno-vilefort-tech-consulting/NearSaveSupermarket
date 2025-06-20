@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,13 +31,13 @@ interface SupermarketWithLocation {
 
 export default function CustomerHome() {
   const [, navigate] = useLocation();
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [cartCount, setCartCount] = React.useState(0);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
-  const [customerInfo, setCustomerInfo] = React.useState<any>(null);
-  const [userLocation, setUserLocation] = React.useState<{latitude: number, longitude: number} | null>(null);
-  const [locationPermission, setLocationPermission] = React.useState<'granted' | 'denied' | 'prompt' | 'loading'>('loading');
+  const [customerInfo, setCustomerInfo] = useState<any>(null);
+  const [userLocation, setUserLocation] = useState<{latitude: number, longitude: number} | null>(null);
+  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt' | 'loading'>('loading');
 
   // Função para calcular distância entre duas coordenadas usando fórmula de Haversine
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -180,7 +180,7 @@ export default function CustomerHome() {
   };
 
   // Carregar dados iniciais e obter localização
-  React.useEffect(() => {
+  useEffect(() => {
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const totalItems = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
     setCartCount(totalItems);

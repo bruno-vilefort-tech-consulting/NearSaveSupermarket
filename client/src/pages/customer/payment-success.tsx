@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { CheckCircle, Home, Package } from 'lucide-react';
 
 export default function PaymentSuccess() {

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Language, getTranslation, TranslationKeys } from '@shared/translations';
 
 interface LanguageContextType {
@@ -7,22 +7,23 @@ interface LanguageContextType {
   t: (key: keyof TranslationKeys) => string;
 }
 
-const LanguageContext = React.createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 interface LanguageProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguageState] = React.useState<Language>('pt-BR');
+  const [language, setLanguageState] = useState<Language>('pt-BR');
 
   // Force Portuguese language always
-  React.useEffect(() => {
+  useEffect(() => {
     // Force Portuguese and clear any English cache
     localStorage.setItem('app-language', 'pt-BR');
     localStorage.removeItem('en-US-cache');
     localStorage.removeItem('language-cache');
     setLanguageState('pt-BR');
+    console.log('🔧 FORÇANDO IDIOMA PORTUGUÊS NO CONTEXTO');
   }, []);
 
   // Save language to localStorage when it changes
@@ -50,7 +51,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 }
 
 export function useLanguage() {
-  const context = React.useContext(LanguageContext);
+  const context = useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }

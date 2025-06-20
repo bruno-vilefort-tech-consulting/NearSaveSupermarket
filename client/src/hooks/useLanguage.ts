@@ -1,4 +1,4 @@
-import { useLanguageGlobal } from '@/contexts/LanguageContextSimple';
+import { useLanguageGlobal } from '@/contexts/LanguageContext';
 import { getAvailableLanguages } from '@shared/translations';
 
 export function useLanguage() {
