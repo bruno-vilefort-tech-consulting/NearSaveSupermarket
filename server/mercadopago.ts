@@ -33,7 +33,7 @@ export interface PixPaymentResponse {
 export async function createPixPayment(data: PixPaymentData): Promise<PixPaymentResponse> {
   try {
     console.log('Creating PIX payment with Mercado Pago...');
-    console.log('Using MercadoPago access token (first 10 chars):', process.env.MERCADOPAGO_ACCESS_TOKEN?.substring(0, 10) + '...');
+    console.log('Using access token:', process.env.MERCADOPAGO_ACCESS_TOKEN?.substring(0, 10) + '...');
     
     const paymentData = {
       transaction_amount: data.amount,
