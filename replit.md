@@ -141,7 +141,17 @@ SESSION_SECRET=...
 
 ## Changelog
 
-- June 20, 2025. Initial setup
+- June 20, 2025: Initial setup
+- June 20, 2025: Otimização da arquitetura do servidor - Dividido arquivo routes.ts de 4300 linhas em 8 módulos organizados por contexto:
+  - `auth.ts` (311 linhas) - Autenticação e registro de usuários
+  - `products.ts` (268 linhas) - Gestão de produtos e uploads
+  - `orders.ts` (223 linhas) - Processamento de pedidos
+  - `payments.ts` (285 linhas) - Integração com Stripe e Mercado Pago
+  - `admin.ts` (216 linhas) - Funcionalidades administrativas
+  - `staff.ts` (269 linhas) - Gestão de supermercados
+  - `push.ts` (106 linhas) - Notificações push
+  - `index.ts` (45 linhas) - Orquestração das rotas
+- Redução de 4300 para 1723 linhas totais, melhorando manutenibilidade e organização
 
 ## User Preferences
 

@@ -69,7 +69,7 @@ export function setupPaymentRoutes(app: Express) {
   });
 
   // Stripe webhook handler
-  app.post("/api/payments/stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+  app.post("/api/payments/stripe/webhook", async (req, res) => {
     const sig = req.headers['stripe-signature'] as string;
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
