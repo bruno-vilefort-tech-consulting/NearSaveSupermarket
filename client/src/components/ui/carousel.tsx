@@ -40,9 +40,9 @@ function useCarousel() {
   return context
 }
 
-const Carousel = React.forwardRef<
+const Carousel = forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & CarouselProps
+  HTMLAttributes<HTMLDivElement> & CarouselProps
 >(
   (
     {
@@ -63,10 +63,10 @@ const Carousel = React.forwardRef<
       },
       plugins
     )
-    const [canScrollPrev, setCanScrollPrev] = React.useState(false)
-    const [canScrollNext, setCanScrollNext] = React.useState(false)
+    const [canScrollPrev, setCanScrollPrev] = useState(false)
+    const [canScrollNext, setCanScrollNext] = useState(false)
 
-    const onSelect = React.useCallback((api: CarouselApi) => {
+    const onSelect = useCallback((api: CarouselApi) => {
       if (!api) {
         return
       }
@@ -221,9 +221,9 @@ const CarouselPrevious = forwardRef<
 })
 CarouselPrevious.displayName = "CarouselPrevious"
 
-const CarouselNext = React.forwardRef<
+const CarouselNext = forwardRef<
   HTMLButtonElement,
-  React.ComponentProps<typeof Button>
+  ComponentProps<typeof Button>
 >(({ className, variant = "outline", size = "icon", ...props }, ref) => {
   const { orientation, scrollNext, canScrollNext } = useCarousel()
 
