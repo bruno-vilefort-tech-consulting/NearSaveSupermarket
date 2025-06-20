@@ -2,20 +2,22 @@ import webpush from 'web-push';
 import { storage } from './storage';
 
 // Configuração do web-push com chaves VAPID
-if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
-  console.warn('⚠️ VAPID keys not configured. Push notifications will be disabled.');
-}
-
 const vapidKeys = {
   publicKey: process.env.VAPID_PUBLIC_KEY || '',
   privateKey: process.env.VAPID_PRIVATE_KEY || ''
 };
 
-webpush.setVapidDetails(
-  'mailto:eco-supermarket@example.com',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-);
+// Só configura VAPID se as chaves estiverem disponíveis
+if (vapidKeys.publicKey && vapidKeys.privateKey) {
+  webpush.setVapidDetails(
+    'mailto:admin@saveup.com',
+    vapidKeys.publicKey,
+    vapidKeys.privateKey
+  );
+  console.log('✅ VAPID keys configured for push notifications');
+} else {
+  console.warn('⚠️ VAPID keys not configured. Push notifications will be disabled.');
+}
 
 export interface PushNotificationPayload {
   title: string;
@@ -31,7 +33,13 @@ export async function sendPushNotification(
   payload: PushNotificationPayload
 ): Promise<boolean> {
   try {
-    const subscriptions = await storage.getPushSubscriptionsByEmail(customerEmail);
+    // Check if VAPID keys are configured
+    if (!vapidKeys.publicKey || !vapidKeys.privateKey) {
+      console.warn('VAPID keys not configured. Skipping push notification.');
+      return false;
+    }
+
+    const subscriptions = await storage.getPushSubscriptions(customerEmail);
     
     if (subscriptions.length === 0) {
       console.log(`Nenhuma subscrição encontrada para ${customerEmail}`);
