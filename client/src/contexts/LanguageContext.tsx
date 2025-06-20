@@ -23,7 +23,6 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     localStorage.removeItem('en-US-cache');
     localStorage.removeItem('language-cache');
     setLanguageState('pt-BR');
-    console.log('🔧 FORÇANDO IDIOMA PORTUGUÊS NO CONTEXTO');
   }, []);
 
   // Save language to localStorage when it changes
