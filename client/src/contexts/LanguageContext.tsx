@@ -1,52 +1,50 @@
+// Contexto de idioma ultra-simples para resolver problemas de importação
 import * as React from 'react';
 import { Language, getTranslation, TranslationKeys } from '@shared/translations';
 
+// Definições de tipos
 interface LanguageContextType {
   language: Language;
   setLanguage: (language: Language) => void;
   t: (key: keyof TranslationKeys) => string;
 }
 
-const LanguageContext = React.createContext<LanguageContextType | undefined>(undefined);
+// Contexto simples
+const LanguageContext = React.createContext<LanguageContextType>({
+  language: 'pt-BR',
+  setLanguage: () => { },
+  t: (key) => key as string,
+});
 
+// Propriedades do provider
 interface LanguageProviderProps {
   children: React.ReactNode;
 }
 
+// Provider ultra-simples
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  // Usando uma constante fixa para evitar problemas com hooks
-  const language: Language = 'pt-BR';
+  const value: LanguageContextType = {
+    language: 'pt-BR',
+    setLanguage: (newLanguage: Language) => {
+      localStorage.setItem('app-language', newLanguage);
+      console.log('🔧 Idioma definido para:', newLanguage);
+    },
+    t: (key: keyof TranslationKeys): string => {
+      return getTranslation(key, 'pt-BR');
+    },
+  };
 
-  const setLanguage = React.useCallback((newLanguage: Language) => {
-    // Apenas salva no localStorage sem estado React
-    localStorage.setItem('app-language', newLanguage);
-    console.log('🔧 Idioma definido para:', newLanguage);
-  }, []);
-
-  // Função de tradução
-  const t = React.useCallback((key: keyof TranslationKeys): string => {
-    return getTranslation(key, language);
-  }, [language]);
-
-  const value = React.useMemo<LanguageContextType>(() => ({
-    language,
-    setLanguage,
-    t,
-  }), [language, setLanguage, t]);
-
-  return (
-    <LanguageContext.Provider value={value}>
-      {children}
-    </LanguageContext.Provider>
+  return React.createElement(
+    LanguageContext.Provider,
+    { value },
+    children
   );
 }
 
-export function useLanguage() {
-  const context = React.useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
+// Hook de uso
+export function useLanguage(): LanguageContextType {
+  return React.useContext(LanguageContext);
 }
 
+// Compatibilidade
 export const useLanguageGlobal = useLanguage; 
