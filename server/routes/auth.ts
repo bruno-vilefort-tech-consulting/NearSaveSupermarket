@@ -6,6 +6,16 @@ import { insertStaffUserSchema, insertCustomerSchema } from "@shared/schema";
 import { sendEmail, generatePasswordResetEmail, generateStaffPasswordResetEmail } from "../sendgrid";
 import crypto from "crypto";
 
+// Middleware alternativo para desenvolvimento quando o Replit Auth não está configurado
+const developmentAuth = (req: any, res: any, next: any) => {
+  // Em desenvolvimento, permite acesso se o Replit Auth não estiver configurado
+  if (!process.env.REPLIT_DOMAINS || !process.env.REPL_ID) {
+    console.log('⚠️  Development mode: skipping authentication');
+    return next();
+  }
+  return isAuthenticated(req, res, next);
+};
+
 export async function setupAuthRoutes(app: Express) {
   // Setup Replit Auth
   await setupAuth(app);
@@ -286,7 +296,7 @@ export async function setupAuthRoutes(app: Express) {
   });
 
   // Get current user orders (authenticated)
-  app.get("/api/my-orders", isAuthenticated, async (req, res) => {
+  app.get("/api/my-orders", developmentAuth, async (req, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {

@@ -1,6 +1,10 @@
+import dotenv from "dotenv";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes/index";
 import { setupVite, serveStatic, log } from "./vite";
+
+// Carrega as variáveis de ambiente do arquivo .env
+dotenv.config();
 
 const app = express();
 app.use(express.json());
