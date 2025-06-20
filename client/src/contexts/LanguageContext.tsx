@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import * as React from 'react';
 import { Language, getTranslation, TranslationKeys } from '@shared/translations';
 
 interface LanguageContextType {
@@ -7,41 +7,32 @@ interface LanguageContextType {
   t: (key: keyof TranslationKeys) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = React.createContext<LanguageContextType | undefined>(undefined);
 
 interface LanguageProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguageState] = useState<Language>('pt-BR');
+  // Usando uma constante fixa para evitar problemas com hooks
+  const language: Language = 'pt-BR';
 
-  // Force Portuguese language always
-  useEffect(() => {
-    // Force Portuguese and clear any English cache
-    localStorage.setItem('app-language', 'pt-BR');
-    localStorage.removeItem('en-US-cache');
-    localStorage.removeItem('language-cache');
-    setLanguageState('pt-BR');
-    console.log('🔧 FORÇANDO IDIOMA PORTUGUÊS NO CONTEXTO');
+  const setLanguage = React.useCallback((newLanguage: Language) => {
+    // Apenas salva no localStorage sem estado React
+    localStorage.setItem('app-language', newLanguage);
+    console.log('🔧 Idioma definido para:', newLanguage);
   }, []);
 
-  // Save language to localStorage when it changes
-  const setLanguage = (newLanguage: Language) => {
-    setLanguageState(newLanguage);
-    localStorage.setItem('app-language', newLanguage);
-  };
-
-  // Translation function
-  const t = (key: keyof TranslationKeys): string => {
+  // Função de tradução
+  const t = React.useCallback((key: keyof TranslationKeys): string => {
     return getTranslation(key, language);
-  };
+  }, [language]);
 
-  const value: LanguageContextType = {
+  const value = React.useMemo<LanguageContextType>(() => ({
     language,
     setLanguage,
     t,
-  };
+  }), [language, setLanguage, t]);
 
   return (
     <LanguageContext.Provider value={value}>
@@ -51,12 +42,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 }
 
 export function useLanguage() {
-  const context = useContext(LanguageContext);
+  const context = React.useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
 }
 
-// Keep backwards compatibility
-export const useLanguageGlobal = useLanguage;
+export const useLanguageGlobal = useLanguage; 

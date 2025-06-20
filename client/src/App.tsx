@@ -58,14 +58,14 @@ function Router() {
     <Switch>
       {/* Default route - Customer Landing */}
       <Route path="/" component={CustomerLanding} />
-      
+
       {/* Customer Authentication Routes */}
       <Route path="/login" component={Login} />
       <Route path="/register" component={CustomerRegister} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/customer/reset-password" component={ResetPassword} />
-      
+
       {/* Customer App Routes */}
       <Route path="/customer" component={CustomerHome} />
       <Route path="/customer/products" component={CustomerHome} />
@@ -85,7 +85,7 @@ function Router() {
       <Route path="/orders" component={CustomerOrders} />
       <Route path="/eco-rewards" component={EcoRewards} />
       <Route path="/eco-points" component={EcoPoints} />
-      
+
       {/* Staff App Routes */}
       <Route path="/staff" component={StaffLanding} />
       <Route path="/staff/login" component={StaffLogin} />
@@ -94,7 +94,7 @@ function Router() {
       <Route path="/staff/products" component={StaffProducts} />
       <Route path="/staff/orders" component={StaffOrders} />
       <Route path="/staff/settings" component={StaffSettings} />
-      
+
       {/* Staff App Routes (Brazilian Portuguese URLs) */}
       <Route path="/supermercado" component={StaffLanding} />
       <Route path="/supermercado/login" component={StaffLogin} />
@@ -112,7 +112,7 @@ function Router() {
       <Route path="/supermercado/marketing/confirmacao/:planId" component={MarketingConfirmation} />
       <Route path="/supermercado/gestao-financeira" component={ValorAReceber} />
       <Route path="/supermercado/gestao-financeira/valor-a-receber" component={ValorAReceberDetalhes} />
-      
+
       {/* Admin App Routes */}
       <Route path="/admin" component={AdminLogin} />
       <Route path="/admin/login" component={AdminLogin} />
@@ -120,7 +120,7 @@ function Router() {
       <Route path="/admin/supermarkets" component={AdminSupermarkets} />
       <Route path="/admin/financial-statement" component={AdminFinancialStatement} />
       <Route path="/admin/supermarket-payments" component={SupermarketPayments} />
-      
+
       {/* Friendly Routes */}
       <Route path="/cliente" component={CustomerLanding} />
       <Route path="/supermercado" component={StaffLanding} />
@@ -128,13 +128,13 @@ function Router() {
       <Route path="/supermercado/login" component={StaffLogin} />
       <Route path="/supermercado/dashboard" component={StaffDashboard} />
       <Route path="/administrador" component={AdminLogin} />
-      
+
       {/* Terms and Conditions - Public access */}
       <Route path="/terms" component={Terms} />
       <Route path="/terms-and-conditions" component={TermsAndConditions} />
       <Route path="/access-links" component={AccessLinks} />
       <Route path="/teste-pwa" component={TestePWA} />
-      
+
       <Route component={NotFound} />
     </Switch>
   );
