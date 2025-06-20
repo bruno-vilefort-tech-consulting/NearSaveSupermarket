@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bell, Smartphone, CheckCircle, AlertCircle } from 'lucide-react';
@@ -10,7 +10,7 @@ interface MobileNotificationPromptProps {
 }
 
 export function MobileNotificationPrompt({ userEmail, onPermissionResult }: MobileNotificationPromptProps) {
-  const [permissionStep, setPermissionStep] = useState<'initial' | 'requesting' | 'completed'>('initial');
+  const [permissionStep, setPermissionStep] = React.useState<'initial' | 'requesting' | 'completed'>('initial');
   const { subscribeToPushNotifications, isLoading, checkBrowserSupport } = usePushNotifications();
 
   const requestNotificationPermission = async () => {

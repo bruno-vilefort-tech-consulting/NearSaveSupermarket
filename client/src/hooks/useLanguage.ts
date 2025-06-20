@@ -1,8 +1,11 @@
-import { useLanguageGlobal } from '@/contexts/LanguageContext';
+// import { useLanguageGlobal } from '@/contexts/LanguageContext';
 import { getAvailableLanguages } from '@shared/translations';
 
 export function useLanguage() {
-  const { language, setLanguage, t } = useLanguageGlobal();
+  // Temporary fallback while fixing React import issue
+  const language = 'pt-BR';
+  const setLanguage = () => {};
+  const t = (key: string) => key;
   const availableLanguages = getAvailableLanguages();
 
   return {

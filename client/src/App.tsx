@@ -144,12 +144,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Router />
-          <PWAInstallPrompt />
-        </TooltipProvider>
-      </LanguageProvider>
+      <TooltipProvider>
+        <Router />
+        <PWAInstallPrompt />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }
