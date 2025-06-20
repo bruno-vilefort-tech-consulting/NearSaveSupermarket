@@ -142,7 +142,9 @@ SESSION_SECRET=...
 ## Changelog
 
 - June 20, 2025: Initial setup
-- June 20, 2025: Otimização da arquitetura do servidor - Dividido arquivo routes.ts de 4300 linhas em 8 módulos organizados por contexto:
+- June 20, 2025: Otimização completa da arquitetura do servidor:
+  
+  **Modularização de Rotas** - Dividido arquivo routes.ts de 4300 linhas em 8 módulos:
   - `auth.ts` (311 linhas) - Autenticação e registro de usuários
   - `products.ts` (268 linhas) - Gestão de produtos e uploads
   - `orders.ts` (223 linhas) - Processamento de pedidos
@@ -151,7 +153,16 @@ SESSION_SECRET=...
   - `staff.ts` (269 linhas) - Gestão de supermercados
   - `push.ts` (106 linhas) - Notificações push
   - `index.ts` (45 linhas) - Orquestração das rotas
-- Redução de 4300 para 1723 linhas totais, melhorando manutenibilidade e organização
+  - Redução de 4300 para 1723 linhas totais
+  
+  **Modularização de Storage** - Dividido arquivo storage.ts de 2286 linhas em 6 módulos:
+  - `users.ts` (263 linhas) - Operações de usuários, staff e clientes
+  - `products.ts` (215 linhas) - Gestão de produtos e inventário
+  - `orders.ts` (387 linhas) - Processamento de pedidos e itens
+  - `analytics.ts` (544 linhas) - Estatísticas e relatórios financeiros
+  - `misc.ts` (218 linhas) - Tokens, notificações push e ações eco
+  - `index.ts` (487 linhas) - Interface unificada e orquestração
+  - Redução de 2286 para 2114 linhas totais com melhor organização
 
 ## User Preferences
 
