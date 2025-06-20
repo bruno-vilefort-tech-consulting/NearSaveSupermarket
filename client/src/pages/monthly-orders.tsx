@@ -65,7 +65,7 @@ export default function MonthlyOrders() {
     queryKey: ['/api/staff/monthly-orders'],
     enabled: !!staffUser?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: false, // Disabled for better performance
+    refetchInterval: 30000, // Refresh every 30 seconds
     queryFn: async () => {
       const response = await fetch('/api/staff/monthly-orders', {
         headers: {

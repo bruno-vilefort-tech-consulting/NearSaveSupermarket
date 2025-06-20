@@ -1,3 +1,4 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Language, getTranslation, TranslationKeys } from '@shared/translations';
 
 interface LanguageContextType {
@@ -6,24 +7,56 @@ interface LanguageContextType {
   t: (key: keyof TranslationKeys) => string;
 }
 
-// Simple implementation without React context to avoid hook issues
-const languageState: { current: Language } = { current: 'pt-BR' };
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+interface LanguageProviderProps {
+  children: ReactNode;
 }
 
-export function useLanguageGlobal(): LanguageContextType {
-  return {
-    language: 'pt-BR',
-    setLanguage: (newLanguage: Language) => {
-      languageState.current = newLanguage;
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('app-language', newLanguage);
-      }
-    },
-    t: (key: keyof TranslationKeys): string => {
-      return getTranslation(key, languageState.current);
-    },
+export function LanguageProvider({ children }: LanguageProviderProps) {
+  const [language, setLanguageState] = useState<Language>('pt-BR');
+
+  // Force Portuguese language always
+  useEffect(() => {
+    // Force Portuguese and clear any English cache
+    localStorage.setItem('app-language', 'pt-BR');
+    localStorage.removeItem('en-US-cache');
+    localStorage.removeItem('language-cache');
+    setLanguageState('pt-BR');
+    console.log('🔧 FORÇANDO IDIOMA PORTUGUÊS NO CONTEXTO');
+  }, []);
+
+  // Save language to localStorage when it changes
+  const setLanguage = (newLanguage: Language) => {
+    setLanguageState(newLanguage);
+    localStorage.setItem('app-language', newLanguage);
   };
+
+  // Translation function
+  const t = (key: keyof TranslationKeys): string => {
+    return getTranslation(key, language);
+  };
+
+  const value: LanguageContextType = {
+    language,
+    setLanguage,
+    t,
+  };
+
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
 }
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+}
+
+// Keep backwards compatibility
+export const useLanguageGlobal = useLanguage;

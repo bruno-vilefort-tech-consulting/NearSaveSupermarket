@@ -2,58 +2,42 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SaveUp - Supermercado Sustentável</title>
+    <meta name="cache-version" content="v2025-cart-portuguese" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="SaveUp" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="SaveUp" />
     <meta name="description" content="Supermercado online sustentável com economia e responsabilidade ambiental" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    <meta name="msapplication-TileColor" content="#22c55e" />
+    <meta name="msapplication-tap-highlight" content="no" />
     <meta name="theme-color" content="#22c55e" />
+    
+    <!-- Manifest -->
     <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" href="/icons/icon-192x192.svg" />
-    <script type="module" src="/src/main.tsx"></script>
-    <style>
-      /* Fallback styles for deployment */
-      #root:empty::after {
-        content: "SaveUp - Carregando...";
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        font-family: system-ui, sans-serif;
-        font-size: 1.5rem;
-        color: #22c55e;
-        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-      }
-      body { margin: 0; }
-    </style>
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.svg" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.svg" />
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/icons/icon-72x72.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="/icons/icon-72x72.svg" />
+    <link rel="shortcut icon" href="/icons/icon-72x72.svg" />
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      // Force React mounting with error recovery
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          const root = document.getElementById('root');
-          if (!root || !root.hasChildNodes()) {
-            console.log('Forcing React app initialization');
-            if (window.React && window.ReactDOM) {
-              // Try to manually initialize if React is loaded
-              window.ReactDOM.render(
-                window.React.createElement('div', {
-                  style: { 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    height: '100vh',
-                    fontFamily: 'system-ui, sans-serif',
-                    fontSize: '1.5rem',
-                    color: '#22c55e'
-                  }
-                }, 'SaveUp - Sistema Funcionando'),
-                root
-              );
-            }
-          }
-        }, 2000);
-      });
-    </script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

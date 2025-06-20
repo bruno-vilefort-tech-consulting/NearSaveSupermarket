@@ -91,7 +91,7 @@ function StaffOrders() {
       return response.json();
     },
     enabled: !!staffUser?.id,
-    refetchInterval: false, // Disabled for better performance
+    refetchInterval: 5000, // Atualiza a cada 5 segundos
   });
 
   // Função para tocar o som de notificação
