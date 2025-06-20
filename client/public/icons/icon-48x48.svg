@@ -1,0 +1,22 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo com bordas arredondadas -->
+  <rect width="48" height="48" rx="6" fill="#22c55e"/>
+  
+  <!-- Ícone do carrinho sustentável -->
+  <g transform="translate(24, 24)">
+    <!-- Base do carrinho -->
+    <rect x="-7.68" y="-5.76" width="15.36" height="11.52" rx="1.44" fill="white" stroke="none"/>
+    
+    <!-- Alça do carrinho -->
+    <path d="M -6.72 -5.76 L -6.72 -8.64 Q -6.72 -9.6 -5.76 -9.6 L 5.76 -9.6 Q 6.72 -9.6 6.72 -8.64 L 6.72 -5.76" 
+          stroke="white" stroke-width="2" fill="none"/>
+    
+    <!-- Folha eco (símbolo sustentável) -->
+    <ellipse cx="0" cy="-0.96" rx="3.84" ry="2.88" fill="#22c55e"/>
+    <path d="M -1.92 -2.4 Q 0 -3.84 1.92 -2.4 Q 0 -0.96 -1.92 -2.4" fill="white"/>
+    
+    <!-- Rodas do carrinho -->
+    <circle cx="-3.84" cy="5.76" r="1.44" fill="white"/>
+    <circle cx="3.84" cy="5.76" r="1.44" fill="white"/>
+  </g>
+</svg>

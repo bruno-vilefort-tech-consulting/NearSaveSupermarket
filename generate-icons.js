@@ -11,21 +11,37 @@ if (!fs.existsSync(iconsDir)) {
   fs.mkdirSync(iconsDir, { recursive: true });
 }
 
-// SVG base do SaveUp
-const createSaveUpIcon = (size) => `
-<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="${size}" height="${size}" rx="${size/4.5}" fill="#22c55e"/>
-  <g transform="translate(${size*0.167}, ${size*0.167}) scale(${size/72})">
-    <!-- Carrinho de compras -->
-    <path d="M7 4V2C7 1.44772 7.44772 1 8 1H16C16.5523 1 17 1.44772 17 2V4H19C19.5523 4 20 4.44772 20 5C20 5.55228 19.5523 6 19 6H17V19C17 20.6569 15.6569 22 14 22H10C8.34315 22 7 20.6569 7 19V6H5C4.44772 6 4 5.55228 4 5C4 4.44772 4.44772 4 5 4H7Z" fill="white"/>
-    <!-- Folha eco -->
-    <path d="M9 10.5V8.5C9 8.22386 9.22386 8 9.5 8H14.5C14.7761 8 15 8.22386 15 8.5V10.5C15 10.7761 14.7761 11 14.5 11H9.5C9.22386 11 9 10.7761 9 10.5Z" fill="#22c55e"/>
-    <path d="M9 14.5V12.5C9 12.2239 9.22386 12 9.5 12H12.5C12.7761 12 13 12.2239 13 12.5V14.5C13 14.7761 12.7761 15 12.5 15H9.5C9.22386 15 9 14.7761 9 14.5Z" fill="#22c55e"/>
+// SVG otimizado do SaveUp com melhor definição
+const createSaveUpIcon = (size) => {
+  const strokeWidth = Math.max(1, size / 64); // Largura proporcional
+  const iconScale = size / 100; // Escala base
+  
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo com bordas arredondadas -->
+  <rect width="${size}" height="${size}" rx="${size/8}" fill="#22c55e"/>
+  
+  <!-- Ícone do carrinho sustentável -->
+  <g transform="translate(${size/2}, ${size/2})">
+    <!-- Base do carrinho -->
+    <rect x="-${16*iconScale}" y="-${12*iconScale}" width="${32*iconScale}" height="${24*iconScale}" rx="${3*iconScale}" fill="white" stroke="none"/>
+    
+    <!-- Alça do carrinho -->
+    <path d="M -${14*iconScale} -${12*iconScale} L -${14*iconScale} -${18*iconScale} Q -${14*iconScale} -${20*iconScale} -${12*iconScale} -${20*iconScale} L ${12*iconScale} -${20*iconScale} Q ${14*iconScale} -${20*iconScale} ${14*iconScale} -${18*iconScale} L ${14*iconScale} -${12*iconScale}" 
+          stroke="white" stroke-width="${strokeWidth*2}" fill="none"/>
+    
+    <!-- Folha eco (símbolo sustentável) -->
+    <ellipse cx="0" cy="-${2*iconScale}" rx="${8*iconScale}" ry="${6*iconScale}" fill="#22c55e"/>
+    <path d="M -${4*iconScale} -${5*iconScale} Q 0 -${8*iconScale} ${4*iconScale} -${5*iconScale} Q 0 -${2*iconScale} -${4*iconScale} -${5*iconScale}" fill="white"/>
+    
+    <!-- Rodas do carrinho -->
+    <circle cx="-${8*iconScale}" cy="${12*iconScale}" r="${3*iconScale}" fill="white"/>
+    <circle cx="${8*iconScale}" cy="${12*iconScale}" r="${3*iconScale}" fill="white"/>
   </g>
 </svg>`;
+};
 
-// Tamanhos necessários para PWA
-const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+// Tamanhos necessários para PWA e favicon
+const sizes = [16, 32, 48, 72, 96, 128, 144, 152, 192, 256, 384, 512];
 
 // Gerar SVGs para cada tamanho
 sizes.forEach(size => {
@@ -34,8 +50,16 @@ sizes.forEach(size => {
   const filepath = path.join(iconsDir, filename);
   
   fs.writeFileSync(filepath, svgContent);
-  console.log(`Criado: ${filename}`);
+  console.log(`✅ Criado: ${filename}`);
 });
 
-console.log('Todos os ícones SVG foram gerados com sucesso!');
-console.log('Agora você pode converter os SVGs para PNG usando um conversor online ou ferramentas como ImageMagick.');
+// Criar favicon.svg especial para a raiz
+const faviconSvg = createSaveUpIcon(32);
+fs.writeFileSync(path.join(__dirname, 'favicon.svg'), faviconSvg);
+fs.writeFileSync(path.join(__dirname, 'client', 'public', 'favicon.svg'), faviconSvg);
+
+console.log('🎉 Todos os ícones SVG foram gerados com sucesso!');
+console.log('📝 Próximos passos:');
+console.log('1. Execute: npm install sharp (se não tiver)');
+console.log('2. Execute: node convert-icons.js (criar este script)');
+console.log('3. Ou use um conversor online para SVG → PNG');
